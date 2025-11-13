@@ -151,6 +151,18 @@ All colors MUST be HSL.
     @apply bg-primary/50;
   }
 
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(var(--background), 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Smooth video transitions */
+  video {
+    transition: opacity 2s ease-in-out;
+  }
+
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;

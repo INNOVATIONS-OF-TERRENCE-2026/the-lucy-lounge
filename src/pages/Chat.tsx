@@ -5,6 +5,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
+import { BackgroundVideo } from "@/components/background/BackgroundVideo";
+import { VideoControls } from "@/components/background/VideoControls";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -12,6 +14,34 @@ const Chat = () => {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  
+  // Background video state
+  const [videoTheme, setVideoTheme] = useState('nature');
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(true);
+
+  // Load video preferences
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('lucy-bg-theme');
+    const savedMuted = localStorage.getItem('lucy-bg-muted');
+    if (savedTheme) setVideoTheme(savedTheme);
+    if (savedMuted) setIsVideoMuted(savedMuted === 'true');
+  }, []);
+
+  const handleThemeChange = (theme: string) => {
+    setVideoTheme(theme);
+    localStorage.setItem('lucy-bg-theme', theme);
+  };
+
+  const toggleVideoPause = () => {
+    setIsVideoPaused(!isVideoPaused);
+  };
+
+  const toggleVideoMute = () => {
+    const newMuted = !isVideoMuted;
+    setIsVideoMuted(newMuted);
+    localStorage.setItem('lucy-bg-muted', String(newMuted));
+  };
 
   useEffect(() => {
     // Check authentication
@@ -48,20 +78,37 @@ const Chat = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-subtle">
-        <ChatSidebar 
-          userId={user?.id}
-          currentConversationId={currentConversationId}
-          onConversationSelect={setCurrentConversationId}
-        />
-        <ChatInterface 
-          userId={user?.id}
-          conversationId={currentConversationId}
-          onConversationCreated={setCurrentConversationId}
-        />
-      </div>
-    </SidebarProvider>
+    <>
+      <BackgroundVideo 
+        theme={videoTheme}
+        isPaused={isVideoPaused}
+        isMuted={isVideoMuted}
+      />
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full relative">
+          <ChatSidebar 
+            userId={user?.id}
+            currentConversationId={currentConversationId}
+            onConversationSelect={setCurrentConversationId}
+            videoControls={
+              <VideoControls
+                isPaused={isVideoPaused}
+                isMuted={isVideoMuted}
+                currentTheme={videoTheme}
+                onTogglePause={toggleVideoPause}
+                onToggleMute={toggleVideoMute}
+                onChangeTheme={handleThemeChange}
+              />
+            }
+          />
+          <ChatInterface 
+            userId={user?.id}
+            conversationId={currentConversationId}
+            onConversationCreated={setCurrentConversationId}
+          />
+        </div>
+      </SidebarProvider>
+    </>
   );
 };
 

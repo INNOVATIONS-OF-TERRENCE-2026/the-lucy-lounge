@@ -265,9 +265,9 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen">
+    <main className="flex-1 flex flex-col h-screen relative">
       {/* Header */}
-      <header className="h-16 border-b border-border/50 flex items-center justify-between px-6 glass backdrop-blur-xl">
+      <header className="h-16 border-b border-border/50 flex items-center justify-between px-6 backdrop-blur-xl bg-background/60">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center animate-neural-pulse">
@@ -348,7 +348,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-border/50 p-6 glass backdrop-blur-xl">
+      <div className="border-t border-border/50 p-6 backdrop-blur-xl bg-background/60">
         <div className="max-w-4xl mx-auto space-y-3">
           <FileUploadZone
             selectedFiles={selectedFiles}

@@ -37,9 +37,10 @@ interface ChatSidebarProps {
   userId: string;
   currentConversationId: string | null;
   onConversationSelect: (id: string) => void;
+  videoControls?: React.ReactNode;
 }
 
-export function ChatSidebar({ userId, currentConversationId, onConversationSelect }: ChatSidebarProps) {
+export function ChatSidebar({ userId, currentConversationId, onConversationSelect, videoControls }: ChatSidebarProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [conversations, setConversations] = useState<any[]>([]);
@@ -153,7 +154,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   );
 
   return (
-    <Sidebar className="border-r border-border/50">
+    <Sidebar className="border-r border-border/50 backdrop-blur-sm bg-background/50">
       <SidebarHeader className="p-4 border-b border-border/50">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center animate-neural-pulse">
@@ -257,6 +258,11 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-border/50 space-y-2">
+        {videoControls && (
+          <div className="pb-2 border-b border-border/50">
+            {videoControls}
+          </div>
+        )}
         {isAdmin && (
           <Button
             variant="outline"
