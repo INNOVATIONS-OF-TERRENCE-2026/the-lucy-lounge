@@ -96,6 +96,7 @@ export type Database = {
         Row: {
           archived: boolean
           created_at: string
+          folder_id: string | null
           id: string
           pinned: boolean
           tags: string[] | null
@@ -106,6 +107,7 @@ export type Database = {
         Insert: {
           archived?: boolean
           created_at?: string
+          folder_id?: string | null
           id?: string
           pinned?: boolean
           tags?: string[] | null
@@ -116,11 +118,53 @@ export type Database = {
         Update: {
           archived?: boolean
           created_at?: string
+          folder_id?: string | null
           id?: string
           pinned?: boolean
           tags?: string[] | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          position: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -132,7 +176,10 @@ export type Database = {
           created_at: string
           id: string
           metadata: Json | null
+          model_used: string | null
           role: string
+          search_vector: unknown
+          tokens_used: number | null
         }
         Insert: {
           content: string
@@ -140,7 +187,10 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          model_used?: string | null
           role: string
+          search_vector?: unknown
+          tokens_used?: number | null
         }
         Update: {
           content?: string
@@ -148,7 +198,10 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          model_used?: string | null
           role?: string
+          search_vector?: unknown
+          tokens_used?: number | null
         }
         Relationships: [
           {
@@ -167,6 +220,7 @@ export type Database = {
           email: string
           id: string
           name: string | null
+          preferences: Json | null
           updated_at: string
         }
         Insert: {
@@ -175,6 +229,7 @@ export type Database = {
           email: string
           id: string
           name?: string | null
+          preferences?: Json | null
           updated_at?: string
         }
         Update: {
@@ -183,6 +238,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string | null
+          preferences?: Json | null
           updated_at?: string
         }
         Relationships: []
