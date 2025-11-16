@@ -152,7 +152,83 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     }
 
     setSelectedFiles([]);
+    setUploadedAttachments(attachments);
     return attachments;
+  };
+
+  const analyzeMultimodal = async (attachmentIds: string[]) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/multimodal-analysis`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ attachmentIds }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 429 || response.status === 402) {
+          toast({
+            title: "Analysis temporarily unavailable",
+            description: errorData.error,
+            variant: "destructive",
+          });
+        }
+        return null;
+      }
+
+      const data = await response.json();
+      return data.analysis;
+    } catch (error) {
+      console.error('Multimodal analysis error:', error);
+      return null;
+    }
+  };
+
+  const processStreamingResponse = async (response: Response, convId: string) => {
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let fullResponse = "";
+
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullResponse += content;
+                setStreamingMessage(fullResponse);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+    }
+
+    // Save assistant message
+    if (fullResponse) {
+      await saveMessage(convId, 'assistant', fullResponse);
+      setStreamingMessage("");
+    }
   };
 
   const handleSend = async () => {
@@ -183,8 +259,45 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         .single();
 
       // Upload files if any
+      let attachments: any[] = [];
       if (selectedFiles.length > 0 && userMsgData) {
-        await uploadFiles(convId, userMsgData.id);
+        attachments = await uploadFiles(convId, userMsgData.id);
+        
+        // Trigger multimodal analysis for uploaded files
+        if (attachments.length > 0) {
+          const attachmentIds = attachments.map(a => a.id);
+          const analysis = await analyzeMultimodal(attachmentIds);
+          
+          if (analysis) {
+            // Prepend analysis to user message for AI context
+            const enhancedMessage = `[Lucy's Multimodal Analysis]\n${analysis}\n\n[User Message]\n${userMessage || 'Please analyze the uploaded files.'}`;
+            
+            // Call streaming edge function with enhanced context
+            const endpoint = selectedModel || fusionEnabled ? 'model-router' : 'chat-stream';
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                },
+                body: JSON.stringify({
+                  messages: [...messages.map(m => ({ role: m.role, content: m.content })), { role: 'user', content: enhancedMessage }],
+                  preferredModel: selectedModel,
+                  enableFusion: fusionEnabled,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error('Failed to get AI response');
+            }
+
+            await processStreamingResponse(response, convId);
+            return;
+          }
+        }
       }
 
       // Call streaming edge function (use model-router for advanced features)
@@ -209,43 +322,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         throw new Error('Failed to get AI response');
       }
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = "";
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices?.[0]?.delta?.content;
-                if (content) {
-                  fullResponse += content;
-                  setStreamingMessage(fullResponse);
-                }
-              } catch (e) {
-                // Skip invalid JSON
-              }
-            }
-          }
-        }
-      }
-
-      // Save assistant message
-      if (fullResponse) {
-        await saveMessage(convId, 'assistant', fullResponse);
-        setStreamingMessage("");
-      }
+      await processStreamingResponse(response, convId);
 
     } catch (error: any) {
       toast({

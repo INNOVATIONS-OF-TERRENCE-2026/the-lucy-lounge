@@ -31,6 +31,8 @@ export function FilePreview({ attachments }: FilePreviewProps) {
     <div className="mt-2 space-y-2">
       {attachments.map((attachment) => {
         const isImage = attachment.file_type.startsWith('image/');
+        const isVideo = attachment.file_type.startsWith('video/');
+        const isAudio = attachment.file_type.startsWith('audio/');
         const publicUrl = getPublicUrl(attachment.file_path);
 
         if (isImage) {
@@ -47,6 +49,43 @@ export function FilePreview({ attachments }: FilePreviewProps) {
                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Button size="sm" variant="secondary">
+                  <Download className="w-4 h-4" />
+                </Button>
+              </a>
+            </div>
+          );
+        }
+
+        if (isVideo) {
+          return (
+            <div key={attachment.id} className="group relative max-w-md">
+              <video
+                src={publicUrl}
+                controls
+                className="w-full rounded-lg border border-border"
+              />
+              <a
+                href={publicUrl}
+                download={attachment.file_name}
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Button size="sm" variant="secondary">
+                  <Download className="w-4 h-4" />
+                </Button>
+              </a>
+            </div>
+          );
+        }
+
+        if (isAudio) {
+          return (
+            <div key={attachment.id} className="flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-lg border border-border">
+              <div className="flex-1">
+                <audio src={publicUrl} controls className="w-full" />
+                <p className="text-xs text-muted-foreground mt-1">{attachment.file_name} - {formatFileSize(attachment.file_size)}</p>
+              </div>
+              <a href={publicUrl} download={attachment.file_name}>
+                <Button size="sm" variant="ghost">
                   <Download className="w-4 h-4" />
                 </Button>
               </a>

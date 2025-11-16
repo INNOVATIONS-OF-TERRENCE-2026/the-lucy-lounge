@@ -43,10 +43,10 @@ serve(async (req) => {
       });
     }
 
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024;
+    // Validate file size (50MB max)
+    const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
-      return new Response(JSON.stringify({ error: 'File too large (max 10MB)' }), {
+      return new Response(JSON.stringify({ error: 'File too large (max 50MB)' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -54,7 +54,9 @@ serve(async (req) => {
 
     // Validate file type
     const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml',
+      'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm',
+      'audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/webm', 'audio/ogg',
       'application/pdf', 'text/plain', 'text/markdown',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/javascript', 'text/javascript', 'text/html', 'text/css',
