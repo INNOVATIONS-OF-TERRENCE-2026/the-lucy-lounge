@@ -174,7 +174,7 @@ const Auth = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+                  className="w-full bg-white text-primary hover:bg-white/95 font-semibold shadow-lg hover:shadow-xl transition-all border-2 border-white/20"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
@@ -226,7 +226,7 @@ const Auth = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+                  className="w-full bg-gradient-primary hover:opacity-95 transition-all shadow-lg hover:shadow-xl font-semibold border-2 border-white/20"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating account..." : "Create Account"}

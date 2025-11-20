@@ -32,3 +32,27 @@ verify_jwt = true
 
 [functions.analytics]
 verify_jwt = true
+
+[functions.multimodal-analysis]
+verify_jwt = true
+
+[functions.generate-image]
+verify_jwt = true
+
+[functions.reasoning-engine]
+verify_jwt = true
+
+[functions.tool-orchestrator]
+verify_jwt = true
+
+[functions.web-search]
+verify_jwt = true
+
+[functions.context-analyzer]
+verify_jwt = true
+
+[functions.code-executor]
+verify_jwt = true
+
+[functions.memory-manager]
+verify_jwt = true

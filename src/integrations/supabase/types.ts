@@ -182,6 +182,44 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_context: {
+        Row: {
+          context_summary: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          key_topics: string[] | null
+          updated_at: string
+          user_preferences: Json | null
+        }
+        Insert: {
+          context_summary?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          key_topics?: string[] | null
+          updated_at?: string
+          user_preferences?: Json | null
+        }
+        Update: {
+          context_summary?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          key_topics?: string[] | null
+          updated_at?: string
+          user_preferences?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_context_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           archived: boolean
@@ -365,6 +403,44 @@ export type Database = {
           video_quality?: string | null
         }
         Relationships: []
+      }
+      proactive_suggestions: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          relevance_score: number | null
+          shown: boolean | null
+          suggestion_text: string
+          suggestion_type: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          relevance_score?: number | null
+          shown?: boolean | null
+          suggestion_text: string
+          suggestion_type?: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          relevance_score?: number | null
+          shown?: boolean | null
+          suggestion_text?: string
+          suggestion_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proactive_suggestions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -585,6 +661,41 @@ export type Database = {
           },
         ]
       }
+      search_results: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string | null
+          query: string
+          results: Json | null
+          sources: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          query: string
+          results?: Json | null
+          sources?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          query?: string
+          results?: Json | null
+          sources?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_results_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shared_conversations: {
         Row: {
           conversation_id: string
@@ -665,6 +776,36 @@ export type Database = {
           tokens_used?: number
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_memories: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          importance_score: number | null
+          last_accessed: string | null
+          memory_type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          importance_score?: number | null
+          last_accessed?: string | null
+          memory_type?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          importance_score?: number | null
+          last_accessed?: string | null
+          memory_type?: string
+          user_id?: string
         }
         Relationships: []
       }
