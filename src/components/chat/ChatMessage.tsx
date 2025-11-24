@@ -4,6 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { FilePreview } from "./FilePreview";
+import { MessageReactions } from "./MessageReactions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,8 +21,14 @@ interface ChatMessageProps {
 export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get current user ID
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setUserId(session.user.id);
+    });
+
     if (message.id) {
       loadAttachments();
     }
@@ -107,6 +114,16 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
             <FilePreview attachments={attachments} />
           )}
         </div>
+
+        {/* Reactions - Only show for saved messages (not streaming) */}
+        {!isStreaming && message.id && userId && (
+          <MessageReactions 
+            messageId={message.id} 
+            userId={userId}
+            className="mt-2 px-1"
+          />
+        )}
+
         {!isUser && !isStreaming && (
           <p className="text-xs text-muted-foreground mt-2 px-1">
             {new Date(message.created_at).toLocaleTimeString()}

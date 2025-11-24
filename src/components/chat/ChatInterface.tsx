@@ -26,8 +26,12 @@ import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
 import { useReadingMode } from "@/hooks/useReadingMode";
 import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { ScrollToBottom } from "./ScrollToBottom";
+import { NewMessageDivider } from "./NewMessageDivider";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -42,7 +46,11 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUserMessage, setLastUserMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [streamingMessage, setStreamingMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedAttachments, setUploadedAttachments] = useState<any[]>([]);
@@ -53,12 +61,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [fusionEnabled, setFusionEnabled] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [toolResults, setToolResults] = useState<any>(null);
+  const [lastReadMessageIndex, setLastReadMessageIndex] = useState(-1);
   
   const { suggestedScene } = useSmartSceneSuggestion(conversationId);
   const { memories, storeMemory } = useMemoryManager(userId);
   const { analyzeContext } = useContextAnalyzer(conversationId);
   const { readingMode, setReadingMode, getSpacingClass } = useReadingMode();
   const { speed, setSpeed, getDelay } = useStreamingSpeed();
+  const { isNearBottom, showScrollButton, scrollToBottom } = useScrollDetection(chatContainerRef);
 
   useEffect(() => {
     if (conversationId) {
@@ -280,9 +290,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     if ((!input.trim() && selectedFiles.length === 0) || isLoading) return;
 
     const userMessage = input.trim();
+    setLastUserMessage(userMessage); // Store for retry
     setInput("");
     setIsLoading(true);
     setStreamingMessage("");
+    setError(null);
+    setLastReadMessageIndex(messages.length); // Track read position
 
     try {
       // Create conversation if needed
@@ -370,6 +383,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       await processStreamingResponse(response, convId);
 
     } catch (error: any) {
+      console.error('Error sending message:', error);
+      setError(error.message || 'Failed to send message');
       toast({
         title: "Error",
         description: error.message || "Failed to send message",
@@ -377,6 +392,16 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       });
     } finally {
       setIsLoading(false);
+      setSelectedFiles([]);
+      setUploadedAttachments([]);
+    }
+  };
+
+  const handleRetry = () => {
+    if (lastUserMessage) {
+      setInput(lastUserMessage);
+      setError(null);
+      setTimeout(() => handleSend(), 100);
     }
   };
 
@@ -391,8 +416,15 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     <main className="flex-1 flex flex-col h-screen relative">
       <ReadingProgressBar isStreaming={!!streamingMessage} />
       
+      {/* Scroll to bottom button */}
+      <ScrollToBottom 
+        visible={showScrollButton && messages.length > 3}
+        onClick={() => scrollToBottom()}
+        newMessageCount={messages.length - lastReadMessageIndex - 1}
+      />
+      
       {/* Header */}
-      <header className="h-16 border-b border-primary/20 flex items-center justify-between px-6 backdrop-blur-xl glass shadow-glow-violet">
+      <header className="h-16 md:h-20 border-b border-primary/20 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />
@@ -450,7 +482,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       )}
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-6 py-8 scroll-smooth">
+      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-6 md:py-8 scroll-smooth">
         {messages.length === 0 && !streamingMessage && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 max-w-2xl mx-auto">
             <LucyLogo size="xl" showGlow />
@@ -471,10 +503,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           {messages.map((message, index) => {
             const showDivider = index === 0 || 
               (new Date(message.created_at).getTime() - new Date(messages[index - 1].created_at).getTime()) > 3600000;
+            const isNewMessage = index > lastReadMessageIndex;
             
             return (
               <div key={message.id}>
                 {showDivider && <TimestampDivider timestamp={message.created_at} />}
+                {isNewMessage && index === lastReadMessageIndex + 1 && <NewMessageDivider />}
                 <ChatMessage message={message} />
               </div>
             );
@@ -497,6 +531,25 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             <div className="flex items-center gap-3 text-muted-foreground glass-card px-6 py-4 rounded-2xl border border-primary/30 w-fit">
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
               <span className="font-medium">Lucy is contemplating...</span>
+            </div>
+          )}
+
+          {/* Error state with retry */}
+          {error && (
+            <div className="glass-card-enhanced p-6 rounded-2xl border border-destructive/40 shadow-glow-magenta space-y-3">
+              <p className="text-destructive font-medium">Failed to get response</p>
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <div className="flex gap-2">
+                <Button onClick={handleRetry} variant="default" size="sm">
+                  Retry
+                </Button>
+                <Button onClick={() => {
+                  navigator.clipboard.writeText(lastUserMessage);
+                  toast({ title: "Copied", description: "Message copied to clipboard" });
+                }} variant="outline" size="sm">
+                  Copy Message
+                </Button>
+              </div>
             </div>
           )}
           
@@ -524,11 +577,13 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           />
           <div className="relative">
             <Textarea
+              ref={inputRef}
+              id="chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Message Lucy..."
-              className="pr-20 min-h-[90px] md:min-h-[110px] max-h-[300px] resize-none text-base md:text-lg px-6 py-5 rounded-3xl border-2 border-primary/40 focus:border-primary/70 focus:shadow-glow-divine transition-all duration-300 glass-card-enhanced"
+              className="chat-input pr-20 min-h-[90px] md:min-h-[110px] max-h-[300px] resize-none text-base md:text-lg px-6 py-5 rounded-3xl border-2 border-primary/40 focus:border-primary/70 focus:shadow-glow-divine transition-all duration-300 glass-card-enhanced"
               disabled={isLoading}
             />
             <Button
@@ -545,7 +600,9 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            Press Enter to send, Shift+Enter for new line
+            <span className="hidden md:inline">Press Enter to send, Shift+Enter for new line • </span>
+            <span className="hidden md:inline">Ctrl/Cmd+K to search • </span>
+            Ctrl/Cmd+/ to focus
           </p>
         </div>
       </div>

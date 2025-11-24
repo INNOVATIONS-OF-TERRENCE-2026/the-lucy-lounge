@@ -11,10 +11,10 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({
-  title = 'Lucy AI - Your Intelligent AI Companion',
-  description = 'Lucy AI is a next-generation assistant system designed by Software Engineer Terrence Milliner Sr., powered by state-of-the-art AI models for advanced reasoning, vision, and creativity. Try free at LucyLounge.org',
-  keywords = 'AI assistant, artificial intelligence, chat AI, Lucy AI, conversational AI, smart assistant, AI companion, multimodal AI, Terrence Milliner',
-  image = '/og-default.png',
+  title = 'Lucy AI - Divine Digital Companion Beyond Intelligence',
+  description = 'Lucy AI is your divine digital companion with advanced reasoning, multimodal intelligence, real-time web search, code execution, and long-term memory. Engineered by Terrence Milliner Sr. Try free at LucyLounge.org',
+  keywords = 'AI assistant, artificial intelligence, chat AI, Lucy AI, conversational AI, smart assistant, AI companion, multimodal AI, Terrence Milliner, advanced reasoning, AI chatbot, digital companion, AI tools, intelligent assistant',
+  image = '/lucy-og-image.png',
   url = 'https://lucylounge.org',
   type = 'website',
   canonical
@@ -39,30 +39,40 @@ export const SEOHead = ({
     // Standard meta tags
     updateMetaTag('description', description);
     updateMetaTag('keywords', keywords);
+    updateMetaTag('author', 'Terrence Milliner Sr.');
+    updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    updateMetaTag('googlebot', 'index, follow');
+    updateMetaTag('theme-color', '#7B3FF2');
+    updateMetaTag('format-detection', 'telephone=no');
 
     // Open Graph tags
     updateMetaTag('og:title', title, true);
     updateMetaTag('og:description', description, true);
-    updateMetaTag('og:image', image, true);
+    updateMetaTag('og:image', `https://lucylounge.org${image}`, true);
+    updateMetaTag('og:image:width', '1200', true);
+    updateMetaTag('og:image:height', '630', true);
     updateMetaTag('og:url', url, true);
     updateMetaTag('og:type', type, true);
+    updateMetaTag('og:site_name', 'Lucy AI', true);
+    updateMetaTag('og:locale', 'en_US', true);
 
     // Twitter Card tags
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
-    updateMetaTag('twitter:image', image);
+    updateMetaTag('twitter:image', `https://lucylounge.org${image}`);
+    updateMetaTag('twitter:creator', '@LucyAI');
+    updateMetaTag('twitter:site', '@LucyAI');
 
     // Canonical link
-    if (canonical) {
-      let linkElement = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (!linkElement) {
-        linkElement = document.createElement('link');
-        linkElement.rel = 'canonical';
-        document.head.appendChild(linkElement);
-      }
-      linkElement.href = canonical;
+    const canonicalUrl = canonical || url;
+    let linkElement = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (!linkElement) {
+      linkElement = document.createElement('link');
+      linkElement.rel = 'canonical';
+      document.head.appendChild(linkElement);
     }
+    linkElement.href = canonicalUrl;
 
     // Schema.org structured data for AI application
     const scriptId = 'lucy-ai-schema';
