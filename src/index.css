@@ -8,128 +8,117 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Lucy AI Color System - Violet to Blue Gradient Theme */
-    --background: 220 15% 98%;
-    --foreground: 260 60% 10%;
+    /* Lucy AI Cosmic Temple Color System */
+    /* Base colors */
+    --onyx-black: 0 0% 0%;
+    --cosmic-purple: 280 100% 9%;
+    --ultra-violet: 277 100% 30%;
+    --magenta-starfire: 320 100% 50%;
+    --hologram-silver: 250 50% 88%;
+    --sacred-gold: 45 70% 76%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 260 60% 10%;
+    --background: 0 0% 0%;
+    --foreground: 250 50% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 260 60% 10%;
+    --card: 280 100% 9%;
+    --card-foreground: 250 50% 95%;
 
-    /* Primary: Electric Violet */
-    --primary: 265 70% 58%;
+    --popover: 280 100% 9%;
+    --popover-foreground: 250 50% 95%;
+
+    /* Primary: Ultra-Violet Nebula */
+    --primary: 277 100% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 265 75% 63%;
+    --primary-hover: 277 100% 35%;
 
-    /* Secondary: Soft Lavender */
-    --secondary: 270 60% 80%;
-    --secondary-foreground: 265 70% 25%;
+    /* Secondary: Magenta Starfire */
+    --secondary: 320 100% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Accent: Neon Blue */
-    --accent: 200 90% 55%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent: Sacred Gold */
+    --accent: 45 70% 76%;
+    --accent-foreground: 280 100% 9%;
     
-    /* Danger: Rose Magenta */
+    /* Destructive */
     --destructive: 340 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 260 20% 45%;
+    --muted: 280 50% 15%;
+    --muted-foreground: 250 30% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 15% 90%;
-    --input: 220 15% 92%;
-    --ring: 265 70% 55%;
+    --border: 277 80% 20%;
+    --input: 280 50% 12%;
+    --ring: 277 100% 30%;
 
     --radius: 0.75rem;
 
-    /* Gradient definitions - Electric Violet to Neon Blue */
-    --gradient-primary: linear-gradient(135deg, hsl(265 70% 58%) 0%, hsl(200 90% 55%) 100%);
-    --gradient-button: linear-gradient(135deg, #7B3FF2 0%, #20A4F3 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(265 70% 98%) 0%, hsl(200 90% 98%) 100%);
-    --gradient-glow: linear-gradient(135deg, hsl(265 70% 58% / 0.1) 0%, hsl(200 90% 55% / 0.1) 100%);
+    /* Cosmic Temple Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(280 100% 9%) 50%, hsl(277 100% 30%) 100%);
+    --gradient-button: linear-gradient(135deg, hsl(277 100% 30%) 0%, hsl(320 100% 50%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(280 100% 9%) 0%, hsl(277 100% 20%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(277 100% 30% / 0.2) 0%, hsl(320 100% 50% / 0.2) 100%);
+    --gradient-nebula: linear-gradient(180deg, hsl(0 0% 0%) 0%, hsl(280 100% 9%) 30%, hsl(277 100% 30%) 60%, hsl(320 100% 50% / 0.3) 100%);
 
-    /* Neural glow effects */
-    --glow-violet: 0 0 40px hsl(265 70% 55% / 0.3);
-    --glow-blue: 0 0 40px hsl(220 90% 60% / 0.3);
-    --glow-accent: 0 0 30px hsl(190 95% 65% / 0.4);
+    /* Divine glow effects */
+    --glow-violet: 0 0 60px hsl(277 100% 30% / 0.6), 0 0 100px hsl(277 100% 30% / 0.3);
+    --glow-magenta: 0 0 60px hsl(320 100% 50% / 0.6), 0 0 100px hsl(320 100% 50% / 0.3);
+    --glow-gold: 0 0 40px hsl(45 70% 76% / 0.5), 0 0 80px hsl(45 70% 76% / 0.2);
+    --glow-divine: 0 0 80px hsl(277 100% 30% / 0.4), 0 0 120px hsl(320 100% 50% / 0.3), 0 0 160px hsl(277 100% 30% / 0.2);
 
     /* Sidebar colors */
-    --sidebar-background: 260 20% 96%;
-    --sidebar-foreground: 260 60% 20%;
-    --sidebar-primary: 265 70% 55%;
+    --sidebar-background: 280 100% 9%;
+    --sidebar-foreground: 250 50% 95%;
+    --sidebar-primary: 277 100% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 92%;
-    --sidebar-accent-foreground: 260 60% 20%;
-    --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 265 70% 55%;
+    --sidebar-accent: 280 50% 15%;
+    --sidebar-accent-foreground: 250 50% 95%;
+    --sidebar-border: 277 80% 20%;
+    --sidebar-ring: 277 100% 30%;
 
     /* Animation timings */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-divine: all 1s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    /* Dark mode - Deep space theme with glowing accents */
-    --background: 260 40% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 260 30% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 260 30% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Primary: Brighter Violet for dark mode */
-    --primary: 265 80% 65%;
+    /* Same as light mode - Cosmic Temple is always divine */
+    --background: 0 0% 0%;
+    --foreground: 250 50% 95%;
+    --card: 280 100% 9%;
+    --card-foreground: 250 50% 95%;
+    --popover: 280 100% 9%;
+    --popover-foreground: 250 50% 95%;
+    --primary: 277 100% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 265 85% 70%;
-
-    /* Secondary: Soft Lavender */
-    --secondary: 270 50% 75%;
-    --secondary-foreground: 260 40% 15%;
-
-    /* Accent: Neon Blue */
-    --accent: 200 95% 60%;
-    --accent-foreground: 0 0% 100%;
-    
-    /* Danger: Rose Magenta */
-    --destructive: 340 90% 65%;
+    --primary-hover: 277 100% 35%;
+    --secondary: 320 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 45 70% 76%;
+    --accent-foreground: 280 100% 9%;
+    --destructive: 340 85% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --muted: 260 30% 18%;
-    --muted-foreground: 0 0% 70%;
-
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 260 30% 20%;
-    --input: 260 30% 18%;
-    --ring: 265 80% 65%;
-
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(265 80% 65%) 0%, hsl(200 95% 60%) 100%);
-    --gradient-button: linear-gradient(135deg, #8B5CF6 0%, #38BDF8 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(265 40% 15%) 0%, hsl(200 40% 15%) 100%);
-    --gradient-glow: linear-gradient(135deg, hsl(265 80% 65% / 0.2) 0%, hsl(200 95% 60% / 0.2) 100%);
-
-    /* Enhanced glow for dark mode */
-    --glow-violet: 0 0 60px hsl(265 80% 65% / 0.5);
-    --glow-blue: 0 0 60px hsl(220 100% 70% / 0.5);
-    --glow-accent: 0 0 50px hsl(190 100% 70% / 0.6);
-
-    --sidebar-background: 260 40% 10%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 265 80% 65%;
-    --sidebar-primary-foreground: 260 40% 8%;
-    --sidebar-accent: 260 30% 18%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 260 30% 20%;
-    --sidebar-ring: 265 80% 65%;
+    --muted: 280 50% 15%;
+    --muted-foreground: 250 30% 60%;
+    --border: 277 80% 20%;
+    --input: 280 50% 12%;
+    --ring: 277 100% 30%;
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(280 100% 9%) 50%, hsl(277 100% 30%) 100%);
+    --gradient-button: linear-gradient(135deg, hsl(277 100% 30%) 0%, hsl(320 100% 50%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(280 100% 9%) 0%, hsl(277 100% 20%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(277 100% 30% / 0.2) 0%, hsl(320 100% 50% / 0.2) 100%);
+    --gradient-nebula: linear-gradient(180deg, hsl(0 0% 0%) 0%, hsl(280 100% 9%) 30%, hsl(277 100% 30%) 60%, hsl(320 100% 50% / 0.3) 100%);
+    --glow-violet: 0 0 60px hsl(277 100% 30% / 0.6), 0 0 100px hsl(277 100% 30% / 0.3);
+    --glow-magenta: 0 0 60px hsl(320 100% 50% / 0.6), 0 0 100px hsl(320 100% 50% / 0.3);
+    --glow-gold: 0 0 40px hsl(45 70% 76% / 0.5), 0 0 80px hsl(45 70% 76% / 0.2);
+    --glow-divine: 0 0 80px hsl(277 100% 30% / 0.4), 0 0 120px hsl(320 100% 50% / 0.3), 0 0 160px hsl(277 100% 30% / 0.2);
+    --sidebar-background: 280 100% 9%;
+    --sidebar-foreground: 250 50% 95%;
+    --sidebar-primary: 277 100% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 280 50% 15%;
+    --sidebar-accent-foreground: 250 50% 95%;
+    --sidebar-border: 277 80% 20%;
+    --sidebar-ring: 277 100% 30%;
   }
 }
 
@@ -193,73 +182,107 @@ All colors MUST be HSL.
     @apply rounded-lg overflow-x-auto;
   }
 
-  /* Animations */
-  @keyframes pulse-glow {
+  /* Cosmic Temple Animations */
+  @keyframes divine-breathe {
     0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
       opacity: 0.8;
-      transform: scale(1.05);
-    }
-  }
-
-  @keyframes gradient-shift {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-
-  @keyframes neural-pulse {
-    0%, 100% {
+      transform: scale(1);
       box-shadow: var(--glow-violet);
     }
     50% {
-      box-shadow: var(--glow-blue);
+      opacity: 1;
+      transform: scale(1.03);
+      box-shadow: var(--glow-divine);
     }
   }
 
-  @keyframes shimmer {
+  @keyframes nebula-drift {
     0% {
-      transform: translateX(-100%);
+      background-position: 0% 0%;
     }
     100% {
-      transform: translateX(100%);
+      background-position: 0.2% 0.2%;
     }
   }
 
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
+  @keyframes light-ray-pulse {
+    0%, 100% {
+      opacity: 0.05;
+    }
+    50% {
+      opacity: 0.15;
+    }
   }
 
-  .animate-gradient-shift {
-    animation: gradient-shift 3s ease infinite;
-    background-size: 200% 200%;
+  @keyframes halo-glow {
+    0%, 100% {
+      box-shadow: var(--glow-violet);
+      opacity: 0.8;
+    }
+    50% {
+      box-shadow: var(--glow-magenta);
+      opacity: 1;
+    }
   }
 
-  .animate-neural-pulse {
-    animation: neural-pulse 2s ease-in-out infinite;
+  @keyframes hologram-shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
   }
 
-  /* Glass morphism utility */
+  @keyframes sacred-pulse {
+    0%, 100% {
+      box-shadow: var(--glow-gold);
+    }
+    50% {
+      box-shadow: var(--glow-divine);
+    }
+  }
+
+  .animate-divine-breathe {
+    animation: divine-breathe 3s ease-in-out infinite;
+  }
+
+  .animate-nebula-drift {
+    animation: nebula-drift 120s linear infinite;
+    background-size: 101% 101%;
+  }
+
+  .animate-light-ray {
+    animation: light-ray-pulse 6s ease-in-out infinite;
+  }
+
+  .animate-halo-glow {
+    animation: halo-glow 3s ease-in-out infinite;
+  }
+
+  .animate-hologram-shimmer {
+    animation: hologram-shimmer 8s linear infinite;
+  }
+
+  .animate-sacred-pulse {
+    animation: sacred-pulse 4s ease-in-out infinite;
+  }
+
+  /* Cosmic Temple Glass morphism utility */
   .glass {
-    @apply bg-background/80 backdrop-blur-xl border border-border/50;
+    @apply backdrop-blur-xl border border-primary/20;
+    background: rgba(26, 0, 46, 0.6);
   }
 
   .glass-card {
-    @apply bg-card/60 backdrop-blur-lg border border-border/40 shadow-lg;
+    @apply backdrop-blur-lg border border-primary/30 shadow-glow-violet;
+    background: rgba(26, 0, 46, 0.7);
   }
 
   .glass-card-enhanced {
-    @apply backdrop-blur-xl rounded-lg border border-white/20;
-    background: rgba(255, 255, 255, 0.22);
+    @apply backdrop-blur-xl rounded-lg border border-primary/40;
+    background: rgba(26, 0, 46, 0.8);
+    box-shadow: 0 0 40px rgba(76, 0, 153, 0.3), inset 0 0 20px rgba(255, 0, 208, 0.1);
   }
 
   .text-shadow-soft {

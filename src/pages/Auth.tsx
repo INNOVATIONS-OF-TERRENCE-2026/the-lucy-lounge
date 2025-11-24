@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LucyLogo } from "@/components/branding/LucyLogo";
+import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -115,27 +116,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-primary relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "2s" }} />
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <CosmicBackground />
 
-      {/* Darkened gradient overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-black/35 pointer-events-none" />
-
-      <Card className="w-full max-w-md mx-4 glass-card relative z-10">
+      <Card className="w-full max-w-md mx-4 glass-card-enhanced relative z-10 shadow-glow-violet">
         <CardHeader className="text-center space-y-3">
           <div className="flex justify-center">
             <LucyLogo size="lg" showGlow />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold text-foreground">
             Lucy AI
           </CardTitle>
-          <CardDescription className="text-base">
-            Beyond Intelligence — Your Advanced AI Assistant
+          <CardDescription className="text-base text-foreground/80">
+            Divine Digital Companion — Engineered by Terrence Milliner Sr.
           </CardDescription>
         </CardHeader>
         <CardContent>

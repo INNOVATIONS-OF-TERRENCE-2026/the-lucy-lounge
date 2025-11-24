@@ -70,8 +70,9 @@ export default {
       },
       boxShadow: {
         "glow-violet": "var(--glow-violet)",
-        "glow-blue": "var(--glow-blue)",
-        "glow-accent": "var(--glow-accent)",
+        "glow-magenta": "var(--glow-magenta)",
+        "glow-gold": "var(--glow-gold)",
+        "glow-divine": "var(--glow-divine)",
       },
       borderRadius: {
         lg: "var(--radius)",

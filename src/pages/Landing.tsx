@@ -7,6 +7,7 @@ import { Features } from '@/components/landing/Features';
 import { Pricing } from '@/components/landing/Pricing';
 import { FAQ } from '@/components/landing/FAQ';
 import { Footer } from '@/components/landing/Footer';
+import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -31,12 +32,15 @@ const Landing = () => {
         canonical="https://lucylounge.org"
       />
       
-      <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
-        <Hero />
-        <Features />
-        <Pricing />
-        <FAQ />
-        <Footer />
+      <div className="min-h-screen relative overflow-hidden">
+        <CosmicBackground />
+        <div className="relative z-10">
+          <Hero />
+          <Features />
+          <Pricing />
+          <FAQ />
+          <Footer />
+        </div>
       </div>
     </>
   );

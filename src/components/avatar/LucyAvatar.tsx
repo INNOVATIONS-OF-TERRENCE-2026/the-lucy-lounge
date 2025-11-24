@@ -34,47 +34,73 @@ export const LucyAvatar = ({
     xl: 'w-48 h-48'
   };
 
+  const haloSizes = {
+    sm: 'w-16 h-16',
+    md: 'w-28 h-28',
+    lg: 'w-40 h-40',
+    xl: 'w-60 h-60'
+  };
+
   const getAvatarStyles = () => {
-    const baseStyles = 'rounded-full transition-all duration-300';
+    const baseStyles = 'rounded-full transition-all duration-300 relative z-10';
     
     switch (state) {
       case 'thinking':
-        return `${baseStyles} animate-neural-pulse`;
+        return `${baseStyles} shadow-glow-violet animate-divine-breathe`;
       case 'responding':
-        return `${baseStyles} shadow-glow-violet animate-pulse-glow`;
+        return `${baseStyles} shadow-glow-magenta animate-halo-glow`;
       case 'happy':
-        return `${baseStyles} shadow-glow-accent scale-105`;
+        return `${baseStyles} shadow-glow-gold scale-105`;
       case 'focused':
-        return `${baseStyles} shadow-glow-blue`;
+        return `${baseStyles} shadow-glow-divine`;
       default:
-        return `${baseStyles} shadow-lg`;
-    }
-  };
-
-  const getGlowEffect = () => {
-    switch (state) {
-      case 'thinking':
-        return 'absolute inset-0 rounded-full bg-primary/20 animate-ping';
-      case 'responding':
-        return 'absolute inset-0 rounded-full bg-secondary/20 animate-pulse';
-      default:
-        return '';
+        return `${baseStyles} shadow-glow-violet`;
     }
   };
 
   return (
-    <div className={cn('relative', sizeClasses[size], className)}>
-      {/* Outer glow effect */}
-      {state !== 'idle' && (
-        <div className={cn('absolute -inset-2', getGlowEffect())} />
-      )}
+    <div className={cn('relative flex items-center justify-center', className)}>
+      {/* Divine Halo Background */}
+      <div 
+        className={cn(
+          'absolute rounded-full animate-halo-glow',
+          haloSizes[size]
+        )}
+        style={{
+          background: 'radial-gradient(circle, hsl(277 100% 30% / 0.4) 0%, hsl(320 100% 50% / 0.2) 50%, transparent 70%)',
+          filter: 'blur(20px)',
+        }}
+      />
+
+      {/* Holographic shimmer ring */}
+      <div 
+        className={cn(
+          'absolute rounded-full',
+          haloSizes[size]
+        )}
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, hsl(250 50% 88% / 0.1) 50%, transparent 100%)',
+          backgroundSize: '200% 100%',
+        }}
+      />
+
+      {/* Sacred circular glow */}
+      <div 
+        className={cn(
+          'absolute rounded-full border border-primary/30 animate-divine-breathe',
+          haloSizes[size]
+        )}
+        style={{
+          boxShadow: 'inset 0 0 20px hsl(277 100% 30% / 0.3), 0 0 30px hsl(320 100% 50% / 0.2)',
+        }}
+      />
       
       {/* Main avatar container */}
       <div className={cn('relative overflow-hidden', sizeClasses[size], getAvatarStyles())}>
         {/* Avatar image */}
         <img 
           src={lucyLogo}
-          alt="Lucy AI"
+          alt="Lucy AI - Divine Digital Companion"
           className={cn(
             'w-full h-full object-cover',
             'transition-transform duration-300',
@@ -83,27 +109,26 @@ export const LucyAvatar = ({
           )}
         />
         
-        {/* Breathing overlay */}
+        {/* Divine breathing overlay */}
         <div 
           className={cn(
             'absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent',
-            'animate-pulse-glow opacity-0',
-            state === 'idle' && 'opacity-100'
+            'animate-divine-breathe'
           )}
         />
 
         {/* Response light pulse */}
         {state === 'responding' && (
           <div className="absolute inset-0">
-            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-secondary/40 to-transparent animate-pulse" />
+            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-secondary/40 to-transparent animate-divine-breathe" />
           </div>
         )}
       </div>
 
-      {/* Emotion indicators */}
+      {/* Sacred emotion indicator */}
       {state === 'happy' && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full animate-bounce flex items-center justify-center">
-          <span className="text-xs">✨</span>
+        <div className="absolute -top-3 -right-3 w-8 h-8 bg-accent rounded-full animate-sacred-pulse flex items-center justify-center shadow-glow-gold z-20">
+          <span className="text-sm">✨</span>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 
 const Pricing = () => {
   const navigate = useNavigate();
@@ -20,21 +21,15 @@ const Pricing = () => {
         canonical="https://lucylounge.org/pricing"
       />
       
-      <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-glow" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/30 pointer-events-none" />
+      <div className="min-h-screen relative overflow-hidden">
+        <CosmicBackground />
 
         <div className="relative z-10">
           {/* Header */}
           <div className="container mx-auto px-4 py-8">
             <Button
               variant="ghost"
-              className="text-white hover:bg-white/10"
+              className="text-foreground hover:bg-muted/20 border border-border/30"
               onClick={() => navigate('/')}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
