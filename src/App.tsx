@@ -23,6 +23,10 @@ import { IntroScreen } from "./components/branding/IntroScreen";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { OfflineBanner } from "./components/pwa/OfflineBanner";
+import { WakeScreen } from "./components/pwa/WakeScreen";
+import { ParallaxEnvironment } from "./components/effects/ParallaxEnvironment";
+import { DailyGreeting } from "./components/daily/DailyGreeting";
+import { PerformanceMonitor } from "./components/debug/PerformanceMonitor";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +54,11 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ParallaxEnvironment mode="cosmic" intensity={0.5} />
+        <PerformanceMonitor />
         {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+        <DailyGreeting />
+        <WakeScreen />
         <InstallPrompt />
         <OfflineBanner />
         <div className={hasShownIntro ? 'animate-fade-in' : ''}>

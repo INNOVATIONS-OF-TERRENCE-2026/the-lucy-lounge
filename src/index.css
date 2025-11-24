@@ -235,6 +235,29 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px);
+    }
+    50% {
+      transform: translateY(-5px) translateX(-5px);
+    }
+    75% {
+      transform: translateY(-15px) translateX(3px);
+    }
+  }
+
+  @keyframes ripple {
+    to {
+      width: 400px;
+      height: 400px;
+      opacity: 0;
+    }
+  }
+
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
   }
@@ -246,6 +269,10 @@ All colors MUST be HSL.
 
   .animate-neural-pulse {
     animation: neural-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-ripple {
+    animation: ripple 0.6s ease-out;
   }
 
   /* Glass morphism utility */

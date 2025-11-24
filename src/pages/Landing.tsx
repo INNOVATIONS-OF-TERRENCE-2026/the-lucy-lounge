@@ -7,9 +7,14 @@ import { Features } from '@/components/landing/Features';
 import { Pricing } from '@/components/landing/Pricing';
 import { FAQ } from '@/components/landing/FAQ';
 import { Footer } from '@/components/landing/Footer';
+import { QuickActionLauncher } from '@/components/daily/QuickActionLauncher';
+import { UsageStreak } from '@/components/daily/UsageStreak';
+import { ParallaxEnvironment } from '@/components/effects/ParallaxEnvironment';
+import { useAmbientIntelligence } from '@/hooks/useAmbientIntelligence';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { themeMode } = useAmbientIntelligence();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -29,13 +34,24 @@ const Landing = () => {
         canonical="https://lucy-ai.app"
       />
       
-      <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
-        <Hero />
-        <Features />
-        <Pricing />
-        <FAQ />
-        <Footer />
-      </div>
+      <ParallaxEnvironment mode={themeMode} intensity={0.5}>
+        <div className="min-h-screen relative">
+          <Hero />
+          
+          {/* Quick Actions Section */}
+          <section className="relative z-10 py-12 px-4">
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+              <QuickActionLauncher />
+              <UsageStreak />
+            </div>
+          </section>
+          
+          <Features />
+          <Pricing />
+          <FAQ />
+          <Footer />
+        </div>
+      </ParallaxEnvironment>
     </>
   );
 };

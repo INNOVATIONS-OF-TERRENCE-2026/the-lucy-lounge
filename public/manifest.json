@@ -39,12 +39,20 @@
     {
       "name": "New Chat",
       "url": "/chat",
-      "description": "Start a new conversation with Lucy"
+      "description": "Start a new conversation with Lucy",
+      "icons": [{ "src": "/icon-512.png", "sizes": "512x512" }]
     },
     {
-      "name": "Rooms",
-      "url": "/rooms",
-      "description": "Join a collaborative chat room"
+      "name": "Tools",
+      "url": "/tools",
+      "description": "Access Lucy's AI tools",
+      "icons": [{ "src": "/icon-512.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Quick Action",
+      "url": "/chat?quick=true",
+      "description": "Quick AI assistance",
+      "icons": [{ "src": "/icon-512.png", "sizes": "512x512" }]
     }
   ],
   "share_target": {

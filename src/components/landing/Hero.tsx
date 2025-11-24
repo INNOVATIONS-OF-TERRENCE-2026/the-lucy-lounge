@@ -1,10 +1,12 @@
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Sparkles } from 'lucide-react';
-import { LucyAvatar } from '@/components/avatar/LucyAvatar';
+import { AdvancedLucyAvatar } from '@/components/avatar/AdvancedLucyAvatar';
+import { RippleButton } from '@/components/ui/RippleButton';
+import { useSoundSystem } from '@/hooks/useSoundSystem';
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const { playClickSound } = useSoundSystem();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
@@ -19,9 +21,9 @@ export const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-black/35 pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-32 text-center">
-        {/* Lucy Avatar */}
-        <div className="mb-10 flex justify-center animate-pulse-glow">
-          <LucyAvatar size="xl" state="happy" className="drop-shadow-2xl" />
+        {/* Advanced Lucy Avatar */}
+        <div className="mb-10 flex justify-center">
+          <AdvancedLucyAvatar size="xl" state="happy" />
         </div>
 
         {/* Hero text */}
@@ -36,24 +38,30 @@ export const Hero = () => {
           Experience next-generation AI with advanced reasoning, multimodal vision, persistent memory, and creative tools—all powered by cutting-edge technology
         </p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons with Ripple Effect */}
         <div className="flex flex-col sm:flex-row gap-5 justify-center mb-20">
-          <Button
+          <RippleButton
             size="lg"
             variant="gradient"
-            onClick={() => navigate('/auth')}
+            onClick={() => {
+              playClickSound();
+              navigate('/auth');
+            }}
           >
             <MessageSquare className="w-5 h-5 mr-2" />
             🚀 Start Free
-          </Button>
-          <Button
+          </RippleButton>
+          <RippleButton
             size="lg"
             variant="outline"
-            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => {
+              playClickSound();
+              document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+            }}
           >
             <Sparkles className="w-5 h-5 mr-2" />
             ✨ Explore Features
-          </Button>
+          </RippleButton>
         </div>
 
         {/* Social proof */}
