@@ -25,9 +25,22 @@ export const Hero = () => {
         </div>
 
         {/* Hero text */}
-        <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-blue-200 text-shadow-strong leading-tight">
-          Lucy AI
-          <span className="block text-5xl md:text-6xl mt-4 bg-gradient-button bg-clip-text text-transparent">
+        <h1 className="text-7xl md:text-9xl font-black mb-8 leading-none tracking-tight" 
+            style={{ 
+              textRendering: 'optimizeLegibility',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale'
+            }}>
+          <span className="block text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.5)]" 
+                style={{ 
+                  textShadow: '0 0 80px rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.9), 0 8px 24px rgba(0,0,0,0.7)'
+                }}>
+            Lucy AI
+          </span>
+          <span className="block text-6xl md:text-7xl mt-6 font-extrabold text-white drop-shadow-[0_0_30px_rgba(123,63,242,0.6)]"
+                style={{ 
+                  textShadow: '0 0 60px rgba(123,63,242,0.9), 0 4px 12px rgba(0,0,0,0.9), 0 8px 24px rgba(0,0,0,0.7)'
+                }}>
             Beyond Intelligence
           </span>
         </h1>
