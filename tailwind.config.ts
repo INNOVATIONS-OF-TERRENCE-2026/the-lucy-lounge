@@ -61,12 +61,21 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        cosmic: {
+          onyx: "hsl(var(--onyx-black))",
+          purple: "hsl(var(--cosmic-purple))",
+          violet: "hsl(var(--ultra-violet))",
+          magenta: "hsl(var(--magenta-starfire))",
+          silver: "hsl(var(--hologram-silver))",
+          gold: "hsl(var(--sacred-gold))",
+        },
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-button": "var(--gradient-button)",
         "gradient-subtle": "var(--gradient-subtle)",
         "gradient-glow": "var(--gradient-glow)",
+        "gradient-nebula": "var(--gradient-nebula)",
       },
       boxShadow: {
         "glow-violet": "var(--glow-violet)",

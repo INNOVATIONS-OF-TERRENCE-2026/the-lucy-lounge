@@ -128,7 +128,7 @@ export const LucyAvatar = ({
       {/* Sacred emotion indicator */}
       {state === 'happy' && (
         <div className="absolute -top-3 -right-3 w-8 h-8 bg-accent rounded-full animate-sacred-pulse flex items-center justify-center shadow-glow-gold z-20">
-          <span className="text-sm">✨</span>
+          <span className="text-sm">◆</span>
         </div>
       )}
     </div>

@@ -27,8 +27,6 @@ const faqs = [
 export const LucyFAQSection = () => {
   return (
     <section className="relative py-20 px-4">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/30 pointer-events-none" />
-      
       <div className="relative z-10 max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -37,10 +35,10 @@ export const LucyFAQSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-shadow-strong">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             How Does Lucy Actually Work?
           </h2>
-          <p className="text-xl text-white/90 text-shadow-soft">
+          <p className="text-xl text-foreground/90">
             Understanding the system behind the intelligence
           </p>
         </motion.div>
@@ -50,19 +48,19 @@ export const LucyFAQSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
-          className="glass-card-enhanced p-8"
+          className="glass-card-enhanced p-8 shadow-glow-violet"
         >
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="border-white/10"
+                className="border-primary/20"
               >
-                <AccordionTrigger className="text-left text-white hover:text-white/80 text-lg font-medium">
+                <AccordionTrigger className="text-left text-foreground hover:text-foreground/80 text-lg font-medium">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-white/80 text-base leading-relaxed pt-2">
+                <AccordionContent className="text-foreground/80 text-base leading-relaxed pt-2">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

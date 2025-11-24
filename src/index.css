@@ -285,11 +285,49 @@ All colors MUST be HSL.
     box-shadow: 0 0 40px rgba(76, 0, 153, 0.3), inset 0 0 20px rgba(255, 0, 208, 0.1);
   }
 
-  .text-shadow-soft {
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  /* Prose improvements for ChatGPT-style formatting */
+  .prose p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
   }
 
-  .text-shadow-strong {
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  .prose p:last-child {
+    margin-bottom: 0;
+  }
+
+  .prose ul, .prose ol {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  .prose li {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose h1, .prose h2, .prose h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .prose code:not(pre code) {
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    background: hsl(var(--muted));
+    font-size: 0.875em;
+  }
+
+  .prose pre {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Mobile responsive improvements */
+  @media (max-width: 768px) {
+    .prose p, .prose li {
+      line-height: 1.75;
+    }
   }
 }

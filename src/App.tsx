@@ -24,12 +24,14 @@ import { IntroScreen } from "./components/branding/IntroScreen";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { OfflineBanner } from "./components/pwa/OfflineBanner";
+import { useDarkMode } from "./hooks/useDarkMode";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [hasShownIntro, setHasShownIntro] = useState(false);
+  useDarkMode(); // Enforce dark mode
 
   useEffect(() => {
     // Check if intro has been shown this session

@@ -37,26 +37,47 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   };
 
   return (
-    <div className={`flex gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex gap-4 ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
       {!isUser && (
         <LucyLogo size="sm" showGlow className="flex-shrink-0" />
       )}
       
-      <div className={`max-w-[80%] ${isUser ? 'order-first' : ''}`}>
+      <div className={`max-w-[85%] md:max-w-[80%] ${isUser ? 'order-first' : ''}`}>
         <div className={`
-          rounded-2xl px-4 py-3
+          rounded-2xl px-5 py-4
           ${isUser 
-            ? 'bg-gradient-primary text-white ml-auto' 
-            : 'glass border border-border/50'
+            ? 'bg-gradient-primary text-white ml-auto shadow-glow-violet' 
+            : 'glass-card border border-border/50'
           }
-          ${isStreaming ? 'animate-pulse' : ''}
+          ${isStreaming ? 'animate-fade-in' : ''}
         `}>
           {isUser ? (
-            <p className="whitespace-pre-wrap break-words">{message.content}</p>
+            <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
           ) : (
-            <div className="prose prose-sm max-w-none dark:prose-invert">
+            <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-3 prose-p:leading-7 prose-headings:mt-6 prose-headings:mb-3 prose-ul:my-3 prose-ol:my-3 prose-li:my-1">
               <ReactMarkdown
                 components={{
+                  p: ({ children }) => (
+                    <p className="mb-4 leading-7 last:mb-0">{children}</p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="my-4 ml-6 list-disc space-y-2">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="my-4 ml-6 list-decimal space-y-2">{children}</ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-7">{children}</li>
+                  ),
+                  h1: ({ children }) => (
+                    <h1 className="text-xl font-bold mt-6 mb-3">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-lg font-bold mt-6 mb-3">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-base font-bold mt-5 mb-2">{children}</h3>
+                  ),
                   code({ className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || '');
                     const inline = !match;
@@ -65,7 +86,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
                         style={vscDarkPlus as any}
                         language={match[1]}
                         PreTag="div"
-                        className="rounded-lg"
+                        className="rounded-lg my-4"
                       >
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
@@ -87,15 +108,15 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
           )}
         </div>
         {!isUser && !isStreaming && (
-          <p className="text-xs text-muted-foreground mt-1 px-1">
+          <p className="text-xs text-muted-foreground mt-2 px-1">
             {new Date(message.created_at).toLocaleTimeString()}
           </p>
         )}
       </div>
       
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-          <User className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-full bg-gradient-subtle flex items-center justify-center flex-shrink-0 border border-primary/30">
+          <User className="w-4 h-4 text-foreground" />
         </div>
       )}
     </div>

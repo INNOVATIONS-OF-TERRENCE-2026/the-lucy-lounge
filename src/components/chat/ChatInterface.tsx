@@ -476,8 +476,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-border/50 p-6 backdrop-blur-xl bg-background/60">
-        <div className="max-w-4xl mx-auto space-y-3">
+      <div className="border-t border-border/50 p-4 md:p-6 backdrop-blur-xl bg-background/80">
+        <div className="max-w-5xl mx-auto space-y-3">
           <FileUploadZone
             selectedFiles={selectedFiles}
             onFilesSelected={(files) => setSelectedFiles([...selectedFiles, ...files])}
@@ -489,19 +489,19 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask Lucy anything..."
-              className="pr-12 min-h-[60px] max-h-[200px] resize-none"
+              className="pr-16 min-h-[80px] md:min-h-[100px] max-h-[300px] resize-none text-base md:text-lg px-5 py-4 rounded-2xl border-2 border-primary/30 focus:border-primary/60 shadow-glow-violet transition-all bg-card/90 backdrop-blur-sm"
               disabled={isLoading}
             />
             <Button
               onClick={handleSend}
               disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
-              size="icon"
-              className="absolute bottom-2 right-2 bg-gradient-primary hover:opacity-90 transition-opacity"
+              size="lg"
+              className="absolute bottom-3 right-3 bg-gradient-button hover:shadow-glow-magenta transition-all rounded-xl h-12 w-12 shadow-glow-violet"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5" />
               )}
             </Button>
           </div>
