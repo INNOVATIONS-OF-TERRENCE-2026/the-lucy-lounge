@@ -12,6 +12,7 @@ import Launch from "./pages/Launch";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Tools from "./pages/Tools";
+import ToolsMarketplace from "./pages/ToolsMarketplace";
 import Analytics from "./pages/Analytics";
 import CreatorStudio from "./pages/CreatorStudio";
 import NotFound from "./pages/NotFound";
@@ -68,6 +69,7 @@ const App = () => {
               <Route path="/features" element={<Features />} />
               <Route path="/launch" element={<Launch />} />
               <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
               <Route path="/creator-studio" element={<CreatorStudio />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
