@@ -402,13 +402,22 @@ All colors MUST be HSL.
   }
 }
 :root {
-  --bg-1: #000;
-  --bg-2: #111;
-  --primary: #fff;
-  --text: #fff;
+  --bg-1: #050013;
+  --bg-2: #12052e;
+  --primary: #a855f7;
+  --text: #f9fafb;
+  --accent: #f97316;
 }
-
 body {
   background: var(--bg-1);
   color: var(--text);
+}
+
+/* Smooth theme transitions */
+.theme-transition,
+.theme-transition * {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
