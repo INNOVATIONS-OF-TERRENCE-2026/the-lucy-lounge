@@ -261,6 +261,14 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             {videoControls}
           </div>
         )}
+        <Button
+          variant="outline"
+          className="w-full justify-start"
+          onClick={() => navigate("/studios")}
+        >
+          <MessageSquarePlus className="w-4 h-4 mr-2" />
+          Studios
+        </Button>
         {isAdmin && (
           <Button
             variant="outline"
