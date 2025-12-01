@@ -49,7 +49,7 @@ const Chat = () => {
       <CosmicBackground />
 
       <SidebarProvider>
-        <div className="flex flex-row w-screen h-screen max-h-screen overflow-hidden">
+        <div className="flex flex-row w-screen h-screen max-h-screen overflow-hidden bg-[var(--bg-1)] text-[var(--text)] transition-all duration-500">
           {/* Sidebar */}
           <ChatSidebar
             userId={user?.id}
