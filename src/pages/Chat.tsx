@@ -7,7 +7,7 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
-import { ThemePicker } from "@/components/ThemePicker"; // ⭐ ADDED
+import { ThemePicker } from "@/components/ThemePicker";
 
 const Chat = () => {
   const navigate = useNavigate();
