@@ -49,7 +49,6 @@ const Chat = () => {
       <CosmicBackground />
 
       <SidebarProvider>
-        {/* FULLSCREEN + FIXES MOBILE SAFARI */}
         <div className="flex flex-row w-screen h-screen max-h-screen overflow-hidden">
           {/* Sidebar */}
           <ChatSidebar
@@ -58,10 +57,10 @@ const Chat = () => {
             onConversationSelect={setCurrentConversationId}
           />
 
-          {/* Chat Interface Fills All Remaining Space */}
-          <div className="flex flex-col flex-1 h-full w-full overflow-hidden">
-            {/* ⭐ THEME PICKER ADDED HERE */}
-            <div className="w-full flex justify-center py-2">
+          {/* Chat Interface */}
+          <div className="relative flex flex-col flex-1 h-full w-full overflow-hidden">
+            {/* ⭐ Floating Theme Picker */}
+            <div className="absolute top-3 right-4 z-50">
               <ThemePicker />
             </div>
 
