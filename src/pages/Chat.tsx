@@ -7,6 +7,7 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
+import { ThemePicker } from "@/components/ThemePicker";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -48,20 +49,34 @@ const Chat = () => {
       <CosmicBackground />
 
       <SidebarProvider>
+        {/* GLOBAL THEME BACKGROUND + TRANSITIONS */}
         <div
-          className="flex flex-row w-screen h-screen max-h-screen overflow-hidden
-                        bg-[var(--bg-1)] text-[var(--text)] transition-all duration-500"
+          className="
+          flex flex-row w-screen h-screen max-h-screen overflow-hidden
+          bg-[var(--bg-1)] text-[var(--text)]
+          transition-all duration-500
+        "
         >
+          {/* SIDEBAR */}
           <ChatSidebar
             userId={user?.id}
             currentConversationId={currentConversationId}
             onConversationSelect={setCurrentConversationId}
           />
 
+          {/* MAIN CHAT AREA */}
           <div
-            className="flex flex-col flex-1 h-full w-full overflow-hidden 
-                          bg-[var(--bg-2)] transition-all duration-500"
+            className="
+            flex flex-col flex-1 h-full w-full overflow-visible
+            bg-[var(--bg-2)]
+            transition-all duration-500
+          "
           >
+            {/* THEME PICKER FLOATING CONTROL */}
+            <div className="absolute top-3 right-4 z-[999]">
+              <ThemePicker />
+            </div>
+
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
