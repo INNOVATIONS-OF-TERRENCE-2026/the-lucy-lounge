@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ReadingMode } from "@/hooks/useReadingMode";
 import { StreamingSpeed } from "@/hooks/useStreamingSpeed";
 
-import { useTheme } from "@/theme/useTheme";
+import { useThemeManager } from "@/theme/useTheme";
 import { THEMES } from "@/theme/themes";
 
 interface ChatSettingsProps {
@@ -17,7 +17,7 @@ interface ChatSettingsProps {
 }
 
 export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setStreamingSpeed }: ChatSettingsProps) {
-  const { theme, applyTheme } = useTheme();
+  const { theme, applyTheme } = useThemeManager();
 
   return (
     <Popover>
@@ -48,7 +48,7 @@ export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setS
                     transition
                   `}
                   style={{
-                    background: THEMES[name].bg1,
+                    background: THEMES[name]["bg-1"],
                   }}
                 />
               ))}
