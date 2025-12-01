@@ -16,30 +16,29 @@ const StudiosAudio = () => {
       <StudiosSEO studio="audio" />
 
       <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
-
         {/* Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse-glow" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse-glow" />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl animate-pulse-glow"
+            style={{ animationDelay: "1s" }}
+          />
         </div>
+
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-black/35 pointer-events-none" />
 
         <div className="relative z-10 container mx-auto px-6 py-12">
-
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/studios")}
-            className="mb-8 text-white hover:bg-white/10"
-          >
+          {/* Back Button */}
+          <Button variant="ghost" onClick={() => navigate("/studios")} className="mb-8 text-white hover:bg-white/10">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Studios
           </Button>
 
+          {/* Component-Based UI */}
           <AudioStudioHero />
           <AudioStudioFeatures />
           <AudioStudioWorkspaces />
           <AudioStudioCTA />
-
         </div>
       </div>
     </>
