@@ -3,62 +3,73 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Calculator, Image, Code, Globe, Database } from 'lucide-react';
+import { FileText, Calculator, Image, Code, Globe, Database, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const InternalTools = () => {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const calculateExpression = (expr: string) => {
+  const callLucyRouter = async (tool: string, userPrompt: string) => {
+    setLoading(true);
+    setResult('');
+
     try {
-      // Safe math evaluation (basic calculator)
-      const sanitized = expr.replace(/[^0-9+\-*/().]/g, '');
-      const result = eval(sanitized);
-      setResult(`Result: ${result}`);
-    } catch (error) {
+      const { data, error } = await supabase.functions.invoke('lucy-router', {
+        body: {
+          userId: 'anonymous',
+          messages: [
+            {
+              role: 'user',
+              content: userPrompt
+            }
+          ]
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.plan?.finalAnswer) {
+        setResult(data.plan.finalAnswer);
+      } else if (data?.plan?.steps && data.plan.steps.length > 0) {
+        const stepResults = data.plan.steps.map((step: any) => 
+          `Step ${step.stepNumber} (${step.tool}):\n${JSON.stringify(step.result, null, 2)}`
+        ).join('\n\n');
+        setResult(stepResults);
+      } else {
+        setResult('Tool executed but no result returned.');
+      }
+
       toast({
-        title: 'Calculation error',
-        description: 'Invalid expression',
+        title: 'Success',
+        description: 'Tool executed successfully'
+      });
+    } catch (error: any) {
+      console.error('[InternalTools] Error:', error);
+      toast({
+        title: 'Tool execution failed',
+        description: error.message || 'Unknown error',
         variant: 'destructive'
       });
+      setResult(`Error: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const extractPDFText = async (file: File) => {
-    // Client-side PDF text extraction using FileReader
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      setResult(`Extracted text:\n${text.substring(0, 1000)}...`);
-    };
-    reader.readAsText(file);
+  const calculateExpression = () => {
+    callLucyRouter('code_exec', `Calculate this expression: ${input}`);
   };
 
-  const analyzeData = (data: string) => {
-    try {
-      const rows = data.split('\n').map(row => row.split(','));
-      const stats = {
-        rows: rows.length,
-        columns: rows[0]?.length || 0,
-        sample: rows.slice(0, 3)
-      };
-      setResult(`Data Analysis:\nRows: ${stats.rows}\nColumns: ${stats.columns}\n\nSample:\n${JSON.stringify(stats.sample, null, 2)}`);
-    } catch (error) {
-      toast({
-        title: 'Analysis error',
-        description: 'Invalid data format',
-        variant: 'destructive'
-      });
-    }
+  const analyzeData = () => {
+    callLucyRouter('memory_search', `Analyze this CSV data: ${input}`);
   };
 
-  const cleanHTML = (html: string) => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    const text = div.textContent || div.innerText || '';
-    setResult(text);
+  const cleanHTML = () => {
+    callLucyRouter('browser_fetch', `Extract text from this HTML: ${input}`);
   };
 
   return (
@@ -102,21 +113,18 @@ export const InternalTools = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={3}
+            disabled={loading}
           />
-          <Button onClick={() => calculateExpression(input)}>Calculate</Button>
+          <Button onClick={calculateExpression} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            Calculate
+          </Button>
         </TabsContent>
 
         <TabsContent value="pdf" className="space-y-4">
-          <input
-            type="file"
-            accept=".pdf,.txt"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) extractPDFText(file);
-            }}
-            className="w-full"
-          />
-          <p className="text-sm text-muted-foreground">Upload a text or PDF file to extract content</p>
+          <p className="text-sm text-muted-foreground">
+            PDF analysis is integrated directly in the chat. Upload PDFs in conversation for AI analysis using lucy-router.
+          </p>
         </TabsContent>
 
         <TabsContent value="data" className="space-y-4">
@@ -125,8 +133,12 @@ export const InternalTools = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={5}
+            disabled={loading}
           />
-          <Button onClick={() => analyzeData(input)}>Analyze Data</Button>
+          <Button onClick={analyzeData} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            Analyze Data
+          </Button>
         </TabsContent>
 
         <TabsContent value="html" className="space-y-4">
@@ -135,8 +147,12 @@ export const InternalTools = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={5}
+            disabled={loading}
           />
-          <Button onClick={() => cleanHTML(input)}>Clean HTML</Button>
+          <Button onClick={cleanHTML} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            Clean HTML
+          </Button>
         </TabsContent>
 
         <TabsContent value="image" className="space-y-4">
