@@ -1,48 +1,22 @@
-import { Music, Mic, Volume2, SlidersHorizontal } from "lucide-react";
-
-const features = [
-  {
-    icon: Music,
-    title: "Music Creation",
-    description: "Generate original melodies, beats, and soundscapes."
-  },
-  {
-    icon: Mic,
-    title: "Voice Studio",
-    description: "Record, enhance, and transform voice audio."
-  },
-  {
-    icon: Volume2,
-    title: "Sound Enhancer",
-    description: "Boost clarity, EQ, reverb, and mastering effects."
-  },
-  {
-    icon: SlidersHorizontal,
-    title: "Audio Filters",
-    description: "Apply advanced filters and shaping tools."
-  }
-];
+import { Sparkles, Mic, Wand2 } from "lucide-react";
 
 export const AudioStudioFeatures = () => {
-  return (
-    <div className="max-w-6xl mx-auto mb-20">
-      <h2 className="text-3xl font-bold text-white mb-10 text-center">
-        Powerful Audio Capabilities
-      </h2>
+  const features = [
+    { icon: Mic, title: "Audio Recording", desc: "Record and enhance voice." },
+    { icon: Wand2, title: "Sound Tools", desc: "Equalizers and processors." },
+    { icon: Sparkles, title: "AI Audio", desc: "Generate audio and music." },
+  ];
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {features.map((feature, index) => (
-          <div
-            key={index}
-            className="glass-card-enhanced p-8 hover:scale-105 transition-transform"
-          >
-            <feature.icon className="w-12 h-12 text-white mb-4" />
-            <h3 classname="text-xl font-semibold text-white mb-2">
-              {feature.title}
-            </h3>
-            <p className="text-white/70">
-              {feature.description}
-            </p>
+  return (
+    <div className="max-w-5xl mx-auto mb-16">
+      <h2 className="text-3xl font-bold text-white mb-8 text-center">Features</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {features.map((f, i) => (
+          <div key={i} className="glass-card-enhanced p-6 text-center">
+            <f.icon className="w-10 h-10 text-white mb-3" />
+            <h3 className="text-lg font-semibold text-white">{f.title}</h3>
+            <p className="text-white/70 text-sm">{f.desc}</p>
           </div>
         ))}
       </div>
