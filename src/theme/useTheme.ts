@@ -3,8 +3,7 @@
 import { THEMES, THEME_NAMES, ThemeName } from "./themes";
 import { supabase } from "@/integrations/supabase/client";
 
-export { ThemeName, THEME_NAMES };
-
+export type { ThemeName };
 /**
  * Apply theme to <html> via CSS variables + localStorage
  * + animated transition.
