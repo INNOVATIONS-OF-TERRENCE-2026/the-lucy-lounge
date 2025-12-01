@@ -16,7 +16,6 @@ const Chat = () => {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check authentication
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         navigate("/auth");
@@ -26,7 +25,9 @@ const Chat = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
       } else {
@@ -46,17 +47,23 @@ const Chat = () => {
     <>
       <CosmicBackground />
       <SidebarProvider>
-        <div className="min-h-screen flex w-full relative">
-          <ChatSidebar 
+        {/* full screen dynamic layout */}
+        <div className="flex h-screen w-full overflow-hidden">
+          {/* Sidebar */}
+          <ChatSidebar
             userId={user?.id}
             currentConversationId={currentConversationId}
             onConversationSelect={setCurrentConversationId}
           />
-          <ChatInterface 
-            userId={user?.id}
-            conversationId={currentConversationId}
-            onConversationCreated={setCurrentConversationId}
-          />
+
+          {/* Chat Interface now expands full height */}
+          <div className="flex flex-col flex-1 h-full overflow-hidden">
+            <ChatInterface
+              userId={user?.id}
+              conversationId={currentConversationId}
+              onConversationCreated={setCurrentConversationId}
+            />
+          </div>
         </div>
       </SidebarProvider>
     </>
