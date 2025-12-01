@@ -1,19 +1,17 @@
 import { applyTheme } from "@/theme/useTheme";
-
-const themes = ["purple", "forest", "ocean", "gold", "rose"] as const;
-type ThemeName = (typeof themes)[number];
+import { themes } from "@/theme/themes";
 
 export function ThemePicker() {
   return (
-    <div className="flex gap-2 justify-center items-center p-2">
-      {themes.map((t: ThemeName) => (
+    <div className="flex gap-2 p-2 backdrop-blur-md bg-black/20 rounded-xl border border-white/10">
+      {Object.keys(themes).map((t) => (
         <button
           key={t}
-          onClick={() => applyTheme(t)}
-          className="px-3 py-2 rounded-xl border text-xs capitalize bg-black/40"
-        >
-          {t}
-        </button>
+          onClick={() => applyTheme(t as any)}
+          className="w-6 h-6 rounded-full border border-white/30 hover:scale-110 transition"
+          style={{ background: themes[t as keyof typeof themes]["--primary"] }}
+          title={t}
+        />
       ))}
     </div>
   );
