@@ -131,15 +131,15 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
           border border-dashed rounded-xl px-3 py-2 transition-colors cursor-pointer
           flex items-center justify-center text-center
           text-[11px] md:text-xs
-          min-h-[40px] md:min-h-[56px] max-h-[64px] overflow-hidden
+          min-h-[40px] md:min-h-[50px] max-h-[60px] overflow-hidden
           ${isDragging ? "border-primary bg-primary/10" : "border-border/70 hover:border-primary/60 bg-background/40"}
         `}
       >
         <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 text-muted-foreground">
           <Upload className="w-4 h-4 md:mr-1" />
-          <span className="font-medium">Drop files or click to upload</span>
+          <span className="font-medium">Drop files or tap to upload</span>
           <span className="hidden md:inline">•</span>
-          <span className="text-[10px] md:text-[11px]">Images, videos, audio, PDFs (max 50MB, 10 files)</span>
+          <span className="text-[10px] md:text-[11px]">Images, video, audio, PDFs (50MB max)</span>
         </div>
 
         <input

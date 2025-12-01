@@ -49,9 +49,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUserMessage, setLastUserMessage] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [streamingMessage, setStreamingMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedAttachments, setUploadedAttachments] = useState<any[]>([]);
@@ -64,12 +61,16 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [toolResults, setToolResults] = useState<any>(null);
   const [lastReadMessageIndex, setLastReadMessageIndex] = useState(-1);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const { suggestedScene } = useSmartSceneSuggestion(conversationId);
-  const { memories, storeMemory } = useMemoryManager(userId);
+  const { storeMemory } = useMemoryManager(userId);
   const { analyzeContext } = useContextAnalyzer(conversationId);
   const { readingMode, setReadingMode, getSpacingClass } = useReadingMode();
-  const { speed, setSpeed, getDelay } = useStreamingSpeed();
-  const { isNearBottom, showScrollButton, scrollToBottom } = useScrollDetection(chatContainerRef);
+  const { speed, setSpeed } = useStreamingSpeed();
+  const { showScrollButton, scrollToBottom } = useScrollDetection(chatContainerRef);
 
   useKeyboardShortcuts({
     onSend: () => handleSend(),
@@ -105,6 +106,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       setMessages([]);
       setConversationTitle("New Conversation");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
   const loadConversationDetails = async () => {
@@ -255,7 +257,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                 fullResponse += content;
                 setStreamingMessage(fullResponse);
               }
-            } catch (e) {
+            } catch {
               // ignore parse errors
             }
           }
@@ -407,7 +409,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-full relative">
+    <main className="flex-1 flex flex-col h-screen relative">
       <ReadingProgressBar isStreaming={!!streamingMessage} />
 
       <ScrollToBottom
@@ -416,6 +418,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
+      {/* HEADER */}
       <header className="h-16 md:h-20 border-b border-primary/20 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
@@ -490,11 +493,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      {/* MAIN CHAT AREA – height capped to keep input visible */}
-      <ScrollArea
-        ref={chatContainerRef}
-        className="flex-1 px-4 md:px-6 py-6 md:py-8 scroll-smooth overflow-y-auto max-h-[calc(100vh-210px)]"
-      >
+      {/* MAIN CHAT AREA – full remaining height */}
+      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-4 md:py-6 scroll-smooth overflow-y-auto">
         {messages.length === 0 && !streamingMessage && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 max-w-2xl mx-auto">
             <LucyLogo size="xl" showGlow />
@@ -584,7 +584,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </ScrollArea>
 
-      {/* INPUT + UPLOAD AREA – stays compact */}
+      {/* INPUT + UPLOAD AREA – compact */}
       <div className="border-t border-primary/20 p-4 md:p-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
         <div className="max-w-5xl mx-auto space-y-3">
           <FileUploadZone
@@ -600,7 +600,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Message Lucy..."
-              className="chat-input pr-20 min-h-[90px] md:min-h-[110px] max-h-[300px] resize-none text-base md:text-lg px-6 py-5 rounded-3xl border-2 border-primary/40 focus:border-primary/70 focus:shadow-glow-divine transition-all duration-300 glass-card-enhanced"
+              className="chat-input pr-20 min-h-[70px] md:min-h-[90px] max-h-[220px] resize-none text-base md:text-lg px-6 py-5 rounded-3xl border-2 border-primary/40 focus:border-primary/70 focus:shadow-glow-divine transition-all duration-300 glass-card-enhanced"
               disabled={isLoading}
             />
             <Button
