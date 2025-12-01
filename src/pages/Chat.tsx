@@ -46,9 +46,10 @@ const Chat = () => {
   return (
     <>
       <CosmicBackground />
+
       <SidebarProvider>
-        {/* full screen dynamic layout */}
-        <div className="flex h-screen w-full overflow-hidden">
+        {/* FULLSCREEN + FIXES MOBILE SAFARI */}
+        <div className="flex flex-row w-screen h-screen max-h-screen overflow-hidden">
           {/* Sidebar */}
           <ChatSidebar
             userId={user?.id}
@@ -56,8 +57,8 @@ const Chat = () => {
             onConversationSelect={setCurrentConversationId}
           />
 
-          {/* Chat Interface now expands full height */}
-          <div className="flex flex-col flex-1 h-full overflow-hidden">
+          {/* Chat Interface Fills All Remaining Space */}
+          <div className="flex flex-col flex-1 h-full w-full overflow-hidden">
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
