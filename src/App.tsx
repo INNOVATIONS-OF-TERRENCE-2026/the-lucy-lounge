@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { loadStoredTheme } from "@/theme/useTheme";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,7 +28,6 @@ import StudiosDev from "./pages/StudiosDev";
 import { SharedConversation } from "./pages/SharedConversation";
 import { RoomList } from "./components/rooms/RoomList";
 import { RoomChat } from "./components/rooms/RoomChat";
-import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
 import { IntroScreen } from "./components/branding/IntroScreen";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
@@ -40,6 +40,11 @@ const App = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [hasShownIntro, setHasShownIntro] = useState(false);
   useDarkMode();
+
+  // LOAD THE STORED THEME HERE
+  useEffect(() => {
+    loadStoredTheme();
+  }, []);
 
   useEffect(() => {
     const introShown = sessionStorage.getItem("lucy-intro-shown");
@@ -62,14 +67,9 @@ const App = () => {
         <Sonner />
 
         {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
-
         <InstallPrompt />
         <OfflineBanner />
 
-        {/*
-          === MAIN APP WRAPPER FIXED ===
-          Full mobile responsive container + full screen sizing
-        */}
         <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
           <BrowserRouter>
             <AnalyticsTracker />
