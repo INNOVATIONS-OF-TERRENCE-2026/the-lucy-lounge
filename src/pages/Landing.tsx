@@ -11,6 +11,7 @@ import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { EmailCapture } from '@/components/landing/EmailCapture';
 import { ShareButtons } from '@/components/landing/ShareButtons';
 import { StructuredData } from '@/components/seo/StructuredData';
+import { TopNav } from '@/components/navigation/TopNav';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const Landing = () => {
       
       <div className="min-h-screen relative overflow-hidden">
         <CosmicBackground />
+        <TopNav />
         <div className="relative z-10">
           <Hero />
           <Features />

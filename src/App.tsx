@@ -19,6 +19,10 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Admin from "./pages/Admin";
+import Studios from "./pages/Studios";
+import StudiosAI from "./pages/StudiosAI";
+import StudiosAudio from "./pages/StudiosAudio";
+import StudiosDev from "./pages/StudiosDev";
 import { SharedConversation } from "./pages/SharedConversation";
 import { RoomList } from "./components/rooms/RoomList";
 import { RoomChat } from "./components/rooms/RoomChat";
@@ -76,6 +80,10 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/studios" element={<Studios />} />
+              <Route path="/studios/ai" element={<StudiosAI />} />
+              <Route path="/studios/audio" element={<StudiosAudio />} />
+              <Route path="/studios/dev" element={<StudiosDev />} />
               <Route path="/shared/:token" element={<SharedConversation />} />
               <Route path="/rooms" element={<RoomList />} />
               <Route path="/room/:roomId" element={<RoomChat />} />
