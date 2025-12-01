@@ -4,14 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, Search, Download, Settings2 } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FileUploadZone } from "./FileUploadZone";
 import { ExportDialog } from "./ExportDialog";
 import { SearchModal } from "./SearchModal";
-import { ModelSelector } from "./ModelSelector";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { ChatSettings } from "./ChatSettings";
 import { ReadingProgressBar } from "./ReadingProgressBar";
@@ -29,12 +28,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [streamingMessage, setStreamingMessage] = useState("");
+  const [streamingMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [conversationTitle, setConversationTitle] = useState("New Conversation");
-  const [lastReadIndex, setLastReadIndex] = useState(-1);
+  const [lastReadIndex] = useState(-1);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -59,7 +58,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       )
       .subscribe();
 
-    // IMPORTANT: return ONLY a sync cleanup
+    // cleanup must NOT be async
     return () => {
       supabase.removeChannel(channel);
     };
@@ -81,6 +80,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         })
         .select()
         .single();
+
       convId = data.id;
       onConversationCreated(convId);
     }
@@ -100,6 +100,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       className="
         flex-1 flex flex-col h-screen 
         bg-[var(--bg-1)] text-[var(--text)]
+        transition-all duration-500
       "
     >
       <ReadingProgressBar isStreaming={!!streamingMessage} />
@@ -121,7 +122,25 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       </header>
 
       {/* MESSAGES */}
-      <ScrollArea ref={chatRef} className="flex-1 px-4 py-6 bg-[var(--bg-2)]">
+      <ScrollArea
+        ref={chatRef}
+        className="
+          flex-1 px-4 py-6 
+          bg-[var(--bg-2)]
+          transition-all duration-500
+          scroll-smooth
+        "
+      >
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+            <LucyLogo size="xl" showGlow />
+            <div className="glass-card-enhanced p-10 rounded-3xl border border-primary/40 shadow-glow-divine bg-[var(--bg-1)]">
+              <h2 className="text-4xl font-bold mb-4 text-[var(--text)]">Welcome to Lucy AI</h2>
+              <p className="text-[var(--text)] text-lg">Divine intelligence awaits. Ask me anything!</p>
+            </div>
+          </div>
+        )}
+
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg} />
         ))}
@@ -147,7 +166,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                   handleSend();
                 }
               }}
-              placeholder="Message Lucy..."
+              placeholder="Message Lucy…"
               className="min-h-[70px] chat-input"
             />
 
