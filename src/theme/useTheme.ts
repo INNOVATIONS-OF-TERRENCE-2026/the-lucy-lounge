@@ -1,18 +1,21 @@
 import { themes } from "./themes";
 
-export function applyTheme(name: keyof typeof themes) {
+export type ThemeName = keyof typeof themes;
+
+export function applyTheme(name: ThemeName) {
   const theme = themes[name];
 
-  Object.entries(theme).forEach(([varName, value]) => {
-    document.documentElement.style.setProperty(varName, value);
+  Object.entries(theme).forEach(([key, val]) => {
+    document.documentElement.style.setProperty(key, val);
   });
 
-  localStorage.setItem("lucy-theme", name);
+  localStorage.setItem("theme", name);
 }
 
 export function loadStoredTheme() {
-  const saved = localStorage.getItem("lucy-theme");
-  if (saved && saved in themes) {
-    applyTheme(saved as keyof typeof themes);
+  const saved = localStorage.getItem("theme") as ThemeName | null;
+
+  if (saved && themes[saved]) {
+    applyTheme(saved);
   }
 }
