@@ -7,6 +7,7 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
+import { ThemePicker } from "@/components/ThemePicker"; // ⭐ ADDED
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -59,6 +60,11 @@ const Chat = () => {
 
           {/* Chat Interface Fills All Remaining Space */}
           <div className="flex flex-col flex-1 h-full w-full overflow-hidden">
+            {/* ⭐ THEME PICKER ADDED HERE */}
+            <div className="w-full flex justify-center py-2">
+              <ThemePicker />
+            </div>
+
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
