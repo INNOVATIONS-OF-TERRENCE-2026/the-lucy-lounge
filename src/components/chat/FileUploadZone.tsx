@@ -38,7 +38,7 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
   };
 
   const validateAndAddFiles = (files: File[]) => {
-    const maxSize = 50 * 1024 * 1024; // 50MB for video/audio
+    const maxSize = 50 * 1024 * 1024; // 50MB
     const maxFiles = 10;
 
     if (selectedFiles.length + files.length > maxFiles) {
@@ -50,7 +50,7 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
       return;
     }
 
-    const validFiles = files.filter(file => {
+    const validFiles = files.filter((file) => {
       if (file.size > maxSize) {
         toast({
           title: "File too large",
@@ -66,22 +66,22 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
   };
 
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith('image/')) {
+    if (file.type.startsWith("image/")) {
       return <ImageIcon className="w-4 h-4" />;
     }
-    if (file.type.startsWith('video/')) {
+    if (file.type.startsWith("video/")) {
       return <FileText className="w-4 h-4" />;
     }
-    if (file.type.startsWith('audio/')) {
+    if (file.type.startsWith("audio/")) {
       return <FileText className="w-4 h-4" />;
     }
     return <FileText className="w-4 h-4" />;
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   return (
@@ -89,10 +89,10 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
       {selectedFiles.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedFiles.map((file, index) => {
-            const isImage = file.type.startsWith('image/');
-            const isVideo = file.type.startsWith('video/');
-            const previewUrl = (isImage || isVideo) ? URL.createObjectURL(file) : null;
-            
+            const isImage = file.type.startsWith("image/");
+            const isVideo = file.type.startsWith("video/");
+            const previewUrl = isImage || isVideo ? URL.createObjectURL(file) : null;
+
             return (
               <div
                 key={index}
@@ -112,12 +112,7 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
                   <span className="text-sm truncate max-w-[200px]">{file.name}</span>
                   <span className="text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 ml-auto"
-                  onClick={() => onRemoveFile(index)}
-                >
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 ml-auto" onClick={() => onRemoveFile(index)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -126,21 +121,27 @@ export function FileUploadZone({ onFilesSelected, selectedFiles, onRemoveFile }:
         </div>
       )}
 
+      {/* Compact upload bar – always small, centered */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`
-          border-2 border-dashed rounded-lg p-4 transition-colors cursor-pointer
-          ${isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}
-        `}
         onClick={() => fileInputRef.current?.click()}
+        className={`
+          border border-dashed rounded-xl px-3 py-2 transition-colors cursor-pointer
+          flex items-center justify-center text-center
+          text-[11px] md:text-xs
+          min-h-[40px] md:min-h-[56px] max-h-[64px] overflow-hidden
+          ${isDragging ? "border-primary bg-primary/10" : "border-border/70 hover:border-primary/60 bg-background/40"}
+        `}
       >
-        <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Upload className="w-5 h-5" />
+        <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 text-muted-foreground">
+          <Upload className="w-4 h-4 md:mr-1" />
           <span className="font-medium">Drop files or click to upload</span>
-          <span className="text-xs">Images, videos, audio, PDFs (max 50MB, 10 files)</span>
+          <span className="hidden md:inline">•</span>
+          <span className="text-[10px] md:text-[11px]">Images, videos, audio, PDFs (max 50MB, 10 files)</span>
         </div>
+
         <input
           ref={fileInputRef}
           type="file"

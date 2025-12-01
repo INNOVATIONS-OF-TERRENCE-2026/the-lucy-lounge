@@ -333,7 +333,10 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               },
               body: JSON.stringify({
                 messages: [
-                  ...messages.map((m) => ({ role: m.role, content: m.content })),
+                  ...messages.map((m) => ({
+                    role: m.role,
+                    content: m.content,
+                  })),
                   { role: "user", content: enhancedMessage },
                 ],
                 preferredModel: selectedModel,
@@ -487,7 +490,11 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-6 md:py-8 scroll-smooth overflow-y-auto">
+      {/* MAIN CHAT AREA – height capped to keep input visible */}
+      <ScrollArea
+        ref={chatContainerRef}
+        className="flex-1 px-4 md:px-6 py-6 md:py-8 scroll-smooth overflow-y-auto max-h-[calc(100vh-210px)]"
+      >
         {messages.length === 0 && !streamingMessage && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 max-w-2xl mx-auto">
             <LucyLogo size="xl" showGlow />
@@ -577,6 +584,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </ScrollArea>
 
+      {/* INPUT + UPLOAD AREA – stays compact */}
       <div className="border-t border-primary/20 p-4 md:p-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
         <div className="max-w-5xl mx-auto space-y-3">
           <FileUploadZone
