@@ -8,10 +8,28 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Search, FileText, Globe, Image, Calculator, Code, Database, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 const Tools = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [toolResult, setToolResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Map tool IDs to lucy-router tool names
+  const toolRouterMap: Record<string, string> = {
+    'pdf-extractor': 'vision',
+    'website-summarizer': 'web_search',
+    'image-caption': 'vision',
+    'calculator': 'code_exec',
+    'html-cleaner': 'browser_fetch',
+    'data-analyzer': 'memory_search',
+    'code-runner': 'code_exec',
+    'web-fetch': 'browser_fetch'
+  };
 
   const tools = [
     {
@@ -79,6 +97,44 @@ const Tools = () => {
       free: true
     }
   ];
+
+  const handleToolClick = async (toolId: string) => {
+    const routerTool = toolRouterMap[toolId];
+    if (!routerTool) {
+      setError('Tool not mapped to router');
+      return;
+    }
+
+    setLoading(true);
+    setSelectedTool(toolId);
+    setError(null);
+    setToolResult(null);
+
+    try {
+      const { data, error: funcError } = await supabase.functions.invoke('lucy-router', {
+        body: {
+          userId: 'anonymous',
+          messages: [
+            {
+              role: 'user',
+              content: `Use the ${routerTool} tool to help with this request.`
+            }
+          ]
+        }
+      });
+
+      if (funcError) throw funcError;
+
+      setToolResult(data);
+      setError(null);
+    } catch (err: any) {
+      console.error('[Tools] Error calling lucy-router:', err);
+      setError(err.message || 'Failed to execute tool');
+      setToolResult(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = ['All', 'Document', 'Web', 'Vision', 'Utility', 'Developer', 'Data'];
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -175,11 +231,15 @@ const Tools = () => {
                   <Card 
                     key={tool.id}
                     className="p-6 bg-card/80 backdrop-blur-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-                    onClick={() => navigate('/chat')}
+                    onClick={() => handleToolClick(tool.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-white" />
+                        {loading && selectedTool === tool.id ? (
+                          <Loader2 className="w-6 h-6 text-white animate-spin" />
+                        ) : (
+                          <Icon className="w-6 h-6 text-white" />
+                        )}
                       </div>
                       <Badge variant={tool.free ? 'default' : 'secondary'}>
                         {tool.free ? 'Free' : 'Pro'}
@@ -196,6 +256,59 @@ const Tools = () => {
             {filteredTools.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-white/80 text-lg">No tools found matching your search</p>
+              </div>
+            )}
+
+            {/* Tool Result Display */}
+            {(toolResult || error) && (
+              <div className="mt-8 max-w-4xl mx-auto">
+                <Card className="p-6 bg-card/90 backdrop-blur-lg">
+                  {error && (
+                    <div className="bg-destructive/10 border border-destructive/50 rounded-lg p-4 mb-4">
+                      <h3 className="font-semibold text-destructive mb-2">Error</h3>
+                      <p className="text-sm text-destructive/80">{error}</p>
+                    </div>
+                  )}
+                  
+                  {toolResult && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold">Tool Result</h3>
+                      {toolResult.plan?.steps && toolResult.plan.steps.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-sm text-muted-foreground">Steps Executed:</h4>
+                          {toolResult.plan.steps.map((step: any, idx: number) => (
+                            <div key={idx} className="bg-muted/50 rounded p-3 text-sm">
+                              <p className="font-medium">Step {step.stepNumber}: {step.tool}</p>
+                              {step.result && (
+                                <pre className="mt-2 text-xs overflow-auto">
+                                  {JSON.stringify(step.result, null, 2)}
+                                </pre>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {toolResult.plan?.finalAnswer && (
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                          <h4 className="font-semibold mb-2">Final Answer:</h4>
+                          <p className="whitespace-pre-wrap">{toolResult.plan.finalAnswer}</p>
+                        </div>
+                      )}
+                      
+                      <Button 
+                        onClick={() => {
+                          setToolResult(null);
+                          setError(null);
+                          setSelectedTool(null);
+                        }}
+                        variant="outline"
+                      >
+                        Clear Result
+                      </Button>
+                    </div>
+                  )}
+                </Card>
               </div>
             )}
           </div>
