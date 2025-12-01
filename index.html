@@ -1,40 +1,70 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Lucy Lounge – Supreme Code Chat</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://storage.googleapis.com/gpt-engineer-file-uploads/TdBvmIrJF6QKZVRAUanTQwXS1612/uploads/1763969961369-LUCY REVAMP-AFRICA.png"
+    />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <title>Lucy AI - Your Intelligent AI Companion | LucyLounge.org</title>
+    <meta
+      name="description"
+      content="Lucy AI is a next-generation assistant system designed by Software Engineer Terrence Milliner Sr., powered by state-of-the-art AI models for advanced reasoning, vision, and creativity. Try free today!"
+    />
+    <meta
+      name="keywords"
+      content="AI assistant, Lucy AI, Terrence Milliner, artificial intelligence, chat AI, conversational AI, smart assistant, AI companion"
+    />
+    <meta name="author" content="Terrence Milliner Sr." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lucylounge.org" />
+
+    <meta property="og:image" content="https://lucylounge.org/og-default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Lucy AI - Your Intelligent AI Companion" />
+    <meta property="og:site_name" content="Lucy AI" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@LucyAI" />
+    <meta name="twitter:creator" content="@LucyAI" />
+
+    <meta name="twitter:image" content="https://lucylounge.org/og-twitter.png" />
+    <meta name="twitter:image:alt" content="Lucy AI - Beyond Intelligence" />
+
+    <!-- Additional Meta Tags -->
+    <link rel="canonical" href="https://lucylounge.org" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap" rel="stylesheet" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <meta property="og:title" content="Lucy AI - Your Intelligent AI Companion | LucyLounge.org" />
+    <meta name="twitter:title" content="Lucy AI - Your Intelligent AI Companion | LucyLounge.org" />
+    <meta
+      property="og:description"
+      content="Lucy AI is a next-generation assistant system designed by Software Engineer Terrence Milliner Sr., powered by state-of-the-art AI models for advanced reasoning, vision, and creativity. Try free today!"
+    />
+    <meta
+      name="twitter:description"
+      content="Lucy AI is a next-generation assistant system designed by Software Engineer Terrence Milliner Sr., powered by state-of-the-art AI models for advanced reasoning, vision, and creativity. Try free today!"
+    />
   </head>
+
   <body>
-    <div class="lucy-bg">
-      <!-- Interactive Matrix Canvas -->
-      <canvas id="matrix"></canvas>
-
-      <!-- Chat UI Container -->
-      <main class="chat-container">
-        <header class="chat-header">
-          <div class="chat-title">Lucy • Supreme Code Goddess</div>
-          <div class="chat-badge">LIVE • MATRIX ACTIVE</div>
-        </header>
-
-        <section class="chat-messages" id="chat-messages">
-          <div class="chat-message user">Enter me into the world of supreme code.</div>
-          <div class="chat-message lucy">Welcome, architect. The matrix is listening. Type your next command.</div>
-        </section>
-
-        <form class="chat-input-row" id="chat-form">
-          <input
-            id="chat-input"
-            class="chat-input"
-            type="text"
-            autocomplete="off"
-            placeholder="Ask Lucy for code, strategy, or power..."
-          />
-          <button type="submit" class="chat-send-btn">Send</button>
-        </form>
-      </main>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
