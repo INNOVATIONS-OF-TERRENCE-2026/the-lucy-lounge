@@ -12,26 +12,18 @@ import { ExportDialog } from "./ExportDialog";
 import { SearchModal } from "./SearchModal";
 import { ModelSelector } from "./ModelSelector";
 import { LucyLogo } from "@/components/branding/LucyLogo";
-import { ToolResultDisplay } from "./ToolResultDisplay";
-import { ProactiveSuggestions } from "./ProactiveSuggestions";
 import { ContextIndicator } from "./ContextIndicator";
 import { MemoryPanel } from "./MemoryPanel";
 import { SmartSceneSuggestion } from "./SmartSceneSuggestion";
 import { ChatSettings } from "./ChatSettings";
-import { ReadingProgressBar } from "./ReadingProgressBar";
-import { TimestampDivider } from "./TimestampDivider";
 import { useSmartSceneSuggestion } from "@/hooks/useSmartSceneSuggestion";
 import { useMemoryManager } from "@/hooks/useMemoryManager";
 import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
 import { useReadingMode } from "@/hooks/useReadingMode";
-import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { ScrollToBottom } from "./ScrollToBottom";
-import { NewMessageDivider } from "./NewMessageDivider";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -43,14 +35,35 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin } = useAdminCheck();
+
+  // FIXED missing state
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conversationTitle, setConversationTitle] = useState("New Conversation");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [showModelSelector, setShowModelSelector] = useState(false);
+  const [streamingMessage, setStreamingMessage] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  /* existing state + logic unchanged… */
+  const handleSend = () => {
+    if (!input.trim() || isLoading) return;
+    // TEMP fake send logic so UI works:
+    setMessages((prev) => [...prev, { id: Date.now(), role: "user", content: input }]);
+    setInput("");
+  };
+
+  const handleKeyDown = (e: any) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
     <main className="flex-1 flex flex-col h-full w-full">
@@ -93,7 +106,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
       <ScrollArea ref={chatContainerRef} className="flex-1 px-4 py-4 overflow-y-auto">
         <div className="mx-auto max-w-3xl space-y-4">
-          {/* Messages */}
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
@@ -113,7 +125,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </ScrollArea>
 
-      {/* Input section SHRUNK + Premium layout */}
       <div className="flex-shrink-0 border-t border-primary/10 px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto max-w-3xl w-full flex flex-col gap-3">
           {selectedFiles.length > 0 && (
@@ -135,7 +146,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
             <Button
               onClick={handleSend}
-              disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
+              disabled={!input.trim()}
               size="lg"
               className="absolute bottom-2 right-2 rounded-xl h-12 w-12 bg-gradient-button"
             >
