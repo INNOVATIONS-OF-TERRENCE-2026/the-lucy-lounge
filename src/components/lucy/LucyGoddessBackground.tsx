@@ -44,6 +44,19 @@ export const LucyGoddessBackground = () => {
 
   return (
     <div className="lucy-bg">
+      {/* Lucy Poster Background Layer */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/lucy-bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.85
+        }}
+        aria-hidden="true"
+      />
+      
       {/* Matrix Canvas Layer */}
       <canvas 
         ref={canvasRef}
@@ -52,16 +65,16 @@ export const LucyGoddessBackground = () => {
         aria-hidden="true"
       />
       
-      {/* Holographic Parallax Layer */}
+      {/* Holographic Aura Layer - soft-light blend */}
       <div className="holographic-layer" aria-hidden="true" />
       
-      {/* Glow Pulse Layer */}
+      {/* Glow Pulse Layer - Golden for Lucy */}
       <div className="glow-pulse-layer" aria-hidden="true" />
       
       {/* Dark Fade for Readability */}
       <div className="dark-fade-layer" aria-hidden="true" />
       
-      {/* Lucy Full-Body Silhouette Glow */}
+      {/* Lucy Silhouette Glow - Golden aura effect */}
       <div className="lucy-silhouette-glow" aria-hidden="true" />
     </div>
   );
