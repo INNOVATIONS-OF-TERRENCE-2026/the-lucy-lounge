@@ -4,16 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatInterface } from "@/components/chat/ChatInterface";
-import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
-import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
+import { LucyGoddessBackground } from "@/components/lucy/LucyGoddessBackground";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Add lucy-active class to body for scoped styling
+    document.body.classList.add('lucy-active');
+    
+    return () => {
+      document.body.classList.remove('lucy-active');
+    };
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -40,22 +47,16 @@ const Chat = () => {
   }, [navigate]);
 
   if (isLoading) {
-    return <LoadingScreen message="Entering the Cosmic AI Temple..." />;
+    return <LoadingScreen message="Awakening the Goddess..." />;
   }
 
   return (
-    <>
-      <CosmicBackground />
+    <div className="lucy-environment">
+      {/* Lucy Goddess Background System */}
+      <LucyGoddessBackground />
 
       <SidebarProvider>
-        {/* GLOBAL THEME BACKGROUND */}
-        <div
-          className="
-            flex flex-row w-screen h-screen max-h-screen overflow-hidden
-            bg-[var(--bg-1)] text-[var(--text)]
-            transition-all duration-500
-          "
-        >
+        <div className="chat-container-wrapper">
           {/* SIDEBAR */}
           <ChatSidebar
             userId={user?.id}
@@ -64,22 +65,16 @@ const Chat = () => {
           />
 
           {/* MAIN CHAT AREA */}
-          <div
-            className="
-              flex flex-col flex-1 h-full w-full overflow-hidden
-              bg-[var(--bg-2)]
-              transition-all duration-500
-            "
-          >
+          <main className="chat-main-area">
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
               onConversationCreated={setCurrentConversationId}
             />
-          </div>
+          </main>
         </div>
       </SidebarProvider>
-    </>
+    </div>
   );
 };
 

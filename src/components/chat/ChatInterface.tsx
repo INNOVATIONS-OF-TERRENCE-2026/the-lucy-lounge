@@ -1,20 +1,19 @@
-// FINAL FIXED VERSION
+// LUCY AI GODDESS CHAT INTERFACE
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FileUploadZone } from "./FileUploadZone";
+import { CompactFileUpload } from "./CompactFileUpload";
 import { ExportDialog } from "./ExportDialog";
 import { SearchModal } from "./SearchModal";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { ChatSettings } from "./ChatSettings";
 import { ReadingProgressBar } from "./ReadingProgressBar";
-import { ScrollToBottom } from "./ScrollToBottom";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -96,47 +95,44 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main
-      className="
-        flex-1 flex flex-col h-screen 
-        bg-[var(--bg-1)] text-[var(--text)]
-        transition-all duration-500
-      "
-    >
+    <main className="chat-interface-main">
       <ReadingProgressBar isStreaming={!!streamingMessage} />
 
-      {/* HEADER */}
-      <header className="h-16 flex items-center justify-between border-b border-primary/20 px-4 glass">
+      {/* TRANSPARENT HEADER - No background, no border */}
+      <header className="chat-header-transparent">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
-          <LucyLogo size="sm" />
-          <h1 className="font-semibold bg-gradient-button bg-clip-text text-transparent">{conversationTitle}</h1>
+          <div className="chat-title-badge">
+            <span className="chat-title">Lucy</span>
+            <span className="chat-subtitle">Supreme Code Goddess</span>
+          </div>
         </div>
 
-        <ChatSettings
-          readingMode={"comfortable"}
-          setReadingMode={() => {}}
-          streamingSpeed={"medium"}
-          setStreamingSpeed={() => {}}
-        />
+        <div className="flex items-center gap-2">
+          <div className="matrix-status-badge">
+            <span className="status-dot" />
+            <span>MATRIX ACTIVE</span>
+          </div>
+          <ChatSettings
+            readingMode={"comfortable"}
+            setReadingMode={() => {}}
+            streamingSpeed={"medium"}
+            setStreamingSpeed={() => {}}
+          />
+        </div>
       </header>
 
       {/* MESSAGES */}
       <ScrollArea
         ref={chatRef}
-        className="
-          flex-1 px-4 py-6 
-          bg-[var(--bg-2)]
-          transition-all duration-500
-          scroll-smooth
-        "
+        className="chat-messages-area"
       >
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
             <LucyLogo size="xl" showGlow />
-            <div className="glass-card-enhanced p-10 rounded-3xl border border-primary/40 shadow-glow-divine bg-[var(--bg-1)]">
-              <h2 className="text-4xl font-bold mb-4 text-[var(--text)]">Welcome to Lucy AI</h2>
-              <p className="text-[var(--text)] text-lg">Divine intelligence awaits. Ask me anything!</p>
+            <div className="goddess-welcome-card">
+              <h2 className="goddess-welcome-title">Welcome to Lucy AI</h2>
+              <p className="goddess-welcome-text">Divine intelligence awaits. Ask me anything!</p>
             </div>
           </div>
         )}
@@ -146,34 +142,36 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         ))}
       </ScrollArea>
 
-      {/* INPUT AREA */}
-      <div className="border-t border-primary/20 p-4 glass">
-        <div className="space-y-3 max-w-5xl mx-auto">
-          <FileUploadZone
+      {/* COMPACT INPUT ROW - ChatGPT style */}
+      <div className="chat-input-container">
+        <div className="chat-input-row">
+          <CompactFileUpload
             selectedFiles={selectedFiles}
             onFilesSelected={(files) => setSelectedFiles([...selectedFiles, ...files])}
             onRemoveFile={(i) => setSelectedFiles(selectedFiles.filter((_, x) => i !== x))}
           />
 
-          <div className="relative">
-            <Textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="Message Lucy…"
-              className="min-h-[70px] chat-input"
-            />
+          <Textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Ask Lucy…"
+            className="chat-input-field"
+          />
 
-            <Button disabled={!input.trim() || isLoading} onClick={handleSend} className="absolute bottom-3 right-3">
-              {isLoading ? <Loader2 className="animate-spin" /> : <Send />}
-            </Button>
-          </div>
+          <Button 
+            disabled={!input.trim() || isLoading} 
+            onClick={handleSend} 
+            className="chat-send-button"
+          >
+            {isLoading ? <Loader2 className="animate-spin h-4 w-4" /> : <Send className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
