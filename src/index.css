@@ -91,8 +91,9 @@ body {
 }
 
 /* =========================================================
-   LUCY AI GODDESS SYSTEM - SCOPED STYLES
+   LUCY AI GODDESS SYSTEM v3 - Poster-Accurate Styling
    All Lucy styling is scoped under body.lucy-active
+   GREEN / RED / GOLD Matrix Theme
    ========================================================= */
 
 /* Lucy Environment Container */
@@ -101,14 +102,18 @@ body.lucy-active .lucy-environment {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: #000;
 }
 
-/* Lucy Background System */
+/* Lucy Background System with Silhouette */
 body.lucy-active .lucy-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  background: 
+    url('/lucy-bg.png') center center / cover no-repeat,
+    linear-gradient(to bottom, #000 0%, #050505 100%);
 }
 
 /* Matrix Canvas - Non-blocking */
@@ -118,58 +123,61 @@ body.lucy-active .matrix-canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.6;
-  z-index: 1;
+  opacity: 0.75;
+  z-index: 2;
+  mix-blend-mode: screen;
 }
 
-/* Holographic Parallax Layer */
+/* Holographic Aura Layer - Soft-light blend */
 body.lucy-active .holographic-layer {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse at 30% 20%, hsl(277 100% 30% / 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, hsl(320 100% 50% / 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, hsl(45 100% 50% / 0.05) 0%, transparent 60%);
-  animation: holographic-drift 20s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-
-@keyframes holographic-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(10px, -10px) scale(1.02); }
-  50% { transform: translate(-5px, 5px) scale(1); }
-  75% { transform: translate(5px, 10px) scale(1.01); }
-}
-
-/* Glow Pulse Layer */
-body.lucy-active .glow-pulse-layer {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, hsl(277 100% 50% / 0.1) 0%, transparent 70%);
-  animation: glow-pulse 4s ease-in-out infinite;
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 30%, rgba(0, 255, 100, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 70%, rgba(255, 50, 50, 0.04) 0%, transparent 40%);
+  mix-blend-mode: soft-light;
+  animation: holographic-drift 25s ease-in-out infinite;
   pointer-events: none;
   z-index: 3;
 }
 
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
+@keyframes holographic-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  25% { transform: translate(8px, -8px) scale(1.01); opacity: 1; }
+  50% { transform: translate(-4px, 4px) scale(1); opacity: 0.9; }
+  75% { transform: translate(4px, 8px) scale(1.005); opacity: 1; }
 }
 
-/* Dark Fade for Readability */
+/* Glow Pulse Layer - Golden for Lucy */
+body.lucy-active .glow-pulse-layer {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 50% 70% at 50% 45%, rgba(251, 191, 36, 0.06) 0%, transparent 60%);
+  animation: glow-pulse 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.03); }
+}
+
+/* Dark Fade for Readability - Bottom gradient */
 body.lucy-active .dark-fade-layer {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    transparent 40%,
-    hsl(0 0% 0% / 0.3) 70%,
-    hsl(0 0% 0% / 0.6) 100%
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 75%,
+    rgba(0, 0, 0, 0.7) 100%
   );
   pointer-events: none;
-  z-index: 4;
+  z-index: 5;
 }
 
 /* Chat Container Wrapper */
@@ -225,17 +233,19 @@ body.lucy-active .chat-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.25rem;
   font-weight: 600;
-  background: linear-gradient(135deg, hsl(277 100% 70%), hsl(320 100% 60%), hsl(45 100% 60%));
+  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 215, 0));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
 }
 
 body.lucy-active .chat-subtitle {
   font-size: 0.65rem;
-  color: hsl(277 100% 70% / 0.7);
+  color: rgba(251, 191, 36, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 body.lucy-active .matrix-status-badge {
@@ -243,26 +253,28 @@ body.lucy-active .matrix-status-badge {
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.75rem;
-  background: hsl(277 100% 30% / 0.2);
-  border: 1px solid hsl(277 100% 50% / 0.3);
+  background: rgba(0, 255, 100, 0.1);
+  border: 1px solid rgba(0, 255, 100, 0.3);
   border-radius: 9999px;
   font-size: 0.65rem;
-  color: hsl(120 100% 60%);
+  color: rgb(0, 255, 100);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(0, 255, 100, 0.5);
 }
 
 body.lucy-active .status-dot {
   width: 6px;
   height: 6px;
-  background: hsl(120 100% 50%);
+  background: rgb(0, 255, 100);
   border-radius: 50%;
   animation: status-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(0, 255, 100, 0.8);
 }
 
 @keyframes status-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 4px hsl(120 100% 50%); }
-  50% { opacity: 0.5; box-shadow: 0 0 8px hsl(120 100% 50%); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(0, 255, 100, 0.8); }
+  50% { opacity: 0.6; box-shadow: 0 0 12px rgba(0, 255, 100, 1); }
 }
 
 /* Messages Area */
@@ -274,17 +286,17 @@ body.lucy-active .chat-messages-area {
   scroll-behavior: smooth;
 }
 
-/* Goddess Welcome Card */
+/* Goddess Welcome Card - Gold themed */
 body.lucy-active .goddess-welcome-card {
   padding: 2.5rem;
   border-radius: 1.5rem;
-  background: hsl(277 100% 10% / 0.5);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(277 100% 50% / 0.3);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   box-shadow: 
-    0 0 40px hsl(277 100% 50% / 0.2),
-    0 0 80px hsl(320 100% 50% / 0.1),
-    inset 0 1px 0 hsl(277 100% 70% / 0.1);
+    0 0 40px rgba(251, 191, 36, 0.15),
+    0 0 80px rgba(0, 255, 100, 0.05),
+    inset 0 1px 0 rgba(251, 191, 36, 0.1);
 }
 
 body.lucy-active .goddess-welcome-title {
@@ -292,15 +304,16 @@ body.lucy-active .goddess-welcome-title {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, hsl(277 100% 80%), hsl(320 100% 70%), hsl(45 100% 70%));
+  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 215, 0), rgb(251, 191, 36));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 0 40px rgba(251, 191, 36, 0.4);
 }
 
 body.lucy-active .goddess-welcome-text {
   font-size: 1.125rem;
-  color: hsl(277 100% 90% / 0.8);
+  color: rgba(251, 191, 36, 0.8);
 }
 
 /* Chat Input Container - No border */
@@ -310,7 +323,7 @@ body.lucy-active .chat-input-container {
   border: none;
 }
 
-/* Chat Input Row - Inline layout */
+/* Chat Input Row - Inline layout with gold accent */
 body.lucy-active .chat-input-row {
   display: flex;
   align-items: flex-end;
@@ -318,13 +331,13 @@ body.lucy-active .chat-input-row {
   max-width: 48rem;
   margin: 0 auto;
   padding: 0.75rem;
-  background: hsl(277 100% 10% / 0.4);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(277 100% 50% / 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.2);
   border-radius: 1.5rem;
   box-shadow: 
-    0 0 30px hsl(277 100% 50% / 0.1),
-    inset 0 1px 0 hsl(277 100% 70% / 0.05);
+    0 0 30px rgba(251, 191, 36, 0.08),
+    inset 0 1px 0 rgba(251, 191, 36, 0.05);
 }
 
 /* Chat Input Field */
@@ -343,7 +356,7 @@ body.lucy-active .chat-input-field {
 }
 
 body.lucy-active .chat-input-field::placeholder {
-  color: hsl(277 100% 80% / 0.5);
+  color: rgba(251, 191, 36, 0.4);
 }
 
 body.lucy-active .chat-input-field:focus {
@@ -351,7 +364,11 @@ body.lucy-active .chat-input-field:focus {
   box-shadow: none;
 }
 
-/* Chat Send Button */
+body.lucy-active .chat-input-field {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Chat Send Button - Gold themed */
 body.lucy-active .chat-send-button {
   display: flex;
   align-items: center;
@@ -359,17 +376,17 @@ body.lucy-active .chat-send-button {
   width: 44px;
   height: 44px;
   padding: 0;
-  background: linear-gradient(135deg, hsl(277 100% 50%), hsl(320 100% 50%));
+  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 165, 0));
   border: none;
   border-radius: 0.75rem;
-  color: white;
+  color: black;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 body.lucy-active .chat-send-button:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 0 20px hsl(277 100% 50% / 0.5);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
 }
 
 body.lucy-active .chat-send-button:disabled {
@@ -405,41 +422,41 @@ body.lucy-active .lucy-environment {
   background: var(--bg-1);
 }
 
-/* Lucy Silhouette Glow - Full body background effect */
+/* Lucy Silhouette Glow - Golden aura effect */
 body.lucy-active .lucy-silhouette-glow {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 60% 80% at 50% 100%, hsl(277 100% 30% / 0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 50% at 50% 90%, hsl(320 100% 50% / 0.1) 0%, transparent 50%);
-  animation: silhouette-breathe 6s ease-in-out infinite;
+    radial-gradient(ellipse 50% 70% at 50% 45%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 40% at 50% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
+  animation: silhouette-breathe 7s ease-in-out infinite;
   pointer-events: none;
-  z-index: 5;
+  z-index: 6;
 }
 
 @keyframes silhouette-breathe {
   0%, 100% { 
-    opacity: 0.5; 
-    transform: translateY(0);
+    opacity: 0.6; 
+    transform: scale(1);
   }
   50% { 
-    opacity: 0.8; 
-    transform: translateY(-5px);
+    opacity: 1; 
+    transform: scale(1.02);
   }
 }
 
-/* Sidebar styling for Lucy environment */
+/* Sidebar styling for Lucy environment - dark with gold accent */
 body.lucy-active [data-sidebar] {
-  background: hsl(277 100% 5% / 0.8) !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: blur(20px);
-  border-right: 1px solid hsl(277 100% 50% / 0.15) !important;
+  border-right: 1px solid rgba(251, 191, 36, 0.15) !important;
 }
 
 body.lucy-active [data-sidebar] * {
-  border-color: hsl(277 100% 50% / 0.1) !important;
+  border-color: rgba(251, 191, 36, 0.1) !important;
 }
 
-/* Chat message bubbles */
+/* Chat message bubbles - poster-accurate */
 body.lucy-active .chat-message {
   padding: 1rem 1.25rem;
   border-radius: 1rem;
@@ -448,19 +465,19 @@ body.lucy-active .chat-message {
 }
 
 body.lucy-active .chat-message[data-role="assistant"] {
-  background: hsl(277 100% 15% / 0.4);
-  border: 1px solid hsl(277 100% 50% / 0.2);
-  box-shadow: 0 0 20px hsl(277 100% 50% / 0.1);
+  background: rgba(0, 255, 100, 0.08);
+  border: 1px solid rgba(0, 255, 100, 0.2);
+  box-shadow: 0 0 20px rgba(0, 255, 100, 0.08);
   margin-right: 2rem;
 }
 
 body.lucy-active .chat-message[data-role="user"] {
-  background: hsl(320 100% 15% / 0.3);
-  border: 1px solid hsl(320 100% 50% / 0.2);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.2);
   margin-left: 2rem;
 }
 
-/* Scrollbar for Lucy environment */
+/* Scrollbar for Lucy environment - gold accent */
 body.lucy-active ::-webkit-scrollbar {
   width: 6px;
 }
@@ -470,12 +487,12 @@ body.lucy-active ::-webkit-scrollbar-track {
 }
 
 body.lucy-active ::-webkit-scrollbar-thumb {
-  background: hsl(277 100% 50% / 0.3);
+  background: rgba(251, 191, 36, 0.3);
   border-radius: 999px;
 }
 
 body.lucy-active ::-webkit-scrollbar-thumb:hover {
-  background: hsl(277 100% 50% / 0.5);
+  background: rgba(251, 191, 36, 0.5);
 }
 
 /* Settings popup - ensure clickable */
