@@ -1,12 +1,13 @@
-import { Settings2, Zap, Palette } from "lucide-react";
+import { Settings2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ReadingMode } from "@/hooks/useReadingMode";
 import { StreamingSpeed } from "@/hooks/useStreamingSpeed";
-import { applyTheme } from "@/theme/useTheme";
-import { THEMES, ThemeName } from "@/theme/themes";
+
+import { useThemeManager } from "@/theme/useTheme";
+import { THEMES } from "@/theme/themes";
 
 interface ChatSettingsProps {
   readingMode: ReadingMode;
@@ -16,10 +17,16 @@ interface ChatSettingsProps {
 }
 
 export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setStreamingSpeed }: ChatSettingsProps) {
+  const { theme, applyTheme } = useThemeManager();
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="glass-card border-primary/30 hover:shadow-glow-violet">
+        <Button
+          variant="outline"
+          size="icon"
+          className="glass-card border-primary/30 hover:shadow-glow-violet transition-all"
+        >
           <Settings2 className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
@@ -28,27 +35,27 @@ export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setS
         <div className="space-y-6">
           {/* Theme Picker */}
           <div>
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <Palette className="h-4 w-4 text-primary" />
-              Theme
-            </h3>
+            <h3 className="font-semibold text-sm mb-3">Theme</h3>
 
             <div className="grid grid-cols-4 gap-2">
-              {Object.keys(THEMES).map((name) => {
-                const theme = name as ThemeName;
-                return (
-                  <button
-                    key={name}
-                    className="h-8 w-8 rounded-full border"
-                    style={{ background: THEMES[theme]["bg-1"] }}
-                    onClick={() => applyTheme(theme)}
-                  />
-                );
-              })}
+              {Object.keys(THEMES).map((name) => (
+                <button
+                  key={name}
+                  onClick={() => applyTheme(name)}
+                  className={`
+                    w-8 h-8 rounded-full ring-2
+                    ${theme === name ? "ring-primary" : "ring-transparent"}
+                    transition
+                  `}
+                  style={{
+                    background: THEMES[name]["bg-1"],
+                  }}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Reading mode settings */}
+          {/* Reading Mode */}
           <div className="border-t border-border/50 pt-4">
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Settings2 className="h-4 w-4 text-primary" />
@@ -57,23 +64,22 @@ export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setS
 
             <RadioGroup value={readingMode} onValueChange={(value) => setReadingMode(value as ReadingMode)}>
               <div className="space-y-2">
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="compact" id="compact" />
-                  <Label htmlFor="compact">Compact</Label>
-                </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="comfortable" id="comfortable" />
-                  <Label htmlFor="comfortable">Comfortable</Label>
-                </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="expanded" id="expanded" />
-                  <Label htmlFor="expanded">Expanded</Label>
-                </div>
+                {["compact", "comfortable", "expanded"].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors"
+                  >
+                    <RadioGroupItem value={item} id={item} />
+                    <Label htmlFor={item} className="cursor-pointer flex-1 capitalize">
+                      {item}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </RadioGroup>
           </div>
 
-          {/* Streaming speed settings */}
+          {/* Streaming Speed */}
           <div className="border-t border-border/50 pt-4">
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
@@ -82,22 +88,17 @@ export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setS
 
             <RadioGroup value={streamingSpeed} onValueChange={(value) => setStreamingSpeed(value as StreamingSpeed)}>
               <div className="space-y-2">
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="slow" id="slow" />
-                  <Label htmlFor="slow">Slow</Label>
-                </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="medium" id="medium" />
-                  <Label htmlFor="medium">Medium</Label>
-                </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="fast" id="fast" />
-                  <Label htmlFor="fast">Fast</Label>
-                </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
-                  <RadioGroupItem value="instant" id="instant" />
-                  <Label htmlFor="instant">Instant</Label>
-                </div>
+                {["slow", "medium", "fast", "instant"].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors"
+                  >
+                    <RadioGroupItem value={item} id={item} />
+                    <Label htmlFor={item} className="cursor-pointer flex-1 capitalize">
+                      {item}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </RadioGroup>
           </div>
