@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { THEMES, ThemeName } from "./themes";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -74,4 +75,36 @@ export async function loadThemeFromRemote(): Promise<ThemeName | null> {
   } catch (_) {}
 
   return null;
+}
+
+/**
+ * React hook for theme management
+ */
+export function useThemeManager() {
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    try {
+      const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
+      return stored && THEMES[stored] ? stored : "purple";
+    } catch {
+      return "purple";
+    }
+  });
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, []);
+
+  const handleApplyTheme = (newTheme: string) => {
+    const themeName = newTheme as ThemeName;
+    if (THEMES[themeName]) {
+      setTheme(themeName);
+      applyTheme(themeName);
+      persistThemeRemote(themeName);
+    }
+  };
+
+  return {
+    theme,
+    applyTheme: handleApplyTheme,
+  };
 }
