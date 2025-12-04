@@ -102,7 +102,15 @@ body.lucy-active .lucy-environment {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #000;
+  background: transparent;
+}
+
+/* Matrix Canvas - Fixed behind everything */
+body.lucy-active #matrix {
+  position: fixed !important;
+  inset: 0;
+  z-index: 0 !important;
+  pointer-events: none !important;
 }
 
 /* Lucy Background System with Silhouette */
@@ -113,7 +121,20 @@ body.lucy-active .lucy-bg {
   pointer-events: none;
   background: 
     url('/lucy-bg.png') center center / cover no-repeat,
-    linear-gradient(to bottom, #000 0%, #050505 100%);
+    linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(5,5,5,0.95) 100%);
+}
+
+/* All interactive elements above matrix */
+body.lucy-active .chat-container-wrapper,
+body.lucy-active [data-sidebar],
+body.lucy-active .chat-main-area,
+body.lucy-active .chat-interface-main,
+body.lucy-active [data-radix-popper-content-wrapper],
+body.lucy-active [role="dialog"],
+body.lucy-active [role="menu"] {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 /* Matrix Canvas - Non-blocking */
@@ -498,12 +519,38 @@ body.lucy-active ::-webkit-scrollbar-thumb:hover {
 /* Settings popup - ensure clickable */
 body.lucy-active [data-radix-popper-content-wrapper] {
   z-index: 100 !important;
+  pointer-events: auto !important;
 }
 
 body.lucy-active [role="dialog"],
 body.lucy-active [role="menu"],
 body.lucy-active [data-state="open"] {
   z-index: 100;
+  pointer-events: auto !important;
+}
+
+/* Popover content styles for theme visibility */
+body.lucy-active [data-radix-popper-content-wrapper] > * {
+  background: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Ensure sidebar is clickable */
+body.lucy-active [data-sidebar] {
+  pointer-events: auto !important;
+  background: hsl(var(--card) / 0.95) !important;
+  backdrop-filter: blur(20px);
+}
+
+/* Theme-aware welcome card */
+body.lucy-active .goddess-welcome-card {
+  background: hsl(var(--card) / 0.8);
+  border-color: hsl(var(--border));
+}
+
+/* Theme-aware messages area */
+body.lucy-active .chat-messages-area {
+  background: transparent;
 }
 
 /* Remove any white borders from chat */
