@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, Settings } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -14,6 +14,8 @@ import { SearchModal } from "./SearchModal";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { ChatSettings } from "./ChatSettings";
 import { ReadingProgressBar } from "./ReadingProgressBar";
+import { useReadingMode } from "@/hooks/useReadingMode";
+import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -23,19 +25,62 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ userId, conversationId, onConversationCreated }: ChatInterfaceProps) {
   const { toast } = useToast();
+  const { readingMode, setReadingMode, getSpacingClass } = useReadingMode();
+  const { speed: streamingSpeed, setSpeed: setStreamingSpeed } = useStreamingSpeed();
 
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [streamingMessage] = useState("");
+  const [streamingMessage, setStreamingMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [conversationTitle, setConversationTitle] = useState("New Conversation");
-  const [lastReadIndex] = useState(-1);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (!conversationId) {
+      setMessages([]);
+      return;
+    }
+
+    const loadMessages = async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+
+      if (data) {
+        setMessages(data);
+        // Scroll to bottom after loading
+        setTimeout(() => {
+          if (chatRef.current) {
+            const scrollArea = chatRef.current.querySelector('[data-radix-scroll-area-viewport]');
+            if (scrollArea) {
+              scrollArea.scrollTop = scrollArea.scrollHeight;
+            }
+          }
+        }, 100);
+      }
+    };
+
+    loadMessages();
+
+    // Load conversation title
+    const loadConversation = async () => {
+      const { data } = await supabase
+        .from("conversations")
+        .select("title")
+        .eq("id", conversationId)
+        .single();
+      if (data) setConversationTitle(data.title);
+    };
+    loadConversation();
+  }, [conversationId]);
 
   // ---- REALTIME MESSAGE LOADER ----
   useEffect(() => {
@@ -113,11 +158,11 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             <span className="status-dot" />
             <span>MATRIX ACTIVE</span>
           </div>
-          <ChatSettings
-            readingMode={"comfortable"}
-            setReadingMode={() => {}}
-            streamingSpeed={"medium"}
-            setStreamingSpeed={() => {}}
+        <ChatSettings
+            readingMode={readingMode}
+            setReadingMode={setReadingMode}
+            streamingSpeed={streamingSpeed}
+            setStreamingSpeed={setStreamingSpeed}
           />
         </div>
       </header>
