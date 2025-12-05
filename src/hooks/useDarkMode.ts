@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 
+const DARK_MODE_KEY = 'lucy-dark-mode';
+
 export const useDarkMode = () => {
   const [isDark, setIsDark] = useState(true); // Default to dark mode
 
   useEffect(() => {
     // Check for stored preference
-    const stored = localStorage.getItem('lucy-theme');
+    const stored = localStorage.getItem(DARK_MODE_KEY);
     
-    if (stored) {
-      const prefersDark = stored === 'dark';
-      setIsDark(prefersDark);
-      applyTheme(prefersDark);
+    if (stored === 'light') {
+      setIsDark(false);
+      applyTheme(false);
     } else {
-      // Force dark mode on first visit
+      // Force dark mode on first visit or if explicitly set to dark
       setIsDark(true);
-      localStorage.setItem('lucy-theme', 'dark');
+      localStorage.setItem(DARK_MODE_KEY, 'dark');
       applyTheme(true);
     }
   }, []);
@@ -22,7 +23,9 @@ export const useDarkMode = () => {
   const applyTheme = (dark: boolean) => {
     if (dark) {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
     } else {
+      document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
     }
   };
@@ -30,7 +33,7 @@ export const useDarkMode = () => {
   const toggleDarkMode = () => {
     const newMode = !isDark;
     setIsDark(newMode);
-    localStorage.setItem('lucy-theme', newMode ? 'dark' : 'light');
+    localStorage.setItem(DARK_MODE_KEY, newMode ? 'dark' : 'light');
     applyTheme(newMode);
   };
 
