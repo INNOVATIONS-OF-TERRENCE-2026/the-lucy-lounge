@@ -91,9 +91,8 @@ body {
 }
 
 /* =========================================================
-   LUCY AI GODDESS SYSTEM v3 - Poster-Accurate Styling
+   LUCY AI GODDESS SYSTEM - SCOPED STYLES
    All Lucy styling is scoped under body.lucy-active
-   GREEN / RED / GOLD Matrix Theme
    ========================================================= */
 
 /* Lucy Environment Container */
@@ -102,39 +101,14 @@ body.lucy-active .lucy-environment {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: transparent;
 }
 
-/* Matrix Canvas - Fixed behind everything */
-body.lucy-active #matrix {
-  position: fixed !important;
-  inset: 0;
-  z-index: 0 !important;
-  pointer-events: none !important;
-}
-
-/* Lucy Background System with Silhouette */
+/* Lucy Background System */
 body.lucy-active .lucy-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: 
-    url('/lucy-bg.png') center center / cover no-repeat,
-    linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(5,5,5,0.95) 100%);
-}
-
-/* All interactive elements above matrix */
-body.lucy-active .chat-container-wrapper,
-body.lucy-active [data-sidebar],
-body.lucy-active .chat-main-area,
-body.lucy-active .chat-interface-main,
-body.lucy-active [data-radix-popper-content-wrapper],
-body.lucy-active [role="dialog"],
-body.lucy-active [role="menu"] {
-  position: relative;
-  z-index: 10;
-  pointer-events: auto;
 }
 
 /* Matrix Canvas - Non-blocking */
@@ -144,61 +118,58 @@ body.lucy-active .matrix-canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.75;
-  z-index: 2;
-  mix-blend-mode: screen;
+  opacity: 0.6;
+  z-index: 1;
 }
 
-/* Holographic Aura Layer - Soft-light blend */
+/* Holographic Parallax Layer */
 body.lucy-active .holographic-layer {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 30% 30%, rgba(0, 255, 100, 0.05) 0%, transparent 40%),
-    radial-gradient(ellipse at 70% 70%, rgba(255, 50, 50, 0.04) 0%, transparent 40%);
-  mix-blend-mode: soft-light;
-  animation: holographic-drift 25s ease-in-out infinite;
+    radial-gradient(ellipse at 30% 20%, hsl(277 100% 30% / 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, hsl(320 100% 50% / 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, hsl(45 100% 50% / 0.05) 0%, transparent 60%);
+  animation: holographic-drift 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes holographic-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(10px, -10px) scale(1.02); }
+  50% { transform: translate(-5px, 5px) scale(1); }
+  75% { transform: translate(5px, 10px) scale(1.01); }
+}
+
+/* Glow Pulse Layer */
+body.lucy-active .glow-pulse-layer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, hsl(277 100% 50% / 0.1) 0%, transparent 70%);
+  animation: glow-pulse 4s ease-in-out infinite;
   pointer-events: none;
   z-index: 3;
 }
 
-@keyframes holographic-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
-  25% { transform: translate(8px, -8px) scale(1.01); opacity: 1; }
-  50% { transform: translate(-4px, 4px) scale(1); opacity: 0.9; }
-  75% { transform: translate(4px, 8px) scale(1.005); opacity: 1; }
-}
-
-/* Glow Pulse Layer - Golden for Lucy */
-body.lucy-active .glow-pulse-layer {
-  position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(ellipse 50% 70% at 50% 45%, rgba(251, 191, 36, 0.06) 0%, transparent 60%);
-  animation: glow-pulse 5s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 4;
-}
-
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.03); }
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
 }
 
-/* Dark Fade for Readability - Bottom gradient */
+/* Dark Fade for Readability */
 body.lucy-active .dark-fade-layer {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.4) 75%,
-    rgba(0, 0, 0, 0.7) 100%
+    transparent 40%,
+    hsl(0 0% 0% / 0.3) 70%,
+    hsl(0 0% 0% / 0.6) 100%
   );
   pointer-events: none;
-  z-index: 5;
+  z-index: 4;
 }
 
 /* Chat Container Wrapper */
@@ -254,19 +225,17 @@ body.lucy-active .chat-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.25rem;
   font-weight: 600;
-  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 215, 0));
+  background: linear-gradient(135deg, hsl(277 100% 70%), hsl(320 100% 60%), hsl(45 100% 60%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
 }
 
 body.lucy-active .chat-subtitle {
   font-size: 0.65rem;
-  color: rgba(251, 191, 36, 0.7);
+  color: hsl(277 100% 70% / 0.7);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 body.lucy-active .matrix-status-badge {
@@ -274,28 +243,26 @@ body.lucy-active .matrix-status-badge {
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.75rem;
-  background: rgba(0, 255, 100, 0.1);
-  border: 1px solid rgba(0, 255, 100, 0.3);
+  background: hsl(277 100% 30% / 0.2);
+  border: 1px solid hsl(277 100% 50% / 0.3);
   border-radius: 9999px;
   font-size: 0.65rem;
-  color: rgb(0, 255, 100);
+  color: hsl(120 100% 60%);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 0 0 10px rgba(0, 255, 100, 0.5);
 }
 
 body.lucy-active .status-dot {
   width: 6px;
   height: 6px;
-  background: rgb(0, 255, 100);
+  background: hsl(120 100% 50%);
   border-radius: 50%;
   animation: status-pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(0, 255, 100, 0.8);
 }
 
 @keyframes status-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(0, 255, 100, 0.8); }
-  50% { opacity: 0.6; box-shadow: 0 0 12px rgba(0, 255, 100, 1); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px hsl(120 100% 50%); }
+  50% { opacity: 0.5; box-shadow: 0 0 8px hsl(120 100% 50%); }
 }
 
 /* Messages Area */
@@ -307,17 +274,17 @@ body.lucy-active .chat-messages-area {
   scroll-behavior: smooth;
 }
 
-/* Goddess Welcome Card - Gold themed */
+/* Goddess Welcome Card */
 body.lucy-active .goddess-welcome-card {
   padding: 2.5rem;
   border-radius: 1.5rem;
-  background: rgba(0, 0, 0, 0.6);
+  background: hsl(277 100% 10% / 0.5);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  border: 1px solid hsl(277 100% 50% / 0.3);
   box-shadow: 
-    0 0 40px rgba(251, 191, 36, 0.15),
-    0 0 80px rgba(0, 255, 100, 0.05),
-    inset 0 1px 0 rgba(251, 191, 36, 0.1);
+    0 0 40px hsl(277 100% 50% / 0.2),
+    0 0 80px hsl(320 100% 50% / 0.1),
+    inset 0 1px 0 hsl(277 100% 70% / 0.1);
 }
 
 body.lucy-active .goddess-welcome-title {
@@ -325,16 +292,15 @@ body.lucy-active .goddess-welcome-title {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 215, 0), rgb(251, 191, 36));
+  background: linear-gradient(135deg, hsl(277 100% 80%), hsl(320 100% 70%), hsl(45 100% 70%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 40px rgba(251, 191, 36, 0.4);
 }
 
 body.lucy-active .goddess-welcome-text {
   font-size: 1.125rem;
-  color: rgba(251, 191, 36, 0.8);
+  color: hsl(277 100% 90% / 0.8);
 }
 
 /* Chat Input Container - No border */
@@ -344,7 +310,7 @@ body.lucy-active .chat-input-container {
   border: none;
 }
 
-/* Chat Input Row - Inline layout with gold accent */
+/* Chat Input Row - Inline layout */
 body.lucy-active .chat-input-row {
   display: flex;
   align-items: flex-end;
@@ -352,13 +318,13 @@ body.lucy-active .chat-input-row {
   max-width: 48rem;
   margin: 0 auto;
   padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.5);
+  background: hsl(277 100% 10% / 0.4);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  border: 1px solid hsl(277 100% 50% / 0.2);
   border-radius: 1.5rem;
   box-shadow: 
-    0 0 30px rgba(251, 191, 36, 0.08),
-    inset 0 1px 0 rgba(251, 191, 36, 0.05);
+    0 0 30px hsl(277 100% 50% / 0.1),
+    inset 0 1px 0 hsl(277 100% 70% / 0.05);
 }
 
 /* Chat Input Field */
@@ -377,7 +343,7 @@ body.lucy-active .chat-input-field {
 }
 
 body.lucy-active .chat-input-field::placeholder {
-  color: rgba(251, 191, 36, 0.4);
+  color: hsl(277 100% 80% / 0.5);
 }
 
 body.lucy-active .chat-input-field:focus {
@@ -385,11 +351,7 @@ body.lucy-active .chat-input-field:focus {
   box-shadow: none;
 }
 
-body.lucy-active .chat-input-field {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-/* Chat Send Button - Gold themed */
+/* Chat Send Button */
 body.lucy-active .chat-send-button {
   display: flex;
   align-items: center;
@@ -397,17 +359,17 @@ body.lucy-active .chat-send-button {
   width: 44px;
   height: 44px;
   padding: 0;
-  background: linear-gradient(135deg, rgb(251, 191, 36), rgb(255, 165, 0));
+  background: linear-gradient(135deg, hsl(277 100% 50%), hsl(320 100% 50%));
   border: none;
   border-radius: 0.75rem;
-  color: black;
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 body.lucy-active .chat-send-button:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 20px hsl(277 100% 50% / 0.5);
 }
 
 body.lucy-active .chat-send-button:disabled {
@@ -443,41 +405,41 @@ body.lucy-active .lucy-environment {
   background: var(--bg-1);
 }
 
-/* Lucy Silhouette Glow - Golden aura effect */
+/* Lucy Silhouette Glow - Full body background effect */
 body.lucy-active .lucy-silhouette-glow {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 50% 70% at 50% 45%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 30% 40% at 50% 40%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
-  animation: silhouette-breathe 7s ease-in-out infinite;
+    radial-gradient(ellipse 60% 80% at 50% 100%, hsl(277 100% 30% / 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 90%, hsl(320 100% 50% / 0.1) 0%, transparent 50%);
+  animation: silhouette-breathe 6s ease-in-out infinite;
   pointer-events: none;
-  z-index: 6;
+  z-index: 5;
 }
 
 @keyframes silhouette-breathe {
   0%, 100% { 
-    opacity: 0.6; 
-    transform: scale(1);
+    opacity: 0.5; 
+    transform: translateY(0);
   }
   50% { 
-    opacity: 1; 
-    transform: scale(1.02);
+    opacity: 0.8; 
+    transform: translateY(-5px);
   }
 }
 
-/* Sidebar styling for Lucy environment - dark with gold accent */
+/* Sidebar styling for Lucy environment */
 body.lucy-active [data-sidebar] {
-  background: rgba(0, 0, 0, 0.85) !important;
+  background: hsl(277 100% 5% / 0.8) !important;
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(251, 191, 36, 0.15) !important;
+  border-right: 1px solid hsl(277 100% 50% / 0.15) !important;
 }
 
 body.lucy-active [data-sidebar] * {
-  border-color: rgba(251, 191, 36, 0.1) !important;
+  border-color: hsl(277 100% 50% / 0.1) !important;
 }
 
-/* Chat message bubbles - poster-accurate */
+/* Chat message bubbles */
 body.lucy-active .chat-message {
   padding: 1rem 1.25rem;
   border-radius: 1rem;
@@ -486,19 +448,19 @@ body.lucy-active .chat-message {
 }
 
 body.lucy-active .chat-message[data-role="assistant"] {
-  background: rgba(0, 255, 100, 0.08);
-  border: 1px solid rgba(0, 255, 100, 0.2);
-  box-shadow: 0 0 20px rgba(0, 255, 100, 0.08);
+  background: hsl(277 100% 15% / 0.4);
+  border: 1px solid hsl(277 100% 50% / 0.2);
+  box-shadow: 0 0 20px hsl(277 100% 50% / 0.1);
   margin-right: 2rem;
 }
 
 body.lucy-active .chat-message[data-role="user"] {
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  background: hsl(320 100% 15% / 0.3);
+  border: 1px solid hsl(320 100% 50% / 0.2);
   margin-left: 2rem;
 }
 
-/* Scrollbar for Lucy environment - gold accent */
+/* Scrollbar for Lucy environment */
 body.lucy-active ::-webkit-scrollbar {
   width: 6px;
 }
@@ -508,49 +470,23 @@ body.lucy-active ::-webkit-scrollbar-track {
 }
 
 body.lucy-active ::-webkit-scrollbar-thumb {
-  background: rgba(251, 191, 36, 0.3);
+  background: hsl(277 100% 50% / 0.3);
   border-radius: 999px;
 }
 
 body.lucy-active ::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 191, 36, 0.5);
+  background: hsl(277 100% 50% / 0.5);
 }
 
 /* Settings popup - ensure clickable */
 body.lucy-active [data-radix-popper-content-wrapper] {
   z-index: 100 !important;
-  pointer-events: auto !important;
 }
 
 body.lucy-active [role="dialog"],
 body.lucy-active [role="menu"],
 body.lucy-active [data-state="open"] {
   z-index: 100;
-  pointer-events: auto !important;
-}
-
-/* Popover content styles for theme visibility */
-body.lucy-active [data-radix-popper-content-wrapper] > * {
-  background: hsl(var(--card)) !important;
-  border-color: hsl(var(--border)) !important;
-}
-
-/* Ensure sidebar is clickable */
-body.lucy-active [data-sidebar] {
-  pointer-events: auto !important;
-  background: hsl(var(--card) / 0.95) !important;
-  backdrop-filter: blur(20px);
-}
-
-/* Theme-aware welcome card */
-body.lucy-active .goddess-welcome-card {
-  background: hsl(var(--card) / 0.8);
-  border-color: hsl(var(--border));
-}
-
-/* Theme-aware messages area */
-body.lucy-active .chat-messages-area {
-  background: transparent;
 }
 
 /* Remove any white borders from chat */
@@ -588,225 +524,4 @@ body.lucy-active .chat-input-row {
     padding: 1.5rem;
     margin: 0 1rem;
   }
-}
-
-/* =========================================================
-   LUCY CHAT SHELL STYLES (Standalone Chat Component)
-   ========================================================= */
-
-.lucy-chat-section {
-  position: relative;
-  z-index: 5;
-  padding: 1rem;
-}
-
-.lucy-chat-shell {
-  background: rgba(5, 3, 16, 0.94);
-  border-radius: 20px;
-  max-width: 760px;
-  margin: 0 auto;
-  border: 1px solid rgba(251, 191, 36, 0.18);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 40px rgba(251, 191, 36, 0.1);
-}
-
-.lucy-chat-history {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.lucy-empty-state {
-  text-align: center;
-  color: rgba(251, 191, 36, 0.6);
-  padding: 2rem;
-  font-style: italic;
-}
-
-.lucy-msg {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  max-width: 85%;
-  line-height: 1.5;
-}
-
-.lucy-user {
-  text-align: right;
-  align-self: flex-end;
-  color: hsl(45 70% 65%);
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.2);
-}
-
-.lucy-assistant {
-  text-align: left;
-  align-self: flex-start;
-  color: hsl(160 100% 70%);
-  background: rgba(0, 255, 173, 0.08);
-  border: 1px solid rgba(0, 255, 173, 0.15);
-}
-
-.lucy-typing {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(251, 191, 36, 0.7);
-}
-
-.lucy-chat-bar {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid rgba(251, 191, 36, 0.1);
-  align-items: center;
-}
-
-.lucy-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid rgba(251, 191, 36, 0.4);
-  outline: none;
-  color: hsl(0 0% 96%);
-  font-size: 1rem;
-  padding: 0.5rem 0;
-  transition: border-color 0.2s ease;
-}
-
-.lucy-input:focus {
-  border-bottom-color: rgba(251, 191, 36, 0.8);
-}
-
-.lucy-input::placeholder {
-  color: rgba(251, 191, 36, 0.4);
-}
-
-.lucy-send {
-  padding: 0.6rem 0.8rem;
-  background: linear-gradient(135deg, hsl(45 80% 45%) 0%, hsl(35 90% 50%) 100%);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  color: hsl(0 0% 5%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.lucy-send:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
-}
-
-.lucy-send:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.lucy-error {
-  color: hsl(0 70% 65%);
-  font-size: 0.75rem;
-  padding: 0.5rem 1rem;
-  text-align: center;
-  background: rgba(255, 107, 107, 0.1);
-  border-top: 1px solid rgba(255, 107, 107, 0.2);
-  border-radius: 0 0 20px 20px;
-}
-
-/* MOBILE: Chat ABOVE hero - do not cover Lucy's face */
-@media (max-width: 768px) {
-  .lucy-chat-section,
-  .lucy-chat-shell {
-    position: relative !important;
-    top: 0 !important;
-    transform: none !important;
-    margin-top: 1rem;
-  }
-  
-  .lucy-chat-shell {
-    max-width: 100%;
-    margin: 0.5rem;
-    border-radius: 16px;
-  }
-  
-  .lucy-chat-history {
-    max-height: 35vh;
-  }
-  
-  .lucy-msg {
-    max-width: 90%;
-    font-size: 0.9rem;
-  }
-}
-
-/* =========================================================
-   DARK MODE STYLES
-   ========================================================= */
-html.dark,
-body.dark,
-.dark {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 96%;
-  background: hsl(260 100% 4%);
-  color: hsl(0 0% 96%);
-}
-
-/* =========================================================
-   LIGHT MODE TEXT VISIBILITY FIXES
-   ========================================================= */
-html:not(.dark) {
-  color: hsl(0 0% 7%);
-  background: hsl(0 0% 100%);
-}
-
-html:not(.dark) body,
-html:not(.dark) input,
-html:not(.dark) textarea,
-html:not(.dark) button,
-html:not(.dark) p,
-html:not(.dark) span,
-html:not(.dark) div,
-html:not(.dark) strong,
-html:not(.dark) h1,
-html:not(.dark) h2,
-html:not(.dark) h3,
-html:not(.dark) h4,
-html:not(.dark) label {
-  color: hsl(0 0% 7%);
-}
-
-html:not(.dark) ::placeholder {
-  color: hsl(0 0% 33%);
-}
-
-/* Light mode chat bubbles */
-html:not(.dark) .chat-message-user,
-html:not(.dark) .lucy-user {
-  background: hsl(0 0% 90%);
-  color: hsl(0 0% 7%);
-}
-
-html:not(.dark) .chat-message-assistant,
-html:not(.dark) .lucy-assistant {
-  background: hsl(0 0% 96%);
-  color: hsl(0 0% 7%);
-}
-
-/* Light mode input styling */
-html:not(.dark) .lucy-input {
-  color: hsl(0 0% 7%);
-  border-color: hsl(40 80% 45%);
-}
-
-html:not(.dark) .lucy-chat-shell {
-  background: hsl(0 0% 98% / 0.95);
-  border-color: hsl(40 60% 70%);
-}
-
-html:not(.dark) .lucy-chat-history {
-  background: hsl(0 0% 100%);
 }

@@ -4,38 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 // Type-only export (required for isolatedModules)
 export type { ThemeName };
 
-// Dark mode management
-export type DarkModePreference = "dark" | "light";
-const DARK_MODE_KEY = "lucy-dark-mode";
-
-/**
- * Apply dark mode class to document
- */
-export function applyDarkMode(mode: DarkModePreference) {
-  const root = document.documentElement;
-  root.classList.toggle("dark", mode === "dark");
-  try {
-    localStorage.setItem(DARK_MODE_KEY, mode);
-  } catch (_) {}
-}
-
-/**
- * Load dark mode preference - defaults to DARK
- */
-export function loadDarkModePreference(): DarkModePreference {
-  try {
-    const saved = localStorage.getItem(DARK_MODE_KEY) as DarkModePreference | null;
-    if (saved === "light" || saved === "dark") {
-      applyDarkMode(saved);
-      return saved;
-    }
-  } catch (_) {}
-  
-  // DEFAULT TO DARK MODE
-  applyDarkMode("dark");
-  return "dark";
-}
-
 /**
  * Apply theme + animate transition + store local
  */
@@ -62,12 +30,9 @@ export function applyTheme(theme: ThemeName) {
 }
 
 /**
- * Load theme from localStorage first - defaults to purple (dark theme)
+ * Load theme from localStorage first
  */
 export function loadStoredTheme(): ThemeName {
-  // Always ensure dark mode is applied first
-  loadDarkModePreference();
-  
   try {
     const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
     if (stored && THEMES[stored]) {
