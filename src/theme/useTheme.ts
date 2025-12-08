@@ -1,7 +1,10 @@
 import { THEMES, ThemeName } from "./themes";
 import { supabase } from "@/integrations/supabase/client";
 
-// Type-only export (required for isolatedModules)
+/**
+ * Let TS know this is ONLY a type re-export
+ * (required when isolatedModules is enabled)
+ */
 export type { ThemeName };
 
 /**
@@ -13,18 +16,24 @@ export function applyTheme(theme: ThemeName) {
 
   const root = document.documentElement;
 
+  // Apply CSS vars
   Object.entries(config).forEach(([key, value]) => {
     root.style.setProperty(`--${key}`, String(value));
   });
 
+  // Persist locally
   try {
     localStorage.setItem("lucy-theme", theme);
-  } catch (_) {}
+  } catch (e) {
+    console.warn("Unable to store theme in localStorage", e);
+  }
 
+  // Mark theme attribute
   root.setAttribute("data-theme", theme);
 
+  // Smooth UI transition
   root.classList.add("theme-transition");
-  setTimeout(() => {
+  window.setTimeout(() => {
     root.classList.remove("theme-transition");
   }, 350);
 }
@@ -35,26 +44,32 @@ export function applyTheme(theme: ThemeName) {
 export function loadStoredTheme(): ThemeName {
   try {
     const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
+
     if (stored && THEMES[stored]) {
       applyTheme(stored);
       return stored;
     }
-  } catch (_) {}
+  } catch (e) {
+    console.warn("Unable to read theme from localStorage", e);
+  }
 
+  // fallback
   const fallback: ThemeName = "purple";
   applyTheme(fallback);
   return fallback;
 }
 
 /**
- * Save theme to Supabase user metadata
+ * Save theme to Supabase user metadata so it syncs across devices
  */
 export async function persistThemeRemote(theme: ThemeName) {
   try {
     await supabase.auth.updateUser({
       data: { theme },
     });
-  } catch (_) {}
+  } catch (e) {
+    console.warn("Failed to sync theme to Supabase", e);
+  }
 }
 
 /**
@@ -71,7 +86,9 @@ export async function loadThemeFromRemote(): Promise<ThemeName | null> {
       applyTheme(metaTheme);
       return metaTheme;
     }
-  } catch (_) {}
+  } catch (e) {
+    console.warn("Failed to load theme from Supabase", e);
+  }
 
   return null;
 }

@@ -1,12 +1,14 @@
-import { Settings2, Zap, Palette } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ReadingMode } from "@/hooks/useReadingMode";
-import { StreamingSpeed } from "@/hooks/useStreamingSpeed";
-import { applyTheme } from "@/theme/useTheme";
-import { THEMES, ThemeName } from "@/theme/themes";
+import { Settings2, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ReadingMode } from '@/hooks/useReadingMode';
+import { StreamingSpeed } from '@/hooks/useStreamingSpeed';
 
 interface ChatSettingsProps {
   readingMode: ReadingMode;
@@ -15,88 +17,91 @@ interface ChatSettingsProps {
   setStreamingSpeed: (speed: StreamingSpeed) => void;
 }
 
-export function ChatSettings({ readingMode, setReadingMode, streamingSpeed, setStreamingSpeed }: ChatSettingsProps) {
+export function ChatSettings({
+  readingMode,
+  setReadingMode,
+  streamingSpeed,
+  setStreamingSpeed,
+}: ChatSettingsProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="glass-card border-primary/30 hover:shadow-glow-violet">
+        <Button
+          variant="outline"
+          size="icon"
+          className="glass-card border-primary/30 hover:shadow-glow-violet transition-all"
+        >
           <Settings2 className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-
       <PopoverContent className="w-80 glass-card-enhanced border-primary/40" align="end">
         <div className="space-y-6">
-          {/* Theme Picker */}
           <div>
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <Palette className="h-4 w-4 text-primary" />
-              Theme
-            </h3>
-
-            <div className="grid grid-cols-4 gap-2">
-              {Object.keys(THEMES).map((name) => {
-                const theme = name as ThemeName;
-                return (
-                  <button
-                    key={name}
-                    className="h-8 w-8 rounded-full border"
-                    style={{ background: THEMES[theme]["bg-1"] }}
-                    onClick={() => applyTheme(theme)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Reading mode settings */}
-          <div className="border-t border-border/50 pt-4">
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Settings2 className="h-4 w-4 text-primary" />
               Reading Mode
             </h3>
-
             <RadioGroup value={readingMode} onValueChange={(value) => setReadingMode(value as ReadingMode)}>
               <div className="space-y-2">
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="compact" id="compact" />
-                  <Label htmlFor="compact">Compact</Label>
+                  <Label htmlFor="compact" className="cursor-pointer flex-1">
+                    <div className="font-medium">Compact</div>
+                    <div className="text-xs text-muted-foreground">Tight spacing, more content</div>
+                  </Label>
                 </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="comfortable" id="comfortable" />
-                  <Label htmlFor="comfortable">Comfortable</Label>
+                  <Label htmlFor="comfortable" className="cursor-pointer flex-1">
+                    <div className="font-medium">Comfortable</div>
+                    <div className="text-xs text-muted-foreground">Balanced spacing (default)</div>
+                  </Label>
                 </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="expanded" id="expanded" />
-                  <Label htmlFor="expanded">Expanded</Label>
+                  <Label htmlFor="expanded" className="cursor-pointer flex-1">
+                    <div className="font-medium">Expanded</div>
+                    <div className="text-xs text-muted-foreground">Large spacing, easy reading</div>
+                  </Label>
                 </div>
               </div>
             </RadioGroup>
           </div>
 
-          {/* Streaming speed settings */}
           <div className="border-t border-border/50 pt-4">
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
               Streaming Speed
             </h3>
-
             <RadioGroup value={streamingSpeed} onValueChange={(value) => setStreamingSpeed(value as StreamingSpeed)}>
               <div className="space-y-2">
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="slow" id="slow" />
-                  <Label htmlFor="slow">Slow</Label>
+                  <Label htmlFor="slow" className="cursor-pointer flex-1">
+                    <div className="font-medium">Slow</div>
+                    <div className="text-xs text-muted-foreground">Cinematic typing effect</div>
+                  </Label>
                 </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="medium" id="medium" />
-                  <Label htmlFor="medium">Medium</Label>
+                  <Label htmlFor="medium" className="cursor-pointer flex-1">
+                    <div className="font-medium">Medium</div>
+                    <div className="text-xs text-muted-foreground">Balanced speed (default)</div>
+                  </Label>
                 </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="fast" id="fast" />
-                  <Label htmlFor="fast">Fast</Label>
+                  <Label htmlFor="fast" className="cursor-pointer flex-1">
+                    <div className="font-medium">Fast</div>
+                    <div className="text-xs text-muted-foreground">Quick responses</div>
+                  </Label>
                 </div>
-                <div className="flex items-center p-2 hover:bg-primary/5 rounded-lg gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors">
                   <RadioGroupItem value="instant" id="instant" />
-                  <Label htmlFor="instant">Instant</Label>
+                  <Label htmlFor="instant" className="cursor-pointer flex-1">
+                    <div className="font-medium">Instant</div>
+                    <div className="text-xs text-muted-foreground">No animation</div>
+                  </Label>
                 </div>
               </div>
             </RadioGroup>

@@ -44,20 +44,17 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   };
 
   return (
-    <div 
-      className={`chat-message flex gap-4 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}
-      data-role={message.role}
-    >
+    <div className={`flex gap-4 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
       {!isUser && (
         <LucyLogo size="sm" showGlow className="flex-shrink-0" />
       )}
       
       <div className={`max-w-[85%] md:max-w-[75%] ${isUser ? 'order-first' : ''}`}>
         <div className={`
-          chat-message-bubble rounded-3xl px-6 py-4
+          rounded-3xl px-6 py-4
           ${isUser 
-            ? 'chat-message-user bg-gradient-button text-white ml-auto shadow-glow-magenta hover:shadow-glow-divine transition-shadow duration-300' 
-            : 'chat-message-assistant glass-card-enhanced border border-primary/40 shadow-glow-violet'
+            ? 'bg-gradient-button text-white ml-auto shadow-glow-magenta hover:shadow-glow-divine transition-shadow duration-300' 
+            : 'glass-card-enhanced border border-primary/40 shadow-glow-violet'
           }
           transform transition-all duration-300
         `}>
