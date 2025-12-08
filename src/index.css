@@ -744,7 +744,7 @@ body.lucy-active .chat-input-row {
 }
 
 /* =========================================================
-   DARK MODE DEFAULT ENFORCEMENT
+   DARK MODE STYLES
    ========================================================= */
 html.dark,
 body.dark,
@@ -755,9 +755,58 @@ body.dark,
   color: hsl(0 0% 96%);
 }
 
-/* Ensure dark mode is consistent */
-html:not(.light),
-body:not(.light) {
-  background: hsl(var(--bg-1, 260 100% 4%));
-  color: hsl(var(--text, 0 0% 96%));
+/* =========================================================
+   LIGHT MODE TEXT VISIBILITY FIXES
+   ========================================================= */
+html:not(.dark) {
+  color: hsl(0 0% 7%);
+  background: hsl(0 0% 100%);
+}
+
+html:not(.dark) body,
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) button,
+html:not(.dark) p,
+html:not(.dark) span,
+html:not(.dark) div,
+html:not(.dark) strong,
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) label {
+  color: hsl(0 0% 7%);
+}
+
+html:not(.dark) ::placeholder {
+  color: hsl(0 0% 33%);
+}
+
+/* Light mode chat bubbles */
+html:not(.dark) .chat-message-user,
+html:not(.dark) .lucy-user {
+  background: hsl(0 0% 90%);
+  color: hsl(0 0% 7%);
+}
+
+html:not(.dark) .chat-message-assistant,
+html:not(.dark) .lucy-assistant {
+  background: hsl(0 0% 96%);
+  color: hsl(0 0% 7%);
+}
+
+/* Light mode input styling */
+html:not(.dark) .lucy-input {
+  color: hsl(0 0% 7%);
+  border-color: hsl(40 80% 45%);
+}
+
+html:not(.dark) .lucy-chat-shell {
+  background: hsl(0 0% 98% / 0.95);
+  border-color: hsl(40 60% 70%);
+}
+
+html:not(.dark) .lucy-chat-history {
+  background: hsl(0 0% 100%);
 }
