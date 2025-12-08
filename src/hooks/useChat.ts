@@ -28,39 +28,37 @@ export function useChat() {
       createdAt: Date.now(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("lucy-router", {
-        body: { 
+        body: {
           message: userMessage.content,
-          messages: [...messages, userMessage].map(m => ({
+          messages: [...messages, userMessage].map((m) => ({
             role: m.role,
-            content: m.content
-          }))
+            content: m.content,
+          })),
         },
       });
 
       if (fnError) {
-        console.error("Edge function error:", fnError);
-        setError("Lucy is overloaded. Try again in a moment.");
+        console.error("Lucy router error:", fnError);
+        setError("Lucy is having trouble — try again shortly.");
         return;
       }
 
-      // Handle lucy-router response format: { ok, plan: { finalAnswer, steps } }
-      let responseContent = "I'm here to help!";
-      
-      if (data?.plan?.finalAnswer) {
-        responseContent = data.plan.finalAnswer;
-      } else if (data?.response) {
-        responseContent = data.response;
-      } else if (data?.reply) {
-        responseContent = data.reply;
-      } else if (data?.error) {
-        responseContent = data.plan?.finalAnswer || "I encountered an issue. Please try again.";
-      }
+      // 💚 Universal Response Decoder — NEVER allows silence
+      const responseContent =
+        data?.plan?.finalAnswer ||
+        data?.choices?.[0]?.message?.content ||
+        data?.content ||
+        data?.response ||
+        data?.reply ||
+        data?.result ||
+        data?.message ||
+        "Lucy is listening — say that again?";
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -69,10 +67,10 @@ export function useChat() {
         createdAt: Date.now(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      console.error(err);
-      setError("Network issue — check your connection.");
+      console.error("Network / Invoke Error:", err);
+      setError("Network issue — please try again.");
     } finally {
       setIsLoading(false);
     }
