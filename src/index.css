@@ -382,7 +382,47 @@ body.lucy-active button:not(.chat-send-button):not(.upload-btn) {
   /* Do not override - let default styles apply */
 }
 
-/* Light Mode Fixes - Ensure nothing turns white */
+/* =========================================================
+   LIGHT MODE FIXES - Ensure text visibility
+   ========================================================= */
+
+/* Global light mode text fix */
+html:not(.dark) {
+  --foreground: 0 0% 9%;
+  --background: 0 0% 96%;
+}
+
+html:not(.dark) body:not(.lucy-active) {
+  color: hsl(0 0% 9%);
+  background: hsl(0 0% 96%);
+}
+
+html:not(.dark) body:not(.lucy-active) * {
+  color: inherit;
+}
+
+html:not(.dark) body:not(.lucy-active) input::placeholder,
+html:not(.dark) body:not(.lucy-active) textarea::placeholder {
+  color: hsl(0 0% 40%);
+}
+
+/* Theme color system - dynamic updates */
+[data-theme="purple"], [data-theme="blue"], [data-theme="green"], 
+[data-theme="red"], [data-theme="gold"] {
+  --accent: var(--primary);
+}
+
+.chat-message-user {
+  background: hsl(var(--primary) / 0.2) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.chat-message-assistant {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Light Mode - Lucy always stays dark */
 @media (prefers-color-scheme: light) {
   body.lucy-active {
     --bg-1: #0a0015;
