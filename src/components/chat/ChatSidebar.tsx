@@ -154,12 +154,12 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   );
 
   return (
-    <Sidebar className="border-r border-border/50 backdrop-blur-sm bg-background/50">
-      <SidebarHeader className="p-4 border-b border-border/50">
+    <Sidebar className="border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3 mb-4">
           <LucyLogo size="sm" showGlow />
           <div>
-            <h2 className="font-bold text-lg">Lucy AI</h2>
+            <h2 className="font-bold text-lg text-sidebar-foreground">Lucy AI</h2>
             <p className="text-xs text-muted-foreground">Beyond Intelligence</p>
           </div>
         </div>
@@ -255,7 +255,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-border/50 space-y-2">
+      <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
         {videoControls && (
           <div className="pb-2 border-b border-border/50">
             {videoControls}

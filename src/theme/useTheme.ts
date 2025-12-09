@@ -14,12 +14,16 @@ export function applyTheme(theme: ThemeName) {
   const config = THEMES[theme];
   if (!config) return;
 
-  const root = document.documentElement;
-
-  // Apply CSS vars
-  Object.entries(config).forEach(([key, value]) => {
-    root.style.setProperty(`--${key}`, String(value));
-  });
+  // Only apply theme to chat area elements, not global UI
+  const chatArea = document.querySelector('[data-theme-area="chat"]');
+  
+  if (chatArea) {
+    // Apply CSS vars only to chat area
+    Object.entries(config).forEach(([key, value]) => {
+      (chatArea as HTMLElement).style.setProperty(`--${key}`, String(value));
+    });
+    chatArea.setAttribute("data-theme", theme);
+  }
 
   // Persist locally
   try {
@@ -28,13 +32,13 @@ export function applyTheme(theme: ThemeName) {
     console.warn("Unable to store theme in localStorage", e);
   }
 
-  // Mark theme attribute
-  root.setAttribute("data-theme", theme);
+  // Mark theme attribute on root for reference
+  document.documentElement.setAttribute("data-theme", theme);
 
   // Smooth UI transition
-  root.classList.add("theme-transition");
+  document.documentElement.classList.add("theme-transition");
   window.setTimeout(() => {
-    root.classList.remove("theme-transition");
+    document.documentElement.classList.remove("theme-transition");
   }, 350);
 }
 
