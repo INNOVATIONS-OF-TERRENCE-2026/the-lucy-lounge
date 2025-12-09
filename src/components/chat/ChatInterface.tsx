@@ -25,6 +25,7 @@ import { useMemoryManager } from "@/hooks/useMemoryManager";
 import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
 import { useReadingMode } from "@/hooks/useReadingMode";
 import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
+import { useLucyStreaming } from "@/hooks/useLucyStreaming";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
@@ -32,6 +33,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { NewMessageDivider } from "./NewMessageDivider";
+import { ThemePicker } from "@/components/ThemePicker";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -71,6 +73,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { readingMode, setReadingMode, getSpacingClass } = useReadingMode();
   const { speed, setSpeed } = useStreamingSpeed();
   const { showScrollButton, scrollToBottom } = useScrollDetection(chatContainerRef);
+  const { displayText, isStreaming: isLocalStreaming, startStreaming, skipToEnd } = useLucyStreaming();
 
   useKeyboardShortcuts({
     onSend: () => handleSend(),
@@ -414,8 +417,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen relative" data-theme-area="chat">
-      <ReadingProgressBar isStreaming={!!streamingMessage} />
+    <main className="flex-1 flex flex-col h-screen relative overflow-hidden" data-theme-area="chat">
+      <ReadingProgressBar isStreaming={!!streamingMessage || isLocalStreaming} />
 
       <ScrollToBottom
         visible={showScrollButton && messages.length > 3}
@@ -423,13 +426,16 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
-      {/* HEADER */}
-      <header className="h-14 md:h-16 border-b border-primary/20 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl bg-background/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] flex-shrink-0">
+      {/* Floating Theme Picker */}
+      <ThemePicker />
+
+      {/* HEADER - minimal styling */}
+      <header className="h-12 md:h-14 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />
           <div>
-            <h1 className="font-semibold bg-gradient-button bg-clip-text text-transparent">{conversationTitle}</h1>
+            <h1 className="font-semibold text-foreground">{conversationTitle}</h1>
             <p className="text-xs text-muted-foreground">Divine Intelligence</p>
           </div>
         </div>
@@ -498,13 +504,13 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      {/* MAIN CHAT AREA – full remaining height */}
-      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-4 overflow-y-auto">
-        {messages.length === 0 && !streamingMessage && (
+      {/* MAIN CHAT AREA – full width and height */}
+      <ScrollArea ref={chatContainerRef} className="flex-1 px-2 md:px-4 py-2 overflow-y-auto">
+        {messages.length === 0 && !streamingMessage && !isLocalStreaming && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 max-w-2xl mx-auto py-8">
             <LucyLogo size="xl" showGlow />
-            <div className="bg-card/80 backdrop-blur-sm p-8 rounded-2xl border border-primary/20 shadow-[0_0_25px_rgba(168,85,247,0.15)]">
-              <h2 className="text-3xl font-bold mb-3 bg-gradient-button bg-clip-text text-transparent">
+            <div className="bg-card/60 backdrop-blur-sm p-8 rounded-2xl shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+              <h2 className="text-3xl font-bold mb-3 text-foreground">
                 Welcome to Lucy AI
               </h2>
               <p className="text-muted-foreground">Divine intelligence awaits. Ask me anything!</p>
@@ -512,7 +518,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           </div>
         )}
 
-        <div className={`max-w-4xl mx-auto ${getSpacingClass()}`}>
+        <div className={`max-w-full md:max-w-5xl mx-auto ${getSpacingClass()}`}>
           {conversationId && <ContextIndicator conversationId={conversationId} />}
 
           {messages.map((message, index) => {
@@ -522,7 +528,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             const isNewMessage = index > lastReadMessageIndex;
 
             return (
-              <div key={message.id}>
+              <div key={message.id || index}>
                 {showDivider && <TimestampDivider timestamp={message.created_at} />}
                 {isNewMessage && index === lastReadMessageIndex + 1 && <NewMessageDivider />}
                 <ChatMessage message={message} />
@@ -532,26 +538,27 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
           {toolResults && <ToolResultDisplay results={toolResults.results} />}
 
-          {streamingMessage && (
+          {/* Show streaming message from backend OR local streaming */}
+          {(streamingMessage || displayText) && (
             <ChatMessage
               message={{
                 role: "assistant",
-                content: streamingMessage,
+                content: streamingMessage || displayText,
                 created_at: new Date().toISOString(),
               }}
               isStreaming
             />
           )}
 
-          {isLoading && !streamingMessage && (
-            <div className="flex items-center gap-3 text-muted-foreground bg-background/60 backdrop-blur-sm px-5 py-3 rounded-xl border border-primary/20 w-fit shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+          {isLoading && !streamingMessage && !displayText && (
+            <div className="flex items-center gap-3 text-muted-foreground bg-card/60 backdrop-blur-sm px-5 py-3 rounded-xl w-fit shadow-[0_0_10px_rgba(168,85,247,0.1)]">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
               <span className="text-sm">Lucy is thinking...</span>
             </div>
           )}
 
           {error && (
-            <div className="bg-destructive/10 backdrop-blur-sm p-5 rounded-xl border border-destructive/30 space-y-3 max-w-2xl">
+            <div className="bg-destructive/10 backdrop-blur-sm p-5 rounded-xl space-y-3 max-w-2xl">
               <p className="text-destructive font-medium text-sm">Response Error</p>
               <p className="text-sm text-foreground whitespace-pre-wrap break-words">{error}</p>
               <div className="flex gap-2 pt-2">
@@ -590,8 +597,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       </ScrollArea>
 
       {/* INPUT AREA – compact with inline upload */}
-      <div className="border-t border-primary/20 p-4 md:p-6 backdrop-blur-xl glass shadow-[0_0_20px_rgba(168,85,247,0.15)] flex-shrink-0" data-theme-area="chat">
-        <div className="max-w-5xl mx-auto space-y-2">
+      <div className="p-3 md:p-4 backdrop-blur-md bg-background/60 flex-shrink-0" data-theme-area="chat">
+        <div className="max-w-full md:max-w-5xl mx-auto space-y-2">
           {/* File previews above input if files selected */}
           {selectedFiles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-2">
@@ -601,7 +608,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                 return (
                   <div
                     key={index}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-full border border-primary/30 text-xs max-w-[140px]"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-full text-xs max-w-[140px]"
                   >
                     {previewUrl && (
                       <img src={previewUrl} alt="" className="w-4 h-4 rounded-sm object-cover flex-shrink-0" />
@@ -636,7 +643,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Message Lucy..."
-                className="chat-input pr-16 min-h-[56px] md:min-h-[64px] max-h-[200px] resize-none text-base px-5 py-4 rounded-2xl border border-primary/30 focus:border-primary/60 focus:shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all duration-300 bg-background/80 backdrop-blur-sm"
+                className="chat-input pr-16 min-h-[52px] md:min-h-[56px] max-h-[200px] resize-none text-base px-5 py-3 rounded-2xl focus:shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all duration-200 bg-card/80 backdrop-blur-sm"
                 disabled={isLoading}
               />
               <Button

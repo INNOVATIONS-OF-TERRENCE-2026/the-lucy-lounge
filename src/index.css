@@ -152,4 +152,9 @@ body {
   .glass-card-enhanced {
     @apply backdrop-blur-xl bg-card/90 shadow-[0_0_20px_rgba(168,85,247,0.15)];
   }
+  
+  /* Remove all default borders */
+  .border-none-force {
+    border: none !important;
+  }
 }
