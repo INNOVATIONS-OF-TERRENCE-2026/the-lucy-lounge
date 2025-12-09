@@ -54,7 +54,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
           rounded-2xl px-5 py-3
           ${isUser 
             ? 'bg-gradient-button text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
-            : 'bg-card/90 backdrop-blur-sm border border-primary/20 shadow-[0_0_10px_rgba(168,85,247,0.1)] text-card-foreground'
+            : 'bg-card/90 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.12)] text-card-foreground'
           }
           transition-all duration-200
         `}>
