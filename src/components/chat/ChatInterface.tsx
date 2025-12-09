@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,7 @@ import { Send, Loader2, Search, Download, Settings2, Shield } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FileUploadZone } from "./FileUploadZone";
+import { InlineFileUpload } from "./InlineFileUpload";
 import { ExportDialog } from "./ExportDialog";
 import { SearchModal } from "./SearchModal";
 import { ModelSelector } from "./ModelSelector";
@@ -115,11 +115,16 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     if (data) setConversationTitle(data.title);
   };
 
-  useEffect(() => {
+  // Auto-scroll when messages change or streaming
+  const scrollToLatest = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, streamingMessage]);
+  }, []);
+
+  useEffect(() => {
+    scrollToLatest();
+  }, [messages, streamingMessage, scrollToLatest]);
 
   const loadMessages = async () => {
     if (!conversationId) return;
@@ -409,17 +414,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen relative">
+    <main className="flex-1 flex flex-col h-screen relative" data-theme-area="chat">
       <ReadingProgressBar isStreaming={!!streamingMessage} />
 
       <ScrollToBottom
         visible={showScrollButton && messages.length > 3}
-        onClick={() => scrollToBottom()}
+        onClick={() => scrollToLatest()}
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
       {/* HEADER */}
-      <header className="h-16 md:h-20 border-b border-primary/20 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
+      <header className="h-14 md:h-16 border-b border-primary/20 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl bg-background/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />
@@ -494,20 +499,20 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       )}
 
       {/* MAIN CHAT AREA – full remaining height */}
-      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-4 md:py-6 scroll-smooth overflow-y-auto">
+      <ScrollArea ref={chatContainerRef} className="flex-1 px-4 md:px-6 py-4 overflow-y-auto">
         {messages.length === 0 && !streamingMessage && (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-6 max-w-2xl mx-auto">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 max-w-2xl mx-auto py-8">
             <LucyLogo size="xl" showGlow />
-            <div className="glass-card-enhanced p-10 rounded-3xl border border-primary/40 shadow-glow-divine">
-              <h2 className="text-4xl font-bold mb-4 bg-gradient-button bg-clip-text text-transparent">
+            <div className="bg-card/80 backdrop-blur-sm p-8 rounded-2xl border border-primary/20 shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+              <h2 className="text-3xl font-bold mb-3 bg-gradient-button bg-clip-text text-transparent">
                 Welcome to Lucy AI
               </h2>
-              <p className="text-muted-foreground text-lg">Divine intelligence awaits. Ask me anything!</p>
+              <p className="text-muted-foreground">Divine intelligence awaits. Ask me anything!</p>
             </div>
           </div>
         )}
 
-        <div className={`max-w-4xl mx-auto ${getSpacingClass()} transition-all duration-300`}>
+        <div className={`max-w-4xl mx-auto ${getSpacingClass()}`}>
           {conversationId && <ContextIndicator conversationId={conversationId} />}
 
           {messages.map((message, index) => {
@@ -539,18 +544,18 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           )}
 
           {isLoading && !streamingMessage && (
-            <div className="flex items-center gap-3 text-muted-foreground glass-card px-6 py-4 rounded-2xl border border-primary/30 w-fit">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
-              <span className="font-medium">Lucy is contemplating...</span>
+            <div className="flex items-center gap-3 text-muted-foreground bg-background/60 backdrop-blur-sm px-5 py-3 rounded-xl border border-primary/20 w-fit shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-sm">Lucy is thinking...</span>
             </div>
           )}
 
           {error && (
-            <div className="glass-card-enhanced p-6 rounded-2xl border border-destructive/40 shadow-glow-magenta space-y-3">
-              <p className="text-destructive font-medium">Failed to get response</p>
-              <p className="text-sm text-muted-foreground">{error}</p>
-              <div className="flex gap-2">
-                <Button onClick={handleRetry} variant="default" size="sm">
+            <div className="bg-destructive/10 backdrop-blur-sm p-5 rounded-xl border border-destructive/30 space-y-3 max-w-2xl">
+              <p className="text-destructive font-medium text-sm">Response Error</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap break-words">{error}</p>
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleRetry} variant="default" size="sm" className="bg-primary hover:bg-primary/90">
                   Retry
                 </Button>
                 <Button
@@ -584,38 +589,70 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </ScrollArea>
 
-      {/* INPUT + UPLOAD AREA – compact */}
-      <div className="border-t border-primary/20 p-4 md:p-6 backdrop-blur-xl glass shadow-glow-violet flex-shrink-0">
-        <div className="max-w-5xl mx-auto space-y-3">
-          <FileUploadZone
-            selectedFiles={selectedFiles}
-            onFilesSelected={(files) => setSelectedFiles([...selectedFiles, ...files])}
-            onRemoveFile={(index) => setSelectedFiles(selectedFiles.filter((_, i) => i !== index))}
-          />
-          <div className="relative">
-            <Textarea
-              ref={inputRef}
-              id="chat-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Message Lucy..."
-              className="chat-input pr-20 min-h-[70px] md:min-h-[90px] max-h-[220px] resize-none text-base md:text-lg px-6 py-5 rounded-3xl border-2 border-primary/40 focus:border-primary/70 focus:shadow-glow-divine transition-all duration-300 glass-card-enhanced"
-              disabled={isLoading}
+      {/* INPUT AREA – compact with inline upload */}
+      <div className="border-t border-primary/20 p-4 md:p-6 backdrop-blur-xl glass shadow-[0_0_20px_rgba(168,85,247,0.15)] flex-shrink-0" data-theme-area="chat">
+        <div className="max-w-5xl mx-auto space-y-2">
+          {/* File previews above input if files selected */}
+          {selectedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 px-2">
+              {selectedFiles.map((file, index) => {
+                const isImage = file.type.startsWith("image/");
+                const previewUrl = isImage ? URL.createObjectURL(file) : null;
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-full border border-primary/30 text-xs max-w-[140px]"
+                  >
+                    {previewUrl && (
+                      <img src={previewUrl} alt="" className="w-4 h-4 rounded-sm object-cover flex-shrink-0" />
+                    )}
+                    <span className="truncate text-foreground">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== index))}
+                      className="flex-shrink-0 hover:text-destructive transition-colors ml-0.5"
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          <div className="relative flex items-end gap-2">
+            {/* Inline upload button */}
+            <InlineFileUpload
+              selectedFiles={[]}
+              onFilesSelected={(files) => setSelectedFiles([...selectedFiles, ...files])}
+              onRemoveFile={() => {}}
             />
-            <Button
-              onClick={handleSend}
-              disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
-              size="lg"
-              className="absolute bottom-4 right-4 bg-gradient-button hover:shadow-glow-divine hover:scale-105 active:scale-95 transition-all duration-200 rounded-2xl h-14 w-14"
-            >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            </Button>
+            
+            <div className="flex-1 relative">
+              <Textarea
+                ref={inputRef}
+                id="chat-input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Message Lucy..."
+                className="chat-input pr-16 min-h-[56px] md:min-h-[64px] max-h-[200px] resize-none text-base px-5 py-4 rounded-2xl border border-primary/30 focus:border-primary/60 focus:shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all duration-300 bg-background/80 backdrop-blur-sm"
+                disabled={isLoading}
+              />
+              <Button
+                onClick={handleSend}
+                disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
+                size="sm"
+                className="absolute bottom-2 right-2 bg-gradient-button hover:shadow-glow-divine hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl h-10 w-10"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground text-center">
-            <span className="hidden md:inline">Press Enter to send, Shift+Enter for new line • </span>
-            <span className="hidden md:inline">Ctrl/Cmd+K to search • </span>
-            Ctrl/Cmd+/ to focus
+          
+          <p className="text-xs text-muted-foreground text-center opacity-70">
+            <span className="hidden md:inline">Enter to send • Shift+Enter for new line • </span>
+            Ctrl/Cmd+K to search
           </p>
         </div>
       </div>

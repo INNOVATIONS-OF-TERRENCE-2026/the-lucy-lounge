@@ -44,24 +44,24 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   };
 
   return (
-    <div className={`flex gap-4 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       {!isUser && (
         <LucyLogo size="sm" showGlow className="flex-shrink-0" />
       )}
       
       <div className={`max-w-[85%] md:max-w-[75%] ${isUser ? 'order-first' : ''}`}>
         <div className={`
-          rounded-3xl px-6 py-4
+          rounded-2xl px-5 py-3
           ${isUser 
-            ? 'bg-gradient-button text-white ml-auto shadow-glow-magenta hover:shadow-glow-divine transition-shadow duration-300' 
-            : 'glass-card-enhanced border border-primary/40 shadow-glow-violet'
+            ? 'bg-gradient-button text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+            : 'bg-card/90 backdrop-blur-sm border border-primary/20 shadow-[0_0_10px_rgba(168,85,247,0.1)] text-card-foreground'
           }
-          transform transition-all duration-300
+          transition-all duration-200
         `}>
           {isUser ? (
             <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
           ) : (
-            <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-3 prose-p:leading-7 prose-headings:mt-6 prose-headings:mb-3 prose-ul:my-3 prose-ol:my-3 prose-li:my-1">
+            <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-p:leading-relaxed prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 text-inherit">
               <ReactMarkdown
                 components={{
                   p: ({ children }) => (

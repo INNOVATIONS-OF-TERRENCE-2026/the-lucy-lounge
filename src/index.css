@@ -42,22 +42,82 @@ body {
   :root {
     --background: 0 0% 96%;
     --foreground: 0 0% 9%;
+    --primary: 277 84% 47%;
+    --primary-foreground: 0 0% 100%;
     --primary-hover: 277 100% 35%;
-    --border: 0 0% 83%;
+    --secondary: 270 30% 90%;
+    --secondary-foreground: 270 50% 25%;
+    --muted: 270 15% 85%;
+    --muted-foreground: 270 10% 40%;
+    --accent: 270 50% 92%;
+    --accent-foreground: 270 50% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --border: 270 20% 85%;
+    --input: 270 20% 88%;
+    --ring: 277 84% 47%;
     --radius: 0.75rem;
+    
+    /* Sidebar specific - light mode */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 277 84% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 50% 94%;
+    --sidebar-accent-foreground: 270 50% 20%;
+    --sidebar-border: 270 20% 88%;
+    --sidebar-ring: 277 84% 47%;
+    
     --gradient-button: linear-gradient(135deg, hsl(277 100% 30%) 0%, hsl(320 100% 50%) 100%);
-    --glow-divine:
-      0 0 80px hsl(277 100% 30% / 0.4), 0 0 120px hsl(320 100% 50% / 0.3), 0 0 160px hsl(277 100% 30% / 0.2);
+    --gradient-primary: linear-gradient(135deg, hsl(277 84% 47%) 0%, hsl(320 80% 50%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(270 30% 95%) 0%, hsl(280 20% 90%) 100%);
+    --glow-violet: 0 0 20px hsl(277 84% 47% / 0.2);
+    --glow-magenta: 0 0 20px hsl(320 100% 50% / 0.2);
+    --glow-divine: 0 0 40px hsl(277 100% 30% / 0.25), 0 0 60px hsl(320 100% 50% / 0.15);
   }
 
   .dark {
-    --background: 0 0% 9%;
+    --background: 270 30% 6%;
     --foreground: 0 0% 98%;
-    --border: 0 0% 32%;
-  }
-
-  * {
-    @apply border-border;
+    --primary: 277 84% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 277 100% 45%;
+    --secondary: 270 25% 15%;
+    --secondary-foreground: 270 20% 90%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 15% 65%;
+    --accent: 270 30% 20%;
+    --accent-foreground: 270 20% 95%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --card: 270 30% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 270 30% 10%;
+    --popover-foreground: 0 0% 98%;
+    --border: 270 20% 25%;
+    --input: 270 20% 20%;
+    --ring: 277 84% 55%;
+    
+    /* Sidebar specific - dark mode */
+    --sidebar-background: 270 30% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 277 84% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 30% 15%;
+    --sidebar-accent-foreground: 270 20% 90%;
+    --sidebar-border: 270 20% 20%;
+    --sidebar-ring: 277 84% 55%;
+    
+    --gradient-button: linear-gradient(135deg, hsl(277 100% 40%) 0%, hsl(320 100% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(277 84% 55%) 0%, hsl(320 80% 55%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(270 30% 12%) 0%, hsl(280 25% 15%) 100%);
+    --glow-violet: 0 0 25px hsl(277 84% 55% / 0.3);
+    --glow-magenta: 0 0 25px hsl(320 100% 55% / 0.3);
+    --glow-divine: 0 0 50px hsl(277 100% 40% / 0.35), 0 0 80px hsl(320 100% 55% / 0.2);
   }
 
   body {
@@ -65,27 +125,31 @@ body {
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted/30;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/30 rounded-full;
+    @apply bg-primary/20 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary/50;
+    @apply bg-primary/40;
   }
 
   .glass {
-    @apply backdrop-blur-xl border border-primary/20;
+    @apply backdrop-blur-xl bg-background/60;
   }
 
   .glass-card {
-    @apply backdrop-blur-lg border border-primary/30 shadow-glow-violet;
+    @apply backdrop-blur-lg bg-card/80 shadow-[0_0_15px_rgba(168,85,247,0.1)];
+  }
+  
+  .glass-card-enhanced {
+    @apply backdrop-blur-xl bg-card/90 shadow-[0_0_20px_rgba(168,85,247,0.15)];
   }
 }
