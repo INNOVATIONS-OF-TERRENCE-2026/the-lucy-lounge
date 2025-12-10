@@ -18,6 +18,20 @@
   --primary: #a855f7;
   --text: #f9fafb;
   --accent: #f97316;
+  
+  /* Theme variables for chat UI */
+  --theme-bg-1: #050013;
+  --theme-bg-2: #12052e;
+  --theme-primary: #a855f7;
+  --theme-text: #f9fafb;
+  --theme-accent: #f97316;
+}
+
+/* Light mode theme defaults */
+:root:not(.dark) {
+  --theme-text: #111827;
+  --theme-bg-1: #ffffff;
+  --theme-bg-2: #f3f4f6;
 }
 
 html,
@@ -32,7 +46,8 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease,
-    border-color 0.3s ease;
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* =========================================================
