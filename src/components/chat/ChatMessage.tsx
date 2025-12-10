@@ -44,20 +44,20 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   };
 
   return (
-    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} mb-4`} data-theme-area="chat">
       {!isUser && (
         <LucyLogo size="sm" showGlow className="flex-shrink-0" />
       )}
       
       <div className={`max-w-[85%] md:max-w-[75%] ${isUser ? 'order-first' : ''}`}>
-        <div className={`
-          rounded-2xl px-5 py-3
-          ${isUser 
-            ? 'bg-gradient-button text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
-            : 'bg-card/90 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.12)] text-card-foreground'
-          }
-          transition-all duration-200
-        `}>
+        <div 
+          className="rounded-2xl px-5 py-3 backdrop-blur-sm transition-all duration-200"
+          style={{
+            backgroundColor: isUser ? 'var(--theme-primary)' : 'var(--theme-bg-2)',
+            color: 'var(--theme-text)',
+            boxShadow: `0 0 12px color-mix(in srgb, var(--theme-primary) 25%, transparent)`,
+          }}
+        >
           {isUser ? (
             <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
           ) : (
@@ -132,8 +132,16 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       </div>
       
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-subtle flex items-center justify-center flex-shrink-0 border border-primary/30">
-          <User className="w-4 h-4 text-foreground" />
+        <div 
+          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{
+            backgroundColor: 'var(--theme-bg-2)',
+            borderColor: 'var(--theme-primary)',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+          }}
+        >
+          <User className="w-4 h-4" style={{ color: 'var(--theme-text)' }} />
         </div>
       )}
     </div>
