@@ -417,7 +417,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen relative overflow-hidden" data-theme-area="chat">
+    <main 
+      className="flex-1 flex flex-col h-screen relative overflow-hidden" 
+      data-theme-area="chat"
+      style={{
+        backgroundColor: 'var(--theme-bg-1)',
+        color: 'var(--theme-text)',
+      }}
+    >
       <ReadingProgressBar isStreaming={!!streamingMessage || isLocalStreaming} />
 
       <ScrollToBottom
