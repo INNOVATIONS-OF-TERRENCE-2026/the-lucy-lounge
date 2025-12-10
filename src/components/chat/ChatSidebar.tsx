@@ -226,12 +226,16 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
                   </div>
                 ) : (
                   filteredConversations.map((conversation) => (
-                    <SidebarMenuItem key={conversation.id}>
+                    <SidebarMenuItem key={conversation.id} data-theme-area="chat">
                       <div className="w-full">
                         <SidebarMenuButton
                           onClick={() => onConversationSelect(conversation.id)}
                           isActive={currentConversationId === conversation.id}
                           className="w-full justify-start"
+                          style={currentConversationId === conversation.id ? {
+                            backgroundColor: 'color-mix(in srgb, var(--theme-primary) 20%, transparent)',
+                            borderLeft: '3px solid var(--theme-primary)',
+                          } : undefined}
                         >
                           <MessageSquarePlus className="w-4 h-4 mr-2 flex-shrink-0" />
                           <span className="truncate flex-1">{conversation.title}</span>
@@ -239,7 +243,14 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
                         {conversation.tags && conversation.tags.length > 0 && (
                           <div className="px-4 py-1 flex flex-wrap gap-1">
                             {conversation.tags.slice(0, 3).map((tag: string) => (
-                              <span key={tag} className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
+                              <span 
+                                key={tag} 
+                                className="text-xs px-2 py-0.5 rounded"
+                                style={{
+                                  backgroundColor: 'color-mix(in srgb, var(--theme-primary) 15%, transparent)',
+                                  color: 'var(--theme-primary)',
+                                }}
+                              >
                                 {tag}
                               </span>
                             ))}

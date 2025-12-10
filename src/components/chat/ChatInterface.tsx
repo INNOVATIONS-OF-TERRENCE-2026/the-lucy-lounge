@@ -643,14 +643,24 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Message Lucy..."
-                className="chat-input pr-16 min-h-[52px] md:min-h-[56px] max-h-[200px] resize-none text-base px-5 py-3 rounded-2xl focus:shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all duration-200 bg-card/80 backdrop-blur-sm"
+                className="chat-input pr-16 min-h-[52px] md:min-h-[56px] max-h-[200px] resize-none text-base px-5 py-3 rounded-2xl transition-all duration-200 backdrop-blur-sm"
+                style={{
+                  backgroundColor: 'var(--theme-bg-2)',
+                  color: 'var(--theme-text)',
+                  boxShadow: `0 0 8px color-mix(in srgb, var(--theme-primary) 20%, transparent)`,
+                }}
                 disabled={isLoading}
               />
               <Button
                 onClick={handleSend}
                 disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
                 size="sm"
-                className="absolute bottom-2 right-2 bg-gradient-button hover:shadow-glow-divine hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl h-10 w-10"
+                className="absolute bottom-2 right-2 hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl h-10 w-10"
+                style={{
+                  backgroundColor: 'var(--theme-primary)',
+                  color: 'var(--theme-text)',
+                  boxShadow: `0 0 12px color-mix(in srgb, var(--theme-primary) 40%, transparent)`,
+                }}
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
