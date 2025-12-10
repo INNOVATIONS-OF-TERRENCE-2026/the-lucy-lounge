@@ -9,18 +9,23 @@ export function ThemePicker() {
   const [isOpen, setIsOpen] = useState(false);
   const themeNames = Object.keys(THEMES) as ThemeName[];
 
+  // Map theme names to their primary colors for display
   const themeColors: Record<ThemeName, string> = {
-    purple: "bg-purple-500",
-    cyan: "bg-cyan-500",
-    amber: "bg-amber-500",
-    rose: "bg-rose-500",
+    purple: "#a855f7",
+    forest: "#22c55e",
+    ocean: "#38bdf8",
+    gold: "#fbbf24",
+    rose: "#fb7185",
+    midnight: "#6366f1",
+    sunset: "#f97316",
+    neon: "#22c55e",
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-50" data-theme-area="chat">
       {isOpen && (
-        <div className="absolute bottom-14 right-0 p-3 rounded-2xl bg-card/95 backdrop-blur-xl shadow-[0_0_30px_rgba(168,85,247,0.25)] border border-primary/20 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="flex gap-2">
+        <div className="absolute bottom-14 right-0 p-3 rounded-2xl bg-card/95 backdrop-blur-xl shadow-[0_0_30px_rgba(168,85,247,0.25)]">
+          <div className="flex gap-2 flex-wrap max-w-[200px]">
             {themeNames.map((theme) => (
               <button
                 key={theme}
@@ -28,7 +33,8 @@ export function ThemePicker() {
                   applyTheme(theme);
                   setIsOpen(false);
                 }}
-                className={`w-10 h-10 rounded-full ${themeColors[theme] || "bg-primary"} hover:scale-110 transition-transform shadow-lg ring-2 ring-white/20`}
+                style={{ backgroundColor: themeColors[theme] }}
+                className="w-9 h-9 rounded-full hover:scale-110 transition-transform shadow-lg"
                 title={theme.charAt(0).toUpperCase() + theme.slice(1)}
               />
             ))}
