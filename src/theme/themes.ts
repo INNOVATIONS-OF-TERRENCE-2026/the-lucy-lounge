@@ -57,6 +57,14 @@ export const THEMES: Record<string, ThemeConfig> = {
     accent: "#22c55e",
   },
 
+  memories: {
+    "bg-1": "#1a0a2e",
+    "bg-2": "#2d1b4e",
+    primary: "#c084fc",
+    text: "#faf5ff",
+    accent: "#f0abfc",
+  },
+
   sunset: {
     "bg-1": "#1b0b16",
     "bg-2": "#3b0f2f",

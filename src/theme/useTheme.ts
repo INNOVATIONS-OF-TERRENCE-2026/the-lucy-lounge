@@ -8,22 +8,42 @@ import { supabase } from "@/integrations/supabase/client";
 export type { ThemeName };
 
 /**
+ * Get current theme from localStorage
+ */
+export function getCurrentTheme(): ThemeName {
+  try {
+    const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
+    if (stored && THEMES[stored]) {
+      return stored;
+    }
+  } catch (e) {
+    console.warn("Unable to read theme from localStorage", e);
+  }
+  return "purple";
+}
+
+/**
  * Apply theme + animate transition + store local
  */
 export function applyTheme(theme: ThemeName) {
   const config = THEMES[theme];
   if (!config) return;
 
-  // Only apply theme to chat area elements, not global UI
-  const chatArea = document.querySelector('[data-theme-area="chat"]');
+  // Apply CSS vars to all chat area elements
+  const chatAreas = document.querySelectorAll('[data-theme-area="chat"]');
   
-  if (chatArea) {
-    // Apply CSS vars only to chat area
+  chatAreas.forEach((chatArea) => {
     Object.entries(config).forEach(([key, value]) => {
-      (chatArea as HTMLElement).style.setProperty(`--${key}`, String(value));
+      (chatArea as HTMLElement).style.setProperty(`--theme-${key}`, String(value));
     });
     chatArea.setAttribute("data-theme", theme);
-  }
+  });
+
+  // Also apply to root for CSS variable access
+  const root = document.documentElement;
+  Object.entries(config).forEach(([key, value]) => {
+    root.style.setProperty(`--theme-${key}`, String(value));
+  });
 
   // Persist locally
   try {
@@ -33,34 +53,22 @@ export function applyTheme(theme: ThemeName) {
   }
 
   // Mark theme attribute on root for reference
-  document.documentElement.setAttribute("data-theme", theme);
+  root.setAttribute("data-theme", theme);
 
   // Smooth UI transition
-  document.documentElement.classList.add("theme-transition");
+  root.classList.add("theme-transition");
   window.setTimeout(() => {
-    document.documentElement.classList.remove("theme-transition");
+    root.classList.remove("theme-transition");
   }, 350);
 }
 
 /**
- * Load theme from localStorage first
+ * Load theme from localStorage and apply it
  */
 export function loadStoredTheme(): ThemeName {
-  try {
-    const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
-
-    if (stored && THEMES[stored]) {
-      applyTheme(stored);
-      return stored;
-    }
-  } catch (e) {
-    console.warn("Unable to read theme from localStorage", e);
-  }
-
-  // fallback
-  const fallback: ThemeName = "purple";
-  applyTheme(fallback);
-  return fallback;
+  const theme = getCurrentTheme();
+  applyTheme(theme);
+  return theme;
 }
 
 /**
