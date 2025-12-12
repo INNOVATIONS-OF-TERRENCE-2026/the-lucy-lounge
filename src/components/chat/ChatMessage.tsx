@@ -85,6 +85,19 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
                   h3: ({ children }) => (
                     <h3 className="text-base font-bold mt-5 mb-2">{children}</h3>
                   ),
+                  // Render inline images (base64 or URLs)
+                  img: ({ src, alt }) => (
+                    <div className="my-4 rounded-lg overflow-hidden">
+                      <img 
+                        src={src} 
+                        alt={alt || 'Generated image'} 
+                        className="max-w-full h-auto rounded-lg shadow-lg"
+                        style={{ maxHeight: '512px', objectFit: 'contain' }}
+                        loading="lazy"
+                      />
+                      {alt && <p className="text-xs text-muted-foreground mt-2 italic">{alt}</p>}
+                    </div>
+                  ),
                   code({ className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || '');
                     const inline = !match;

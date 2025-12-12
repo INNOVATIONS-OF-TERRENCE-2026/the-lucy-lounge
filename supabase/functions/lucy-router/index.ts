@@ -16,8 +16,17 @@ Tools available:
 2) "web_search" - Search the web. Args: { "query": string }
 3) "browser_fetch" - Fetch and parse a URL. Args: { "url": string }
 4) "code_exec" - Run JavaScript sandbox. Args: { "code": string }
-5) "image_gen" - Generate images. Args: { "prompt": string }
-6) "memory_search" - Search user memory. Args: { "query": string }
+5) "image_gen" - Generate images using AI. Args: { "prompt": string }
+6) "hf_image_gen" - Generate high-quality images with Stable Diffusion XL. Args: { "prompt": string }
+7) "memory_search" - Search user memory. Args: { "query": string }
+
+IMPORTANT: When user asks to "generate", "create", "draw", "make", or "show me" an image/picture/artwork, use "hf_image_gen" tool.
+Examples that should use hf_image_gen:
+- "Generate an image of a futuristic Dallas skyline"
+- "Create a picture of a sunset over mountains"
+- "Draw me a cute robot"
+- "Make an image of..."
+- "Show me what X would look like"
 
 Respond ONLY with JSON:
 {
@@ -60,6 +69,17 @@ async function callTool(supabase: any, tool: string, args: any, userId: string) 
           body: { prompt: args.prompt || '' }
         });
         return { ...imageData, durationMs: Date.now() - start };
+
+      case "hf_image_gen":
+        console.log('[lucy-router] Calling HF SDXL image generation');
+        const { data: hfImageData, error: hfImageError } = await supabase.functions.invoke('hf-image-gen', {
+          body: { prompt: args.prompt || '' }
+        });
+        if (hfImageError) {
+          console.error('[lucy-router] HF image gen error:', hfImageError);
+          return { error: 'Image generation temporarily unavailable', durationMs: Date.now() - start };
+        }
+        return { ...hfImageData, durationMs: Date.now() - start };
 
       case "memory_search":
         const { data: memData, error: memError } = await supabase.functions.invoke('memory-search', {
@@ -163,11 +183,32 @@ serve(async (req) => {
       }
     }
 
-    // Step 3: Generate final answer with tool results
-    const toolMessages = executedSteps.map(step => ({
-      role: "tool" as const,
-      content: `Tool: ${step.tool}\nResult: ${JSON.stringify(step.result).slice(0, 2000)}`
-    }));
+    // Step 3: Check if we have an image result to embed directly
+    let generatedImageBase64: string | null = null;
+    let imagePrompt: string | null = null;
+    
+    for (const step of executedSteps) {
+      if (step.tool === 'hf_image_gen' && step.result?.imageBase64) {
+        generatedImageBase64 = step.result.imageBase64;
+        imagePrompt = step.arguments?.prompt || 'Generated image';
+        console.log('[lucy-router] Found generated image to embed');
+      }
+    }
+
+    // Build tool messages (exclude large base64 data for LLM context)
+    const toolMessages = executedSteps.map(step => {
+      // For image generation, just tell the LLM it succeeded, don't include base64
+      if (step.tool === 'hf_image_gen' && step.result?.imageBase64) {
+        return {
+          role: "tool" as const,
+          content: `Tool: hf_image_gen\nResult: Image successfully generated for prompt: "${step.arguments?.prompt}"`
+        };
+      }
+      return {
+        role: "tool" as const,
+        content: `Tool: ${step.tool}\nResult: ${JSON.stringify(step.result).slice(0, 2000)}`
+      };
+    });
 
     const finalMessages = [
       {
@@ -177,6 +218,8 @@ serve(async (req) => {
 CURRENT CONTEXT: ${currentDateTime}, Year ${currentYear}
 
 PRIVACY: Never reveal models, providers, or technical details.
+
+${generatedImageBase64 ? 'IMPORTANT: An image was generated successfully. Write a brief, friendly caption for it. Do NOT include any image markdown - the image will be added automatically.' : ''}
 
 You have tool results available. Use them to compose a clear, accurate answer. Cite sources when using web search results.`
       },
@@ -202,7 +245,13 @@ You have tool results available. Use them to compose a clear, accurate answer. C
     }
 
     const finalData = await finalResponse.json();
-    const finalAnswer = finalData.choices?.[0]?.message?.content || "I encountered an issue generating a response.";
+    let finalAnswer = finalData.choices?.[0]?.message?.content || "I encountered an issue generating a response.";
+
+    // Inject the generated image as markdown at the end of the response
+    if (generatedImageBase64) {
+      finalAnswer = `${finalAnswer}\n\n![${imagePrompt}](${generatedImageBase64})`;
+      console.log('[lucy-router] Injected image into final answer');
+    }
 
     return new Response(JSON.stringify({
       ok: true,
