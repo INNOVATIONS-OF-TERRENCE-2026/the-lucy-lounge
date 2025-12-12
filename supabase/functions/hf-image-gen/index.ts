@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -45,24 +44,61 @@ serve(async (req) => {
 
     console.log('[hf-image-gen] Generating image with SDXL for prompt:', prompt.substring(0, 100));
 
-    const hf = new HfInference(HF_TOKEN);
+    // Use the new HuggingFace router endpoint directly
+    const response = await fetch(
+      'https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: prompt.trim(),
+          parameters: {
+            negative_prompt: negativePrompt || 'blurry, low quality, distorted, watermark, text',
+            num_inference_steps: 30,
+            guidance_scale: 7.5,
+            width: 1024,
+            height: 1024,
+          },
+        }),
+      }
+    );
 
-    // Use Stable Diffusion XL with safe, high-quality defaults
-    const imageBlob = await hf.textToImage({
-      model: 'stabilityai/stable-diffusion-xl-base-1.0',
-      inputs: prompt.trim(),
-      parameters: {
-        negative_prompt: negativePrompt || 'blurry, low quality, distorted, watermark, text',
-        num_inference_steps: 35,
-        guidance_scale: 7.5,
-        width: 1024,
-        height: 1024,
-      } as any,
-    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[hf-image-gen] HF API error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: "Image generation is temporarily busy. Try again in a moment.",
+          imageBase64: null 
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.status === 503) {
+        return new Response(JSON.stringify({ 
+          error: "The image model is loading. Please try again in 20-30 seconds.",
+          imageBase64: null 
+        }), {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`HF API returned ${response.status}`);
+    }
 
-    // Convert blob to base64 for inline display
+    // Response is binary image data
+    const imageBlob = await response.blob();
     const arrayBuffer = await imageBlob.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Convert to base64
     let binary = '';
     for (let i = 0; i < uint8Array.length; i++) {
       binary += String.fromCharCode(uint8Array[i]);
@@ -84,7 +120,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('[hf-image-gen] Generation failed:', error);
     
-    // Check for specific error types
     const errorMessage = error instanceof Error ? error.message : String(error);
     
     if (errorMessage.includes('rate') || errorMessage.includes('429')) {
