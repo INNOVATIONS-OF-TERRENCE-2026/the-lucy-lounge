@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.chat-stream]
 verify_jwt = true
 
+[functions.lucy-router]
+verify_jwt = false
+
 [functions.upload-attachment]
 verify_jwt = true
 
@@ -49,6 +52,9 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.web-search]
+verify_jwt = true
+
+[functions.browser-fetch]
 verify_jwt = true
 
 [functions.context-analyzer]
