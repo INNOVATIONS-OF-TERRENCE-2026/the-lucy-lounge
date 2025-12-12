@@ -364,7 +364,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         }
       }
 
-      const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
+      // Detect if user is requesting image generation
+      const imageKeywords = ['generate an image', 'create an image', 'draw', 'make an image', 'create a picture', 'generate a picture', 'show me what', 'generate image', 'create image', 'make a picture', 'draw me', 'paint', 'illustrate', 'design an image'];
+      const isImageRequest = imageKeywords.some(keyword => userMessage.toLowerCase().includes(keyword));
+      
+      // Use lucy-router for image generation, otherwise use chat-stream/model-router
+      let endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
+      if (isImageRequest) {
+        endpoint = "lucy-router";
+        console.log('[ChatInterface] Detected image request, using lucy-router');
+      }
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
         method: "POST",
         headers: {
@@ -378,6 +388,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           ],
           preferredModel: selectedModel,
           enableFusion: fusionEnabled,
+          userId: userId,
         }),
       });
 
@@ -385,7 +396,25 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         throw new Error("Failed to get AI response");
       }
 
-      await processStreamingResponse(response, convId);
+      // Handle lucy-router response differently (non-streaming)
+      if (isImageRequest) {
+        const data = await response.json();
+        const finalAnswer = data.plan?.finalAnswer || "I couldn't generate that image right now. Please try again.";
+        await saveMessage(convId, "assistant", finalAnswer);
+        await loadMessages();
+        
+        // Analyze context after response
+        setTimeout(() => {
+          const allMessages = [
+            ...messages,
+            { role: "user", content: userMessage },
+            { role: "assistant", content: finalAnswer },
+          ];
+          analyzeContext(allMessages.map((m) => ({ role: m.role, content: m.content })));
+        }, 1000);
+      } else {
+        await processStreamingResponse(response, convId);
+      }
     } catch (error: any) {
       console.error("Error sending message:", error);
       setError(error.message || "Failed to send message");
