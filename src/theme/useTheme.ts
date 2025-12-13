@@ -33,25 +33,40 @@ export function getCurrentTheme(): ThemeName {
 
 /**
  * Apply theme + animate transition + store local
+ * Supports glow effects and gradients for premium themes
  */
 export function applyTheme(theme: ThemeName) {
   const config = THEMES[theme];
   if (!config) return;
 
-  // Apply CSS vars to all chat area elements
+  const root = document.documentElement;
+
+  // Apply all theme CSS variables to root
+  Object.entries(config).forEach(([key, value]) => {
+    root.style.setProperty(`--theme-${key}`, String(value));
+  });
+
+  // Apply glow color for effects
+  if (config.glow) {
+    root.style.setProperty("--theme-glow", config.glow);
+    root.style.setProperty("--theme-glow-soft", `${config.glow}40`);
+    root.style.setProperty("--theme-glow-strong", `${config.glow}80`);
+  }
+
+  // Apply gradient if available
+  if (config.gradient) {
+    root.style.setProperty("--theme-gradient", config.gradient);
+  } else {
+    root.style.setProperty("--theme-gradient", `linear-gradient(135deg, ${config.primary} 0%, ${config.accent} 100%)`);
+  }
+
+  // Apply to chat area elements
   const chatAreas = document.querySelectorAll('[data-theme-area="chat"]');
-  
   chatAreas.forEach((chatArea) => {
     Object.entries(config).forEach(([key, value]) => {
       (chatArea as HTMLElement).style.setProperty(`--theme-${key}`, String(value));
     });
     chatArea.setAttribute("data-theme", theme);
-  });
-
-  // Also apply to root for CSS variable access
-  const root = document.documentElement;
-  Object.entries(config).forEach(([key, value]) => {
-    root.style.setProperty(`--theme-${key}`, String(value));
   });
 
   // Persist locally
