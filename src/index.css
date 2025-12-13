@@ -28,6 +28,10 @@
   --theme-primary: #a855f7;
   --theme-text: #f9fafb;
   --theme-accent: #f97316;
+  --theme-glow: #a855f7;
+  --theme-glow-soft: #a855f740;
+  --theme-glow-strong: #a855f780;
+  --theme-gradient: linear-gradient(135deg, #a855f7 0%, #f97316 100%);
 }
 
 html,
@@ -44,6 +48,79 @@ body {
     color 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
+}
+
+/* =========================================================
+   🎨 PREMIUM GLOW EFFECTS (UI-ONLY ENHANCEMENT)
+   GPU-optimized, smooth animations for dopamine themes
+   ========================================================= */
+
+/* Soft pulsing glow animation */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px var(--theme-glow-soft);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--theme-glow-strong);
+  }
+}
+
+/* Ambient background glow */
+@keyframes ambient-glow {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Gradient shift animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glow effect classes */
+.glow-effect {
+  box-shadow: 0 0 15px var(--theme-glow-soft);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-effect:hover {
+  box-shadow: 0 0 25px var(--theme-glow-strong);
+}
+
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.glow-ambient {
+  position: relative;
+}
+
+.glow-ambient::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at center, var(--theme-glow-soft) 0%, transparent 70%);
+  animation: ambient-glow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Animated gradient background */
+.gradient-animated {
+  background: var(--theme-gradient);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
 }
 
 /* =========================================================
@@ -198,30 +275,55 @@ body {
 [data-theme-area="chat"] .user-bubble {
   background: var(--theme-primary);
   color: #ffffff;
+  box-shadow: 0 0 15px var(--theme-glow-soft);
 }
 
 /* Assistant message bubbles */
 [data-theme-area="chat"] .assistant-bubble {
   background: var(--theme-bg-2);
   color: var(--theme-text);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  box-shadow: 0 0 20px var(--theme-glow-soft);
 }
 
-/* Chat input bar */
+/* Chat input bar with glow */
 [data-theme-area="chat"] .chat-input {
   background: var(--theme-bg-2);
-  border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+  border-color: var(--theme-glow-soft);
   color: var(--theme-text);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* Send button */
+[data-theme-area="chat"] .chat-input:focus-within {
+  box-shadow: 0 0 20px var(--theme-glow-soft);
+  border-color: var(--theme-primary);
+}
+
+/* Send button with glow */
 [data-theme-area="chat"] .send-button {
   background: var(--theme-primary);
   color: #ffffff;
+  box-shadow: 0 0 10px var(--theme-glow-soft);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-/* Sidebar selection highlight */
+[data-theme-area="chat"] .send-button:hover {
+  box-shadow: 0 0 20px var(--theme-glow-strong);
+  transform: scale(1.05);
+}
+
+/* Sidebar selection highlight with glow */
 [data-theme-area="chat"] .sidebar-selected {
-  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  background: var(--theme-glow-soft);
   border-left: 3px solid var(--theme-primary);
+  box-shadow: inset 0 0 15px var(--theme-glow-soft);
+}
+
+/* Premium theme card styling */
+.theme-card {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px var(--theme-glow-soft);
 }
