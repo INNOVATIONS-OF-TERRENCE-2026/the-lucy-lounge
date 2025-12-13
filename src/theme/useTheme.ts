@@ -1,3 +1,12 @@
+/**
+ * 🔒 BRAND LOCK: LUCY THEME SYSTEM
+ * 
+ * Theme application logic for Lucy Lounge.
+ * Themes persist to localStorage and sync to Supabase user metadata.
+ * Theme colors apply to chat elements only, NOT header/matrix/profile.
+ * DO NOT modify unless explicitly requested by user.
+ */
+
 import { THEMES, ThemeName } from "./themes";
 import { supabase } from "@/integrations/supabase/client";
 

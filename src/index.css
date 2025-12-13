@@ -10,20 +10,30 @@
 @tailwind utilities;
 
 /* =========================================================
+   🔒 BRAND LOCK: UI, THEME, BRANDING
+   
+   These styles define Lucy Lounge's core visual identity.
+   DO NOT modify unless explicitly requested by user.
+   Protected elements: logo, theme colors, chat styling.
+   ========================================================= */
+
+/* =========================================================
    GLOBAL OVERRIDABLE THEME VARIABLES (THESE MUST COME FIRST)
+   These are applied dynamically via ThemePicker
    ========================================================= */
 :root {
-  --bg-1: #050013;
-  --bg-2: #12052e;
-  --primary: #a855f7;
-  --text: #f9fafb;
-  --accent: #f97316;
+  /* Dynamic theme variables - set by applyTheme() */
+  --theme-bg-1: #050013;
+  --theme-bg-2: #12052e;
+  --theme-primary: #a855f7;
+  --theme-text: #f9fafb;
+  --theme-accent: #f97316;
 }
 
 html,
 body {
-  background: var(--bg-1);
-  color: var(--text);
+  background: var(--theme-bg-1);
+  color: var(--theme-text);
 }
 
 /* Smooth theme transitions */
@@ -32,7 +42,8 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease,
-    border-color 0.3s ease;
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* =========================================================
@@ -157,4 +168,60 @@ body {
   .border-none-force {
     border: none !important;
   }
+}
+
+/* =========================================================
+   🔒 BRAND LOCK: LUCY LOGO PROTECTION
+   The Lucy logo must always be visible and centered in header
+   ========================================================= */
+.lucy-logo-protected {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   🔒 BRAND LOCK: THEME-SCOPED CHAT STYLING
+   Theme colors apply ONLY to chat elements, not header/matrix
+   ========================================================= */
+[data-theme-area="chat"] {
+  /* Message bubbles inherit theme */
+  --chat-bubble-user: var(--theme-primary);
+  --chat-bubble-assistant: var(--theme-bg-2);
+  --chat-input-bg: var(--theme-bg-2);
+  --chat-input-border: var(--theme-primary);
+  --chat-send-bg: var(--theme-primary);
+  --chat-text: var(--theme-text);
+}
+
+/* User message bubbles */
+[data-theme-area="chat"] .user-bubble {
+  background: var(--theme-primary);
+  color: #ffffff;
+}
+
+/* Assistant message bubbles */
+[data-theme-area="chat"] .assistant-bubble {
+  background: var(--theme-bg-2);
+  color: var(--theme-text);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-primary) 20%, transparent);
+}
+
+/* Chat input bar */
+[data-theme-area="chat"] .chat-input {
+  background: var(--theme-bg-2);
+  border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+  color: var(--theme-text);
+}
+
+/* Send button */
+[data-theme-area="chat"] .send-button {
+  background: var(--theme-primary);
+  color: #ffffff;
+}
+
+/* Sidebar selection highlight */
+[data-theme-area="chat"] .sidebar-selected {
+  background: color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  border-left: 3px solid var(--theme-primary);
 }

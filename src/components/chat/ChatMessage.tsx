@@ -45,18 +45,19 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
 
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+      {/* 🔒 BRAND LOCK: Lucy Logo must always be visible */}
       {!isUser && (
-        <LucyLogo size="sm" showGlow className="flex-shrink-0" />
+        <LucyLogo size="sm" showGlow className="flex-shrink-0 lucy-logo-protected" />
       )}
       
       <div className={`max-w-[85%] md:max-w-[75%] ${isUser ? 'order-first' : ''}`}>
+        {/* 🔒 BRAND LOCK: Message bubbles use theme-scoped styling */}
         <div className={`
-          rounded-2xl px-5 py-3
+          rounded-2xl px-5 py-3 transition-all duration-200
           ${isUser 
-            ? 'bg-gradient-button text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
-            : 'bg-card/90 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.12)] text-card-foreground'
+            ? 'user-bubble bg-gradient-button text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+            : 'assistant-bubble bg-card/90 backdrop-blur-sm shadow-[0_0_12px_rgba(168,85,247,0.12)] text-card-foreground'
           }
-          transition-all duration-200
         `}>
           {isUser ? (
             <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
