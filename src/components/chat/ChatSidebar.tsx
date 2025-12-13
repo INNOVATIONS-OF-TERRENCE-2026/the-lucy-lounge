@@ -225,43 +225,29 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
                     No conversations yet. Start a new chat!
                   </div>
                 ) : (
-                  filteredConversations.map((conversation) => {
-                    const isActive = currentConversationId === conversation.id;
-                    return (
-                      <SidebarMenuItem key={conversation.id} data-theme-area="chat">
-                        <div className="w-full">
-                          <SidebarMenuButton
-                            onClick={() => onConversationSelect(conversation.id)}
-                            isActive={isActive}
-                            className="w-full justify-start"
-                            style={isActive ? {
-                              backgroundColor: 'color-mix(in srgb, var(--theme-primary) 20%, transparent)',
-                              boxShadow: '0 0 12px color-mix(in srgb, var(--theme-primary) 40%, transparent)',
-                            } : undefined}
-                          >
-                            <MessageSquarePlus className="w-4 h-4 mr-2 flex-shrink-0" />
-                            <span className="truncate flex-1">{conversation.title}</span>
-                          </SidebarMenuButton>
-                          {conversation.tags && conversation.tags.length > 0 && (
-                            <div className="px-4 py-1 flex flex-wrap gap-1">
-                              {conversation.tags.slice(0, 3).map((tag: string) => (
-                                <span 
-                                  key={tag} 
-                                  className="text-xs px-2 py-0.5 rounded"
-                                  style={{
-                                    backgroundColor: 'color-mix(in srgb, var(--theme-primary) 15%, transparent)',
-                                    color: 'var(--theme-primary)',
-                                  }}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </SidebarMenuItem>
-                    );
-                  })
+                  filteredConversations.map((conversation) => (
+                    <SidebarMenuItem key={conversation.id}>
+                      <div className="w-full">
+                        <SidebarMenuButton
+                          onClick={() => onConversationSelect(conversation.id)}
+                          isActive={currentConversationId === conversation.id}
+                          className="w-full justify-start"
+                        >
+                          <MessageSquarePlus className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span className="truncate flex-1">{conversation.title}</span>
+                        </SidebarMenuButton>
+                        {conversation.tags && conversation.tags.length > 0 && (
+                          <div className="px-4 py-1 flex flex-wrap gap-1">
+                            {conversation.tags.slice(0, 3).map((tag: string) => (
+                              <span key={tag} className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </SidebarMenuItem>
+                  ))
                 )}
               </SidebarMenu>
             </SidebarGroupContent>
