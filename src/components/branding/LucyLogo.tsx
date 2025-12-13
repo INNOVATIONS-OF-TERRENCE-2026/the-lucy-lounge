@@ -1,3 +1,11 @@
+/**
+ * 🔒 BRAND LOCK: LUCY LOGO COMPONENT
+ * 
+ * This component renders the official Lucy AI logo.
+ * DO NOT modify unless explicitly requested by user.
+ * The logo must always remain visible in the chat header.
+ */
+
 import lucyLogo from "@/assets/lucy-logo.png";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +26,7 @@ export const LucyLogo = ({ size = "md", className, showGlow = true }: LucyLogoPr
   return (
     <div
       className={cn(
-        "rounded-full overflow-hidden flex items-center justify-center",
+        "rounded-full overflow-hidden flex items-center justify-center lucy-logo-protected",
         sizeClasses[size],
         showGlow && "shadow-glow-violet animate-neural-pulse",
         className

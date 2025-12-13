@@ -1,4 +1,10 @@
-// src/theme/themes.ts
+/**
+ * 🔒 BRAND LOCK: LUCY THEME DEFINITIONS
+ * 
+ * These themes define Lucy Lounge's color palette.
+ * All 9 themes must be preserved: purple, forest, ocean, gold, rose, midnight, memories, sunset, neon.
+ * DO NOT remove or modify themes unless explicitly requested by user.
+ */
 
 export type ThemeConfig = {
   "bg-1": string;

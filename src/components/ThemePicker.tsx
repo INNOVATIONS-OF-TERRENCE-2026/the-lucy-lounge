@@ -1,3 +1,12 @@
+/**
+ * 🔒 BRAND LOCK: THEME PICKER COMPONENT
+ * 
+ * This component controls Lucy Lounge's visual theme.
+ * Theme affects: message bubbles, input bar, send button, sidebar selection.
+ * Theme does NOT affect: header bar, profile menu, matrix background.
+ * DO NOT modify unless explicitly requested by user.
+ */
+
 import { useState, useEffect } from "react";
 import { applyTheme, getCurrentTheme, loadStoredTheme } from "@/theme/useTheme";
 import { THEMES } from "@/theme/themes";
