@@ -9,9 +9,13 @@ export interface AudioTrack {
   genres: MusicGenre[];
   weatherAffinity: WeatherMode[];
   seasonAffinity: SeasonMode[];
+  /** Per-track loudness normalization (0.5-1.5, 1.0 = no change) */
+  gainNormalization: number;
 }
 
 // ============= COMPLETE AUDIO LIBRARY (18 TRACKS) =============
+// gainNormalization values calibrated to equalize perceived loudness
+// Values > 1.0 boost quieter tracks, < 1.0 reduce louder tracks
 export const AUDIO_TRACKS: AudioTrack[] = [
   // ORIGINAL 8 TRACKS
   {
@@ -21,6 +25,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient'],
     weatherAffinity: ['hurricane', 'tornado', 'blizzard'],
     seasonAffinity: ['winter', 'fall'],
+    gainNormalization: 1.1,
   },
   {
     id: 'ambient-emotional',
@@ -29,6 +34,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient', 'lofi'],
     weatherAffinity: ['rain', 'cloudy', 'snow'],
     seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 1.05,
   },
   {
     id: 'ambient-spiritual',
@@ -37,6 +43,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient'],
     weatherAffinity: ['bloomy', 'sunshine', 'clear'],
     seasonAffinity: ['spring', 'summer'],
+    gainNormalization: 1.0,
   },
   {
     id: 'jazz-smooth',
@@ -45,6 +52,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['jazz', 'lofi'],
     weatherAffinity: ['rain', 'cloudy', 'bloomy'],
     seasonAffinity: ['spring', 'fall'],
+    gainNormalization: 0.95,
   },
   {
     id: 'jazz-warm',
@@ -53,6 +61,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['jazz'],
     weatherAffinity: ['sunshine', 'bloomy'],
     seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.9,
   },
   {
     id: 'lofi-mellow',
@@ -61,6 +70,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['lofi'],
     weatherAffinity: ['rain', 'cloudy', 'snow'],
     seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 1.0,
   },
   {
     id: 'rnb-soulful',
@@ -69,6 +79,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb'],
     weatherAffinity: ['sunshine', 'bloomy'],
     seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
   },
   {
     id: 'rnb-upbeat',
@@ -77,6 +88,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb', 'jazz'],
     weatherAffinity: ['sunshine'],
     seasonAffinity: ['summer'],
+    gainNormalization: 0.8,
   },
   
   // NEW 10 TRACKS
@@ -87,6 +99,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['jazz', 'lofi'],
     weatherAffinity: ['sunshine', 'cloudy', 'bloomy'],
     seasonAffinity: ['summer', 'fall'],
+    gainNormalization: 0.9,
   },
   {
     id: 'blue-bonnets',
@@ -95,6 +108,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient', 'lofi'],
     weatherAffinity: ['bloomy', 'rain', 'cloudy'],
     seasonAffinity: ['spring', 'fall'],
+    gainNormalization: 1.0,
   },
   {
     id: 'big-money-melodies',
@@ -103,6 +117,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb'],
     weatherAffinity: ['sunshine', 'bloomy'],
     seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.75,
   },
   {
     id: 'comeback-mix',
@@ -111,6 +126,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb', 'jazz'],
     weatherAffinity: ['sunshine', 'bloomy'],
     seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.8,
   },
   {
     id: 'project2-samples',
@@ -119,6 +135,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['lofi', 'ambient'],
     weatherAffinity: ['rain', 'cloudy', 'snow'],
     seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 0.95,
   },
   {
     id: 'kanye-samples-deep',
@@ -127,6 +144,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb', 'ambient'],
     weatherAffinity: ['rain', 'cloudy', 'hurricane'],
     seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 0.85,
   },
   {
     id: 'life-after-pain',
@@ -135,6 +153,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient', 'lofi'],
     weatherAffinity: ['rain', 'snow', 'cloudy'],
     seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 1.0,
   },
   {
     id: 'call-me-sample',
@@ -143,6 +162,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['rnb', 'jazz'],
     weatherAffinity: ['sunshine', 'bloomy'],
     seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
   },
   {
     id: 'ttttttt',
@@ -151,6 +171,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['ambient'],
     weatherAffinity: ['blizzard', 'hurricane', 'tornado'],
     seasonAffinity: ['winter'],
+    gainNormalization: 1.15,
   },
   {
     id: 'crushed-velvet',
@@ -159,8 +180,17 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     genres: ['lofi', 'jazz'],
     weatherAffinity: ['rain', 'cloudy', 'bloomy'],
     seasonAffinity: ['fall', 'spring'],
+    gainNormalization: 0.9,
   },
 ];
+
+/**
+ * Get track normalization gain by src path
+ */
+export function getTrackNormalization(src: string): number {
+  const track = AUDIO_TRACKS.find(t => t.src === src);
+  return track?.gainNormalization ?? 1.0;
+}
 
 // ============= WEATHER → GENRE MAPPING =============
 export const WEATHER_GENRE_MAP: Record<WeatherMode, { genres: MusicGenre[]; volumeMod: number }> = {
