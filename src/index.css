@@ -163,7 +163,6 @@ body {
     --gradient-button: linear-gradient(135deg, hsl(277 100% 30%) 0%, hsl(320 100% 50%) 100%);
     --gradient-primary: linear-gradient(135deg, hsl(277 84% 47%) 0%, hsl(320 80% 50%) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(270 30% 95%) 0%, hsl(280 20% 90%) 100%);
-    --gradient-nebula: linear-gradient(135deg, hsl(270 30% 6%) 0%, hsl(280 40% 12%) 50%, hsl(277 35% 8%) 100%);
     --glow-violet: 0 0 20px hsl(277 84% 47% / 0.2);
     --glow-magenta: 0 0 20px hsl(320 100% 50% / 0.2);
     --glow-divine: 0 0 40px hsl(277 100% 30% / 0.25), 0 0 60px hsl(320 100% 50% / 0.15);
@@ -204,7 +203,6 @@ body {
     --gradient-button: linear-gradient(135deg, hsl(277 100% 40%) 0%, hsl(320 100% 55%) 100%);
     --gradient-primary: linear-gradient(135deg, hsl(277 84% 55%) 0%, hsl(320 80% 55%) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(270 30% 12%) 0%, hsl(280 25% 15%) 100%);
-    --gradient-nebula: linear-gradient(135deg, hsl(270 30% 4%) 0%, hsl(280 50% 10%) 50%, hsl(277 40% 6%) 100%);
     --glow-violet: 0 0 25px hsl(277 84% 55% / 0.3);
     --glow-magenta: 0 0 25px hsl(320 100% 55% / 0.3);
     --glow-divine: 0 0 50px hsl(277 100% 40% / 0.35), 0 0 80px hsl(320 100% 55% / 0.2);
