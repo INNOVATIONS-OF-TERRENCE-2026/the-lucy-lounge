@@ -10,7 +10,7 @@ import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
 import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverlay";
 import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 import { FocusModeProvider, useFocusMode } from "@/hooks/useFocusMode";
-import { AmbientSoundController } from "@/components/ambient/AmbientSoundController";
+import { AudioManagerProvider } from "@/hooks/useAudioManager";
 import { CursorGlowOverlay } from "@/components/ambient/CursorGlowOverlay";
 
 // Inner component that uses the weather context
@@ -63,12 +63,6 @@ const ChatContent = () => {
             enabled={enabled} 
           />
           <CursorGlowOverlay enabled={enabled} />
-          <AmbientSoundController
-            weather={weather}
-            season={season}
-            enabled={enabled}
-            volume={0.4}
-          />
         </>
       )}
 
@@ -109,9 +103,11 @@ const ChatContent = () => {
 const Chat = () => {
   return (
     <FocusModeProvider>
-      <WeatherAmbientProvider>
-        <ChatContent />
-      </WeatherAmbientProvider>
+      <AudioManagerProvider>
+        <WeatherAmbientProvider>
+          <ChatContent />
+        </WeatherAmbientProvider>
+      </AudioManagerProvider>
     </FocusModeProvider>
   );
 };
