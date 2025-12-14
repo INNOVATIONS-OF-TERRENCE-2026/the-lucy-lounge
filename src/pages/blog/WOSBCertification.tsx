@@ -2,10 +2,11 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
+import { AuthorByline } from '@/components/blog/AuthorByline';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Clock, Calendar, Check, FileCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const WOSBCertification = () => {
@@ -32,7 +33,8 @@ const WOSBCertification = () => {
         description="Everything you need to know about getting certified as a Women-Owned Small Business for federal contracting."
         image="/og-default.png"
         datePublished="2025-01-08"
-        authorName="Lucy AI Business Expert"
+        dateModified="2025-01-14"
+        authorName="Terrence Milliner Sr."
         url={articleUrl}
       />
       <BreadcrumbSchema 
@@ -54,16 +56,11 @@ const WOSBCertification = () => {
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="flex gap-8">
             <article className="flex-1 max-w-4xl">
-              <div className="flex items-center gap-4 text-muted-foreground mb-4">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  January 8, 2025
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  14 min read
-                </span>
-              </div>
+              <AuthorByline 
+                publishDate="2025-01-08"
+                lastUpdated="2025-01-14"
+                readTime="14 min read"
+              />
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6">WOSB Certification: Your Complete Guide</h1>
               

@@ -3,10 +3,11 @@ import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { HowToSchema } from '@/components/seo/HowToSchema';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
+import { AuthorByline } from '@/components/blog/AuthorByline';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Clock, Calendar, Check, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Build90DayCredit = () => {
@@ -40,7 +41,8 @@ const Build90DayCredit = () => {
         description="Complete week-by-week action plan to build business credit from zero."
         image="/og-default.png"
         datePublished="2025-01-05"
-        authorName="Lucy AI Credit Expert"
+        dateModified="2025-01-14"
+        authorName="Terrence Milliner Sr."
         url={articleUrl}
       />
       <HowToSchema 
@@ -69,16 +71,11 @@ const Build90DayCredit = () => {
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="flex gap-8">
             <article className="flex-1 max-w-4xl">
-              <div className="flex items-center gap-4 text-muted-foreground mb-4">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  January 5, 2025
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  10 min read
-                </span>
-              </div>
+              <AuthorByline 
+                publishDate="2025-01-05"
+                lastUpdated="2025-01-14"
+                readTime="10 min read"
+              />
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Build Business Credit in 90 Days: Your Action Plan</h1>
               

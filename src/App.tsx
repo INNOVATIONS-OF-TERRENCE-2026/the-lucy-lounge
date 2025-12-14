@@ -52,6 +52,11 @@ import Net30Vendors from "./pages/blog/Net30Vendors";
 import Build90DayCredit from "./pages/blog/Build90DayCredit";
 import BestAIToolsSmallBusiness from "./pages/blog/BestAIToolsSmallBusiness";
 
+// Trust/E-E-A-T Pages
+import AuthorPage from "./pages/about/AuthorPage";
+import EditorialStandards from "./pages/EditorialStandards";
+import Contact from "./pages/Contact";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -99,6 +104,9 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/about" element={<About />} />
+              <Route path="/about/terrence-milliner" element={<AuthorPage />} />
+              <Route path="/editorial-standards" element={<EditorialStandards />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/features" element={<Features />} />
               <Route path="/launch" element={<Launch />} />
