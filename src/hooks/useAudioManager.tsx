@@ -9,6 +9,7 @@ import {
   getTracksByGenre,
   shuffleArray,
   getTrackDisplayName,
+  getTrackNormalization,
   type MusicGenre,
 } from '@/config/ambientAudioLibrary';
 
@@ -25,6 +26,11 @@ const STORAGE_KEYS = {
   shuffleEnabled: 'lucy-music-shuffle',
   soundEnabled: 'lucy-sound-enabled',
 } as const;
+
+// Audio normalization constants
+const FADE_OUT_TIME = 0.35; // 350ms fade out
+const FADE_IN_TIME = 0.5;   // 500ms fade in
+const MASTER_GAIN_CEILING = 0.95; // Soft limit ceiling
 
 export interface AudioManagerContextType {
   audioState: AudioState;
@@ -81,11 +87,19 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const filterNodeRef = useRef<BiquadFilterNode | null>(null);
+  
+  // Audio processing chain refs
+  const trackGainNodeRef = useRef<GainNode | null>(null);     // Per-track normalization
+  const masterGainNodeRef = useRef<GainNode | null>(null);    // Master volume control
+  const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null); // Soft limiter
+  const filterNodeRef = useRef<BiquadFilterNode | null>(null); // EQ filter
+  
   const fadeTimeoutRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
   const hasUserInteractedRef = useRef(false);
+  
+  // Current track normalization value
+  const currentTrackNormRef = useRef<number>(1.0);
   
   // Deck shuffle tracking
   const playedTracksRef = useRef<Set<string>>(new Set());
@@ -167,18 +181,37 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = ctx;
       
-      const gainNode = ctx.createGain();
-      gainNode.gain.value = volume;
-      gainNodeRef.current = gainNode;
+      // Create per-track gain node (for normalization)
+      const trackGainNode = ctx.createGain();
+      trackGainNode.gain.value = 1.0;
+      trackGainNodeRef.current = trackGainNode;
       
+      // Create EQ filter
       const filterNode = ctx.createBiquadFilter();
       filterNode.type = 'lowpass';
       filterNode.frequency.value = 20000;
       filterNode.Q.value = 0.5;
       filterNodeRef.current = filterNode;
       
-      filterNode.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      // Create compressor/limiter for soft limiting
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-6, ctx.currentTime);    // Start compressing at -6dB
+      compressor.knee.setValueAtTime(10, ctx.currentTime);         // Soft knee for smooth transition
+      compressor.ratio.setValueAtTime(4, ctx.currentTime);         // 4:1 compression ratio
+      compressor.attack.setValueAtTime(0.003, ctx.currentTime);    // 3ms attack
+      compressor.release.setValueAtTime(0.25, ctx.currentTime);    // 250ms release
+      compressorNodeRef.current = compressor;
+      
+      // Create master gain node (for user volume control)
+      const masterGainNode = ctx.createGain();
+      masterGainNode.gain.value = Math.min(volume, MASTER_GAIN_CEILING);
+      masterGainNodeRef.current = masterGainNode;
+      
+      // Audio chain: source → trackGain → filter → compressor → masterGain → destination
+      trackGainNode.connect(filterNode);
+      filterNode.connect(compressor);
+      compressor.connect(masterGainNode);
+      masterGainNode.connect(ctx.destination);
       
       return ctx;
     } catch (e) {
@@ -189,7 +222,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
 
   // ============= STOP ALL AUDIO =============
 
-  const stopAll = useCallback((fadeTime = 0.4) => {
+  const stopAll = useCallback((fadeTime = FADE_OUT_TIME) => {
     clearPendingOperations();
     
     if (!audioElementRef.current) {
@@ -198,14 +231,14 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const audio = audioElementRef.current;
-    const gainNode = gainNodeRef.current;
+    const masterGain = masterGainNodeRef.current;
     const ctx = audioContextRef.current;
 
-    if (gainNode && ctx && ctx.state === 'running') {
+    if (masterGain && ctx && ctx.state === 'running') {
       const now = ctx.currentTime;
-      gainNode.gain.cancelScheduledValues(now);
-      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-      gainNode.gain.linearRampToValueAtTime(0, now + fadeTime);
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+      masterGain.gain.linearRampToValueAtTime(0, now + fadeTime);
       
       fadeTimeoutRef.current = window.setTimeout(() => {
         audio.pause();
@@ -258,7 +291,8 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
         
         try {
           const source = ctx.createMediaElementSource(audio);
-          source.connect(filterNodeRef.current!);
+          // Connect to trackGain (start of the chain)
+          source.connect(trackGainNodeRef.current!);
           sourceNodeRef.current = source;
         } catch (e) {
           // Already connected
@@ -297,16 +331,27 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       audio.oncanplaythrough = () => {
         if (!hasUserInteractedRef.current) return;
 
-        const gainNode = gainNodeRef.current;
+        const trackGain = trackGainNodeRef.current;
+        const masterGain = masterGainNodeRef.current;
         const filterNode = filterNodeRef.current;
         
-        if (gainNode && filterNode && ctx) {
+        if (trackGain && masterGain && filterNode && ctx) {
           const now = ctx.currentTime;
+          
+          // Apply EQ filter for season
           filterNode.frequency.setValueAtTime(seasonMod.filterFreq, now);
           
-          const targetVolume = volume * volumeMod * seasonMod.gainMod;
-          gainNode.gain.setValueAtTime(0, now);
-          gainNode.gain.linearRampToValueAtTime(targetVolume, now + 0.5);
+          // Get per-track normalization value
+          const trackNorm = getTrackNormalization(filePath);
+          currentTrackNormRef.current = trackNorm;
+          
+          // Set track-specific gain (normalization)
+          trackGain.gain.setValueAtTime(0, now);
+          trackGain.gain.linearRampToValueAtTime(trackNorm * volumeMod * seasonMod.gainMod, now + FADE_IN_TIME);
+          
+          // Ensure master gain is at user's volume level (capped at ceiling)
+          const targetMasterVolume = Math.min(volume, MASTER_GAIN_CEILING);
+          masterGain.gain.setValueAtTime(targetMasterVolume, now);
         }
 
         audio.play().then(() => {
@@ -332,17 +377,17 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     };
 
     if (audioElementRef.current && !audioElementRef.current.paused) {
-      const gainNode = gainNodeRef.current;
-      if (gainNode && ctx.state === 'running') {
+      const trackGain = trackGainNodeRef.current;
+      if (trackGain && ctx.state === 'running') {
         const now = ctx.currentTime;
-        gainNode.gain.cancelScheduledValues(now);
-        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-        gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+        trackGain.gain.cancelScheduledValues(now);
+        trackGain.gain.setValueAtTime(trackGain.gain.value, now);
+        trackGain.gain.linearRampToValueAtTime(0, now + FADE_OUT_TIME);
         
         fadeTimeoutRef.current = window.setTimeout(() => {
           audioElementRef.current?.pause();
           performTransition();
-        }, 350);
+        }, FADE_OUT_TIME * 1000 + 50);
       } else {
         audioElementRef.current.pause();
         performTransition();
@@ -465,21 +510,17 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
 
   // ============= EFFECTS =============
 
-  // Handle volume changes
+  // Handle volume changes - update master gain
   useEffect(() => {
-    if (!gainNodeRef.current || !audioContextRef.current) return;
+    if (!masterGainNodeRef.current || !audioContextRef.current) return;
     
     const ctx = audioContextRef.current;
-    const gainNode = gainNodeRef.current;
-    const seasonMod = SEASON_EQ_MODIFIERS[currentSeason];
+    const masterGain = masterGainNodeRef.current;
     
-    if (audioState === 'weather') {
-      const targetVolume = volume * currentVolumeModRef.current * seasonMod.gainMod;
-      gainNode.gain.linearRampToValueAtTime(targetVolume, ctx.currentTime + 0.1);
-    } else if (audioState === 'music') {
-      gainNode.gain.linearRampToValueAtTime(volume * seasonMod.gainMod, ctx.currentTime + 0.1);
-    }
-  }, [volume, audioState, currentSeason]);
+    // Apply volume with ceiling cap
+    const targetVolume = Math.min(volume, MASTER_GAIN_CEILING);
+    masterGain.gain.linearRampToValueAtTime(targetVolume, ctx.currentTime + 0.1);
+  }, [volume, audioState]);
 
   // Handle season EQ changes
   useEffect(() => {
