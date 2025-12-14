@@ -9,6 +9,9 @@ import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
 import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverlay";
 import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
+import { FocusModeProvider, useFocusMode } from "@/hooks/useFocusMode";
+import { AmbientSoundController } from "@/components/ambient/AmbientSoundController";
+import { CursorGlowOverlay } from "@/components/ambient/CursorGlowOverlay";
 
 // Inner component that uses the weather context
 const ChatContent = () => {
@@ -18,6 +21,7 @@ const ChatContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const { weather, season, intensity, enabled } = useWeatherAmbient();
+  const { focusMode } = useFocusMode();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -50,12 +54,23 @@ const ChatContent = () => {
   return (
     <>
       <CosmicBackground />
-      <WeatherEffectsOverlay 
-        weather={weather} 
-        season={season} 
-        intensity={intensity} 
-        enabled={enabled} 
-      />
+      {!focusMode && (
+        <>
+          <WeatherEffectsOverlay 
+            weather={weather} 
+            season={season} 
+            intensity={intensity} 
+            enabled={enabled} 
+          />
+          <CursorGlowOverlay enabled={enabled} />
+          <AmbientSoundController
+            weather={weather}
+            season={season}
+            enabled={enabled}
+            volume={0.4}
+          />
+        </>
+      )}
 
       <SidebarProvider>
         <div
@@ -93,9 +108,11 @@ const ChatContent = () => {
 // Main Chat component with provider wrapper
 const Chat = () => {
   return (
-    <WeatherAmbientProvider>
-      <ChatContent />
-    </WeatherAmbientProvider>
+    <FocusModeProvider>
+      <WeatherAmbientProvider>
+        <ChatContent />
+      </WeatherAmbientProvider>
+    </FocusModeProvider>
   );
 };
 

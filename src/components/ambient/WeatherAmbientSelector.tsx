@@ -13,13 +13,17 @@ import {
   TreeDeciduous,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Focus,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { WeatherMode, SeasonMode, useWeatherAmbient } from '@/hooks/useWeatherAmbient';
+import { useFocusMode } from '@/hooks/useFocusMode';
 
 const WEATHER_OPTIONS: { mode: WeatherMode; icon: React.ElementType; label: string }[] = [
   { mode: 'clear', icon: X, label: 'Clear' },
@@ -43,6 +47,7 @@ const SEASON_OPTIONS: { mode: SeasonMode; icon: React.ElementType; label: string
 
 export const WeatherAmbientSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const { 
     weather, 
     season, 
@@ -53,6 +58,7 @@ export const WeatherAmbientSelector = () => {
     setIntensity,
     setEnabled 
   } = useWeatherAmbient();
+  const { focusMode, toggleFocusMode } = useFocusMode();
 
   const activeWeatherOption = WEATHER_OPTIONS.find(w => w.mode === weather);
   const activeSeasonOption = SEASON_OPTIONS.find(s => s.mode === season);
@@ -79,16 +85,57 @@ export const WeatherAmbientSelector = () => {
       </CollapsibleTrigger>
 
       <CollapsibleContent className="px-2 pb-3 space-y-4">
+        {/* Focus Mode Toggle */}
+        <div className="flex items-center justify-between pt-2 pb-2 border-b border-border/30">
+          <div className="flex items-center gap-1.5">
+            <Focus className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Focus Mode</span>
+          </div>
+          <Button
+            variant={focusMode ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "h-6 text-xs px-2",
+              focusMode && "bg-primary text-primary-foreground"
+            )}
+            onClick={toggleFocusMode}
+          >
+            {focusMode ? 'On' : 'Off'}
+          </Button>
+        </div>
+
         {/* Enable/Disable Toggle */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">Effects</span>
           <Button
-            variant={enabled ? "default" : "outline"}
+            variant={enabled && !focusMode ? "default" : "outline"}
             size="sm"
             className="h-6 text-xs px-2"
             onClick={() => setEnabled(!enabled)}
+            disabled={focusMode}
           >
-            {enabled ? 'On' : 'Off'}
+            {enabled && !focusMode ? 'On' : 'Off'}
+          </Button>
+        </div>
+
+        {/* Sound Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            {soundEnabled && !focusMode ? (
+              <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
+            ) : (
+              <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+            <span className="text-xs text-muted-foreground">Ambient Sound</span>
+          </div>
+          <Button
+            variant={soundEnabled && !focusMode ? "default" : "outline"}
+            size="sm"
+            className="h-6 text-xs px-2"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            disabled={focusMode}
+          >
+            {soundEnabled && !focusMode ? 'On' : 'Off'}
           </Button>
         </div>
 
@@ -106,7 +153,7 @@ export const WeatherAmbientSelector = () => {
                   weather === mode && "ring-1 ring-primary"
                 )}
                 onClick={() => setWeather(mode)}
-                disabled={!enabled}
+                disabled={!enabled || focusMode}
               >
                 <Icon className="h-3 w-3" />
                 <span className="text-[10px] truncate">{label}</span>
@@ -129,7 +176,7 @@ export const WeatherAmbientSelector = () => {
                   season === mode && "ring-1 ring-primary"
                 )}
                 onClick={() => setSeason(mode)}
-                disabled={!enabled}
+                disabled={!enabled || focusMode}
               >
                 <Icon className="h-3 w-3" />
                 <span className="text-[10px] truncate">{label}</span>
@@ -150,7 +197,7 @@ export const WeatherAmbientSelector = () => {
             min={10}
             max={100}
             step={10}
-            disabled={!enabled}
+            disabled={!enabled || focusMode}
             className="w-full"
           />
         </div>
@@ -158,9 +205,11 @@ export const WeatherAmbientSelector = () => {
         {/* Active State Display */}
         <div className="pt-1 border-t border-border/50">
           <p className="text-[10px] text-center text-muted-foreground">
-            {enabled && weather !== 'clear' 
-              ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}`
-              : 'No effects active'
+            {focusMode 
+              ? 'Focus Mode Active'
+              : enabled && weather !== 'clear' 
+                ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}`
+                : 'No effects active'
             }
           </p>
         </div>
