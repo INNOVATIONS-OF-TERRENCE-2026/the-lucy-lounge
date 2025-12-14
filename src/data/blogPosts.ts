@@ -670,3 +670,10 @@ export const getRelatedPosts = (currentSlug: string): BlogPost[] => {
 export const getPostsByCategory = (category: string): BlogPost[] => {
   return blogPosts.filter(post => post.category === category);
 };
+
+// Export pillar guides separately for featured sections
+export const pillarGuides: BlogPost[] = [
+  creditRepairGuide,
+  sbaLoanGuide,
+  womenFundingGuide
+];

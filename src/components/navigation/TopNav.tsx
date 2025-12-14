@@ -55,6 +55,24 @@ export const TopNav = () => {
             <Link to="/tools" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               Tools
             </Link>
+            {/* Guides Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors font-medium">
+                Guides
+                <ChevronDown className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem onClick={() => navigate("/guides/business-credit-repair")}>
+                  Business Credit Repair Guide
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/guides/sba-loan-complete-guide")}>
+                  SBA Loan Complete Guide
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/guides/funding-for-women-entrepreneurs")}>
+                  Funding for Women Entrepreneurs
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               About
             </Link>
@@ -137,6 +155,33 @@ export const TopNav = () => {
               >
                 Tools
               </Link>
+              
+              {/* Guides Section */}
+              <div className="border-t border-border/20 pt-3 mt-3">
+                <div className="text-foreground/60 text-sm font-semibold mb-2">Guides</div>
+                <Link
+                  to="/guides/business-credit-repair"
+                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Business Credit Repair
+                </Link>
+                <Link
+                  to="/guides/sba-loan-complete-guide"
+                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  SBA Loan Guide
+                </Link>
+                <Link
+                  to="/guides/funding-for-women-entrepreneurs"
+                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Women Entrepreneurs Funding
+                </Link>
+              </div>
+              
               <Link
                 to="/about"
                 className="text-foreground/80 hover:text-foreground transition-colors"

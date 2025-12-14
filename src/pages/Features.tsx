@@ -1,5 +1,8 @@
 import { SEOHead } from '@/components/seo/SEOHead';
+import { FAQSchema } from '@/components/seo/FAQSchema';
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { Features as FeaturesSection } from '@/components/landing/Features';
+import { SEOFAQSection } from '@/components/blog/SEOFAQSection';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Check } from 'lucide-react';
@@ -53,6 +56,33 @@ const Features = () => {
     }
   ];
 
+  const featuresFAQs = [
+    {
+      question: "What AI capabilities does Lucy AI have?",
+      answer: "Lucy AI includes advanced reasoning with chain-of-thought analysis, multimodal vision for analyzing images/videos/PDFs, long-term memory across sessions, secure code execution in Python and JavaScript, real-time web search with citations, AI image generation, and voice conversation capabilities."
+    },
+    {
+      question: "Can Lucy AI analyze images and documents?",
+      answer: "Yes, Lucy AI features cutting-edge multimodal capabilities. It can analyze images, photographs, videos, PDF documents, data tables, and charts. Simply upload any file and Lucy will provide detailed analysis and insights."
+    },
+    {
+      question: "Does Lucy AI remember my preferences?",
+      answer: "Yes, Lucy AI includes a sophisticated long-term memory system that remembers your preferences, communication style, and conversation history across all sessions. You can view and manage your memories in the settings panel."
+    },
+    {
+      question: "Can I run code with Lucy AI?",
+      answer: "Absolutely! Lucy AI can execute Python and JavaScript code in a secure sandbox environment. This makes it perfect for developers, data analysts, and anyone who needs to test code snippets quickly."
+    },
+    {
+      question: "Does Lucy AI have voice capabilities?",
+      answer: "Yes, Lucy AI supports both speech-to-text and text-to-speech. You can speak to Lucy using your microphone and receive spoken responses, enabling natural voice conversations."
+    },
+    {
+      question: "How does Lucy AI compare to ChatGPT?",
+      answer: "Lucy AI combines the best capabilities of multiple AI models into one platform. Unlike ChatGPT, Lucy offers built-in code execution, long-term memory, multimodal vision, web search, image generation, and voice capabilities all in one seamless experience."
+    }
+  ];
+
   return (
     <>
       <SEOHead 
@@ -62,6 +92,13 @@ const Features = () => {
         image="/og-features.png"
         url="https://lucylounge.org/features"
         canonical="https://lucylounge.org/features"
+      />
+      <FAQSchema faqs={featuresFAQs} />
+      <BreadcrumbSchema 
+        items={[
+          { name: 'Home', url: 'https://lucylounge.org' },
+          { name: 'Features', url: 'https://lucylounge.org/features' }
+        ]}
       />
       
       <div className="min-h-screen relative overflow-hidden">
@@ -134,6 +171,12 @@ const Features = () => {
               </div>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <SEOFAQSection 
+            title="Frequently Asked Questions About Lucy AI Features"
+            faqs={featuresFAQs}
+          />
 
           {/* Footer */}
           <Footer />
