@@ -50,6 +50,7 @@ import WOSBCertification from "./pages/blog/WOSBCertification";
 import BlackWomenGrants from "./pages/blog/BlackWomenGrants";
 import Net30Vendors from "./pages/blog/Net30Vendors";
 import Build90DayCredit from "./pages/blog/Build90DayCredit";
+import BestAIToolsSmallBusiness from "./pages/blog/BestAIToolsSmallBusiness";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,7 @@ const App = () => {
               <Route path="/blog/black-women-entrepreneur-grants" element={<BlackWomenGrants />} />
               <Route path="/blog/net-30-vendors-for-new-business" element={<Net30Vendors />} />
               <Route path="/blog/build-business-credit-90-days" element={<Build90DayCredit />} />
+              <Route path="/blog/best-ai-tools-small-business-2025" element={<BestAIToolsSmallBusiness />} />
               
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
