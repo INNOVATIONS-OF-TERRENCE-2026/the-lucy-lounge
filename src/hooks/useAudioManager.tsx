@@ -13,6 +13,7 @@ export interface AudioManagerContextType {
   currentWeather: WeatherMode;
   currentSeason: SeasonMode;
   currentMusic: MusicGenre;
+  currentTrackName: string;
   volume: number;
   soundEnabled: boolean;
   musicEnabled: boolean;
@@ -22,6 +23,7 @@ export interface AudioManagerContextType {
   playWeatherSound: (weather: WeatherMode, season: SeasonMode) => void;
   playMusic: (genre: MusicGenre) => void;
   stopAll: () => void;
+  skipTrack: () => void;
   triggerTypingSound: () => void;
 }
 
@@ -104,9 +106,20 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   // Shuffle tracking - avoid consecutive repeats
   const lastPlayedRef = useRef<string>('');
   const currentPoolRef = useRef<string[]>([]);
+  const [currentTrackPath, setCurrentTrackPath] = useState<string>('');
   const currentVolumeModRef = useRef<number>(1);
 
   // ============= TRACK SELECTION HELPERS =============
+
+  // Extract readable track name from file path
+  const getTrackDisplayName = useCallback((filePath: string): string => {
+    if (!filePath) return '';
+    const fileName = filePath.split('/').pop() || '';
+    return fileName
+      .replace(/\.(mp3|wav|ogg|m4a)$/i, '')
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }, []);
   
   // Get all tracks matching weather's genre pool
   const getTracksForWeather = useCallback((weather: WeatherMode): string[] => {
@@ -304,6 +317,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
 
         audio.play().then(() => {
           setAudioState(newState);
+          setCurrentTrackPath(filePath);
           isTransitioningRef.current = false;
         }).catch((e) => {
           console.warn('Playback failed:', e);
@@ -407,6 +421,18 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     const seasonMod = SEASON_MODIFIERS[currentSeason];
     playAudioFile(selectedTrack, 'music', seasonMod, 1);
   }, [focusMode, musicEnabled, currentSeason, stopAll, getTracksForGenre, selectRandomTrack, playAudioFile]);
+
+  // Skip to next track in current pool
+  const skipTrack = useCallback(() => {
+    if (focusMode || currentPoolRef.current.length === 0) return;
+    
+    const nextTrack = selectRandomTrack(currentPoolRef.current);
+    if (!nextTrack) return;
+    
+    const seasonMod = SEASON_MODIFIERS[currentSeason];
+    isTransitioningRef.current = false; // Allow transition
+    playAudioFile(nextTrack, audioState === 'idle' ? 'weather' : audioState, seasonMod, currentVolumeModRef.current);
+  }, [focusMode, currentSeason, audioState, selectRandomTrack, playAudioFile]);
 
   // Typing sound (very subtle, only when idle)
   const triggerTypingSound = useCallback(() => {
@@ -527,6 +553,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     currentWeather,
     currentSeason,
     currentMusic,
+    currentTrackName: getTrackDisplayName(currentTrackPath),
     volume,
     soundEnabled,
     musicEnabled,
@@ -536,6 +563,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     playWeatherSound,
     playMusic,
     stopAll,
+    skipTrack,
     triggerTypingSound,
   };
 
@@ -554,6 +582,7 @@ export const useAudioManager = (): AudioManagerContextType => {
       currentWeather: 'clear',
       currentSeason: 'none',
       currentMusic: 'none',
+      currentTrackName: '',
       volume: 0.5,
       soundEnabled: true,
       musicEnabled: false,
@@ -563,6 +592,7 @@ export const useAudioManager = (): AudioManagerContextType => {
       playWeatherSound: () => {},
       playMusic: () => {},
       stopAll: () => {},
+      skipTrack: () => {},
       triggerTypingSound: () => {},
     };
   }
