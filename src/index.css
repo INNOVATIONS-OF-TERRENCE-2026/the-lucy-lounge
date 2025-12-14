@@ -234,11 +234,35 @@ body {
   }
 
   .glass-card {
-    @apply backdrop-blur-lg bg-card/80 shadow-[0_0_15px_rgba(168,85,247,0.1)];
+    @apply backdrop-blur-lg shadow-[0_0_15px_rgba(168,85,247,0.1)];
+    background: rgba(15, 5, 30, 0.75);
   }
   
+  /* =========================================================
+     🔒 LANDING PAGE GLASS CARD (DARK PREMIUM AESTHETIC)
+     Always uses dark, semi-transparent backgrounds
+     ========================================================= */
   .glass-card-enhanced {
-    @apply backdrop-blur-xl bg-card/90 shadow-[0_0_20px_rgba(168,85,247,0.15)];
+    @apply backdrop-blur-xl rounded-2xl;
+    background: linear-gradient(
+      135deg,
+      rgba(20, 10, 40, 0.85) 0%,
+      rgba(30, 15, 50, 0.75) 50%,
+      rgba(15, 5, 35, 0.85) 100%
+    );
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 
+      0 0 30px rgba(168, 85, 247, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .glass-card-enhanced:hover {
+    border-color: rgba(168, 85, 247, 0.35);
+    box-shadow: 
+      0 0 40px rgba(168, 85, 247, 0.25),
+      0 12px 40px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   
   /* Remove all default borders */
@@ -326,4 +350,55 @@ body {
 .theme-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 25px var(--theme-glow-soft);
+}
+
+/* =========================================================
+   🔒 LANDING PAGE SPECIFIC STYLES (HOME PAGE ONLY)
+   Dark premium aesthetic with proper text visibility
+   ========================================================= */
+
+/* Text shadows for landing page readability */
+.text-shadow-soft {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.text-shadow-strong {
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.8),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Landing page gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, hsl(277 84% 47%) 0%, hsl(320 80% 50%) 100%);
+}
+
+.bg-gradient-button {
+  background: linear-gradient(135deg, hsl(277 100% 40%) 0%, hsl(320 100% 55%) 100%);
+}
+
+/* Glow shadows for landing elements */
+.shadow-glow-violet {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+}
+
+.shadow-glow-accent {
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.35);
+}
+
+/* Animated pulse glow */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
 }
