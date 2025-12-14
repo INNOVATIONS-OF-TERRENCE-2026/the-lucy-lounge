@@ -358,19 +358,23 @@ export const WeatherEffectsOverlay = ({
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
       }
+      particlesRef.current = [];
       return;
     }
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
     
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     };
     resizeCanvas();
@@ -378,17 +382,17 @@ export const WeatherEffectsOverlay = ({
 
     // Determine particle count based on weather type
     const baseCounts: Record<string, number> = {
-      rain: 150,
-      snow: 80,
-      blizzard: 200,
-      sunshine: 5,
-      cloudy: 8,
-      bloomy: 40,
-      hurricane: 100,
-      tornado: 60,
+      rain: 200,
+      snow: 100,
+      blizzard: 300,
+      sunshine: 6,
+      cloudy: 10,
+      bloomy: 50,
+      hurricane: 120,
+      tornado: 80,
     };
 
-    const count = getParticleCount(baseCounts[weather] || 50);
+    const count = getParticleCount(baseCounts[weather] || 60);
     particlesRef.current = Array.from({ length: count }, () => 
       createParticle(canvas, weather)
     );
@@ -400,18 +404,16 @@ export const WeatherEffectsOverlay = ({
       const deltaTime = currentTime - lastTimeRef.current;
       lastTimeRef.current = currentTime;
 
-      // Clear with slight fade for trails (only for some effects)
-      if (weather === 'hurricane' || weather === 'tornado') {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-      } else {
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      }
+      const width = window.innerWidth;
+      const height = window.innerHeight;
 
-      // Draw season tint overlay
+      // Clear canvas properly
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw season tint overlay first
       if (seasonTint.a > 0) {
         ctx.fillStyle = `rgba(${seasonTint.r}, ${seasonTint.g}, ${seasonTint.b}, ${seasonTint.a * intensity})`;
-        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.fillRect(0, 0, width, height);
       }
 
       // Update and draw particles
@@ -428,6 +430,7 @@ export const WeatherEffectsOverlay = ({
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
       }
       window.removeEventListener('resize', resizeCanvas);
     };
@@ -442,8 +445,7 @@ export const WeatherEffectsOverlay = ({
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{ 
-        zIndex: 1,
-        mixBlendMode: 'screen',
+        zIndex: 5,
       }}
       aria-hidden="true"
     />
