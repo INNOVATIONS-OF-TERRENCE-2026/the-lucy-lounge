@@ -41,6 +41,16 @@ import CreditRepairGuide from "./pages/guides/CreditRepairGuide";
 import SBALoanGuide from "./pages/guides/SBALoanGuide";
 import WomenFundingGuide from "./pages/guides/WomenFundingGuide";
 
+// Blog cluster articles
+import Metro2Explained from "./pages/blog/Metro2Explained";
+import DisputeLetters from "./pages/blog/DisputeLetters";
+import SBA7aVs504 from "./pages/blog/SBA7aVs504";
+import SBABadCredit from "./pages/blog/SBABadCredit";
+import WOSBCertification from "./pages/blog/WOSBCertification";
+import BlackWomenGrants from "./pages/blog/BlackWomenGrants";
+import Net30Vendors from "./pages/blog/Net30Vendors";
+import Build90DayCredit from "./pages/blog/Build90DayCredit";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -101,6 +111,16 @@ const App = () => {
               <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
               <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
               <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
+              
+              {/* SEO Cluster Articles */}
+              <Route path="/blog/metro-2-credit-reporting-explained" element={<Metro2Explained />} />
+              <Route path="/blog/dispute-letters-that-work" element={<DisputeLetters />} />
+              <Route path="/blog/sba-7a-vs-504-loans" element={<SBA7aVs504 />} />
+              <Route path="/blog/sba-loan-with-bad-credit" element={<SBABadCredit />} />
+              <Route path="/blog/wosb-certification-guide" element={<WOSBCertification />} />
+              <Route path="/blog/black-women-entrepreneur-grants" element={<BlackWomenGrants />} />
+              <Route path="/blog/net-30-vendors-for-new-business" element={<Net30Vendors />} />
+              <Route path="/blog/build-business-credit-90-days" element={<Build90DayCredit />} />
               
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
