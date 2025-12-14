@@ -3,7 +3,7 @@ import { WeatherMode, SeasonMode } from './useWeatherAmbient';
 import { useFocusMode } from './useFocusMode';
 
 // Audio state machine states
-type AudioState = 'idle' | 'weather' | 'music' | 'typing';
+type AudioState = 'idle' | 'weather' | 'music';
 
 // Music genres
 export type MusicGenre = 'none' | 'jazz' | 'rnb' | 'lofi' | 'ambient';
@@ -27,32 +27,35 @@ interface AudioManagerContextType {
 
 const AudioManagerContext = createContext<AudioManagerContextType | null>(null);
 
-// Weather sound configurations using Web Audio API procedural synthesis
-const WEATHER_AUDIO_CONFIG: Record<WeatherMode, {
-  type: 'noise' | 'tone' | 'none';
-  filterFreq: number;
-  filterQ: number;
-  gain: number;
-  oscillatorFreq?: number;
-}> = {
-  clear: { type: 'none', filterFreq: 0, filterQ: 0, gain: 0 },
-  rain: { type: 'noise', filterFreq: 600, filterQ: 0.8, gain: 0.18 },
-  snow: { type: 'noise', filterFreq: 300, filterQ: 0.3, gain: 0.08 },
-  sunshine: { type: 'tone', filterFreq: 1500, filterQ: 0.5, gain: 0.05, oscillatorFreq: 440 },
-  cloudy: { type: 'noise', filterFreq: 350, filterQ: 0.4, gain: 0.1 },
-  bloomy: { type: 'tone', filterFreq: 800, filterQ: 0.6, gain: 0.06, oscillatorFreq: 330 },
-  blizzard: { type: 'noise', filterFreq: 900, filterQ: 1.5, gain: 0.14 },
-  hurricane: { type: 'noise', filterFreq: 180, filterQ: 2, gain: 0.12 },
-  tornado: { type: 'noise', filterFreq: 80, filterQ: 4, gain: 0.1 },
+// Weather to music mapping - each weather type has an assigned beat
+const WEATHER_MUSIC_MAP: Record<WeatherMode, { file: string; genre: MusicGenre; volumeMod: number }> = {
+  clear: { file: '', genre: 'none', volumeMod: 0 },
+  rain: { file: '/audio/lofi-mellow.mp3', genre: 'lofi', volumeMod: 1 },
+  snow: { file: '/audio/ambient-emotional.mp3', genre: 'ambient', volumeMod: 0.9 },
+  sunshine: { file: '/audio/rnb-soulful.mp3', genre: 'rnb', volumeMod: 1 },
+  cloudy: { file: '/audio/jazz-smooth.mp3', genre: 'jazz', volumeMod: 0.95 },
+  bloomy: { file: '/audio/jazz-warm.mp3', genre: 'jazz', volumeMod: 1 },
+  blizzard: { file: '/audio/ambient-spiritual.mp3', genre: 'ambient', volumeMod: 0.85 },
+  hurricane: { file: '/audio/ambient-dark.mp3', genre: 'ambient', volumeMod: 0.7 },
+  tornado: { file: '/audio/ambient-dark.mp3', genre: 'ambient', volumeMod: 0.65 },
 };
 
-// Season EQ modifiers
-const SEASON_MODIFIERS: Record<SeasonMode, { freqMult: number; gainMult: number }> = {
-  none: { freqMult: 1, gainMult: 1 },
-  spring: { freqMult: 1.15, gainMult: 1.05 },
-  summer: { freqMult: 1.1, gainMult: 1 },
-  fall: { freqMult: 0.85, gainMult: 0.9 },
-  winter: { freqMult: 0.75, gainMult: 0.85 },
+// Genre to file mapping for manual genre selection
+const GENRE_FILES: Record<MusicGenre, string> = {
+  none: '',
+  jazz: '/audio/jazz-smooth.mp3',
+  rnb: '/audio/rnb-upbeat.mp3',
+  lofi: '/audio/lofi-mellow.mp3',
+  ambient: '/audio/ambient-spiritual.mp3',
+};
+
+// Season EQ modifiers (applied via Web Audio API)
+const SEASON_MODIFIERS: Record<SeasonMode, { filterFreq: number; gainMod: number }> = {
+  none: { filterFreq: 20000, gainMod: 1 },
+  spring: { filterFreq: 18000, gainMod: 1.05 },
+  summer: { filterFreq: 20000, gainMod: 1 },
+  fall: { filterFreq: 8000, gainMod: 0.9 },
+  winter: { filterFreq: 6000, gainMod: 0.85 },
 };
 
 export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
@@ -67,17 +70,25 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(false);
   
-  // Audio refs - single source of truth
+  // Audio refs - SINGLE source of truth
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const masterGainRef = useRef<GainNode | null>(null);
-  const noiseSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const lfoRef = useRef<OscillatorNode | null>(null);
-  const filterRef = useRef<BiquadFilterNode | null>(null);
-  const isInitializedRef = useRef(false);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const filterNodeRef = useRef<BiquadFilterNode | null>(null);
   const fadeTimeoutRef = useRef<number | null>(null);
+  const isTransitioningRef = useRef(false);
+  const hasUserInteractedRef = useRef(false);
 
-  // Initialize audio context on first user interaction
+  // Clean up any pending operations
+  const clearPendingOperations = useCallback(() => {
+    if (fadeTimeoutRef.current) {
+      clearTimeout(fadeTimeoutRef.current);
+      fadeTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Initialize audio context and nodes
   const initAudioContext = useCallback(() => {
     if (audioContextRef.current) return audioContextRef.current;
     
@@ -85,183 +96,205 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = ctx;
       
-      // Create master gain
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(volume, ctx.currentTime);
-      masterGain.connect(ctx.destination);
-      masterGainRef.current = masterGain;
+      // Create gain node
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = volume;
+      gainNodeRef.current = gainNode;
       
-      isInitializedRef.current = true;
+      // Create filter node for season EQ
+      const filterNode = ctx.createBiquadFilter();
+      filterNode.type = 'lowpass';
+      filterNode.frequency.value = 20000;
+      filterNode.Q.value = 0.5;
+      filterNodeRef.current = filterNode;
+      
+      // Connect: source -> filter -> gain -> destination
+      filterNode.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
       return ctx;
     } catch (e) {
-      console.warn('Audio context initialization failed:', e);
+      console.warn('Audio context init failed:', e);
       return null;
     }
   }, [volume]);
 
-  // Create noise buffer for weather sounds
-  const createNoiseBuffer = useCallback((ctx: AudioContext): AudioBuffer => {
-    const bufferSize = ctx.sampleRate * 3; // 3 seconds of noise
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
+  // Stop all audio with fade out
+  const stopAll = useCallback((fadeTime = 0.4) => {
+    clearPendingOperations();
     
-    // Generate pink-ish noise (more pleasant than white noise)
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555179;
-      b1 = 0.99332 * b1 + white * 0.0750759;
-      b2 = 0.96900 * b2 + white * 0.1538520;
-      b3 = 0.86650 * b3 + white * 0.3104856;
-      b4 = 0.55000 * b4 + white * 0.5329522;
-      b5 = -0.7616 * b5 - white * 0.0168980;
-      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-      b6 = white * 0.115926;
-    }
-    
-    return buffer;
-  }, []);
-
-  // Stop all audio with fade
-  const stopAll = useCallback((fadeTime = 0.3) => {
-    // Clear any pending fade timeout
-    if (fadeTimeoutRef.current) {
-      clearTimeout(fadeTimeoutRef.current);
-      fadeTimeoutRef.current = null;
-    }
-
-    const ctx = audioContextRef.current;
-    if (!ctx || !masterGainRef.current) {
+    if (!audioElementRef.current) {
       setAudioState('idle');
       return;
     }
 
-    const now = ctx.currentTime;
-    
-    // Fade out master gain
-    masterGainRef.current.gain.cancelScheduledValues(now);
-    masterGainRef.current.gain.setValueAtTime(masterGainRef.current.gain.value, now);
-    masterGainRef.current.gain.linearRampToValueAtTime(0, now + fadeTime);
+    const audio = audioElementRef.current;
+    const gainNode = gainNodeRef.current;
+    const ctx = audioContextRef.current;
 
-    // Schedule cleanup
-    fadeTimeoutRef.current = window.setTimeout(() => {
-      // Stop noise source
-      if (noiseSourceRef.current) {
-        try { noiseSourceRef.current.stop(); } catch {}
-        noiseSourceRef.current.disconnect();
-        noiseSourceRef.current = null;
-      }
+    if (gainNode && ctx && ctx.state === 'running') {
+      // Smooth fade out
+      const now = ctx.currentTime;
+      gainNode.gain.cancelScheduledValues(now);
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+      gainNode.gain.linearRampToValueAtTime(0, now + fadeTime);
       
-      // Stop oscillator
-      if (oscillatorRef.current) {
-        try { oscillatorRef.current.stop(); } catch {}
-        oscillatorRef.current.disconnect();
-        oscillatorRef.current = null;
-      }
-      
-      // Stop LFO
-      if (lfoRef.current) {
-        try { lfoRef.current.stop(); } catch {}
-        lfoRef.current.disconnect();
-        lfoRef.current = null;
-      }
-      
-      // Disconnect filter
-      if (filterRef.current) {
-        filterRef.current.disconnect();
-        filterRef.current = null;
-      }
-      
+      fadeTimeoutRef.current = window.setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        setAudioState('idle');
+        isTransitioningRef.current = false;
+      }, fadeTime * 1000 + 50);
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
       setAudioState('idle');
-    }, fadeTime * 1000 + 50);
-  }, []);
+    }
+  }, [clearPendingOperations]);
 
-  // Play weather sound
+  // Core function to play an audio file
+  const playAudioFile = useCallback((
+    filePath: string, 
+    newState: AudioState,
+    seasonMod: { filterFreq: number; gainMod: number },
+    volumeMod: number = 1
+  ) => {
+    if (!filePath || focusMode) {
+      stopAll(0.2);
+      return;
+    }
+
+    // Prevent rapid transitions
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+
+    clearPendingOperations();
+
+    const ctx = initAudioContext();
+    if (!ctx) {
+      isTransitioningRef.current = false;
+      return;
+    }
+
+    // Resume context if suspended
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const performTransition = () => {
+      // Create or reuse audio element
+      let audio = audioElementRef.current;
+      if (!audio) {
+        audio = new Audio();
+        audio.loop = true;
+        audio.crossOrigin = 'anonymous';
+        audioElementRef.current = audio;
+        
+        // Connect to Web Audio API
+        try {
+          const source = ctx.createMediaElementSource(audio);
+          source.connect(filterNodeRef.current!);
+          sourceNodeRef.current = source;
+        } catch (e) {
+          // Already connected, that's fine
+        }
+      }
+
+      // Set up error handling
+      audio.onerror = () => {
+        console.warn('Audio file failed to load:', filePath);
+        isTransitioningRef.current = false;
+        setAudioState('idle');
+      };
+
+      // Set up load and play
+      audio.oncanplaythrough = () => {
+        if (!hasUserInteractedRef.current) {
+          // Wait for user interaction
+          return;
+        }
+
+        const gainNode = gainNodeRef.current;
+        const filterNode = filterNodeRef.current;
+        
+        if (gainNode && filterNode && ctx) {
+          const now = ctx.currentTime;
+          
+          // Apply season EQ
+          filterNode.frequency.setValueAtTime(seasonMod.filterFreq, now);
+          
+          // Fade in
+          const targetVolume = volume * volumeMod * seasonMod.gainMod;
+          gainNode.gain.setValueAtTime(0, now);
+          gainNode.gain.linearRampToValueAtTime(targetVolume, now + 0.5);
+        }
+
+        audio.play().then(() => {
+          setAudioState(newState);
+          isTransitioningRef.current = false;
+        }).catch((e) => {
+          console.warn('Playback failed:', e);
+          isTransitioningRef.current = false;
+        });
+      };
+
+      // If already loaded same file, just restart
+      if (audio.src.endsWith(filePath) && audio.readyState >= 3) {
+        audio.currentTime = 0;
+        audio.oncanplaythrough?.(new Event('canplaythrough'));
+      } else {
+        audio.src = filePath;
+        audio.load();
+      }
+    };
+
+    // If something is playing, fade it out first
+    if (audioElementRef.current && !audioElementRef.current.paused) {
+      const gainNode = gainNodeRef.current;
+      if (gainNode && ctx.state === 'running') {
+        const now = ctx.currentTime;
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+        
+        fadeTimeoutRef.current = window.setTimeout(() => {
+          audioElementRef.current?.pause();
+          performTransition();
+        }, 350);
+      } else {
+        audioElementRef.current.pause();
+        performTransition();
+      }
+    } else {
+      performTransition();
+    }
+  }, [focusMode, volume, initAudioContext, stopAll, clearPendingOperations]);
+
+  // Play weather sound (triggers assigned beat)
   const playWeatherSound = useCallback((weather: WeatherMode, season: SeasonMode) => {
     setCurrentWeather(weather);
     setCurrentSeason(season);
     
     if (focusMode || !soundEnabled) {
-      stopAll(0.1);
+      stopAll(0.2);
       return;
     }
 
-    const config = WEATHER_AUDIO_CONFIG[weather];
-    if (config.type === 'none') {
+    const mapping = WEATHER_MUSIC_MAP[weather];
+    if (!mapping.file) {
       stopAll(0.3);
+      setCurrentMusic('none');
       return;
     }
 
-    // Stop current audio first
-    stopAll(0.15);
+    setCurrentMusic(mapping.genre);
+    setMusicEnabled(false); // Weather controls audio, not manual music
+    
+    const seasonMod = SEASON_MODIFIERS[season];
+    playAudioFile(mapping.file, 'weather', seasonMod, mapping.volumeMod);
+  }, [focusMode, soundEnabled, stopAll, playAudioFile]);
 
-    // Start new sound after fade
-    fadeTimeoutRef.current = window.setTimeout(() => {
-      const ctx = initAudioContext();
-      if (!ctx || !masterGainRef.current) return;
-
-      // Resume context if suspended
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-
-      const seasonMod = SEASON_MODIFIERS[season];
-      const now = ctx.currentTime;
-
-      // Create filter
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(config.filterFreq * seasonMod.freqMult, now);
-      filter.Q.setValueAtTime(config.filterQ, now);
-      filterRef.current = filter;
-
-      // Create source based on type
-      if (config.type === 'noise') {
-        const noiseBuffer = createNoiseBuffer(ctx);
-        const noiseSource = ctx.createBufferSource();
-        noiseSource.buffer = noiseBuffer;
-        noiseSource.loop = true;
-        
-        noiseSource.connect(filter);
-        filter.connect(masterGainRef.current);
-        
-        noiseSource.start();
-        noiseSourceRef.current = noiseSource;
-      } else if (config.type === 'tone') {
-        const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime((config.oscillatorFreq || 220) * seasonMod.freqMult, now);
-        
-        // Add LFO for movement
-        const lfo = ctx.createOscillator();
-        const lfoGain = ctx.createGain();
-        lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(0.3, now);
-        lfoGain.gain.setValueAtTime(8, now);
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-        lfo.start();
-        lfoRef.current = lfo;
-        
-        osc.connect(filter);
-        filter.connect(masterGainRef.current);
-        
-        osc.start();
-        oscillatorRef.current = osc;
-      }
-
-      // Fade in
-      const targetGain = config.gain * volume * seasonMod.gainMult;
-      masterGainRef.current.gain.setValueAtTime(0, now);
-      masterGainRef.current.gain.linearRampToValueAtTime(targetGain, now + 0.4);
-      
-      setAudioState('weather');
-      setMusicEnabled(false);
-      setCurrentMusic('none');
-    }, 200);
-  }, [focusMode, soundEnabled, volume, initAudioContext, createNoiseBuffer, stopAll]);
-
-  // Play music (placeholder - would use audio files)
+  // Play music by genre (manual selection)
   const playMusic = useCallback((genre: MusicGenre) => {
     setCurrentMusic(genre);
     
@@ -270,139 +303,132 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Stop weather sounds
-    stopAll(0.3);
+    setSoundEnabled(false); // Music controls audio, not weather
     
-    // Music would be implemented with <audio> elements and local files
-    // For now, play a procedural ambient pad based on genre
-    fadeTimeoutRef.current = window.setTimeout(() => {
-      const ctx = initAudioContext();
-      if (!ctx || !masterGainRef.current) return;
+    const filePath = GENRE_FILES[genre];
+    if (!filePath) {
+      stopAll(0.3);
+      return;
+    }
 
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
+    const seasonMod = SEASON_MODIFIERS[currentSeason];
+    playAudioFile(filePath, 'music', seasonMod, 1);
+  }, [focusMode, musicEnabled, currentSeason, stopAll, playAudioFile]);
 
-      const now = ctx.currentTime;
-      
-      // Create a simple pad sound based on genre
-      const baseFreq = genre === 'jazz' ? 220 : genre === 'rnb' ? 196 : genre === 'lofi' ? 185 : 165;
-      
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq, now);
-      
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(genre === 'jazz' ? 800 : 400, now);
-      filter.Q.setValueAtTime(0.5, now);
-      filterRef.current = filter;
-      
-      // Add LFO
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.2, now);
-      lfoGain.gain.setValueAtTime(5, now);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      lfo.start();
-      lfoRef.current = lfo;
-      
-      osc.connect(filter);
-      filter.connect(masterGainRef.current);
-      osc.start();
-      oscillatorRef.current = osc;
-      
-      // Fade in
-      masterGainRef.current.gain.setValueAtTime(0, now);
-      masterGainRef.current.gain.linearRampToValueAtTime(volume * 0.08, now + 0.5);
-      
-      setAudioState('music');
-      setSoundEnabled(false);
-    }, 350);
-  }, [focusMode, musicEnabled, volume, initAudioContext, stopAll]);
-
-  // Typing sound trigger (very subtle click)
+  // Typing sound (very subtle, only when idle)
   const triggerTypingSound = useCallback(() => {
+    // Typing sounds disabled when other audio is playing
     if (focusMode || audioState !== 'idle') return;
     
     const ctx = initAudioContext();
     if (!ctx) return;
 
     if (ctx.state === 'suspended') {
-      ctx.resume();
+      ctx.resume().catch(() => {});
     }
 
-    // Create a very short click sound
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.02);
-    
-    gain.gain.setValueAtTime(0.02 * volume, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.04);
+    // Create a very short, subtle click
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600 + Math.random() * 200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.015);
+      
+      gain.gain.setValueAtTime(0.015 * volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.03);
+    } catch (e) {
+      // Ignore typing sound errors
+    }
   }, [focusMode, audioState, volume, initAudioContext]);
 
   // Handle volume changes
   useEffect(() => {
-    if (!masterGainRef.current || !audioContextRef.current) return;
+    if (!gainNodeRef.current || !audioContextRef.current) return;
     
     const ctx = audioContextRef.current;
-    const config = WEATHER_AUDIO_CONFIG[currentWeather];
-    const seasonMod = SEASON_MODIFIERS[currentSeason];
+    const gainNode = gainNodeRef.current;
     
     if (audioState === 'weather') {
-      const targetGain = config.gain * volume * seasonMod.gainMult;
-      masterGainRef.current.gain.linearRampToValueAtTime(targetGain, ctx.currentTime + 0.1);
+      const mapping = WEATHER_MUSIC_MAP[currentWeather];
+      const seasonMod = SEASON_MODIFIERS[currentSeason];
+      const targetVolume = volume * mapping.volumeMod * seasonMod.gainMod;
+      gainNode.gain.linearRampToValueAtTime(targetVolume, ctx.currentTime + 0.1);
     } else if (audioState === 'music') {
-      masterGainRef.current.gain.linearRampToValueAtTime(volume * 0.08, ctx.currentTime + 0.1);
+      const seasonMod = SEASON_MODIFIERS[currentSeason];
+      gainNode.gain.linearRampToValueAtTime(volume * seasonMod.gainMod, ctx.currentTime + 0.1);
     }
   }, [volume, audioState, currentWeather, currentSeason]);
 
-  // Focus mode handler - stops all audio
+  // Handle season changes (update EQ)
+  useEffect(() => {
+    if (!filterNodeRef.current || !audioContextRef.current) return;
+    if (audioState === 'idle') return;
+    
+    const seasonMod = SEASON_MODIFIERS[currentSeason];
+    const ctx = audioContextRef.current;
+    filterNodeRef.current.frequency.linearRampToValueAtTime(seasonMod.filterFreq, ctx.currentTime + 0.3);
+  }, [currentSeason, audioState]);
+
+  // Focus mode handler
   useEffect(() => {
     if (focusMode) {
       stopAll(0.3);
     }
   }, [focusMode, stopAll]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (fadeTimeoutRef.current) {
-        clearTimeout(fadeTimeoutRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(() => {});
-      }
-    };
-  }, []);
-
-  // Initialize on first user interaction
+  // User interaction tracker (required for autoplay)
   useEffect(() => {
     const handleInteraction = () => {
+      hasUserInteractedRef.current = true;
       initAudioContext();
+      
+      // If there's a pending audio, try to play it
+      const audio = audioElementRef.current;
+      if (audio && audio.readyState >= 3 && audio.paused && audioState !== 'idle') {
+        audio.play().catch(() => {});
+      }
+      
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('keydown', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
     };
     
     document.addEventListener('click', handleInteraction, { once: true });
     document.addEventListener('keydown', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
     
     return () => {
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('keydown', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
     };
-  }, [initAudioContext]);
+  }, [initAudioContext, audioState]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearPendingOperations();
+      
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+        audioElementRef.current.src = '';
+        audioElementRef.current = null;
+      }
+      
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+        audioContextRef.current = null;
+      }
+    };
+  }, [clearPendingOperations]);
 
   const value: AudioManagerContextType = {
     audioState,
@@ -431,7 +457,6 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
 export const useAudioManager = (): AudioManagerContextType => {
   const context = useContext(AudioManagerContext);
   if (!context) {
-    // Fallback for components outside provider
     return {
       audioState: 'idle',
       currentWeather: 'clear',
