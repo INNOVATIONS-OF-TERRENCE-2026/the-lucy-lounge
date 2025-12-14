@@ -3,6 +3,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { SEOFAQSection } from '@/components/blog/SEOFAQSection';
+import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -141,6 +142,13 @@ const SBALoanGuide = () => {
                   ))}
                 </nav>
               </Card>
+            </div>
+          </div>
+
+          {/* YMYL Disclaimer */}
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <YMYLDisclaimer type="sba" />
             </div>
           </div>
 

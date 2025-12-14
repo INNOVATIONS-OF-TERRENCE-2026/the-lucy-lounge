@@ -4,6 +4,7 @@ import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { HowToSchema } from '@/components/seo/HowToSchema';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
 import { AuthorByline } from '@/components/blog/AuthorByline';
+import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -76,6 +77,7 @@ const Build90DayCredit = () => {
                 lastUpdated="2025-01-14"
                 readTime="10 min read"
               />
+              <YMYLDisclaimer type="credit" />
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Build Business Credit in 90 Days: Your Action Plan</h1>
               
