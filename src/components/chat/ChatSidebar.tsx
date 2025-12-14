@@ -33,6 +33,7 @@ import { SettingsModal } from "./SettingsModal";
 import { TagManager } from "./TagManager";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
+import { WeatherAmbientSelector } from "@/components/ambient/WeatherAmbientSelector";
 
 interface ChatSidebarProps {
   userId: string;
@@ -265,6 +266,9 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         
         {/* Color Theme Selector - Standalone Component */}
         <ColorThemeSelector />
+        
+        {/* Weather & Seasons Ambient Selector - Standalone Component */}
+        <WeatherAmbientSelector />
         
         <Button
           variant="outline"
