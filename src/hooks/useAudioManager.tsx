@@ -8,7 +8,7 @@ type AudioState = 'idle' | 'weather' | 'music';
 // Music genres
 export type MusicGenre = 'none' | 'jazz' | 'rnb' | 'lofi' | 'ambient';
 
-interface AudioManagerContextType {
+export interface AudioManagerContextType {
   audioState: AudioState;
   currentWeather: WeatherMode;
   currentSeason: SeasonMode;
@@ -27,26 +27,47 @@ interface AudioManagerContextType {
 
 const AudioManagerContext = createContext<AudioManagerContextType | null>(null);
 
-// Weather to music mapping - each weather type has an assigned beat
-const WEATHER_MUSIC_MAP: Record<WeatherMode, { file: string; genre: MusicGenre; volumeMod: number }> = {
-  clear: { file: '', genre: 'none', volumeMod: 0 },
-  rain: { file: '/audio/lofi-mellow.mp3', genre: 'lofi', volumeMod: 1 },
-  snow: { file: '/audio/ambient-emotional.mp3', genre: 'ambient', volumeMod: 0.9 },
-  sunshine: { file: '/audio/rnb-soulful.mp3', genre: 'rnb', volumeMod: 1 },
-  cloudy: { file: '/audio/jazz-smooth.mp3', genre: 'jazz', volumeMod: 0.95 },
-  bloomy: { file: '/audio/jazz-warm.mp3', genre: 'jazz', volumeMod: 1 },
-  blizzard: { file: '/audio/ambient-spiritual.mp3', genre: 'ambient', volumeMod: 0.85 },
-  hurricane: { file: '/audio/ambient-dark.mp3', genre: 'ambient', volumeMod: 0.7 },
-  tornado: { file: '/audio/ambient-dark.mp3', genre: 'ambient', volumeMod: 0.65 },
-};
+// ============= AUDIO REGISTRY (ALL 18 TRACKS) =============
+interface AudioTrack {
+  file: string;
+  genres: MusicGenre[];
+}
 
-// Genre to file mapping for manual genre selection
-const GENRE_FILES: Record<MusicGenre, string> = {
-  none: '',
-  jazz: '/audio/jazz-smooth.mp3',
-  rnb: '/audio/rnb-upbeat.mp3',
-  lofi: '/audio/lofi-mellow.mp3',
-  ambient: '/audio/ambient-spiritual.mp3',
+const AUDIO_REGISTRY: AudioTrack[] = [
+  // EXISTING 8 TRACKS
+  { file: 'ambient-dark.mp3', genres: ['ambient'] },
+  { file: 'ambient-emotional.mp3', genres: ['ambient', 'lofi'] },
+  { file: 'ambient-spiritual.mp3', genres: ['ambient'] },
+  { file: 'jazz-smooth.mp3', genres: ['jazz', 'lofi'] },
+  { file: 'jazz-warm.mp3', genres: ['jazz'] },
+  { file: 'lofi-mellow.mp3', genres: ['lofi'] },
+  { file: 'rnb-soulful.mp3', genres: ['rnb'] },
+  { file: 'rnb-upbeat.mp3', genres: ['rnb', 'jazz'] },
+  
+  // NEW 10 TRACKS
+  { file: 'country-road.mp3', genres: ['jazz', 'lofi'] },
+  { file: 'blue-bonnets.mp3', genres: ['ambient', 'lofi'] },
+  { file: 'big-money-melodies.mp3', genres: ['rnb'] },
+  { file: 'comeback-mix.mp3', genres: ['rnb', 'jazz'] },
+  { file: 'project2-samples.mp3', genres: ['lofi', 'ambient'] },
+  { file: 'kanye-samples-deep.mp3', genres: ['rnb', 'ambient'] },
+  { file: 'life-after-pain.mp3', genres: ['ambient', 'lofi'] },
+  { file: 'call-me-sample.wav', genres: ['rnb', 'jazz'] },
+  { file: 'ttttttt.wav', genres: ['ambient'] },
+  { file: 'crushed-velvet.mp3', genres: ['lofi', 'jazz'] },
+];
+
+// ============= WEATHER → GENRE POOLS =============
+const WEATHER_GENRE_POOLS: Record<WeatherMode, { genres: MusicGenre[]; volumeMod: number }> = {
+  clear: { genres: [], volumeMod: 0 },
+  rain: { genres: ['lofi', 'jazz', 'ambient'], volumeMod: 1 },
+  snow: { genres: ['ambient', 'jazz'], volumeMod: 0.9 },
+  sunshine: { genres: ['rnb', 'jazz'], volumeMod: 1 },
+  cloudy: { genres: ['lofi', 'jazz', 'ambient'], volumeMod: 0.95 },
+  bloomy: { genres: ['lofi', 'jazz'], volumeMod: 1 },
+  blizzard: { genres: ['ambient', 'jazz'], volumeMod: 0.85 },
+  hurricane: { genres: ['ambient'], volumeMod: 0.7 },
+  tornado: { genres: ['ambient'], volumeMod: 0.65 },
 };
 
 // Season EQ modifiers (applied via Web Audio API)
@@ -79,6 +100,44 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   const fadeTimeoutRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
   const hasUserInteractedRef = useRef(false);
+  
+  // Shuffle tracking - avoid consecutive repeats
+  const lastPlayedRef = useRef<string>('');
+  const currentPoolRef = useRef<string[]>([]);
+  const currentVolumeModRef = useRef<number>(1);
+
+  // ============= TRACK SELECTION HELPERS =============
+  
+  // Get all tracks matching weather's genre pool
+  const getTracksForWeather = useCallback((weather: WeatherMode): string[] => {
+    const pool = WEATHER_GENRE_POOLS[weather];
+    if (!pool.genres.length) return [];
+    
+    return AUDIO_REGISTRY
+      .filter(track => track.genres.some(g => pool.genres.includes(g)))
+      .map(t => `/audio/${t.file}`);
+  }, []);
+
+  // Get all tracks for a specific genre
+  const getTracksForGenre = useCallback((genre: MusicGenre): string[] => {
+    if (genre === 'none') return [];
+    
+    return AUDIO_REGISTRY
+      .filter(track => track.genres.includes(genre))
+      .map(t => `/audio/${t.file}`);
+  }, []);
+
+  // Select random track, avoiding last played
+  const selectRandomTrack = useCallback((tracks: string[]): string => {
+    if (tracks.length === 0) return '';
+    if (tracks.length === 1) return tracks[0];
+    
+    const available = tracks.filter(t => t !== lastPlayedRef.current);
+    const pool = available.length > 0 ? available : tracks;
+    const selected = pool[Math.floor(Math.random() * pool.length)];
+    lastPlayedRef.current = selected;
+    return selected;
+  }, []);
 
   // Clean up any pending operations
   const clearPendingOperations = useCallback(() => {
@@ -186,7 +245,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       let audio = audioElementRef.current;
       if (!audio) {
         audio = new Audio();
-        audio.loop = true;
+        audio.loop = false; // Disable loop - we'll handle auto-queue
         audio.crossOrigin = 'anonymous';
         audioElementRef.current = audio;
         
@@ -205,6 +264,20 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
         console.warn('Audio file failed to load:', filePath);
         isTransitioningRef.current = false;
         setAudioState('idle');
+      };
+
+      // Set up auto-queue when track ends
+      audio.onended = () => {
+        if (focusMode) return;
+        
+        // Queue next track from current pool
+        if (currentPoolRef.current.length > 0) {
+          const nextTrack = selectRandomTrack(currentPoolRef.current);
+          if (nextTrack) {
+            isTransitioningRef.current = false;
+            playAudioFile(nextTrack, newState, SEASON_MODIFIERS[currentSeason], currentVolumeModRef.current);
+          }
+        }
       };
 
       // Set up load and play
@@ -268,9 +341,9 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     } else {
       performTransition();
     }
-  }, [focusMode, volume, initAudioContext, stopAll, clearPendingOperations]);
+  }, [focusMode, volume, currentSeason, initAudioContext, stopAll, clearPendingOperations, selectRandomTrack]);
 
-  // Play weather sound (triggers assigned beat)
+  // Play weather sound (triggers assigned beat from pool)
   const playWeatherSound = useCallback((weather: WeatherMode, season: SeasonMode) => {
     setCurrentWeather(weather);
     setCurrentSeason(season);
@@ -280,19 +353,32 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const mapping = WEATHER_MUSIC_MAP[weather];
-    if (!mapping.file) {
+    const pool = WEATHER_GENRE_POOLS[weather];
+    if (pool.genres.length === 0) {
       stopAll(0.3);
       setCurrentMusic('none');
+      currentPoolRef.current = [];
       return;
     }
 
-    setCurrentMusic(mapping.genre);
+    // Get tracks for this weather and store pool for auto-queue
+    const tracks = getTracksForWeather(weather);
+    currentPoolRef.current = tracks;
+    currentVolumeModRef.current = pool.volumeMod;
+    
+    const selectedTrack = selectRandomTrack(tracks);
+    
+    if (!selectedTrack) {
+      stopAll(0.3);
+      return;
+    }
+
+    setCurrentMusic(pool.genres[0]); // Primary genre for display
     setMusicEnabled(false); // Weather controls audio, not manual music
     
     const seasonMod = SEASON_MODIFIERS[season];
-    playAudioFile(mapping.file, 'weather', seasonMod, mapping.volumeMod);
-  }, [focusMode, soundEnabled, stopAll, playAudioFile]);
+    playAudioFile(selectedTrack, 'weather', seasonMod, pool.volumeMod);
+  }, [focusMode, soundEnabled, stopAll, getTracksForWeather, selectRandomTrack, playAudioFile]);
 
   // Play music by genre (manual selection)
   const playMusic = useCallback((genre: MusicGenre) => {
@@ -300,20 +386,27 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     
     if (genre === 'none' || focusMode || !musicEnabled) {
       stopAll(0.3);
+      currentPoolRef.current = [];
       return;
     }
 
     setSoundEnabled(false); // Music controls audio, not weather
     
-    const filePath = GENRE_FILES[genre];
-    if (!filePath) {
+    // Get tracks for this genre and store pool for auto-queue
+    const tracks = getTracksForGenre(genre);
+    currentPoolRef.current = tracks;
+    currentVolumeModRef.current = 1;
+    
+    const selectedTrack = selectRandomTrack(tracks);
+    
+    if (!selectedTrack) {
       stopAll(0.3);
       return;
     }
 
     const seasonMod = SEASON_MODIFIERS[currentSeason];
-    playAudioFile(filePath, 'music', seasonMod, 1);
-  }, [focusMode, musicEnabled, currentSeason, stopAll, playAudioFile]);
+    playAudioFile(selectedTrack, 'music', seasonMod, 1);
+  }, [focusMode, musicEnabled, currentSeason, stopAll, getTracksForGenre, selectRandomTrack, playAudioFile]);
 
   // Typing sound (very subtle, only when idle)
   const triggerTypingSound = useCallback(() => {
@@ -355,17 +448,15 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     
     const ctx = audioContextRef.current;
     const gainNode = gainNodeRef.current;
+    const seasonMod = SEASON_MODIFIERS[currentSeason];
     
     if (audioState === 'weather') {
-      const mapping = WEATHER_MUSIC_MAP[currentWeather];
-      const seasonMod = SEASON_MODIFIERS[currentSeason];
-      const targetVolume = volume * mapping.volumeMod * seasonMod.gainMod;
+      const targetVolume = volume * currentVolumeModRef.current * seasonMod.gainMod;
       gainNode.gain.linearRampToValueAtTime(targetVolume, ctx.currentTime + 0.1);
     } else if (audioState === 'music') {
-      const seasonMod = SEASON_MODIFIERS[currentSeason];
       gainNode.gain.linearRampToValueAtTime(volume * seasonMod.gainMod, ctx.currentTime + 0.1);
     }
-  }, [volume, audioState, currentWeather, currentSeason]);
+  }, [volume, audioState, currentSeason]);
 
   // Handle season changes (update EQ)
   useEffect(() => {
@@ -381,6 +472,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (focusMode) {
       stopAll(0.3);
+      currentPoolRef.current = [];
     }
   }, [focusMode, stopAll]);
 
