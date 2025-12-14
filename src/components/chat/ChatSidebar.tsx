@@ -257,70 +257,74 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t-0 space-y-2">
-        {videoControls && (
-          <div className="pb-2 border-b border-border/50">
-            {videoControls}
+      <SidebarFooter className="p-0 border-t-0 flex-shrink-0 max-h-[50vh] overflow-hidden">
+        <ScrollArea className="h-full max-h-[50vh]">
+          <div className="p-4 space-y-2">
+            {videoControls && (
+              <div className="pb-2 border-b border-border/50">
+                {videoControls}
+              </div>
+            )}
+            
+            {/* Color Theme Selector - Standalone Component */}
+            <ColorThemeSelector />
+            
+            {/* Weather & Seasons Ambient Selector - Standalone Component */}
+            <WeatherAmbientSelector />
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/studios")}
+            >
+              <MessageSquarePlus className="w-4 h-4 mr-2" />
+              Studios
+            </Button>
+            {isAdmin && (
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => navigate("/admin")}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Admin Dashboard
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setShowSettings(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={toggleTheme}
+            >
+              {isDark ? (
+                <>
+                  <Sun className="w-4 h-4 mr-2" />
+                  Light Mode
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 mr-2" />
+                  Dark Mode
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-destructive hover:text-destructive"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
-        )}
-        
-        {/* Color Theme Selector - Standalone Component */}
-        <ColorThemeSelector />
-        
-        {/* Weather & Seasons Ambient Selector - Standalone Component */}
-        <WeatherAmbientSelector />
-        
-        <Button
-          variant="outline"
-          className="w-full justify-start"
-          onClick={() => navigate("/studios")}
-        >
-          <MessageSquarePlus className="w-4 h-4 mr-2" />
-          Studios
-        </Button>
-        {isAdmin && (
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => navigate("/admin")}
-          >
-            <Shield className="w-4 h-4 mr-2" />
-            Admin Dashboard
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          className="w-full justify-start"
-          onClick={() => setShowSettings(true)}
-        >
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full justify-start"
-          onClick={toggleTheme}
-        >
-          {isDark ? (
-            <>
-              <Sun className="w-4 h-4 mr-2" />
-              Light Mode
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4 mr-2" />
-              Dark Mode
-            </>
-          )}
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full justify-start text-destructive hover:text-destructive"
-          onClick={handleSignOut}
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+        </ScrollArea>
       </SidebarFooter>
 
       <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
