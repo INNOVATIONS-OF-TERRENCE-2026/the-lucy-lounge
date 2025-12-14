@@ -5,43 +5,38 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { useDarkMode } from "@/hooks/useDarkMode";
+import { IntroScreen } from "@/components/branding/IntroScreen";
+import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvider";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { OfflineBanner } from "@/components/pwa/OfflineBanner";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
+import { RoomList } from "@/components/rooms/RoomList";
+import { RoomChat } from "@/components/rooms/RoomChat";
+import Index from "./pages/Index";
 import Landing from "./pages/Landing";
-import About from "./pages/About";
-import Pricing from "./pages/Pricing";
+import Chat from "./pages/Chat";
+import Auth from "./pages/Auth";
 import Features from "./pages/Features";
-import Launch from "./pages/Launch";
+import Pricing from "./pages/Pricing";
+import About from "./pages/About";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Admin from "./pages/Admin";
+import Analytics from "./pages/Analytics";
 import Tools from "./pages/Tools";
 import ToolsMarketplace from "./pages/ToolsMarketplace";
-import Analytics from "./pages/Analytics";
-import CreatorStudio from "./pages/CreatorStudio";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import Chat from "./pages/Chat";
-import Admin from "./pages/Admin";
+import { SharedConversation } from "./pages/SharedConversation";
+import Launch from "./pages/Launch";
 import Studios from "./pages/Studios";
-import StudiosAI from "./pages/StudiosAI";
 import StudiosAudio from "./pages/StudiosAudio";
 import StudiosDev from "./pages/StudiosDev";
-import { SharedConversation } from "./pages/SharedConversation";
-import { RoomList } from "./components/rooms/RoomList";
-import { RoomChat } from "./components/rooms/RoomChat";
-import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
-import { IntroScreen } from "./components/branding/IntroScreen";
-import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
-import { InstallPrompt } from "./components/pwa/InstallPrompt";
-import { OfflineBanner } from "./components/pwa/OfflineBanner";
-import { IOSAudioUnlockProvider } from "./components/audio/IOSAudioUnlockProvider";
-import { useDarkMode } from "./hooks/useDarkMode";
-
-// Guide pages
+import StudiosAI from "./pages/StudiosAI";
+import CreatorStudio from "./pages/CreatorStudio";
+import NotFound from "./pages/NotFound";
 import CreditRepairGuide from "./pages/guides/CreditRepairGuide";
 import SBALoanGuide from "./pages/guides/SBALoanGuide";
 import WomenFundingGuide from "./pages/guides/WomenFundingGuide";
-
-// Blog cluster articles
 import Metro2Explained from "./pages/blog/Metro2Explained";
 import DisputeLetters from "./pages/blog/DisputeLetters";
 import SBA7aVs504 from "./pages/blog/SBA7aVs504";
@@ -51,11 +46,10 @@ import BlackWomenGrants from "./pages/blog/BlackWomenGrants";
 import Net30Vendors from "./pages/blog/Net30Vendors";
 import Build90DayCredit from "./pages/blog/Build90DayCredit";
 import BestAIToolsSmallBusiness from "./pages/blog/BestAIToolsSmallBusiness";
-
-// Trust/E-E-A-T Pages
 import AuthorPage from "./pages/about/AuthorPage";
 import EditorialStandards from "./pages/EditorialStandards";
 import Contact from "./pages/Contact";
+import Press from "./pages/Press";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +101,7 @@ const App = () => {
               <Route path="/about/terrence-milliner" element={<AuthorPage />} />
               <Route path="/editorial-standards" element={<EditorialStandards />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/press" element={<Press />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/features" element={<Features />} />
               <Route path="/launch" element={<Launch />} />

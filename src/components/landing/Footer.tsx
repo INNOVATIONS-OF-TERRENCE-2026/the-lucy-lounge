@@ -55,10 +55,12 @@ export const Footer = () => {
             <h3 className="text-white font-semibold mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Company</h3>
             <ul className="space-y-2">
               <li><Link to="/about" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">About</Link></li>
+              <li><Link to="/about/terrence-milliner" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Our Team</Link></li>
               <li><Link to="/launch" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Launch</Link></li>
               <li><Link to="/blog" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Blog</Link></li>
-              <li><a href="#" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Careers</a></li>
-              <li><a href="#" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Contact</a></li>
+              <li><Link to="/press" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Press</Link></li>
+              <li><Link to="/editorial-standards" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Editorial Standards</Link></li>
+              <li><Link to="/contact" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Contact</Link></li>
             </ul>
           </div>
         </div>
