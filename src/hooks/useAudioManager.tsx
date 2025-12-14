@@ -42,6 +42,7 @@ export interface AudioManagerContextType {
   soundEnabled: boolean;
   musicEnabled: boolean;
   shuffleEnabled: boolean;
+  isPlaying: boolean;
   setVolume: (v: number) => void;
   setSoundEnabled: (e: boolean) => void;
   setMusicEnabled: (e: boolean) => void;
@@ -50,6 +51,7 @@ export interface AudioManagerContextType {
   playMusic: (genre: MusicGenre) => void;
   stopAll: () => void;
   skipTrack: () => void;
+  togglePlayPause: () => void;
   triggerTypingSound: () => void;
 }
 
@@ -82,6 +84,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem(STORAGE_KEYS.shuffleEnabled);
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [isPlaying, setIsPlaying] = useState(false);
   
   // Audio refs - SINGLE source of truth
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
@@ -106,6 +109,20 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   const shuffledQueueRef = useRef<string[]>([]);
   const currentPoolRef = useRef<string[]>([]);
   const currentVolumeModRef = useRef<number>(1);
+
+  // ============= PLAY/PAUSE TOGGLE =============
+  
+  const togglePlayPause = useCallback(() => {
+    const audio = audioElementRef.current;
+    if (!audio || audioState === 'idle') return;
+    
+    if (audio.paused) {
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
+  }, [audioState]);
 
   // ============= PERSISTENCE HELPERS =============
   
@@ -244,12 +261,14 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
         audio.pause();
         audio.currentTime = 0;
         setAudioState('idle');
+        setIsPlaying(false);
         isTransitioningRef.current = false;
       }, fadeTime * 1000 + 50);
     } else {
       audio.pause();
       audio.currentTime = 0;
       setAudioState('idle');
+      setIsPlaying(false);
     }
   }, [clearPendingOperations]);
 
@@ -357,10 +376,12 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
         audio.play().then(() => {
           setAudioState(newState);
           setCurrentTrackPath(filePath);
+          setIsPlaying(true);
           isTransitioningRef.current = false;
         }).catch((e) => {
           console.warn('Playback failed:', e);
           isTransitioningRef.current = false;
+          setIsPlaying(false);
         });
       };
 
@@ -597,6 +618,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     soundEnabled,
     musicEnabled,
     shuffleEnabled,
+    isPlaying,
     setVolume,
     setSoundEnabled,
     setMusicEnabled,
@@ -605,6 +627,7 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     playMusic,
     stopAll,
     skipTrack,
+    togglePlayPause,
     triggerTypingSound,
   };
 
@@ -628,6 +651,7 @@ export const useAudioManager = (): AudioManagerContextType => {
       soundEnabled: true,
       musicEnabled: false,
       shuffleEnabled: true,
+      isPlaying: false,
       setVolume: () => {},
       setSoundEnabled: () => {},
       setMusicEnabled: () => {},
@@ -636,6 +660,7 @@ export const useAudioManager = (): AudioManagerContextType => {
       playMusic: () => {},
       stopAll: () => {},
       skipTrack: () => {},
+      togglePlayPause: () => {},
       triggerTypingSound: () => {},
     };
   }

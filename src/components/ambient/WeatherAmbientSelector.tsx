@@ -19,7 +19,9 @@ import {
   VolumeX,
   Music,
   SkipForward,
-  Shuffle
+  Shuffle,
+  Pause,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -78,6 +80,7 @@ export const WeatherAmbientSelector = () => {
     soundEnabled,
     musicEnabled,
     shuffleEnabled,
+    isPlaying,
     setSoundEnabled,
     setMusicEnabled,
     setShuffleEnabled,
@@ -86,6 +89,7 @@ export const WeatherAmbientSelector = () => {
     playMusic,
     stopAll,
     skipTrack,
+    togglePlayPause,
   } = useAudioManager();
 
   const activeWeatherOption = WEATHER_OPTIONS.find(w => w.mode === weather);
@@ -346,7 +350,7 @@ export const WeatherAmbientSelector = () => {
           />
         </div>
 
-        {/* Now Playing Display with Skip Button */}
+        {/* Now Playing Display with Pause and Skip Buttons */}
         {(audioState === 'weather' || audioState === 'music') && currentTrackName && !focusMode && (
           <div className="flex items-center justify-between gap-2 py-2 px-2 rounded-md bg-primary/5 border border-primary/10">
             <div className="flex-1 min-w-0">
@@ -358,15 +362,26 @@ export const WeatherAmbientSelector = () => {
               </div>
               <p className="text-xs font-medium text-foreground/90 truncate">{currentTrackName}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 shrink-0 hover:bg-primary/10"
-              onClick={skipTrack}
-              title="Skip to next track"
-            >
-              <SkipForward className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-primary/10"
+                onClick={togglePlayPause}
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-primary/10"
+                onClick={skipTrack}
+                title="Skip to next track"
+              >
+                <SkipForward className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         )}
 
