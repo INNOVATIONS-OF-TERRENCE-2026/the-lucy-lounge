@@ -3,6 +3,7 @@ import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
 import { AuthorByline } from '@/components/blog/AuthorByline';
+import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -60,6 +61,7 @@ const Metro2Explained = () => {
                 lastUpdated="2025-01-14"
                 readTime="8 min read"
               />
+              <YMYLDisclaimer type="credit" />
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6">What Is Metro 2 Credit Reporting?</h1>
               

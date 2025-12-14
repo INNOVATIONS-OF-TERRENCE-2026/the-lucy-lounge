@@ -3,6 +3,7 @@ import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
 import { AuthorByline } from '@/components/blog/AuthorByline';
+import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -121,6 +122,7 @@ const BlackWomenGrants = () => {
                 lastUpdated="2025-01-14"
                 readTime="11 min read"
               />
+              <YMYLDisclaimer type="funding" />
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Grants for Black Women Entrepreneurs: 2025 Complete Guide</h1>
               
