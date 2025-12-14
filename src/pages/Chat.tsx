@@ -8,9 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
 import { AmbientEffectsLayer } from "@/components/ambient/AmbientEffectsLayer";
-import { useWeatherAmbient } from "@/hooks/useWeatherAmbient";
+import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 
-const Chat = () => {
+// Inner component that uses the weather context
+const ChatContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
@@ -57,7 +58,6 @@ const Chat = () => {
       />
 
       <SidebarProvider>
-        {/* GLOBAL THEME BACKGROUND + TRANSITIONS */}
         <div
           className="
           flex flex-row w-screen h-screen max-h-screen overflow-hidden
@@ -65,14 +65,12 @@ const Chat = () => {
           transition-all duration-500
         "
         >
-          {/* SIDEBAR */}
           <ChatSidebar
             userId={user?.id}
             currentConversationId={currentConversationId}
             onConversationSelect={setCurrentConversationId}
           />
 
-          {/* MAIN CHAT AREA */}
           <div
             className="
             flex flex-col flex-1 h-full w-full overflow-visible
@@ -80,8 +78,6 @@ const Chat = () => {
             transition-all duration-500
           "
           >
-            {/* Theme controls moved to sidebar ColorThemeSelector */}
-
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
@@ -91,6 +87,15 @@ const Chat = () => {
         </div>
       </SidebarProvider>
     </>
+  );
+};
+
+// Main Chat component with provider wrapper
+const Chat = () => {
+  return (
+    <WeatherAmbientProvider>
+      <ChatContent />
+    </WeatherAmbientProvider>
   );
 };
 
