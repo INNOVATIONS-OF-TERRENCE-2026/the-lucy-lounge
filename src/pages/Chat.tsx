@@ -4,14 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatInterface } from "@/components/chat/ChatInterface";
+import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
+import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverlay";
+import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 
-const Chat = () => {
+// Inner component that uses the weather context
+const ChatContent = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const { weather, season, intensity, enabled } = useWeatherAmbient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -44,6 +50,12 @@ const Chat = () => {
   return (
     <>
       <CosmicBackground />
+      <WeatherEffectsOverlay 
+        weather={weather} 
+        season={season} 
+        intensity={intensity} 
+        enabled={enabled} 
+      />
 
       <SidebarProvider>
         <div
@@ -75,6 +87,15 @@ const Chat = () => {
         </div>
       </SidebarProvider>
     </>
+  );
+};
+
+// Main Chat component with provider wrapper
+const Chat = () => {
+  return (
+    <WeatherAmbientProvider>
+      <ChatContent />
+    </WeatherAmbientProvider>
   );
 };
 
