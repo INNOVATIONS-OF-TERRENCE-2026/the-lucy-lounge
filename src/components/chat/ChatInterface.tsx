@@ -33,7 +33,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { NewMessageDivider } from "./NewMessageDivider";
-import { ThemePicker } from "@/components/ThemePicker";
+// ThemePicker import removed - now using ColorThemeSelector in sidebar
 
 interface ChatInterfaceProps {
   userId: string;
@@ -426,8 +426,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
-      {/* Floating Theme Picker */}
-      <ThemePicker />
+      {/* ThemePicker removed - now in sidebar ColorThemeSelector */}
 
       {/* HEADER - minimal styling */}
       <header className="h-12 md:h-14 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 flex-shrink-0">
@@ -596,8 +595,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </ScrollArea>
 
-      {/* INPUT AREA – compact with inline upload */}
-      <div className="p-3 md:p-4 backdrop-blur-md bg-background/60 flex-shrink-0" data-theme-area="chat">
+      {/* INPUT AREA – transparent container */}
+      <div className="p-3 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
         <div className="max-w-full md:max-w-5xl mx-auto space-y-2">
           {/* File previews above input if files selected */}
           {selectedFiles.length > 0 && (
