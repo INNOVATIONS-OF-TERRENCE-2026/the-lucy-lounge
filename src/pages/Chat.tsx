@@ -7,7 +7,8 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
-import { ThemePicker } from "@/components/ThemePicker";
+import { AmbientEffectsLayer } from "@/components/ambient/AmbientEffectsLayer";
+import { useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Chat = () => {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const { weather, season, intensity, enabled } = useWeatherAmbient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -47,6 +49,12 @@ const Chat = () => {
   return (
     <>
       <CosmicBackground />
+      <AmbientEffectsLayer 
+        weather={weather} 
+        season={season} 
+        intensity={intensity} 
+        enabled={enabled} 
+      />
 
       <SidebarProvider>
         {/* GLOBAL THEME BACKGROUND + TRANSITIONS */}
@@ -72,10 +80,7 @@ const Chat = () => {
             transition-all duration-500
           "
           >
-            {/* THEME PICKER FLOATING CONTROL */}
-            <div className="absolute top-3 right-4 z-[999]">
-              <ThemePicker />
-            </div>
+            {/* Theme controls moved to sidebar ColorThemeSelector */}
 
             <ChatInterface
               userId={user?.id}
