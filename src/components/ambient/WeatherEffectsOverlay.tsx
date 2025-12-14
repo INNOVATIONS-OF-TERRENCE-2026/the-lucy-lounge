@@ -8,17 +8,62 @@ interface WeatherEffectsOverlayProps {
   enabled: boolean;
 }
 
-interface Particle {
+interface Raindrop {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+  layer: 'front' | 'back';
+}
+
+interface Snowflake {
   x: number;
   y: number;
   size: number;
   speed: number;
   drift: number;
   opacity: number;
-  angle?: number;
-  rotationSpeed?: number;
-  life?: number;
-  maxLife?: number;
+  rotation: number;
+  rotationSpeed: number;
+  layer: 'front' | 'back';
+  wobblePhase: number;
+}
+
+interface CloudPuff {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+}
+
+interface BloomParticle {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+  life: number;
+  maxLife: number;
+}
+
+interface SunRay {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  angle: number;
+}
+
+interface WindParticle {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+  angle: number;
+  rotationSpeed: number;
 }
 
 export const WeatherEffectsOverlay = ({ 
@@ -28,328 +73,273 @@ export const WeatherEffectsOverlay = ({
   enabled 
 }: WeatherEffectsOverlayProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
+  const raindropsRef = useRef<Raindrop[]>([]);
+  const snowflakesRef = useRef<Snowflake[]>([]);
+  const cloudsRef = useRef<CloudPuff[]>([]);
+  const bloomRef = useRef<BloomParticle[]>([]);
+  const sunRaysRef = useRef<SunRay[]>([]);
+  const windRef = useRef<WindParticle[]>([]);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
 
-  // Check for reduced motion preference
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
 
-  const getParticleCount = useCallback((baseCount: number) => {
-    const viewportScale = Math.min(window.innerWidth * window.innerHeight / (1920 * 1080), 1.5);
-    return Math.floor(baseCount * intensity * viewportScale);
-  }, [intensity]);
-
-  const createParticle = useCallback((canvas: HTMLCanvasElement, type: string): Particle => {
-    const w = canvas.width;
-    const h = canvas.height;
-
-    switch (type) {
-      case 'rain':
-        return {
-          x: Math.random() * w * 1.2 - w * 0.1,
-          y: Math.random() * h * 0.2 - h * 0.2,
-          size: Math.random() * 1.5 + 0.5,
-          speed: (4 + Math.random() * 4) * (0.5 + intensity * 0.5),
-          drift: (Math.random() - 0.3) * 0.8,
-          opacity: Math.random() * 0.4 + 0.2,
-          angle: Math.PI / 12 + (Math.random() - 0.5) * 0.1,
-        };
-
-      case 'snow':
-      case 'blizzard':
-        const blizzardMultiplier = type === 'blizzard' ? 2 : 1;
-        return {
-          x: Math.random() * w,
-          y: Math.random() * h * 0.1 - h * 0.1,
-          size: Math.random() * 3 + 1,
-          speed: (0.5 + Math.random() * 1) * (0.5 + intensity * 0.3),
-          drift: (Math.random() - 0.5) * blizzardMultiplier * intensity,
-          opacity: Math.random() * 0.6 + 0.3,
-          rotationSpeed: (Math.random() - 0.5) * 0.02,
-        };
-
-      case 'sunshine':
-        return {
-          x: w * (0.7 + Math.random() * 0.3),
-          y: h * Math.random() * 0.3,
-          size: Math.random() * 150 + 80,
-          speed: 0,
-          drift: 0,
-          opacity: 0.03 + Math.random() * 0.02,
-        };
-
-      case 'cloudy':
-        return {
-          x: Math.random() * w * 1.5 - w * 0.25,
-          y: Math.random() * h * 0.35,
-          size: Math.random() * 250 + 150,
-          speed: (0.1 + Math.random() * 0.15) * intensity,
-          drift: 0,
-          opacity: 0.06 + Math.random() * 0.04,
-        };
-
-      case 'bloomy':
-        return {
-          x: Math.random() * w,
-          y: Math.random() * h,
-          size: Math.random() * 20 + 5,
-          speed: Math.random() * 0.3 + 0.1,
-          drift: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.15 + 0.05,
-          life: 0,
-          maxLife: 200 + Math.random() * 200,
-        };
-
-      case 'hurricane':
-        const hAngle = Math.random() * Math.PI * 2;
-        return {
-          x: w / 2 + Math.cos(hAngle) * (100 + Math.random() * 300),
-          y: h / 2 + Math.sin(hAngle) * (100 + Math.random() * 300),
-          size: Math.random() * 2 + 1,
-          speed: 2 + Math.random() * 2,
-          drift: 0,
-          opacity: Math.random() * 0.4 + 0.2,
-          angle: hAngle,
-          rotationSpeed: 0.01 + Math.random() * 0.01,
-        };
-
-      case 'tornado':
-        const tAngle = Math.random() * Math.PI * 2;
-        const tRadius = Math.random() * 80 + 20;
-        return {
-          x: w * 0.7 + Math.cos(tAngle) * tRadius,
-          y: h + 50,
-          size: Math.random() * 2 + 1,
-          speed: 1.5 + Math.random() * 1.5,
-          drift: 0,
-          opacity: Math.random() * 0.35 + 0.15,
-          angle: tAngle,
-          rotationSpeed: 0.03 + Math.random() * 0.02,
-        };
-
-      default:
-        return {
-          x: Math.random() * w,
-          y: Math.random() * h,
-          size: 2,
-          speed: 1,
-          drift: 0,
-          opacity: 0.3,
-        };
-    }
-  }, [intensity]);
-
+  // Season tint colors (very subtle)
   const getSeasonTint = useCallback((season: SeasonMode): { r: number; g: number; b: number; a: number } => {
     switch (season) {
-      case 'spring':
-        return { r: 144, g: 238, b: 144, a: 0.015 };
-      case 'summer':
-        return { r: 255, g: 223, b: 186, a: 0.02 };
-      case 'fall':
-        return { r: 210, g: 160, b: 100, a: 0.02 };
-      case 'winter':
-        return { r: 200, g: 220, b: 255, a: 0.015 };
-      default:
-        return { r: 0, g: 0, b: 0, a: 0 };
+      case 'spring': return { r: 180, g: 230, b: 180, a: 0.02 };
+      case 'summer': return { r: 255, g: 240, b: 200, a: 0.025 };
+      case 'fall': return { r: 220, g: 170, b: 100, a: 0.025 };
+      case 'winter': return { r: 200, g: 220, b: 255, a: 0.02 };
+      default: return { r: 0, g: 0, b: 0, a: 0 };
     }
   }, []);
 
-  const drawParticle = useCallback((
-    ctx: CanvasRenderingContext2D,
-    particle: Particle,
-    type: string
-  ) => {
+  // Create realistic raindrop
+  const createRaindrop = useCallback((width: number, height: number): Raindrop => {
+    const layer = Math.random() > 0.3 ? 'front' : 'back';
+    const layerMultiplier = layer === 'front' ? 1 : 0.6;
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height * 0.2 - height * 0.2,
+      size: (2 + Math.random() * 2) * layerMultiplier,
+      speed: (3 + Math.random() * 2) * (0.6 + intensity * 0.4) * layerMultiplier,
+      opacity: (0.4 + Math.random() * 0.3) * layerMultiplier,
+      layer,
+    };
+  }, [intensity]);
+
+  // Create realistic snowflake
+  const createSnowflake = useCallback((width: number, height: number, isBlizzard: boolean): Snowflake => {
+    const layer = Math.random() > 0.4 ? 'front' : 'back';
+    const layerMultiplier = layer === 'front' ? 1 : 0.5;
+    const blizzardMultiplier = isBlizzard ? 1.5 : 1;
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height * 0.1 - height * 0.1,
+      size: (3 + Math.random() * 4) * layerMultiplier,
+      speed: (0.4 + Math.random() * 0.6) * (0.5 + intensity * 0.3) * layerMultiplier,
+      drift: (Math.random() - 0.5) * blizzardMultiplier * intensity * 2,
+      opacity: (0.5 + Math.random() * 0.4) * layerMultiplier,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: (Math.random() - 0.5) * 0.02,
+      layer,
+      wobblePhase: Math.random() * Math.PI * 2,
+    };
+  }, [intensity]);
+
+  // Create soft cloud puff
+  const createCloud = useCallback((width: number, height: number): CloudPuff => {
+    return {
+      x: -200 + Math.random() * (width + 400),
+      y: Math.random() * height * 0.4,
+      size: 150 + Math.random() * 200,
+      speed: 0.05 + Math.random() * 0.1,
+      opacity: 0.04 + Math.random() * 0.04,
+    };
+  }, []);
+
+  // Create bloom particle (pollen/bokeh)
+  const createBloomParticle = useCallback((width: number, height: number): BloomParticle => {
+    return {
+      x: Math.random() * width,
+      y: height + Math.random() * 50,
+      size: 8 + Math.random() * 15,
+      speed: 0.2 + Math.random() * 0.3,
+      opacity: 0.1 + Math.random() * 0.15,
+      life: 0,
+      maxLife: 300 + Math.random() * 200,
+    };
+  }, []);
+
+  // Create sun ray
+  const createSunRay = useCallback((width: number, height: number): SunRay => {
+    return {
+      x: width * 0.8 + Math.random() * width * 0.2,
+      y: Math.random() * height * 0.3,
+      size: 100 + Math.random() * 150,
+      opacity: 0.02 + Math.random() * 0.02,
+      angle: Math.random() * 0.3,
+    };
+  }, []);
+
+  // Create wind particle (for hurricane/tornado)
+  const createWindParticle = useCallback((width: number, height: number, type: string): WindParticle => {
+    const centerX = type === 'tornado' ? width * 0.7 : width * 0.5;
+    const centerY = type === 'tornado' ? height : height * 0.5;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 50 + Math.random() * 300;
+    return {
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+      size: 1 + Math.random() * 2,
+      speed: 2 + Math.random() * 2,
+      opacity: 0.2 + Math.random() * 0.3,
+      angle,
+      rotationSpeed: (type === 'tornado' ? 0.03 : 0.01) + Math.random() * 0.01,
+    };
+  }, []);
+
+  // Draw teardrop-shaped raindrop
+  const drawRaindrop = useCallback((ctx: CanvasRenderingContext2D, drop: Raindrop) => {
     ctx.save();
-    const baseOpacity = particle.opacity * intensity;
-
-    switch (type) {
-      case 'rain':
-        ctx.strokeStyle = `rgba(180, 200, 220, ${baseOpacity})`;
-        ctx.lineWidth = particle.size;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        const rainLength = 15 + particle.speed * 2;
-        ctx.moveTo(particle.x, particle.y);
-        ctx.lineTo(
-          particle.x + Math.sin(particle.angle || 0) * rainLength,
-          particle.y + Math.cos(particle.angle || 0) * rainLength
-        );
-        ctx.stroke();
-        break;
-
-      case 'snow':
-      case 'blizzard':
-        const snowGradient = ctx.createRadialGradient(
-          particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size
-        );
-        snowGradient.addColorStop(0, `rgba(255, 255, 255, ${baseOpacity})`);
-        snowGradient.addColorStop(0.5, `rgba(255, 255, 255, ${baseOpacity * 0.5})`);
-        snowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        ctx.fillStyle = snowGradient;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-
-      case 'sunshine':
-        const sunGradient = ctx.createRadialGradient(
-          particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size
-        );
-        sunGradient.addColorStop(0, `rgba(255, 250, 220, ${baseOpacity * 1.5})`);
-        sunGradient.addColorStop(0.3, `rgba(255, 245, 200, ${baseOpacity})`);
-        sunGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
-        ctx.fillStyle = sunGradient;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-
-      case 'cloudy':
-        const cloudGradient = ctx.createRadialGradient(
-          particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size
-        );
-        cloudGradient.addColorStop(0, `rgba(160, 165, 175, ${baseOpacity})`);
-        cloudGradient.addColorStop(0.4, `rgba(150, 155, 165, ${baseOpacity * 0.6})`);
-        cloudGradient.addColorStop(1, 'rgba(140, 145, 155, 0)');
-        ctx.fillStyle = cloudGradient;
-        ctx.beginPath();
-        ctx.ellipse(particle.x, particle.y, particle.size, particle.size * 0.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-
-      case 'bloomy':
-        const lifeRatio = particle.life && particle.maxLife 
-          ? Math.sin((particle.life / particle.maxLife) * Math.PI) 
-          : 1;
-        const bloomGradient = ctx.createRadialGradient(
-          particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size
-        );
-        bloomGradient.addColorStop(0, `rgba(255, 230, 200, ${baseOpacity * lifeRatio})`);
-        bloomGradient.addColorStop(1, 'rgba(255, 220, 180, 0)');
-        ctx.fillStyle = bloomGradient;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-
-      case 'hurricane':
-      case 'tornado':
-        ctx.fillStyle = `rgba(180, 190, 200, ${baseOpacity})`;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-    }
-
+    ctx.translate(drop.x, drop.y);
+    
+    const gradient = ctx.createLinearGradient(0, -drop.size, 0, drop.size * 2);
+    gradient.addColorStop(0, `rgba(180, 210, 240, ${drop.opacity * intensity * 0.3})`);
+    gradient.addColorStop(0.5, `rgba(200, 220, 250, ${drop.opacity * intensity})`);
+    gradient.addColorStop(1, `rgba(180, 210, 240, ${drop.opacity * intensity * 0.2})`);
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    // Teardrop shape
+    ctx.moveTo(0, -drop.size);
+    ctx.bezierCurveTo(
+      drop.size * 0.8, -drop.size * 0.3,
+      drop.size * 0.8, drop.size * 1.2,
+      0, drop.size * 2
+    );
+    ctx.bezierCurveTo(
+      -drop.size * 0.8, drop.size * 1.2,
+      -drop.size * 0.8, -drop.size * 0.3,
+      0, -drop.size
+    );
+    ctx.fill();
     ctx.restore();
   }, [intensity]);
 
-  const updateParticle = useCallback((
-    particle: Particle,
-    canvas: HTMLCanvasElement,
-    type: string,
-    deltaTime: number
-  ): boolean => {
-    const dt = Math.min(deltaTime, 32) / 16.67;
-    const w = canvas.width;
-    const h = canvas.height;
-
-    switch (type) {
-      case 'rain':
-        particle.x += particle.drift * dt;
-        particle.y += particle.speed * dt;
-        if (particle.y > h + 20) {
-          particle.y = -20;
-          particle.x = Math.random() * w * 1.2 - w * 0.1;
-        }
-        break;
-
-      case 'snow':
-      case 'blizzard':
-        particle.x += particle.drift * dt + Math.sin(particle.y * 0.01 + Date.now() * 0.001) * 0.3;
-        particle.y += particle.speed * dt;
-        if (particle.y > h + 10) {
-          particle.y = -10;
-          particle.x = Math.random() * w;
-        }
-        if (particle.x < -10) particle.x = w + 10;
-        if (particle.x > w + 10) particle.x = -10;
-        break;
-
-      case 'sunshine':
-        particle.opacity = 0.03 + Math.sin(Date.now() * 0.0003 + particle.x * 0.005) * 0.02;
-        break;
-
-      case 'cloudy':
-        particle.x += particle.speed * dt;
-        if (particle.x > w + particle.size) {
-          particle.x = -particle.size;
-        }
-        break;
-
-      case 'bloomy':
-        particle.x += particle.drift * dt;
-        particle.y -= particle.speed * dt;
-        if (particle.life !== undefined && particle.maxLife) {
-          particle.life += dt;
-          if (particle.life >= particle.maxLife) {
-            particle.life = 0;
-            particle.x = Math.random() * w;
-            particle.y = h + 20;
-          }
-        }
-        if (particle.y < -20) {
-          particle.y = h + 20;
-          particle.x = Math.random() * w;
-        }
-        break;
-
-      case 'hurricane':
-        if (particle.angle !== undefined) {
-          particle.angle += (particle.rotationSpeed || 0.01) * dt;
-          const radius = Math.sqrt(
-            Math.pow(particle.x - w / 2, 2) + Math.pow(particle.y - h / 2, 2)
-          );
-          particle.x = w / 2 + Math.cos(particle.angle) * radius * 0.998;
-          particle.y = h / 2 + Math.sin(particle.angle) * radius * 0.998;
-          
-          if (radius < 30 || radius > Math.max(w, h) * 0.8) {
-            const newAngle = Math.random() * Math.PI * 2;
-            const newRadius = 100 + Math.random() * 300;
-            particle.x = w / 2 + Math.cos(newAngle) * newRadius;
-            particle.y = h / 2 + Math.sin(newAngle) * newRadius;
-            particle.angle = newAngle;
-          }
-        }
-        break;
-
-      case 'tornado':
-        if (particle.angle !== undefined) {
-          particle.angle += (particle.rotationSpeed || 0.03) * dt;
-          particle.y -= particle.speed * dt;
-          const tornadoCenterX = w * 0.7;
-          const distFromBottom = h - particle.y;
-          const radius = Math.max(10, 80 - distFromBottom * 0.1);
-          particle.x = tornadoCenterX + Math.cos(particle.angle) * radius;
-          
-          if (particle.y < -50) {
-            particle.y = h + 50;
-            particle.angle = Math.random() * Math.PI * 2;
-          }
-        }
-        break;
+  // Draw snowflake with 6-point star shape
+  const drawSnowflake = useCallback((ctx: CanvasRenderingContext2D, flake: Snowflake) => {
+    ctx.save();
+    ctx.translate(flake.x, flake.y);
+    ctx.rotate(flake.rotation);
+    
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, flake.size);
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${flake.opacity * intensity})`);
+    gradient.addColorStop(0.4, `rgba(240, 248, 255, ${flake.opacity * intensity * 0.7})`);
+    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    
+    // Draw 6-pointed snowflake
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI) / 3;
+      const armLength = flake.size;
+      const armWidth = flake.size * 0.15;
+      
+      ctx.moveTo(0, 0);
+      ctx.lineTo(
+        Math.cos(angle - 0.1) * armWidth,
+        Math.sin(angle - 0.1) * armWidth
+      );
+      ctx.lineTo(
+        Math.cos(angle) * armLength,
+        Math.sin(angle) * armLength
+      );
+      ctx.lineTo(
+        Math.cos(angle + 0.1) * armWidth,
+        Math.sin(angle + 0.1) * armWidth
+      );
     }
+    ctx.closePath();
+    ctx.fill();
+    
+    // Add central glow
+    ctx.beginPath();
+    ctx.arc(0, 0, flake.size * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity * intensity * 0.5})`;
+    ctx.fill();
+    
+    ctx.restore();
+  }, [intensity]);
 
-    return true;
-  }, []);
+  // Draw soft cloud
+  const drawCloud = useCallback((ctx: CanvasRenderingContext2D, cloud: CloudPuff) => {
+    const gradient = ctx.createRadialGradient(
+      cloud.x, cloud.y, 0,
+      cloud.x, cloud.y, cloud.size
+    );
+    gradient.addColorStop(0, `rgba(180, 185, 195, ${cloud.opacity * intensity})`);
+    gradient.addColorStop(0.3, `rgba(170, 175, 185, ${cloud.opacity * intensity * 0.6})`);
+    gradient.addColorStop(0.7, `rgba(160, 165, 175, ${cloud.opacity * intensity * 0.3})`);
+    gradient.addColorStop(1, 'rgba(150, 155, 165, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.ellipse(cloud.x, cloud.y, cloud.size, cloud.size * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Add secondary puffs for more realistic cloud shape
+    const puffOffsets = [
+      { x: -cloud.size * 0.4, y: -cloud.size * 0.1, scale: 0.6 },
+      { x: cloud.size * 0.3, y: cloud.size * 0.05, scale: 0.5 },
+      { x: -cloud.size * 0.2, y: cloud.size * 0.15, scale: 0.4 },
+    ];
+    
+    puffOffsets.forEach(puff => {
+      const puffGradient = ctx.createRadialGradient(
+        cloud.x + puff.x, cloud.y + puff.y, 0,
+        cloud.x + puff.x, cloud.y + puff.y, cloud.size * puff.scale
+      );
+      puffGradient.addColorStop(0, `rgba(175, 180, 190, ${cloud.opacity * intensity * 0.7})`);
+      puffGradient.addColorStop(1, 'rgba(165, 170, 180, 0)');
+      ctx.fillStyle = puffGradient;
+      ctx.beginPath();
+      ctx.ellipse(
+        cloud.x + puff.x, cloud.y + puff.y,
+        cloud.size * puff.scale, cloud.size * puff.scale * 0.5,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+    });
+  }, [intensity]);
+
+  // Draw bloom particle (soft bokeh)
+  const drawBloomParticle = useCallback((ctx: CanvasRenderingContext2D, particle: BloomParticle) => {
+    const lifeRatio = Math.sin((particle.life / particle.maxLife) * Math.PI);
+    const gradient = ctx.createRadialGradient(
+      particle.x, particle.y, 0,
+      particle.x, particle.y, particle.size
+    );
+    gradient.addColorStop(0, `rgba(255, 245, 220, ${particle.opacity * lifeRatio * intensity})`);
+    gradient.addColorStop(0.5, `rgba(255, 235, 200, ${particle.opacity * lifeRatio * intensity * 0.4})`);
+    gradient.addColorStop(1, 'rgba(255, 230, 180, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ctx.fill();
+  }, [intensity]);
+
+  // Draw sun ray
+  const drawSunRay = useCallback((ctx: CanvasRenderingContext2D, ray: SunRay) => {
+    ctx.save();
+    ctx.translate(ray.x, ray.y);
+    ctx.rotate(ray.angle);
+    
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, ray.size);
+    gradient.addColorStop(0, `rgba(255, 250, 230, ${ray.opacity * intensity})`);
+    gradient.addColorStop(0.4, `rgba(255, 245, 210, ${ray.opacity * intensity * 0.5})`);
+    gradient.addColorStop(1, 'rgba(255, 240, 200, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, ray.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }, [intensity]);
+
+  // Draw wind particle
+  const drawWindParticle = useCallback((ctx: CanvasRenderingContext2D, particle: WindParticle) => {
+    ctx.fillStyle = `rgba(180, 190, 210, ${particle.opacity * intensity})`;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ctx.fill();
+  }, [intensity]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -358,7 +348,6 @@ export const WeatherEffectsOverlay = ({
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
       }
-      particlesRef.current = [];
       return;
     }
 
@@ -380,46 +369,184 @@ export const WeatherEffectsOverlay = ({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Determine particle count based on weather type
-    const baseCounts: Record<string, number> = {
-      rain: 200,
-      snow: 100,
-      blizzard: 300,
-      sunshine: 6,
-      cloudy: 10,
-      bloomy: 50,
-      hurricane: 120,
-      tornado: 80,
-    };
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-    const count = getParticleCount(baseCounts[weather] || 60);
-    particlesRef.current = Array.from({ length: count }, () => 
-      createParticle(canvas, weather)
-    );
+    // Initialize particles based on weather type
+    const rainCount = Math.floor(120 * intensity);
+    const snowCount = Math.floor(80 * intensity);
+    const cloudCount = Math.floor(8 + 4 * intensity);
+    const bloomCount = Math.floor(40 * intensity);
+    const sunRayCount = 5;
+    const windCount = Math.floor(100 * intensity);
+
+    // Clear all particle arrays
+    raindropsRef.current = [];
+    snowflakesRef.current = [];
+    cloudsRef.current = [];
+    bloomRef.current = [];
+    sunRaysRef.current = [];
+    windRef.current = [];
+
+    switch (weather) {
+      case 'rain':
+        raindropsRef.current = Array.from({ length: rainCount }, () => createRaindrop(width, height));
+        cloudsRef.current = Array.from({ length: cloudCount }, () => createCloud(width, height));
+        break;
+      case 'snow':
+        snowflakesRef.current = Array.from({ length: snowCount }, () => createSnowflake(width, height, false));
+        break;
+      case 'blizzard':
+        snowflakesRef.current = Array.from({ length: snowCount * 2 }, () => createSnowflake(width, height, true));
+        cloudsRef.current = Array.from({ length: cloudCount }, () => createCloud(width, height));
+        break;
+      case 'sunshine':
+        sunRaysRef.current = Array.from({ length: sunRayCount }, () => createSunRay(width, height));
+        break;
+      case 'cloudy':
+        cloudsRef.current = Array.from({ length: cloudCount * 2 }, () => createCloud(width, height));
+        break;
+      case 'bloomy':
+        bloomRef.current = Array.from({ length: bloomCount }, () => createBloomParticle(width, height));
+        sunRaysRef.current = Array.from({ length: 3 }, () => createSunRay(width, height));
+        break;
+      case 'hurricane':
+      case 'tornado':
+        windRef.current = Array.from({ length: windCount }, () => createWindParticle(width, height, weather));
+        cloudsRef.current = Array.from({ length: cloudCount }, () => createCloud(width, height));
+        break;
+    }
 
     const seasonTint = getSeasonTint(season);
     lastTimeRef.current = performance.now();
 
     const animate = (currentTime: number) => {
-      const deltaTime = currentTime - lastTimeRef.current;
+      const deltaTime = Math.min(currentTime - lastTimeRef.current, 32);
       lastTimeRef.current = currentTime;
+      const dt = deltaTime / 16.67;
 
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
-      // Clear canvas properly
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, w, h);
 
-      // Draw season tint overlay first
+      // Draw season tint
       if (seasonTint.a > 0) {
         ctx.fillStyle = `rgba(${seasonTint.r}, ${seasonTint.g}, ${seasonTint.b}, ${seasonTint.a * intensity})`;
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, w, h);
       }
 
-      // Update and draw particles
-      particlesRef.current.forEach(particle => {
-        updateParticle(particle, canvas, weather, deltaTime);
-        drawParticle(ctx, particle, weather);
+      // Draw clouds (background layer)
+      cloudsRef.current.forEach(cloud => {
+        cloud.x += cloud.speed * dt * intensity;
+        if (cloud.x > w + cloud.size) cloud.x = -cloud.size;
+        drawCloud(ctx, cloud);
+      });
+
+      // Draw sun rays
+      sunRaysRef.current.forEach(ray => {
+        ray.opacity = 0.02 + Math.sin(currentTime * 0.0003 + ray.x * 0.01) * 0.015;
+        drawSunRay(ctx, ray);
+      });
+
+      // Draw back layer particles first
+      raindropsRef.current
+        .filter(d => d.layer === 'back')
+        .forEach(drop => {
+          drop.y += drop.speed * dt;
+          drop.x += (Math.random() - 0.5) * 0.3;
+          if (drop.y > h + 20) {
+            drop.y = -20;
+            drop.x = Math.random() * w;
+          }
+          drawRaindrop(ctx, drop);
+        });
+
+      snowflakesRef.current
+        .filter(f => f.layer === 'back')
+        .forEach(flake => {
+          flake.y += flake.speed * dt;
+          flake.x += flake.drift * dt + Math.sin(currentTime * 0.001 + flake.wobblePhase) * 0.3;
+          flake.rotation += flake.rotationSpeed * dt;
+          if (flake.y > h + 20) {
+            flake.y = -20;
+            flake.x = Math.random() * w;
+          }
+          if (flake.x < -20) flake.x = w + 20;
+          if (flake.x > w + 20) flake.x = -20;
+          drawSnowflake(ctx, flake);
+        });
+
+      // Draw front layer particles
+      raindropsRef.current
+        .filter(d => d.layer === 'front')
+        .forEach(drop => {
+          drop.y += drop.speed * dt;
+          drop.x += (Math.random() - 0.5) * 0.2;
+          if (drop.y > h + 20) {
+            drop.y = -20;
+            drop.x = Math.random() * w;
+          }
+          drawRaindrop(ctx, drop);
+        });
+
+      snowflakesRef.current
+        .filter(f => f.layer === 'front')
+        .forEach(flake => {
+          flake.y += flake.speed * dt;
+          flake.x += flake.drift * dt + Math.sin(currentTime * 0.001 + flake.wobblePhase) * 0.5;
+          flake.rotation += flake.rotationSpeed * dt;
+          if (flake.y > h + 20) {
+            flake.y = -20;
+            flake.x = Math.random() * w;
+          }
+          if (flake.x < -20) flake.x = w + 20;
+          if (flake.x > w + 20) flake.x = -20;
+          drawSnowflake(ctx, flake);
+        });
+
+      // Draw bloom particles
+      bloomRef.current.forEach(particle => {
+        particle.y -= particle.speed * dt;
+        particle.x += Math.sin(currentTime * 0.0005 + particle.x * 0.01) * 0.2;
+        particle.life += dt;
+        if (particle.life >= particle.maxLife) {
+          particle.life = 0;
+          particle.y = h + 20;
+          particle.x = Math.random() * w;
+        }
+        drawBloomParticle(ctx, particle);
+      });
+
+      // Draw wind particles (hurricane/tornado)
+      const centerX = weather === 'tornado' ? w * 0.7 : w * 0.5;
+      const centerY = weather === 'tornado' ? h : h * 0.5;
+      windRef.current.forEach(particle => {
+        particle.angle += particle.rotationSpeed * dt * intensity;
+        const radius = Math.sqrt(
+          Math.pow(particle.x - centerX, 2) + Math.pow(particle.y - centerY, 2)
+        );
+        
+        if (weather === 'tornado') {
+          particle.y -= particle.speed * dt;
+          const shrinkFactor = Math.max(0.3, 1 - (h - particle.y) / h);
+          particle.x = centerX + Math.cos(particle.angle) * radius * shrinkFactor;
+          if (particle.y < -50) {
+            particle.y = h + 50;
+            particle.angle = Math.random() * Math.PI * 2;
+          }
+        } else {
+          particle.x = centerX + Math.cos(particle.angle) * radius * 0.998;
+          particle.y = centerY + Math.sin(particle.angle) * radius * 0.998;
+          if (radius < 30 || radius > Math.max(w, h) * 0.7) {
+            const newAngle = Math.random() * Math.PI * 2;
+            const newRadius = 80 + Math.random() * 250;
+            particle.x = centerX + Math.cos(newAngle) * newRadius;
+            particle.y = centerY + Math.sin(newAngle) * newRadius;
+            particle.angle = newAngle;
+          }
+        }
+        drawWindParticle(ctx, particle);
       });
 
       animationRef.current = requestAnimationFrame(animate);
@@ -434,7 +561,9 @@ export const WeatherEffectsOverlay = ({
       }
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [weather, season, intensity, enabled, prefersReducedMotion, getParticleCount, createParticle, updateParticle, drawParticle, getSeasonTint]);
+  }, [weather, season, intensity, enabled, prefersReducedMotion, getSeasonTint,
+      createRaindrop, createSnowflake, createCloud, createBloomParticle, createSunRay, createWindParticle,
+      drawRaindrop, drawSnowflake, drawCloud, drawBloomParticle, drawSunRay, drawWindParticle]);
 
   if (!enabled || weather === 'clear' || prefersReducedMotion) {
     return null;
@@ -444,9 +573,7 @@ export const WeatherEffectsOverlay = ({
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ 
-        zIndex: 5,
-      }}
+      style={{ zIndex: 5 }}
       aria-hidden="true"
     />
   );
