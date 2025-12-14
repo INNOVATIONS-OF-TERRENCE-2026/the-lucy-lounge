@@ -32,6 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SettingsModal } from "./SettingsModal";
 import { TagManager } from "./TagManager";
 import { LucyLogo } from "@/components/branding/LucyLogo";
+import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
 
 interface ChatSidebarProps {
   userId: string;
@@ -261,6 +262,10 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             {videoControls}
           </div>
         )}
+        
+        {/* Color Theme Selector - Standalone Component */}
+        <ColorThemeSelector />
+        
         <Button
           variant="outline"
           className="w-full justify-start"
