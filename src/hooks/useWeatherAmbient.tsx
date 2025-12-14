@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export type WeatherMode = 
   | 'clear'
@@ -16,8 +16,16 @@ export type SeasonMode = 'spring' | 'summer' | 'fall' | 'winter' | 'none';
 interface WeatherAmbientState {
   weather: WeatherMode;
   season: SeasonMode;
-  intensity: number; // 0-1
+  intensity: number;
   enabled: boolean;
+}
+
+interface WeatherAmbientContextType extends WeatherAmbientState {
+  setWeather: (weather: WeatherMode) => void;
+  setSeason: (season: SeasonMode) => void;
+  setIntensity: (intensity: number) => void;
+  setEnabled: (enabled: boolean) => void;
+  reset: () => void;
 }
 
 const STORAGE_KEY = 'lucy-weather-ambient';
@@ -29,7 +37,9 @@ const defaultState: WeatherAmbientState = {
   enabled: true,
 };
 
-export const useWeatherAmbient = () => {
+const WeatherAmbientContext = createContext<WeatherAmbientContextType | null>(null);
+
+export const WeatherAmbientProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<WeatherAmbientState>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -42,7 +52,6 @@ export const useWeatherAmbient = () => {
     return defaultState;
   });
 
-  // Persist to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -71,7 +80,7 @@ export const useWeatherAmbient = () => {
     setState(defaultState);
   }, []);
 
-  return {
+  const value: WeatherAmbientContextType = {
     ...state,
     setWeather,
     setSeason,
@@ -79,4 +88,35 @@ export const useWeatherAmbient = () => {
     setEnabled,
     reset,
   };
+
+  return (
+    <WeatherAmbientContext.Provider value={value}>
+      {children}
+    </WeatherAmbientContext.Provider>
+  );
+};
+
+export const useWeatherAmbient = (): WeatherAmbientContextType => {
+  const context = useContext(WeatherAmbientContext);
+  if (!context) {
+    // Fallback for components outside provider
+    let storedState = defaultState;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        storedState = { ...defaultState, ...JSON.parse(stored) };
+      }
+    } catch (e) {
+      // ignore
+    }
+    return {
+      ...storedState,
+      setWeather: () => {},
+      setSeason: () => {},
+      setIntensity: () => {},
+      setEnabled: () => {},
+      reset: () => {},
+    };
+  }
+  return context;
 };
