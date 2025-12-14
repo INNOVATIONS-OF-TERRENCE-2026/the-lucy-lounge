@@ -156,7 +156,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   );
 
   return (
-    <Sidebar className="border-r-0 bg-sidebar shadow-[4px_0_20px_rgba(0,0,0,0.1)]">
+    <Sidebar className="border-r-0 bg-sidebar shadow-[4px_0_20px_rgba(0,0,0,0.1)] flex flex-col min-h-0">
       <SidebarHeader className="p-4 border-b-0">
         <div className="flex items-center gap-3 mb-4">
           <LucyLogo size="sm" showGlow />
@@ -257,8 +257,8 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-0 border-t-0 flex-shrink-0 max-h-[50vh] overflow-hidden">
-        <ScrollArea className="h-full max-h-[50vh]">
+      <SidebarFooter className="p-0 border-t-0 flex-shrink min-h-0 overflow-hidden">
+        <ScrollArea className="h-full max-h-[45vh]">
           <div className="p-4 space-y-2">
             {videoControls && (
               <div className="pb-2 border-b border-border/50">
