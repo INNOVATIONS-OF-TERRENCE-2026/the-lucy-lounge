@@ -18,7 +18,8 @@ import {
   Volume2,
   VolumeX,
   Music,
-  SkipForward
+  SkipForward,
+  Shuffle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -76,8 +77,10 @@ export const WeatherAmbientSelector = () => {
     volume,
     soundEnabled,
     musicEnabled,
+    shuffleEnabled,
     setSoundEnabled,
     setMusicEnabled,
+    setShuffleEnabled,
     setVolume,
     playWeatherSound,
     playMusic,
@@ -136,6 +139,10 @@ export const WeatherAmbientSelector = () => {
       setSoundEnabled(false);
       playMusic(genre);
     }
+  };
+
+  const handleShuffleToggle = () => {
+    setShuffleEnabled(!shuffleEnabled);
   };
 
   return (
@@ -211,6 +218,26 @@ export const WeatherAmbientSelector = () => {
             disabled={focusMode}
           >
             {soundEnabled && !focusMode ? 'On' : 'Off'}
+          </Button>
+        </div>
+
+        {/* Shuffle Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Shuffle className={cn(
+              "h-3.5 w-3.5",
+              shuffleEnabled ? "text-primary" : "text-muted-foreground"
+            )} />
+            <span className="text-xs text-muted-foreground">Shuffle Mode</span>
+          </div>
+          <Button
+            variant={shuffleEnabled ? "default" : "outline"}
+            size="sm"
+            className="h-6 text-xs px-2"
+            onClick={handleShuffleToggle}
+            disabled={focusMode}
+          >
+            {shuffleEnabled ? 'On' : 'Off'}
           </Button>
         </div>
 
@@ -323,7 +350,12 @@ export const WeatherAmbientSelector = () => {
         {(audioState === 'weather' || audioState === 'music') && currentTrackName && !focusMode && (
           <div className="flex items-center justify-between gap-2 py-2 px-2 rounded-md bg-primary/5 border border-primary/10">
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground truncate">Now Playing</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-[10px] text-muted-foreground truncate">Now Playing</p>
+                {shuffleEnabled && (
+                  <Shuffle className="h-2.5 w-2.5 text-primary/60" />
+                )}
+              </div>
               <p className="text-xs font-medium text-foreground/90 truncate">{currentTrackName}</p>
             </div>
             <Button
@@ -344,9 +376,9 @@ export const WeatherAmbientSelector = () => {
             {focusMode 
               ? 'Focus Mode Active • All Audio Stopped'
               : audioState === 'music' && currentMusic !== 'none'
-                ? `${MUSIC_OPTIONS.find(m => m.genre === currentMusic)?.label || 'Music'} Playlist`
+                ? `${MUSIC_OPTIONS.find(m => m.genre === currentMusic)?.label || 'Music'} Playlist${shuffleEnabled ? ' • Shuffle' : ''}`
                 : audioState === 'weather' && weather !== 'clear'
-                  ? `${activeWeatherOption?.label} Mix${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}`
+                  ? `${activeWeatherOption?.label} Mix${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}${shuffleEnabled ? ' • Shuffle' : ''}`
                   : enabled && weather !== 'clear' 
                     ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''} (Visual Only)`
                     : 'No effects active'
