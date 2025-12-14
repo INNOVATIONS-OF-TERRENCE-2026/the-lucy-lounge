@@ -38,6 +38,55 @@ html,
 body {
   background: var(--theme-bg-1);
   color: var(--theme-text);
+  /* Prevent horizontal overflow globally */
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* =========================================================
+   iOS SAFE AREA SUPPORT (notch/home indicator)
+   ========================================================= */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* =========================================================
+   WEBKIT RENDERING HARDENING (Fix LCD artifacts)
+   Eliminates sub-pixel rendering issues causing thin black lines
+   ========================================================= */
+   
+/* Force GPU compositing layer isolation */
+.webkit-fix {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Prevent sub-pixel border artifacts */
+*,
+*::before,
+*::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fix box-shadow rendering on WebKit */
+@supports (-webkit-touch-callout: none) {
+  /* Safari-specific fixes */
+  .rounded-2xl,
+  .rounded-xl,
+  .rounded-lg {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
 }
 
 /* Smooth theme transitions */
@@ -295,18 +344,34 @@ body {
   --chat-text: var(--theme-text);
 }
 
-/* User message bubbles */
+/* User message bubbles - WebKit artifact-free */
 [data-theme-area="chat"] .user-bubble {
   background: var(--theme-primary);
   color: #ffffff;
   box-shadow: 0 0 15px var(--theme-glow-soft);
+  /* WebKit rendering fixes to prevent LCD artifacts */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Prevent sub-pixel border artifacts */
+  border: none;
+  outline: none;
 }
 
-/* Assistant message bubbles */
+/* Assistant message bubbles - WebKit artifact-free */
 [data-theme-area="chat"] .assistant-bubble {
   background: var(--theme-bg-2);
   color: var(--theme-text);
   box-shadow: 0 0 20px var(--theme-glow-soft);
+  /* WebKit rendering fixes to prevent LCD artifacts */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Prevent sub-pixel border artifacts */
+  border: none;
+  outline: none;
 }
 
 /* Chat input bar with glow */
@@ -401,4 +466,102 @@ body {
 
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* =========================================================
+   🛡️ CHAT LCD ARTIFACT PREVENTION
+   WebKit/Safari specific fixes for thin black lines
+   ========================================================= */
+
+/* Global fix for all chat-related elements */
+[data-theme-area="chat"] * {
+  /* Prevent fractional pixel rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ScrollArea container fixes */
+[data-theme-area="chat"] [data-radix-scroll-area-viewport] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Message container artifact prevention */
+.message-container {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Round to whole pixels */
+  will-change: transform;
+}
+
+/* Prevent border artifacts on rounded elements */
+.rounded-2xl,
+.rounded-xl,
+.rounded-lg,
+.rounded-md {
+  /* Ensure whole pixel borders */
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+}
+
+/* Fix for gradient backgrounds causing artifacts */
+.bg-gradient-button,
+.bg-gradient-primary {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Prose elements in chat - prevent rendering glitches */
+[data-theme-area="chat"] .prose {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Syntax highlighter fix */
+[data-theme-area="chat"] pre,
+[data-theme-area="chat"] code {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* =========================================================
+   📱 MOBILE VIEWPORT STABILIZATION
+   Prevent overflow and ensure perfect fit
+   ========================================================= */
+
+/* Prevent any element from causing horizontal scroll */
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+/* Chat container full height on mobile */
+@supports (height: 100dvh) {
+  .chat-full-height {
+    height: 100dvh;
+  }
+}
+
+/* Fix for iOS Safari bottom bar */
+@supports (-webkit-touch-callout: none) {
+  .mobile-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+}
+
+/* Prevent text from being too small on mobile */
+@media (max-width: 640px) {
+  input, textarea, select, button {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
 }

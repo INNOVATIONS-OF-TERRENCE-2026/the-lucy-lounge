@@ -143,6 +143,216 @@ export type Database = {
           },
         ]
       }
+      audio_generations: {
+        Row: {
+          audio_url: string | null
+          bpm: number | null
+          created_at: string | null
+          credits_used: number | null
+          duration_seconds: number | null
+          genre: string | null
+          id: string
+          key: string | null
+          mood: string | null
+          project_id: string | null
+          prompt: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string | null
+          credits_used?: number | null
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          key?: string | null
+          mood?: string | null
+          project_id?: string | null
+          prompt: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string | null
+          credits_used?: number | null
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          key?: string | null
+          mood?: string | null
+          project_id?: string | null
+          prompt?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_generations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "audio_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_playlist_items: {
+        Row: {
+          created_at: string | null
+          generation_id: string | null
+          id: string
+          playlist_id: string
+          position: number
+          sample_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          generation_id?: string | null
+          id?: string
+          playlist_id: string
+          position?: number
+          sample_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          generation_id?: string | null
+          id?: string
+          playlist_id?: string
+          position?: number
+          sample_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_playlist_items_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "audio_generations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "audio_playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_playlist_items_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "audio_samples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audio_projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          settings: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          settings?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          settings?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audio_samples: {
+        Row: {
+          bpm: number | null
+          category: string
+          created_at: string | null
+          download_count: number | null
+          file_url: string
+          genre: string | null
+          id: string
+          is_premium: boolean | null
+          key: string | null
+          preview_url: string | null
+          title: string
+        }
+        Insert: {
+          bpm?: number | null
+          category: string
+          created_at?: string | null
+          download_count?: number | null
+          file_url: string
+          genre?: string | null
+          id?: string
+          is_premium?: boolean | null
+          key?: string | null
+          preview_url?: string | null
+          title: string
+        }
+        Update: {
+          bpm?: number | null
+          category?: string
+          created_at?: string | null
+          download_count?: number | null
+          file_url?: string
+          genre?: string | null
+          id?: string
+          is_premium?: boolean | null
+          key?: string | null
+          preview_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           created_at: string
@@ -942,6 +1152,36 @@ export type Database = {
           tokens_used?: number
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_audio_credits: {
+        Row: {
+          created_at: string | null
+          credits_remaining: number | null
+          credits_total: number | null
+          id: string
+          last_reset: string | null
+          plan_tier: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_remaining?: number | null
+          credits_total?: number | null
+          id?: string
+          last_reset?: string | null
+          plan_tier?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_remaining?: number | null
+          credits_total?: number | null
+          id?: string
+          last_reset?: string | null
+          plan_tier?: string | null
+          user_id?: string
         }
         Relationships: []
       }

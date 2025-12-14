@@ -33,6 +33,7 @@ import { IntroScreen } from "./components/branding/IntroScreen";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { OfflineBanner } from "./components/pwa/OfflineBanner";
+import { IOSAudioUnlockProvider } from "./components/audio/IOSAudioUnlockProvider";
 import { useDarkMode } from "./hooks/useDarkMode";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,9 @@ const App = () => {
         <Sonner />
 
         {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+
+        {/* iOS/Mobile audio unlock - invisible, runs globally */}
+        <IOSAudioUnlockProvider />
 
         <InstallPrompt />
         <OfflineBanner />
