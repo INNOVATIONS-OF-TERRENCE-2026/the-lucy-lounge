@@ -50,6 +50,7 @@ import AuthorPage from "./pages/about/AuthorPage";
 import EditorialStandards from "./pages/EditorialStandards";
 import Contact from "./pages/Contact";
 import Press from "./pages/Press";
+import Testimonials from "./pages/Testimonials";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +103,7 @@ const App = () => {
               <Route path="/editorial-standards" element={<EditorialStandards />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/press" element={<Press />} />
+              <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/features" element={<Features />} />
               <Route path="/launch" element={<Launch />} />

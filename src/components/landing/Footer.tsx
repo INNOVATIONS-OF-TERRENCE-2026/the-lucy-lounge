@@ -58,6 +58,7 @@ export const Footer = () => {
               <li><Link to="/about/terrence-milliner" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Our Team</Link></li>
               <li><Link to="/launch" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Launch</Link></li>
               <li><Link to="/blog" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Blog</Link></li>
+              <li><Link to="/testimonials" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Testimonials</Link></li>
               <li><Link to="/press" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Press</Link></li>
               <li><Link to="/editorial-standards" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Editorial Standards</Link></li>
               <li><Link to="/contact" className="text-white/90 hover:text-white transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Contact</Link></li>
