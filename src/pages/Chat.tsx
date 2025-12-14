@@ -7,7 +7,7 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingScreen } from "@/components/branding/LoadingScreen";
 import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
-import { AmbientEffectsLayer } from "@/components/ambient/AmbientEffectsLayer";
+import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverlay";
 import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 
 // Inner component that uses the weather context
@@ -50,7 +50,7 @@ const ChatContent = () => {
   return (
     <>
       <CosmicBackground />
-      <AmbientEffectsLayer 
+      <WeatherEffectsOverlay 
         weather={weather} 
         season={season} 
         intensity={intensity} 
