@@ -17,7 +17,8 @@ import {
   Focus,
   Volume2,
   VolumeX,
-  Music
+  Music,
+  SkipForward
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -71,6 +72,7 @@ export const WeatherAmbientSelector = () => {
   const {
     audioState,
     currentMusic,
+    currentTrackName,
     volume,
     soundEnabled,
     musicEnabled,
@@ -80,6 +82,7 @@ export const WeatherAmbientSelector = () => {
     playWeatherSound,
     playMusic,
     stopAll,
+    skipTrack,
   } = useAudioManager();
 
   const activeWeatherOption = WEATHER_OPTIONS.find(w => w.mode === weather);
@@ -316,15 +319,34 @@ export const WeatherAmbientSelector = () => {
           />
         </div>
 
+        {/* Now Playing Display with Skip Button */}
+        {(audioState === 'weather' || audioState === 'music') && currentTrackName && !focusMode && (
+          <div className="flex items-center justify-between gap-2 py-2 px-2 rounded-md bg-primary/5 border border-primary/10">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-muted-foreground truncate">Now Playing</p>
+              <p className="text-xs font-medium text-foreground/90 truncate">{currentTrackName}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 shrink-0 hover:bg-primary/10"
+              onClick={skipTrack}
+              title="Skip to next track"
+            >
+              <SkipForward className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+
         {/* Active State Display */}
         <div className="pt-1 border-t border-border/50">
           <p className="text-[10px] text-center text-muted-foreground">
             {focusMode 
               ? 'Focus Mode Active • All Audio Stopped'
               : audioState === 'music' && currentMusic !== 'none'
-                ? `Playing: ${MUSIC_OPTIONS.find(m => m.genre === currentMusic)?.label || 'Music'}`
+                ? `${MUSIC_OPTIONS.find(m => m.genre === currentMusic)?.label || 'Music'} Playlist`
                 : audioState === 'weather' && weather !== 'clear'
-                  ? `${activeWeatherOption?.label} Sound${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}`
+                  ? `${activeWeatherOption?.label} Mix${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}`
                   : enabled && weather !== 'clear' 
                     ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''} (Visual Only)`
                     : 'No effects active'
