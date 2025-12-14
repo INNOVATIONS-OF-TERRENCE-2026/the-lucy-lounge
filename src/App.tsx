@@ -51,6 +51,11 @@ import EditorialStandards from "./pages/EditorialStandards";
 import Contact from "./pages/Contact";
 import Press from "./pages/Press";
 import Testimonials from "./pages/Testimonials";
+import CreditRepairProblem from "./pages/programmatic/CreditRepairProblem";
+import CreditRepairPersona from "./pages/programmatic/CreditRepairPersona";
+import CreditRepairLocation from "./pages/programmatic/CreditRepairLocation";
+import SBAFundingScenario from "./pages/programmatic/SBAFundingScenario";
+import ComparisonPage from "./pages/programmatic/ComparisonPage";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +133,13 @@ const App = () => {
               <Route path="/blog/net-30-vendors-for-new-business" element={<Net30Vendors />} />
               <Route path="/blog/build-business-credit-90-days" element={<Build90DayCredit />} />
               <Route path="/blog/best-ai-tools-small-business-2025" element={<BestAIToolsSmallBusiness />} />
+              
+              {/* Programmatic SEO Pages */}
+              <Route path="/credit-repair/how-to-fix-:problem" element={<CreditRepairProblem />} />
+              <Route path="/credit-repair/for-:persona" element={<CreditRepairPersona />} />
+              <Route path="/credit-repair/in-:state" element={<CreditRepairLocation />} />
+              <Route path="/sba-funding/:scenario" element={<SBAFundingScenario />} />
+              <Route path="/compare/:comparison" element={<ComparisonPage />} />
               
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
