@@ -222,11 +222,11 @@ export const WeatherAmbientSelector = () => {
           </div>
           <Slider
             value={[volume * 100]}
-            onValueChange={([value]) => setVolume(value / 100)}
+            onValueChange={([val]) => setVolume(val / 100)}
             min={0}
             max={100}
             step={5}
-            disabled={focusMode || (!soundEnabled && !musicEnabled)}
+            disabled={focusMode}
             className="w-full"
           />
         </div>
