@@ -13,7 +13,7 @@ export interface AudioTrack {
   gainNormalization: number;
 }
 
-// ============= COMPLETE AUDIO LIBRARY (18 TRACKS) =============
+// ============= COMPLETE AUDIO LIBRARY (28 TRACKS) =============
 // gainNormalization values calibrated to equalize perceived loudness
 // Values > 1.0 boost quieter tracks, < 1.0 reduce louder tracks
 export const AUDIO_TRACKS: AudioTrack[] = [
@@ -91,7 +91,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     gainNormalization: 0.8,
   },
   
-  // NEW 10 TRACKS
+  // EXPANDED LIBRARY (10 MORE TRACKS)
   {
     id: 'country-road',
     title: 'Country Road',
@@ -181,6 +181,98 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     weatherAffinity: ['rain', 'cloudy', 'bloomy'],
     seasonAffinity: ['fall', 'spring'],
     gainNormalization: 0.9,
+  },
+
+  // NEW 10 TRACKS (BEATZ BY YT COLLECTION)
+  {
+    id: 'southside-blues',
+    title: 'Southside Blues',
+    src: '/audio/southside-blues-full.mp3',
+    genres: ['rnb', 'jazz'],
+    weatherAffinity: ['rain', 'cloudy', 'bloomy'],
+    seasonAffinity: ['fall', 'summer'],
+    gainNormalization: 0.85,
+  },
+  {
+    id: 'got-rich-quick',
+    title: 'Got Rich Quick',
+    src: '/audio/got-rich-quick.mp3',
+    genres: ['rnb'],
+    weatherAffinity: ['sunshine', 'bloomy'],
+    seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.8,
+  },
+  {
+    id: 'generational-wealth',
+    title: 'Generational Wealth',
+    src: '/audio/generational-wealth.mp3',
+    genres: ['rnb', 'jazz'],
+    weatherAffinity: ['sunshine', 'bloomy', 'cloudy'],
+    seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
+  },
+  {
+    id: 'family-practice',
+    title: 'Family Practice',
+    src: '/audio/family-practice.mp3',
+    genres: ['rnb', 'lofi'],
+    weatherAffinity: ['rain', 'cloudy', 'sunshine'],
+    seasonAffinity: ['fall', 'summer'],
+    gainNormalization: 0.9,
+  },
+  {
+    id: 'dallas-4eva',
+    title: 'Dallas 4eva',
+    src: '/audio/dallas-4eva.mp3',
+    genres: ['rnb', 'jazz'],
+    weatherAffinity: ['sunshine', 'bloomy'],
+    seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
+  },
+  {
+    id: 'pain-of-a-king',
+    title: 'Pain of a King',
+    src: '/audio/pain-of-a-king.mp3',
+    genres: ['ambient', 'rnb'],
+    weatherAffinity: ['rain', 'cloudy', 'snow'],
+    seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 0.95,
+  },
+  {
+    id: 'growth-2',
+    title: 'Growth 2',
+    src: '/audio/growth-2.mp3',
+    genres: ['ambient', 'lofi'],
+    weatherAffinity: ['bloomy', 'sunshine', 'rain'],
+    seasonAffinity: ['spring', 'summer'],
+    gainNormalization: 0.9,
+  },
+  {
+    id: 'after-da-rain',
+    title: 'After Da Rain',
+    src: '/audio/after-da-rain.mp3',
+    genres: ['lofi', 'ambient'],
+    weatherAffinity: ['rain', 'cloudy', 'bloomy'],
+    seasonAffinity: ['spring', 'fall'],
+    gainNormalization: 0.95,
+  },
+  {
+    id: '324-beat',
+    title: '3-24 Beat',
+    src: '/audio/324-beat.mp3',
+    genres: ['rnb', 'lofi'],
+    weatherAffinity: ['sunshine', 'cloudy', 'bloomy'],
+    seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
+  },
+  {
+    id: 'story-of-broken-man',
+    title: 'Story of a Broken Man',
+    src: '/audio/story-of-broken-man.mp3',
+    genres: ['ambient'],
+    weatherAffinity: ['rain', 'snow', 'cloudy', 'hurricane'],
+    seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 1.0,
   },
 ];
 
