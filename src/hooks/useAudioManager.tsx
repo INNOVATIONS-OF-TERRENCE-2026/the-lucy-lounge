@@ -1,6 +1,7 @@
 import { createContext, useContext, useCallback, useRef, useEffect, useState, ReactNode } from 'react';
 import { WeatherMode, SeasonMode } from './useWeatherAmbient';
 import { useFocusMode } from './useFocusMode';
+import { getGlobalAudioContext, getIsAudioUnlocked } from './useIOSAudioUnlock';
 import {
   AUDIO_TRACKS,
   WEATHER_GENRE_MAP,
@@ -195,8 +196,18 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
     if (audioContextRef.current) return audioContextRef.current;
     
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioContextRef.current = ctx;
+      // Try to use the global iOS-unlocked context first
+      const globalCtx = getGlobalAudioContext();
+      if (globalCtx && globalCtx.state !== 'closed') {
+        audioContextRef.current = globalCtx;
+      } else {
+        // Fallback to creating new context
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioContextClass) return null;
+        audioContextRef.current = new AudioContextClass();
+      }
+      
+      const ctx = audioContextRef.current;
       
       // Create per-track gain node (for normalization)
       const trackGainNode = ctx.createGain();
@@ -300,12 +311,16 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       ctx.resume().catch(() => {});
     }
 
-    const performTransition = () => {
+  const performTransition = () => {
       let audio = audioElementRef.current;
       if (!audio) {
         audio = new Audio();
         audio.loop = false;
         audio.crossOrigin = 'anonymous';
+        // Mobile-safe audio settings
+        audio.preload = 'auto';
+        (audio as any).playsInline = true;
+        (audio as any).webkitPlaysinline = true;
         audioElementRef.current = audio;
         
         try {
@@ -348,7 +363,8 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
       };
 
       audio.oncanplaythrough = () => {
-        if (!hasUserInteractedRef.current) return;
+        // Check if iOS audio is unlocked before attempting playback
+        if (!hasUserInteractedRef.current && !getIsAudioUnlocked()) return;
 
         const trackGain = trackGainNodeRef.current;
         const masterGain = masterGainNodeRef.current;
@@ -373,16 +389,22 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
           masterGain.gain.setValueAtTime(targetMasterVolume, now);
         }
 
-        audio.play().then(() => {
-          setAudioState(newState);
-          setCurrentTrackPath(filePath);
-          setIsPlaying(true);
-          isTransitioningRef.current = false;
-        }).catch((e) => {
-          console.warn('Playback failed:', e);
-          isTransitioningRef.current = false;
-          setIsPlaying(false);
-        });
+        // Mobile-safe play with promise handling
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            setAudioState(newState);
+            setCurrentTrackPath(filePath);
+            setIsPlaying(true);
+            isTransitioningRef.current = false;
+          }).catch((e) => {
+            console.warn('Playback failed (will retry on next gesture):', e.name);
+            isTransitioningRef.current = false;
+            setIsPlaying(false);
+            // On iOS, audio may fail initially but work after user gesture
+            // Don't show error to user, just silently wait for next interaction
+          });
+        }
       };
 
       // Use encodeURI for path safety with special characters
