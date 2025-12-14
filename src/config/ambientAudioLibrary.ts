@@ -13,7 +13,7 @@ export interface AudioTrack {
   gainNormalization: number;
 }
 
-// ============= COMPLETE AUDIO LIBRARY (28 TRACKS) =============
+// ============= COMPLETE AUDIO LIBRARY (32 TRACKS) =============
 // gainNormalization values calibrated to equalize perceived loudness
 // Values > 1.0 boost quieter tracks, < 1.0 reduce louder tracks
 export const AUDIO_TRACKS: AudioTrack[] = [
@@ -273,6 +273,44 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     weatherAffinity: ['rain', 'snow', 'cloudy', 'hurricane'],
     seasonAffinity: ['fall', 'winter'],
     gainNormalization: 1.0,
+  },
+
+  // NEW 4 TRACKS (LATEST ADDITIONS)
+  {
+    id: 'the-sky',
+    title: 'The Sky',
+    src: '/audio/the-sky.mp3',
+    genres: ['ambient', 'lofi'],
+    weatherAffinity: ['sunshine', 'bloomy', 'clear'],
+    seasonAffinity: ['spring', 'summer'],
+    gainNormalization: 0.9,
+  },
+  {
+    id: 'the-end-x2',
+    title: 'The End x2',
+    src: '/audio/the-end-x2.mp3',
+    genres: ['ambient'],
+    weatherAffinity: ['rain', 'cloudy', 'hurricane', 'tornado'],
+    seasonAffinity: ['fall', 'winter'],
+    gainNormalization: 0.95,
+  },
+  {
+    id: 'taking-trips',
+    title: 'Taking Trips',
+    src: '/audio/taking-trips.mp3',
+    genres: ['rnb', 'lofi'],
+    weatherAffinity: ['sunshine', 'bloomy'],
+    seasonAffinity: ['summer', 'spring'],
+    gainNormalization: 0.85,
+  },
+  {
+    id: 'family-practice-2',
+    title: 'Family Practice 2',
+    src: '/audio/family-practice-2.mp3',
+    genres: ['rnb', 'lofi'],
+    weatherAffinity: ['rain', 'cloudy', 'sunshine'],
+    seasonAffinity: ['fall', 'summer'],
+    gainNormalization: 0.9,
   },
 ];
 
