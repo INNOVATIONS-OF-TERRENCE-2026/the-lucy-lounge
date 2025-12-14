@@ -2,6 +2,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { ArticleSchema } from '@/components/seo/ArticleSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { FAQSchema } from '@/components/seo/FAQSchema';
+import { AuthorByline } from '@/components/blog/AuthorByline';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,7 +61,7 @@ const BestAIToolsSmallBusiness = () => {
         description="Comprehensive guide to the top AI tools for small businesses, covering marketing, finance, customer service, and operations automation."
         authorName="Terrence Milliner Sr."
         datePublished="2024-12-14"
-        dateModified="2024-12-14"
+        dateModified="2025-01-14"
         image="https://lucylounge.org/og-tools.png"
         url="https://lucylounge.org/blog/best-ai-tools-small-business-2025"
       />
@@ -88,13 +89,11 @@ const BestAIToolsSmallBusiness = () => {
               <p className="text-xl text-muted-foreground mb-4">
                 We tested 25+ AI tools over 3 months. Here's what actually works for small businesses—with honest assessments of pricing, limitations, and ROI.
               </p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span>By Terrence Milliner Sr.</span>
-                <span>•</span>
-                <span>December 2024</span>
-                <span>•</span>
-                <span>12 min read</span>
-              </div>
+              <AuthorByline 
+                publishDate="2024-12-14"
+                lastUpdated="2025-01-14"
+                readTime="12 min read"
+              />
             </header>
 
             {/* How AI Is Transforming Small Business */}
