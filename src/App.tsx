@@ -34,10 +34,25 @@ import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { OfflineBanner } from "./components/pwa/OfflineBanner";
 import { useDarkMode } from "./hooks/useDarkMode";
+import { WeatherAmbientProvider, useWeatherAmbient } from "./hooks/useWeatherAmbient";
+import { WeatherEffectsOverlay } from "./components/ambient/WeatherEffectsOverlay";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+// Global weather effects layer that reads from context
+const GlobalWeatherEffects = () => {
+  const { weather, season, intensity, enabled } = useWeatherAmbient();
+  return (
+    <WeatherEffectsOverlay 
+      weather={weather} 
+      season={season} 
+      intensity={intensity} 
+      enabled={enabled} 
+    />
+  );
+};
+
+const AppContent = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [hasShownIntro, setHasShownIntro] = useState(false);
 
@@ -70,46 +85,59 @@ const App = () => {
   };
 
   return (
+    <>
+      <Toaster />
+      <Sonner />
+
+      {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+
+      <InstallPrompt />
+      <OfflineBanner />
+      
+      {/* Global weather effects layer */}
+      <GlobalWeatherEffects />
+
+      <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
+        <BrowserRouter>
+          <AnalyticsTracker />
+
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/launch" element={<Launch />} />
+            <Route path="/tools" element={<Tools />} />
+            <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
+            <Route path="/creator-studio" element={<CreatorStudio />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/studios" element={<Studios />} />
+            <Route path="/studios/ai" element={<StudiosAI />} />
+            <Route path="/studios/audio" element={<StudiosAudio />} />
+            <Route path="/studios/dev" element={<StudiosDev />} />
+            <Route path="/shared/:token" element={<SharedConversation />} />
+            <Route path="/rooms" element={<RoomList />} />
+            <Route path="/room/:roomId" element={<RoomChat />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </>
+  );
+};
+
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-
-        {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
-
-        <InstallPrompt />
-        <OfflineBanner />
-
-        <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
-          <BrowserRouter>
-            <AnalyticsTracker />
-
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/features" element={<Features />} />
-              <Route path="/launch" element={<Launch />} />
-              <Route path="/tools" element={<Tools />} />
-              <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
-              <Route path="/creator-studio" element={<CreatorStudio />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/studios" element={<Studios />} />
-              <Route path="/studios/ai" element={<StudiosAI />} />
-              <Route path="/studios/audio" element={<StudiosAudio />} />
-              <Route path="/studios/dev" element={<StudiosDev />} />
-              <Route path="/shared/:token" element={<SharedConversation />} />
-              <Route path="/rooms" element={<RoomList />} />
-              <Route path="/room/:roomId" element={<RoomChat />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
+        <WeatherAmbientProvider>
+          <AppContent />
+        </WeatherAmbientProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
