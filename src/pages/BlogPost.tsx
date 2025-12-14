@@ -1,69 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { ArticleSchema } from '@/components/seo/ArticleSchema';
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Calendar, Clock, Share2 } from 'lucide-react';
+import { blogPosts } from '@/data/blogPosts';
 
 const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [readProgress, setReadProgress] = useState(0);
 
-  // Mock blog post data
-  const post = {
+  // Find the blog post by slug
+  const post = blogPosts.find(p => p.slug === slug) || {
+    slug: slug || '',
     title: 'Introducing Lucy AI: Beyond Intelligence',
     excerpt: 'Meet Lucy AI, your advanced AI assistant with reasoning, vision, memory, and creativity.',
     date: '2024-01-20',
     readTime: '5 min read',
     category: 'Product',
     image: '/lucy-og-image.png',
-    content: `
-# Welcome to Lucy AI
-
-Lucy AI represents a breakthrough in artificial intelligence assistants. Unlike traditional chatbots, Lucy combines multiple cutting-edge AI capabilities into a single, seamless experience.
-
-## Advanced Reasoning
-
-Our proprietary reasoning engine uses multi-step chain-of-thought analysis to solve complex problems. Instead of providing immediate answers, Lucy shows her work, explaining each step of the reasoning process.
-
-## Vision and Multimodal Capabilities
-
-Lucy can analyze:
-- Images and photographs
-- Videos and animations
-- PDF documents
-- Data tables and charts
-
-## Long-term Memory
-
-Lucy remembers your preferences and conversation history across all sessions, creating a truly personalized AI experience.
-
-## Code Execution
-
-Need to run code? Lucy executes Python and JavaScript in a secure sandbox environment, making her perfect for developers and data analysts.
-
-## Web Search Integration
-
-Lucy accesses real-time information from the web, providing up-to-date answers with proper source citations.
-
-## Image Generation
-
-Describe what you want to see, and Lucy creates stunning AI-generated images using Lovable AI models.
-
-## Voice Capabilities
-
-With browser-based speech-to-text and text-to-speech, you can have natural voice conversations with Lucy.
-
----
-
-## Getting Started
-
-Ready to experience the future of AI? [Try Lucy AI for free](/auth) and discover what makes her different from every other AI assistant.
-    `
+    author: 'Lucy AI Team',
+    content: `Lucy AI represents a breakthrough in artificial intelligence assistants. Unlike traditional chatbots, Lucy combines multiple cutting-edge AI capabilities into a single, seamless experience.`
   };
+
+  const articleUrl = `https://lucylounge.org/blog/${slug}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,8 +60,24 @@ Ready to experience the future of AI? [Try Lucy AI for free](/auth) and discover
       <SEOHead 
         title={`${post.title} - Lucy AI Blog`}
         description={post.excerpt}
-        keywords="Lucy AI, AI assistant, artificial intelligence, blog post"
-        canonical={`https://lucy-ai.app/blog/${slug}`}
+        keywords={`Lucy AI, ${post.category}, AI assistant, artificial intelligence`}
+        canonical={articleUrl}
+        url={articleUrl}
+      />
+      <ArticleSchema 
+        title={post.title}
+        description={post.excerpt}
+        image={post.image}
+        datePublished={post.date}
+        authorName={post.author || 'Lucy AI Team'}
+        url={articleUrl}
+      />
+      <BreadcrumbSchema 
+        items={[
+          { name: 'Home', url: 'https://lucylounge.org' },
+          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: post.title, url: articleUrl }
+        ]}
       />
 
       {/* Reading Progress Bar */}
