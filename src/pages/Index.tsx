@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sparkles, MessageSquare, Shield, Zap } from "lucide-react";
 import lucyLogo from "@/assets/lucy-logo.png";
+import { ThemeToggle } from "@/components/settings/ThemeToggle";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,6 +35,11 @@ const Index = () => {
 
       {/* Darkened gradient overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-black/35 pointer-events-none" />
+
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 text-center">
         {/* Logo */}

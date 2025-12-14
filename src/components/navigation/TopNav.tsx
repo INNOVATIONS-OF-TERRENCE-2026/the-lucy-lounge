@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { LucyAvatar } from "@/components/avatar/LucyAvatar";
+import { ThemeToggle } from "@/components/settings/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +62,7 @@ export const TopNav = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Button
               variant="ghost"
               onClick={() => navigate("/auth")}
@@ -145,6 +147,10 @@ export const TopNav = () => {
 
               {/* Mobile CTA */}
               <div className="flex flex-col gap-2 pt-3 border-t border-border/20">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-foreground/80">Theme</span>
+                  <ThemeToggle />
+                </div>
                 <Button
                   variant="ghost"
                   onClick={() => {
