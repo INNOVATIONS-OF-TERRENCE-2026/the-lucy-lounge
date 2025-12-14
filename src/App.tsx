@@ -36,6 +36,11 @@ import { OfflineBanner } from "./components/pwa/OfflineBanner";
 import { IOSAudioUnlockProvider } from "./components/audio/IOSAudioUnlockProvider";
 import { useDarkMode } from "./hooks/useDarkMode";
 
+// Guide pages
+import CreditRepairGuide from "./pages/guides/CreditRepairGuide";
+import SBALoanGuide from "./pages/guides/SBALoanGuide";
+import WomenFundingGuide from "./pages/guides/WomenFundingGuide";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -44,18 +49,11 @@ const App = () => {
 
   useDarkMode();
 
-  // === Theme system loads here ===
   useEffect(() => {
-    // 1. Load even if user not logged in
     loadStoredTheme();
-
-    // 2. Load account synced theme if logged in
     loadThemeFromRemote();
   }, []);
 
-  // ===============================
-  // === App intro animation logic
-  // ===============================
   useEffect(() => {
     const introShown = sessionStorage.getItem("lucy-intro-shown");
     if (introShown) {
@@ -78,7 +76,6 @@ const App = () => {
 
         {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-        {/* iOS/Mobile audio unlock - invisible, runs globally */}
         <IOSAudioUnlockProvider />
 
         <InstallPrompt />
@@ -99,6 +96,12 @@ const App = () => {
               <Route path="/creator-studio" element={<CreatorStudio />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              
+              {/* SEO Pillar Guide Pages */}
+              <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
+              <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
+              <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
+              
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/admin" element={<Admin />} />
