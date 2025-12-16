@@ -135,6 +135,37 @@ export const useLucyRecommendations = ({
         score += 25;
       }
       
+      // CHILL MOOD PRIORITY RANKING
+      // When Chill is active, apply genre-specific priority boosts
+      if (activeMood === 'chill') {
+        const lowerGenre = item.genre.toLowerCase();
+        // R&B: highest priority for chill
+        if (lowerGenre === 'rnb') {
+          score += 60;
+        }
+        // Smooth Rap: second priority
+        else if (lowerGenre === 'smooth-rap') {
+          score += 45;
+        }
+        // Lo-Fi: third priority (background focus)
+        else if (lowerGenre === 'lofi') {
+          score += 30;
+        }
+        // De-prioritize high-energy RAP
+        else if (lowerGenre === 'rap') {
+          score -= 20;
+        }
+        
+        // Boost recently played/favorites if they match chill genres
+        const chillGenres = ['rnb', 'smooth-rap', 'lofi'];
+        if (recentIds.has(item.id) && chillGenres.includes(lowerGenre)) {
+          score += 15;
+        }
+        if (favoriteIds.has(item.id) && chillGenres.includes(lowerGenre)) {
+          score += 20;
+        }
+      }
+      
       return { item, score, moods: itemMoods };
     });
 
@@ -144,11 +175,11 @@ export const useLucyRecommendations = ({
       filtered = scored.filter(s => s.moods.includes(activeMood));
     }
 
-    // Sort by score, take top 4, exclude items user already has in favorites
+    // Sort by score, take top 5, exclude items user already has in favorites
     return filtered
       .filter(s => s.score > 0 && !favoriteIds.has(s.item.id))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 4)
+      .slice(0, 5)
       .map(s => s.item);
   }, [allContent, recentlyPlayed, favorites, activeMood]);
 

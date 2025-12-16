@@ -706,7 +706,24 @@ const ListeningMode = () => {
                   <Sparkles className="w-5 h-5 text-primary" />
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">Lucy Recommends</h2>
-                    <p className="text-xs text-muted-foreground">Based on your vibe</p>
+                    <motion.p 
+                      key={activeMood}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-muted-foreground"
+                    >
+                      {activeMood === 'chill' 
+                        ? 'Relaxed picks for your chill zone' 
+                        : activeMood === 'focus'
+                        ? 'Curated for deep concentration'
+                        : activeMood === 'study'
+                        ? 'Perfect soundtracks for learning'
+                        : activeMood === 'hustle'
+                        ? 'Energy to fuel your grind'
+                        : activeMood === 'late-night'
+                        ? 'Smooth vibes for the night'
+                        : 'Based on your vibe'}
+                    </motion.p>
                   </div>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
