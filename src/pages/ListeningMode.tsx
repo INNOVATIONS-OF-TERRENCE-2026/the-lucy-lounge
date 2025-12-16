@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,6 +130,78 @@ const smoothRapContent = [
   }
 ];
 
+// R&B Content - SZA, Frank Ocean, Daniel Caesar
+const rnbContent = [
+  // SZA
+  {
+    title: "🌙 SZA — Ctrl",
+    subtitle: "Vulnerable R&B for late night introspection",
+    contentId: "76290XdXVF9rPzGdNRWdCh",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-rose-500/20 to-pink-500/5"
+  },
+  {
+    title: "✨ SZA — SOS",
+    subtitle: "Evolution of modern R&B storytelling",
+    contentId: "07w0rG5TETcyihsEIZR3qG",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-fuchsia-500/20 to-purple-500/5"
+  },
+  // Frank Ocean
+  {
+    title: "🌊 Frank Ocean — Blonde",
+    subtitle: "Ethereal R&B masterpiece for deep vibes",
+    contentId: "3mH6qwIy9crq0I9YQbOuDf",
+    contentType: "album" as const,
+    icon: Waves,
+    accentColor: "from-amber-500/20 to-yellow-500/5"
+  },
+  {
+    title: "🍊 Frank Ocean — Channel Orange",
+    subtitle: "Soulful storytelling and smooth production",
+    contentId: "392p3shh2jkxUxY2VHvlH8",
+    contentType: "album" as const,
+    icon: Waves,
+    accentColor: "from-orange-500/20 to-amber-500/5"
+  },
+  // Daniel Caesar
+  {
+    title: "🎤 Daniel Caesar — Freudian",
+    subtitle: "Gospel-infused R&B for the soul",
+    contentId: "3xybjP7r2VsWzwvDQipdM0",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-indigo-500/20 to-blue-500/5"
+  },
+  {
+    title: "💜 Daniel Caesar — Case Study 01",
+    subtitle: "Experimental R&B with smooth melodies",
+    contentId: "1mF5PyMXQiW4YXGP3OJpFN",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-violet-500/20 to-indigo-500/5"
+  },
+  // Additional R&B artists
+  {
+    title: "🌹 Jhené Aiko — Chilombo",
+    subtitle: "Healing frequencies and smooth R&B",
+    contentId: "0r8HGNWZvujck1YsVREvPL",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-teal-500/20 to-cyan-500/5"
+  },
+  {
+    title: "🦋 Snoh Aalegra — Temporary Highs",
+    subtitle: "Cinematic R&B for late night feels",
+    contentId: "3w3SrcCrHjJFPyVxn2AKDS",
+    contentType: "album" as const,
+    icon: Heart,
+    accentColor: "from-sky-500/20 to-blue-500/5"
+  }
+];
+
 // LO-FI Content - Curated Artists
 const lofiContent = [
   // Steven Beddall
@@ -243,12 +315,14 @@ const allContent: ContentItem[] = [
   ...rapPlaylists.map(r => ({ id: r.contentId, title: r.title, subtitle: r.subtitle, genre: 'rap', contentType: r.contentType })),
   ...smoothRapContent.map(s => ({ id: s.contentId, title: s.title, subtitle: s.subtitle, genre: 'smooth-rap', contentType: s.contentType })),
   ...lofiContent.map(l => ({ id: l.contentId, title: l.title, subtitle: l.subtitle, genre: 'lofi', contentType: l.contentType })),
+  ...rnbContent.map(r => ({ id: r.contentId, title: r.title, subtitle: r.subtitle, genre: 'rnb', contentType: r.contentType })),
 ];
 
-type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'lofi' | 'favorites';
+type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'lofi' | 'rnb' | 'favorites';
 
 const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
   { id: 'vibes', label: 'Vibes', icon: Music },
+  { id: 'rnb', label: 'R&B', icon: Heart },
   { id: 'rap', label: 'RAP', icon: Mic },
   { id: 'smooth-rap', label: 'Smooth Rap', icon: Gem },
   { id: 'lofi', label: 'LO-FI', icon: CloudMoon },
@@ -258,6 +332,7 @@ const moodTabs: { id: MoodType; label: string; icon: typeof Brain }[] = [
   { id: 'all', label: 'All Moods', icon: Sparkles },
   { id: 'focus', label: 'Focus', icon: Brain },
   { id: 'study', label: 'Study', icon: BookOpen },
+  { id: 'chill', label: 'Chill', icon: Sofa },
   { id: 'hustle', label: 'Hustle', icon: Zap },
   { id: 'late-night', label: 'Late Night', icon: Moon },
 ];
@@ -305,6 +380,7 @@ const ListeningMode = () => {
   const filteredRap = useMemo(() => filterItems(filterByMood(rapPlaylists, 'rap')), [searchQuery, activeMood]);
   const filteredSmoothRap = useMemo(() => filterItems(filterByMood(smoothRapContent, 'smooth-rap')), [searchQuery, activeMood]);
   const filteredLofi = useMemo(() => filterItems(filterByMood(lofiContent, 'lofi')), [searchQuery, activeMood]);
+  const filteredRnb = useMemo(() => filterItems(filterByMood(rnbContent, 'rnb')), [searchQuery, activeMood]);
   const filteredFavorites = useMemo(() => {
     let filtered = favorites;
     if (activeMood !== 'all') {
@@ -331,13 +407,13 @@ const ListeningMode = () => {
   }, [favorites.length]);
 
   const getIconForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.icon;
   };
 
   const getAccentForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.accentColor || 'from-primary/20 to-primary/5';
   };
@@ -446,6 +522,40 @@ const ListeningMode = () => {
         ) : (
           <EmptySearchState query={searchQuery} mood={activeMood} />
         );
+      case 'rnb':
+        return filteredRnb.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredRnb.map((item, index) => (
+              <ListeningModeCard
+                key={item.contentId}
+                title={item.title}
+                subtitle={item.subtitle}
+                contentId={item.contentId}
+                contentType={item.contentType}
+                icon={item.icon}
+                accentColor={item.accentColor}
+                index={index}
+                isFavorite={isFavorite(item.contentId)}
+                onToggleFavorite={() => handleToggleFavorite({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'rnb',
+                  contentType: item.contentType
+                })}
+                onInteraction={() => handleCardInteraction({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'rnb',
+                  contentType: item.contentType
+                })}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptySearchState query={searchQuery} mood={activeMood} />
+        );
       case 'lofi':
         return filteredLofi.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -527,6 +637,11 @@ const ListeningMode = () => {
         <>
           <p className="text-muted-foreground">Lucy is building your perfect study vibe</p>
           <p className="text-sm text-muted-foreground/70 mt-1">Try the LO-FI or Vibes genre</p>
+        </>
+      ) : mood === 'chill' ? (
+        <>
+          <p className="text-muted-foreground">Lucy is curating your chill zone</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">Try R&B, Smooth Rap, or LO-FI genres</p>
         </>
       ) : (
         <>
