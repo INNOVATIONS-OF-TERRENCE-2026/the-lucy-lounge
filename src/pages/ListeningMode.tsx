@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
 
@@ -124,8 +126,73 @@ const smoothRapContent = [
   }
 ];
 
+type GenreTab = 'vibes' | 'rap' | 'smooth-rap';
+
+const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
+  { id: 'vibes', label: 'Vibes', icon: Music },
+  { id: 'rap', label: 'RAP', icon: Mic },
+  { id: 'smooth-rap', label: 'Smooth Rap', icon: Gem },
+];
+
 const ListeningMode = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<GenreTab>('vibes');
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'vibes':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {genres.map((genre, index) => (
+              <ListeningModeCard
+                key={genre.contentId}
+                title={genre.title}
+                subtitle={genre.subtitle}
+                contentId={genre.contentId}
+                contentType={genre.contentType}
+                icon={genre.icon}
+                accentColor={genre.accentColor}
+                index={index}
+              />
+            ))}
+          </div>
+        );
+      case 'rap':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rapPlaylists.map((playlist, index) => (
+              <ListeningModeCard
+                key={playlist.contentId}
+                title={playlist.title}
+                subtitle={playlist.subtitle}
+                contentId={playlist.contentId}
+                contentType={playlist.contentType}
+                icon={playlist.icon}
+                accentColor={playlist.accentColor}
+                index={index}
+              />
+            ))}
+          </div>
+        );
+      case 'smooth-rap':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {smoothRapContent.map((item, index) => (
+              <ListeningModeCard
+                key={item.contentId}
+                title={item.title}
+                subtitle={item.subtitle}
+                contentId={item.contentId}
+                contentType={item.contentType}
+                icon={item.icon}
+                accentColor={item.accentColor}
+                index={index}
+              />
+            ))}
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,71 +221,53 @@ const ListeningMode = () => {
         </div>
       </header>
 
+      {/* Genre Tabs */}
+      <div className="sticky top-[73px] z-10 bg-background/80 backdrop-blur-sm border-b border-border/50">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide py-3">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-primary rounded-lg -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto space-y-12">
-          {/* Vibes Section */}
-          <section>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Music className="w-5 h-5 text-primary" />
-              Vibes
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {genres.map((genre) => (
-                <ListeningModeCard
-                  key={genre.contentId}
-                  title={genre.title}
-                  subtitle={genre.subtitle}
-                  contentId={genre.contentId}
-                  contentType={genre.contentType}
-                  icon={genre.icon}
-                  accentColor={genre.accentColor}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* RAP Section */}
-          <section>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Mic className="w-5 h-5 text-primary" />
-              RAP
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rapPlaylists.map((playlist) => (
-                <ListeningModeCard
-                  key={playlist.contentId}
-                  title={playlist.title}
-                  subtitle={playlist.subtitle}
-                  contentId={playlist.contentId}
-                  contentType={playlist.contentType}
-                  icon={playlist.icon}
-                  accentColor={playlist.accentColor}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* SMOOTH RAP Section */}
-          <section>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Gem className="w-5 h-5 text-primary" />
-              Smooth Rap
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {smoothRapContent.map((item) => (
-                <ListeningModeCard
-                  key={item.contentId}
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  contentId={item.contentId}
-                  contentType={item.contentType}
-                  icon={item.icon}
-                  accentColor={item.accentColor}
-                />
-              ))}
-            </div>
-          </section>
+        <div className="max-w-5xl mx-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>
