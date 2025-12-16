@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,19 +130,41 @@ const smoothRapContent = [
   }
 ];
 
+// LO-FI Content - Steven Beddall
+const lofiContent = [
+  {
+    title: "🌌 Steven Beddall — Ambient Textures",
+    subtitle: "Ambient lo-fi textures for focus and clarity",
+    contentId: "1MkWXjIV9V2NprI20SsbC1",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-indigo-500/20 to-slate-500/5"
+  },
+  {
+    title: "🌙 Steven Beddall — Late Night Atmospheres",
+    subtitle: "Late-night lo-fi atmospheres and calm vibes",
+    contentId: "4E7CSAcCmqSH00SYVSNvFz",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-slate-500/20 to-indigo-500/5"
+  }
+];
+
 // Build all content with genres for recommendations
 const allContent: ContentItem[] = [
   ...genres.map(g => ({ id: g.contentId, title: g.title, subtitle: g.subtitle, genre: 'vibes', contentType: g.contentType })),
   ...rapPlaylists.map(r => ({ id: r.contentId, title: r.title, subtitle: r.subtitle, genre: 'rap', contentType: r.contentType })),
   ...smoothRapContent.map(s => ({ id: s.contentId, title: s.title, subtitle: s.subtitle, genre: 'smooth-rap', contentType: s.contentType })),
+  ...lofiContent.map(l => ({ id: l.contentId, title: l.title, subtitle: l.subtitle, genre: 'lofi', contentType: l.contentType })),
 ];
 
-type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'favorites';
+type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'lofi' | 'favorites';
 
 const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
   { id: 'vibes', label: 'Vibes', icon: Music },
   { id: 'rap', label: 'RAP', icon: Mic },
   { id: 'smooth-rap', label: 'Smooth Rap', icon: Gem },
+  { id: 'lofi', label: 'LO-FI', icon: CloudMoon },
 ];
 
 const moodTabs: { id: MoodType; label: string; icon: typeof Brain }[] = [
@@ -194,6 +216,7 @@ const ListeningMode = () => {
   const filteredGenres = useMemo(() => filterItems(filterByMood(genres, 'vibes')), [searchQuery, activeMood]);
   const filteredRap = useMemo(() => filterItems(filterByMood(rapPlaylists, 'rap')), [searchQuery, activeMood]);
   const filteredSmoothRap = useMemo(() => filterItems(filterByMood(smoothRapContent, 'smooth-rap')), [searchQuery, activeMood]);
+  const filteredLofi = useMemo(() => filterItems(filterByMood(lofiContent, 'lofi')), [searchQuery, activeMood]);
   const filteredFavorites = useMemo(() => {
     let filtered = favorites;
     if (activeMood !== 'all') {
@@ -220,13 +243,13 @@ const ListeningMode = () => {
   }, [favorites.length]);
 
   const getIconForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.icon;
   };
 
   const getAccentForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.accentColor || 'from-primary/20 to-primary/5';
   };
@@ -327,6 +350,40 @@ const ListeningMode = () => {
                   title: item.title,
                   subtitle: item.subtitle,
                   genre: 'smooth-rap',
+                  contentType: item.contentType
+                })}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptySearchState query={searchQuery} mood={activeMood} />
+        );
+      case 'lofi':
+        return filteredLofi.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredLofi.map((item, index) => (
+              <ListeningModeCard
+                key={item.contentId}
+                title={item.title}
+                subtitle={item.subtitle}
+                contentId={item.contentId}
+                contentType={item.contentType}
+                icon={item.icon}
+                accentColor={item.accentColor}
+                index={index}
+                isFavorite={isFavorite(item.contentId)}
+                onToggleFavorite={() => handleToggleFavorite({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'lofi',
+                  contentType: item.contentType
+                })}
+                onInteraction={() => handleCardInteraction({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'lofi',
                   contentType: item.contentType
                 })}
               />

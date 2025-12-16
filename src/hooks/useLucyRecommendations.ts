@@ -30,6 +30,12 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
     moods.push('focus'); // All vibes are good for focus
   }
   
+  // LO-FI genre always gets Focus and Late Night moods
+  if (lowerGenre === 'lofi') {
+    moods.push('focus');
+    moods.push('late-night');
+  }
+  
   // Hustle moods: Rap, Motivation
   if (lowerGenre === 'rap' || lowerGenre === 'smooth-rap') {
     moods.push('hustle');
@@ -38,7 +44,7 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
     moods.push('hustle');
   }
   
-  // Late Night moods: R&B, Soul, Smooth Rap
+  // Late Night moods: R&B, Soul, Smooth Rap, Lo-Fi
   if (lowerTitle.includes('r&b') || lowerTitle.includes('smooth') || lowerTitle.includes('vibes')) {
     moods.push('late-night');
   }
