@@ -34,10 +34,20 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      console.log('[context-analyzer] LOVABLE_API_KEY not configured, skipping analysis');
+      return new Response(JSON.stringify({ 
+        topics: [],
+        preferences: {},
+        keyFacts: [],
+        suggestions: [],
+        unresolvedQuestions: [],
+        skipped: true
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log('Analyzing context for conversation:', conversationId);
+    console.log('[context-analyzer] Analyzing context for conversation:', conversationId);
 
     // Get current date/time for temporal context
     const now = new Date();
@@ -50,38 +60,23 @@ serve(async (req) => {
       minute: '2-digit'
     });
 
-    // Build conversation summary
-    const conversationText = messages.map((m: any) => 
-      `${m.role}: ${m.content}`
+    // Build conversation summary (limit to prevent token overflow)
+    const recentMessages = messages.slice(-5);
+    const conversationText = recentMessages.map((m: any) => 
+      `${m.role}: ${m.content?.substring(0, 500) || ''}`
     ).join('\n\n');
 
-    const analysisPrompt = `You are analyzing a conversation with 2025-level modern intelligence.
-
-**CURRENT CONTEXT:**
-• Date/Time: ${currentDateTime}
-• Year: ${currentYear}
-• Knowledge cutoff: November 2025
-
-Analyze this conversation and extract:
-1. Key topics discussed
-2. User preferences or patterns
-3. Important facts or context to remember
-4. Proactive suggestions that would help the user next
-5. Any unresolved questions or concerns
-
-Respond with JSON:
-{
-  "topics": ["topic1", "topic2"],
-  "preferences": {"key": "value"},
-  "keyFacts": ["fact1", "fact2"],
-  "suggestions": [
-    {"type": "follow_up", "text": "suggestion text", "relevance": 0.9}
-  ],
-  "unresolvedQuestions": ["question1"]
-}
+    const analysisPrompt = `Analyze this conversation briefly and extract key context.
 
 Conversation:
-${conversationText.substring(0, 4000)}`;
+${conversationText.substring(0, 2000)}
+
+Respond with JSON only:
+{
+  "topics": ["topic1", "topic2"],
+  "preferences": {},
+  "suggestions": ["helpful follow-up suggestion"]
+}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -90,43 +85,59 @@ ${conversationText.substring(0, 4000)}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'system',
-            content: `You are a context analyzer with 2025-level modern intelligence that extracts key insights from conversations.
-
-TEMPORAL AWARENESS: Current year is ${currentYear}. Current date/time is ${currentDateTime}. Use present-day context when analyzing user needs and preferences.
-
-Respond only with valid JSON.`
+            content: `You are a context analyzer. Extract key topics and preferences from conversations. Respond only with valid JSON. Current year: ${currentYear}.`
           },
           {
             role: 'user',
             content: analysisPrompt
           }
         ],
+        max_tokens: 500,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Context analysis failed');
+      const errorText = await response.text();
+      console.error('[context-analyzer] AI gateway error:', response.status, errorText);
+      // Return empty results instead of throwing - this is a non-critical feature
+      return new Response(JSON.stringify({ 
+        topics: [],
+        preferences: {},
+        keyFacts: [],
+        suggestions: [],
+        unresolvedQuestions: [],
+        error: 'Analysis unavailable'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '{}';
     
-    let analysis = {};
+    let analysis = {
+      topics: [],
+      preferences: {},
+      keyFacts: [],
+      suggestions: [],
+      unresolvedQuestions: []
+    };
+    
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        analysis = { ...analysis, ...parsed };
       }
     } catch (e) {
-      console.error('Failed to parse context analysis:', e);
+      console.error('[context-analyzer] Failed to parse response:', e);
     }
 
-    // Store context summary in database (future enhancement)
-    // await supabase.from('conversation_context').insert({...})
+    console.log('[context-analyzer] Analysis complete:', analysis.topics);
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -142,7 +153,6 @@ Respond only with valid JSON.`
       suggestions: [],
       unresolvedQuestions: []
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
