@@ -11,7 +11,7 @@ import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverla
 import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 import { FocusModeProvider, useFocusMode } from "@/hooks/useFocusMode";
 import { CursorGlowOverlay } from "@/components/ambient/CursorGlowOverlay";
-import { ChatAmbientPlayer } from "@/components/chat/ChatAmbientPlayer";
+// ChatAmbientPlayer removed - music player now in header via HeaderMusicPlayer
 
 // Inner component that uses the weather context
 const ChatContent = () => {
@@ -87,7 +87,7 @@ const ChatContent = () => {
             transition-all duration-500
           "
           >
-            <ChatAmbientPlayer />
+            {/* Music player moved to header - HeaderMusicPlayer in ChatInterface */}
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}

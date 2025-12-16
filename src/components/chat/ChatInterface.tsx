@@ -20,6 +20,7 @@ import { SmartSceneSuggestion } from "./SmartSceneSuggestion";
 import { ChatSettings } from "./ChatSettings";
 import { ReadingProgressBar } from "./ReadingProgressBar";
 import { TimestampDivider } from "./TimestampDivider";
+import { HeaderMusicPlayer } from "./HeaderMusicPlayer";
 import { useSmartSceneSuggestion } from "@/hooks/useSmartSceneSuggestion";
 import { useMemoryManager } from "@/hooks/useMemoryManager";
 import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
@@ -33,7 +34,6 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { NewMessageDivider } from "./NewMessageDivider";
-// ThemePicker import removed - now using ColorThemeSelector in sidebar
 
 interface ChatInterfaceProps {
   userId: string;
@@ -426,25 +426,29 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
-      {/* ThemePicker removed - now in sidebar ColorThemeSelector */}
-
-      {/* HEADER - minimal styling */}
-      <header className="h-12 md:h-14 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 flex-shrink-0">
+      {/* HEADER - with integrated music player */}
+      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 border-b border-border/20 flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />
-          <div>
-            <h1 className="font-semibold text-foreground">{conversationTitle}</h1>
+          <div className="hidden sm:block">
+            <h1 className="font-semibold text-foreground text-sm">{conversationTitle}</h1>
             <p className="text-xs text-muted-foreground">Divine Intelligence</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        {/* Center: Music Player */}
+        <div className="flex-1 flex justify-center px-4">
+          <HeaderMusicPlayer />
+        </div>
+        
+        <div className="flex items-center gap-1.5">
           {isAdmin && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/admin")}
-              className="glass-card border-primary/30 hover:shadow-glow-violet"
+              className="glass-card border-primary/30 hover:shadow-glow-violet hidden md:flex"
             >
               <Shield className="w-4 h-4 mr-2" />
               <Badge variant="default" className="bg-gradient-primary">
@@ -461,27 +465,27 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           <MemoryPanel userId={userId} />
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => setShowSearch(true)}
-            className="glass-card border-primary/30"
+            className="glass-card border-primary/30 h-8 w-8"
           >
             <Search className="w-4 h-4" />
           </Button>
           {conversationId && (
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setShowExport(true)}
-              className="glass-card border-primary/30"
+              className="glass-card border-primary/30 h-8 w-8"
             >
               <Download className="w-4 h-4" />
             </Button>
           )}
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => setShowModelSelector(!showModelSelector)}
-            className="glass-card border-primary/30"
+            className="glass-card border-primary/30 h-8 w-8"
           >
             <Settings2 className="w-4 h-4" />
           </Button>
