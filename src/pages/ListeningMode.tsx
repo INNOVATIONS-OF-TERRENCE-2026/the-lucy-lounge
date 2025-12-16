@@ -1,7 +1,38 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
+
+const genres = [
+  {
+    title: "R&B Vibes",
+    subtitle: "Curated R&B for smooth listening",
+    playlistId: "1kMyrcNKPws587cSAOjyDP",
+    icon: Heart,
+    accentColor: "from-pink-500/20 to-rose-500/5"
+  },
+  {
+    title: "Jazz Vibes",
+    subtitle: "Smooth jazz for focus and relaxation",
+    playlistId: "37i9dQZF1DXbITWG1ZJKYt",
+    icon: Music,
+    accentColor: "from-amber-500/20 to-orange-500/5"
+  },
+  {
+    title: "Lo-Fi Vibes",
+    subtitle: "Chill beats to study and relax",
+    playlistId: "37i9dQZF1DWWQRwui0ExPn",
+    icon: Coffee,
+    accentColor: "from-violet-500/20 to-purple-500/5"
+  },
+  {
+    title: "Ambient Vibes",
+    subtitle: "Atmospheric sounds for deep focus",
+    playlistId: "37i9dQZF1DX3Ogo9pFvBkY",
+    icon: Waves,
+    accentColor: "from-cyan-500/20 to-teal-500/5"
+  }
+];
 
 const ListeningMode = () => {
   const navigate = useNavigate();
@@ -35,13 +66,19 @@ const ListeningMode = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto space-y-8">
-          {/* R&B Genre Card */}
-          <ListeningModeCard
-            title="R&B Vibes"
-            subtitle="Curated R&B for smooth listening"
-            playlistId="1kMyrcNKPws587cSAOjyDP"
-          />
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {genres.map((genre) => (
+              <ListeningModeCard
+                key={genre.playlistId}
+                title={genre.title}
+                subtitle={genre.subtitle}
+                playlistId={genre.playlistId}
+                icon={genre.icon}
+                accentColor={genre.accentColor}
+              />
+            ))}
+          </div>
         </div>
       </main>
     </div>
