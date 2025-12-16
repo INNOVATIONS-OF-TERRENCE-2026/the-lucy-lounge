@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { IntroScreen } from "@/components/branding/IntroScreen";
 import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvider";
+import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
+import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
@@ -87,20 +89,22 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
+      <GlobalSpotifyProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
 
-        {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+          {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-        <IOSAudioUnlockProvider />
+          <IOSAudioUnlockProvider />
+          <GlobalSpotifyAudioHost />
 
-        <InstallPrompt />
-        <OfflineBanner />
+          <InstallPrompt />
+          <OfflineBanner />
 
-        <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
-          <BrowserRouter>
-            <AnalyticsTracker />
+          <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
+            <BrowserRouter>
+              <AnalyticsTracker />
 
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -155,10 +159,11 @@ const App = () => {
               <Route path="/room/:roomId" element={<RoomChat />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </TooltipProvider>
+              </Routes>
+            </BrowserRouter>
+          </div>
+        </TooltipProvider>
+      </GlobalSpotifyProvider>
     </QueryClientProvider>
   );
 };

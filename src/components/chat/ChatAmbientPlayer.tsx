@@ -10,13 +10,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useGlobalSpotify } from "@/contexts/GlobalSpotifyContext";
 
 // Shared playlist IDs matching Listening Mode
 const genres = [
-  { id: 'lofi', label: 'Lo-Fi', spotifyId: '0vvXsWCC9xrXsKd4FyS8kM', type: 'playlist' },
-  { id: 'jazz', label: 'Jazz', spotifyId: '37i9dQZF1DWV7EzJMK2FUI', type: 'playlist' },
-  { id: 'rnb', label: 'R&B', spotifyId: '37i9dQZF1DWXnexX7CktaI', type: 'playlist' },
-  { id: 'ambient', label: 'Ambient', spotifyId: '37i9dQZF1DWYoYGBbGKurt', type: 'playlist' },
+  { id: 'lofi', label: 'Lo-Fi', spotifyId: '37i9dQZF1DWWQRwui0ExPn' },
+  { id: 'jazz', label: 'Jazz', spotifyId: '37i9dQZF1DX0SM0LYsmbMT' },
+  { id: 'rnb', label: 'R&B', spotifyId: '37i9dQZF1DX4SBhb3fqCJd' },
+  { id: 'ambient', label: 'Ambient', spotifyId: '37i9dQZF1DX3Ogo9pFvBkY' },
+  { id: 'rap', label: 'Rap', spotifyId: '37i9dQZF1DX0XUsuxWHRQd' },
+  { id: 'smooth-rap', label: 'Smooth', spotifyId: '37i9dQZF1DWUzFXarNiofw' },
 ] as const;
 
 type GenreId = typeof genres[number]['id'];
@@ -26,6 +29,8 @@ const genreLabels: Record<GenreId, string> = {
   jazz: 'Jazz Vibes',
   rnb: 'R&B Mix',
   ambient: 'Ambient Chill',
+  rap: 'Rap Hits',
+  'smooth-rap': 'Smooth Vibes',
 };
 
 // Genre accent classes for theme-aware styling
@@ -54,6 +59,18 @@ const genreAccentClasses: Record<GenreId, { bg: string; text: string; glow: stri
     glow: 'shadow-[0_0_20px_hsl(var(--genre-ambient)/0.4)]',
     border: 'border-genre-ambient/40',
   },
+  rap: {
+    bg: 'bg-genre-rap/20',
+    text: 'text-genre-rap',
+    glow: 'shadow-[0_0_20px_hsl(var(--genre-rap)/0.4)]',
+    border: 'border-genre-rap/40',
+  },
+  'smooth-rap': {
+    bg: 'bg-genre-smooth-rap/20',
+    text: 'text-genre-smooth-rap',
+    glow: 'shadow-[0_0_20px_hsl(var(--genre-smooth-rap)/0.4)]',
+    border: 'border-genre-smooth-rap/40',
+  },
 };
 
 // Animated waveform bars component
@@ -79,20 +96,17 @@ const NowPlayingWaveform = ({ className }: { className?: string }) => (
 
 export const ChatAmbientPlayer = () => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [activeGenre, setActiveGenre] = useState<GenreId>('lofi');
-  const [showSpotifyDrawer, setShowSpotifyDrawer] = useState(false);
+  const { state, setPlaylist, toggleDrawer } = useGlobalSpotify();
+  
+  const activeGenre = (state.currentGenre || 'lofi') as GenreId;
+  const showSpotifyDrawer = state.isDrawerOpen;
+  const accentClasses = genreAccentClasses[activeGenre] || genreAccentClasses.lofi;
 
-  const currentGenre = genres.find(g => g.id === activeGenre) || genres[0];
-  const spotifyEmbedUrl = `https://open.spotify.com/embed/${currentGenre.type}/${currentGenre.spotifyId}?utm_source=generator&theme=0`;
-  const accentClasses = genreAccentClasses[activeGenre];
-
-  const handleGenreChange = (genre: GenreId) => {
-    setActiveGenre(genre);
-    setShowSpotifyDrawer(true);
-  };
-
-  const toggleSpotifyDrawer = () => {
-    setShowSpotifyDrawer(!showSpotifyDrawer);
+  const handleGenreChange = (genre: typeof genres[number]) => {
+    setPlaylist(genre.spotifyId, genre.id);
+    if (!showSpotifyDrawer) {
+      toggleDrawer();
+    }
   };
 
   return (
@@ -105,48 +119,6 @@ export const ChatAmbientPlayer = () => {
         "sm:bottom-24 sm:right-6"
       )}
     >
-      {/* Spotify Control Drawer */}
-      <AnimatePresence>
-        {showSpotifyDrawer && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, y: 20 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={cn(
-              "backdrop-blur-xl bg-background/30 border border-border/30",
-              "rounded-2xl shadow-lg overflow-hidden",
-              accentClasses.glow
-            )}
-          >
-            <div className="p-2">
-              <div className="flex items-center justify-between px-2 pb-2">
-                <span className={cn("text-xs flex items-center gap-1.5", accentClasses.text)}>
-                  <Headphones className="w-3 h-3" />
-                  Control via Spotify
-                </span>
-                <button
-                  onClick={() => setShowSpotifyDrawer(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </div>
-              <iframe
-                src={spotifyEmbedUrl}
-                width="300"
-                height="152"
-                frameBorder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                title="Spotify Player"
-                className="rounded-xl"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Main Player UI */}
       <motion.div
         className={cn(
@@ -205,7 +177,7 @@ export const ChatAmbientPlayer = () => {
                       showSpotifyDrawer ? accentClasses.text : "text-foreground"
                     )}
                     animate={{
-                      x: genreLabels[activeGenre].length > 12 ? [0, -40, 0] : 0,
+                      x: (genreLabels[activeGenre]?.length || 0) > 12 ? [0, -40, 0] : 0,
                     }}
                     transition={{
                       duration: 6,
@@ -213,7 +185,7 @@ export const ChatAmbientPlayer = () => {
                       ease: "linear",
                     }}
                   >
-                    {showSpotifyDrawer ? "Now Playing" : genreLabels[activeGenre]}
+                    {showSpotifyDrawer ? "Now Playing" : genreLabels[activeGenre] || 'Select Genre'}
                   </motion.span>
                 </div>
                 
@@ -240,7 +212,7 @@ export const ChatAmbientPlayer = () => {
                   return (
                     <button
                       key={genre.id}
-                      onClick={() => handleGenreChange(genre.id)}
+                      onClick={() => handleGenreChange(genre)}
                       className={cn(
                         "px-2.5 py-1 text-xs rounded-full transition-all duration-200",
                         "border",
@@ -267,7 +239,7 @@ export const ChatAmbientPlayer = () => {
                       ? cn(accentClasses.bg, accentClasses.text, accentClasses.border, accentClasses.glow)
                       : "bg-primary/20 hover:bg-primary/30 border-primary/30 text-primary"
                   )}
-                  onClick={toggleSpotifyDrawer}
+                  onClick={toggleDrawer}
                 >
                   {showSpotifyDrawer ? (
                     <>
@@ -297,13 +269,13 @@ export const ChatAmbientPlayer = () => {
                 <Music className={cn("w-4 h-4", accentClasses.text)} />
               )}
               <span className={cn("text-xs", showSpotifyDrawer ? accentClasses.text : "text-muted-foreground")}>
-                {showSpotifyDrawer ? "Now Playing" : genreLabels[activeGenre]}
+                {showSpotifyDrawer ? "Now Playing" : genreLabels[activeGenre] || 'Music'}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 rounded-full"
-                onClick={toggleSpotifyDrawer}
+                onClick={toggleDrawer}
               >
                 {showSpotifyDrawer ? (
                   <Pause className="w-3 h-3" />
