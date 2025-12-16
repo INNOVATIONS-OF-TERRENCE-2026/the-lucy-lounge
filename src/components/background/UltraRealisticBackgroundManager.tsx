@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { EnhancedBackgroundVideo } from './EnhancedBackgroundVideo';
 import { EnvironmentalEffects } from './EnvironmentalEffects';
-import { EnhancedAudioPlayer } from './EnhancedAudioPlayer';
 import { ChatActivityOverlay } from './ChatActivityOverlay';
 import { ParallaxLayer } from './ParallaxLayer';
 import { useChatActivitySync } from '@/hooks/useChatActivitySync';
@@ -28,7 +27,6 @@ export const UltraRealisticBackgroundManager = ({
   effectsEnabled,
 }: UltraRealisticBackgroundManagerProps) => {
   const { activity, triggerTyping, triggerNewMessage } = useChatActivitySync();
-  const [autoLowerAudio] = useState(true);
 
   // Expose activity triggers globally for chat integration
   if (typeof window !== 'undefined') {
@@ -60,12 +58,7 @@ export const UltraRealisticBackgroundManager = ({
         />
       )}
 
-      <EnhancedAudioPlayer
-        theme={theme}
-        enabled={audioEnabled}
-        volume={audioVolume}
-        autoLowerOnActivity={autoLowerAudio}
-      />
+      {/* Audio now handled by GlobalSpotifyAudioHost */}
 
       <ChatActivityOverlay
         isTyping={activity.isTyping}
