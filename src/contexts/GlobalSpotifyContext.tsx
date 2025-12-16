@@ -1,4 +1,7 @@
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
+
+// AUDIT FIX: localStorage keys for persistence
+const STORAGE_KEY = 'lucy-spotify-state';
 
 interface SpotifyState {
   currentContentId: string | null;
@@ -19,15 +22,49 @@ interface GlobalSpotifyContextType {
 const GlobalSpotifyContext = createContext<GlobalSpotifyContextType | null>(null);
 
 // HC-04: NO DEFAULT PLAYLIST - Boot in silence
-const INITIAL_STATE: SpotifyState = {
-  currentContentId: null,
-  currentGenre: null,
-  contentType: 'playlist',
-  isDrawerOpen: false,
+// PERSISTENCE: Restore selection only (not play state)
+const getInitialState = (): SpotifyState => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Restore selection state ONLY, drawer stays closed
+      return {
+        currentContentId: parsed.currentContentId || null,
+        currentGenre: parsed.currentGenre || null,
+        contentType: parsed.contentType || 'playlist',
+        isDrawerOpen: false, // NEVER auto-open drawer
+      };
+    }
+  } catch (e) {
+    // localStorage unavailable or corrupt
+  }
+  return {
+    currentContentId: null,
+    currentGenre: null,
+    contentType: 'playlist',
+    isDrawerOpen: false,
+  };
 };
 
 export const GlobalSpotifyProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<SpotifyState>(INITIAL_STATE);
+  const [state, setState] = useState<SpotifyState>(getInitialState);
+
+  // PERSISTENCE: Save to localStorage when selection changes
+  useEffect(() => {
+    if (state.currentContentId) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          currentContentId: state.currentContentId,
+          currentGenre: state.currentGenre,
+          contentType: state.contentType,
+          // DO NOT persist: isDrawerOpen, play/pause, volume
+        }));
+      } catch (e) {
+        // localStorage unavailable
+      }
+    }
+  }, [state.currentContentId, state.currentGenre, state.contentType]);
 
   // HC-09: ONE WAY DATA FLOW - Only way to change playback
   const setPlayback = useCallback((contentId: string, genre: string, contentType: 'playlist' | 'album' = 'playlist') => {

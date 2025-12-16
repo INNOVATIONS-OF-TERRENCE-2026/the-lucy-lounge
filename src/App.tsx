@@ -11,6 +11,7 @@ import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvide
 import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
 import { LucyDJProvider } from "@/contexts/LucyDJContext";
 import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
+import { GlobalMiniPlayer } from "@/components/audio/GlobalMiniPlayer";
 import { LucySuggestionDrawer } from "@/components/chat/LucySuggestionDrawer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
@@ -101,6 +102,7 @@ const App = () => {
 
             <IOSAudioUnlockProvider />
             <GlobalSpotifyAudioHost />
+            <GlobalMiniPlayer />
             <LucySuggestionDrawer />
 
           <InstallPrompt />
