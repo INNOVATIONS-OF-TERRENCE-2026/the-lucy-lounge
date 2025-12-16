@@ -12,6 +12,7 @@ import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmb
 import { FocusModeProvider, useFocusMode } from "@/hooks/useFocusMode";
 import { AudioManagerProvider } from "@/hooks/useAudioManager";
 import { CursorGlowOverlay } from "@/components/ambient/CursorGlowOverlay";
+import { ChatAmbientPlayer } from "@/components/chat/ChatAmbientPlayer";
 
 // Inner component that uses the weather context
 const ChatContent = () => {
@@ -82,11 +83,12 @@ const ChatContent = () => {
 
           <div
             className="
-            flex flex-col flex-1 h-full w-full overflow-visible
+            relative flex flex-col flex-1 h-full w-full overflow-visible
             bg-[var(--bg-2)]
             transition-all duration-500
           "
           >
+            <ChatAmbientPlayer />
             <ChatInterface
               userId={user?.id}
               conversationId={currentConversationId}
