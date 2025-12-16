@@ -130,8 +130,9 @@ const smoothRapContent = [
   }
 ];
 
-// LO-FI Content - Steven Beddall
+// LO-FI Content - Curated Artists
 const lofiContent = [
+  // Steven Beddall
   {
     title: "🌌 Steven Beddall — Ambient Textures",
     subtitle: "Ambient lo-fi textures for focus and clarity",
@@ -147,6 +148,92 @@ const lofiContent = [
     contentType: "album" as const,
     icon: CloudMoon,
     accentColor: "from-slate-500/20 to-indigo-500/5"
+  },
+  // Jinsang
+  {
+    title: "🎧 Jinsang — Life",
+    subtitle: "Classic lo-fi hip-hop for deep focus",
+    contentId: "3Kv1xSxuNeMFvdXVb7tEXe",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-teal-500/20 to-cyan-500/5"
+  },
+  {
+    title: "🌸 Jinsang — Solitude",
+    subtitle: "Melancholic beats for introspective moments",
+    contentId: "6bEwlXAYCTYl3vfvZ9hG8T",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-pink-500/20 to-rose-500/5"
+  },
+  // Idealism
+  {
+    title: "✨ Idealism — From Within",
+    subtitle: "Soulful lo-fi instrumentals for clarity",
+    contentId: "1Q8s0GK4mOeTHdCpmj9vLC",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-amber-500/20 to-orange-500/5"
+  },
+  {
+    title: "🌿 Idealism — Raindrop",
+    subtitle: "Organic textures and peaceful vibes",
+    contentId: "0P3XzGD2iKYCpFhSqVHdVA",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-emerald-500/20 to-green-500/5"
+  },
+  // Tomppabeats
+  {
+    title: "⛵ Tomppabeats — Harbor",
+    subtitle: "Nostalgic lo-fi beats for late nights",
+    contentId: "5FzKsN2CqpnSMXpX6JWJkr",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-blue-500/20 to-sky-500/5"
+  },
+  {
+    title: "🌅 Tomppabeats — Overseas",
+    subtitle: "Dreamy soundscapes for wandering minds",
+    contentId: "4aJpwcLuFpWE5iJ9HvRUqH",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-violet-500/20 to-purple-500/5"
+  },
+  // Kupla
+  {
+    title: "🦉 Kupla — Owls",
+    subtitle: "Nordic lo-fi with organic textures",
+    contentId: "5RjXxlQJd5hQaQ3g2dQhaM",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-stone-500/20 to-neutral-500/5"
+  },
+  {
+    title: "🌲 Kupla — Distant Islands",
+    subtitle: "Nature-inspired beats for focus sessions",
+    contentId: "1xCk3pLjfuQqsT4G3LGbX5",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-lime-500/20 to-green-500/5"
+  },
+  // J'san
+  {
+    title: "☕ J'san — Coffee Break",
+    subtitle: "Warm lo-fi for productive mornings",
+    contentId: "7tZqH9jKGxFQeN2PxMcFwm",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-yellow-500/20 to-amber-500/5"
+  },
+  // Birocratic
+  {
+    title: "🎹 Birocratic — Beets 4",
+    subtitle: "Jazzy lo-fi with playful energy",
+    contentId: "5Y0p2XCgRRIjna91AQC29d",
+    contentType: "album" as const,
+    icon: CloudMoon,
+    accentColor: "from-fuchsia-500/20 to-pink-500/5"
   }
 ];
 
