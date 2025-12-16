@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
+import { useRecentlyPlayed, RecentlyPlayedItem } from "@/hooks/useRecentlyPlayed";
 
 const genres = [
   {
@@ -139,6 +140,11 @@ const ListeningMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<GenreTab>('vibes');
   const [searchQuery, setSearchQuery] = useState('');
+  const { recentlyPlayed, addRecentlyPlayed } = useRecentlyPlayed();
+
+  const handleCardInteraction = (item: RecentlyPlayedItem) => {
+    addRecentlyPlayed(item);
+  };
 
   const filterItems = <T extends { title: string; subtitle: string }>(items: T[]) => {
     if (!searchQuery.trim()) return items;
@@ -167,6 +173,13 @@ const ListeningMode = () => {
                 icon={genre.icon}
                 accentColor={genre.accentColor}
                 index={index}
+                onInteraction={() => handleCardInteraction({
+                  id: genre.contentId,
+                  title: genre.title,
+                  subtitle: genre.subtitle,
+                  genre: 'vibes',
+                  contentType: genre.contentType
+                })}
               />
             ))}
           </div>
@@ -186,6 +199,13 @@ const ListeningMode = () => {
                 icon={playlist.icon}
                 accentColor={playlist.accentColor}
                 index={index}
+                onInteraction={() => handleCardInteraction({
+                  id: playlist.contentId,
+                  title: playlist.title,
+                  subtitle: playlist.subtitle,
+                  genre: 'rap',
+                  contentType: playlist.contentType
+                })}
               />
             ))}
           </div>
@@ -205,6 +225,13 @@ const ListeningMode = () => {
                 icon={item.icon}
                 accentColor={item.accentColor}
                 index={index}
+                onInteraction={() => handleCardInteraction({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'smooth-rap',
+                  contentType: item.contentType
+                })}
               />
             ))}
           </div>
@@ -308,6 +335,45 @@ const ListeningMode = () => {
           </div>
         </div>
       </div>
+
+      {/* Recently Played Section */}
+      <AnimatePresence>
+        {recentlyPlayed.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border-b border-border/50 bg-muted/20"
+          >
+            <div className="container mx-auto px-4 py-6">
+              <div className="max-w-5xl mx-auto">
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">Recently Played</h2>
+                    <p className="text-xs text-muted-foreground">Your latest vibes</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                  {recentlyPlayed.map((item, index) => (
+                    <ListeningModeCard
+                      key={item.id}
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      contentId={item.id}
+                      contentType={item.contentType}
+                      accentColor="from-primary/20 to-primary/5"
+                      index={index}
+                      compact
+                      onInteraction={() => handleCardInteraction(item)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
