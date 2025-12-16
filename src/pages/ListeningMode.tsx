@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa, Cloud } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa, Cloud, Flame, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -388,6 +388,88 @@ const ambientContent = [
   }
 ];
 
+// New Releases - Curated fresh drops
+type NewReleaseItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  genre: 'ambient' | 'lofi' | 'rnb' | 'rap' | 'smooth-rap' | 'vibes';
+  contentType: 'album' | 'playlist';
+  releaseWindowDays: 30 | 60;
+  featured?: boolean;
+};
+
+const newReleases: NewReleaseItem[] = [
+  // Lucy Picks (Featured)
+  {
+    id: "07w0rG5TETcyihsEIZR3qG",
+    title: "✨ SZA — SOS",
+    subtitle: "Modern R&B evolution at its finest",
+    genre: "rnb",
+    contentType: "album",
+    releaseWindowDays: 30,
+    featured: true
+  },
+  {
+    id: "1T1OfO5B9g3wFT2z4s4R8J",
+    title: "🌸 Bonobo — Fragments",
+    subtitle: "Delicate ambient textures",
+    genre: "ambient",
+    contentType: "album",
+    releaseWindowDays: 30,
+    featured: true
+  },
+  // Recent Additions
+  {
+    id: "3w3SrcCrHjJFPyVxn2AKDS",
+    title: "🦋 Snoh Aalegra — Temporary Highs",
+    subtitle: "Cinematic R&B for late nights",
+    genre: "rnb",
+    contentType: "album",
+    releaseWindowDays: 30
+  },
+  {
+    id: "3ShtO5VCYa3ctlR5uzLWBa",
+    title: "🌊 Tycho — Weather",
+    subtitle: "Atmospheric electronic warmth",
+    genre: "ambient",
+    contentType: "album",
+    releaseWindowDays: 30
+  },
+  {
+    id: "6bEwlXAYCTYl3vfvZ9hG8T",
+    title: "🌸 Jinsang — Solitude",
+    subtitle: "Melancholic lo-fi introspection",
+    genre: "lofi",
+    contentType: "album",
+    releaseWindowDays: 30
+  },
+  {
+    id: "4aJpwcLuFpWE5iJ9HvRUqH",
+    title: "🌅 Tomppabeats — Overseas",
+    subtitle: "Dreamy soundscapes for wanderers",
+    genre: "lofi",
+    contentType: "album",
+    releaseWindowDays: 60
+  },
+  {
+    id: "1mF5PyMXQiW4YXGP3OJpFN",
+    title: "💜 Daniel Caesar — Case Study 01",
+    subtitle: "Experimental R&B smooth melodies",
+    genre: "rnb",
+    contentType: "album",
+    releaseWindowDays: 60
+  },
+  {
+    id: "4qMzPtAZe0C9KWpWIzvZAP",
+    title: "🌙 Emancipator — Dusk to Dawn",
+    subtitle: "Ethereal ambient sessions",
+    genre: "ambient",
+    contentType: "album",
+    releaseWindowDays: 60
+  }
+];
+
 // Build all content with genres for recommendations
 const allContent: ContentItem[] = [
   ...genres.map(g => ({ id: g.contentId, title: g.title, subtitle: g.subtitle, genre: 'vibes', contentType: g.contentType })),
@@ -423,6 +505,7 @@ const ListeningMode = () => {
   const [activeTab, setActiveTab] = useState<GenreTab>('vibes');
   const [activeMood, setActiveMood] = useState<MoodType>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [releaseWindow, setReleaseWindow] = useState<30 | 60>(30);
   const { recentlyPlayed, addRecentlyPlayed } = useRecentlyPlayed();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   
@@ -432,6 +515,47 @@ const ListeningMode = () => {
     favorites,
     activeMood
   });
+
+  // Filter and sort new releases
+  const filteredNewReleases = useMemo(() => {
+    const recentIds = new Set(recentlyPlayed.map(r => r.id));
+    const favoriteIds = new Set(favorites.map(f => f.id));
+    
+    // Filter by release window and search
+    let filtered = newReleases.filter(item => item.releaseWindowDays <= releaseWindow);
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        item => item.title.toLowerCase().includes(query) || item.subtitle.toLowerCase().includes(query)
+      );
+    }
+    
+    // Score and sort
+    const scored = filtered.map(item => {
+      let score = 0;
+      const moods = getMoodTags(item.genre, item.title);
+      
+      // Featured (Lucy Pick) gets highest priority
+      if (item.featured) score += 100;
+      
+      // Mood relevance
+      if (activeMood !== 'all' && moods.includes(activeMood)) score += 40;
+      
+      // Favorites overlap
+      if (favoriteIds.has(item.id)) score += 30;
+      
+      // Recently played overlap
+      if (recentIds.has(item.id)) score += 20;
+      
+      return { item, score };
+    });
+    
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
+      .map(s => s.item);
+  }, [releaseWindow, searchQuery, activeMood, recentlyPlayed, favorites]);
 
   const handleCardInteraction = (item: RecentlyPlayedItem) => {
     addRecentlyPlayed(item);
@@ -806,6 +930,97 @@ const ListeningMode = () => {
           </div>
         </div>
       </header>
+
+      {/* New Releases Section */}
+      <section className="border-b border-border/50 bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-yellow-500/5">
+        <div className="container mx-auto px-4 py-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Flame className="w-5 h-5 text-orange-500" />
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">New Releases</h2>
+                  <p className="text-xs text-muted-foreground">Fresh drops Lucy thinks you'll love</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+                <Button
+                  variant={releaseWindow === 30 ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setReleaseWindow(30)}
+                  className="text-xs h-7 px-3"
+                >
+                  30 Days
+                </Button>
+                <Button
+                  variant={releaseWindow === 60 ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setReleaseWindow(60)}
+                  className="text-xs h-7 px-3"
+                >
+                  60 Days
+                </Button>
+              </div>
+            </div>
+            
+            {filteredNewReleases.length > 0 ? (
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                {filteredNewReleases.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative"
+                  >
+                    {item.featured && (
+                      <div className="absolute -top-2 -right-2 z-10 flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-lg">
+                        <Crown className="w-3 h-3" />
+                        Lucy Pick
+                      </div>
+                    )}
+                    <ListeningModeCard
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      contentId={item.id}
+                      contentType={item.contentType}
+                      icon={getIconForContent(item.id)}
+                      accentColor={getAccentForContent(item.id)}
+                      index={index}
+                      compact
+                      isFavorite={isFavorite(item.id)}
+                      onToggleFavorite={() => handleToggleFavorite({
+                        id: item.id,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        genre: item.genre,
+                        contentType: item.contentType
+                      })}
+                      onInteraction={() => handleCardInteraction({
+                        id: item.id,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        genre: item.genre,
+                        contentType: item.contentType
+                      })}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-8"
+              >
+                <Clock className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">Lucy's curating the next wave.</p>
+                <p className="text-xs text-muted-foreground/70 mt-1">Check back soon.</p>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Lucy Recommends Section */}
       <AnimatePresence>
