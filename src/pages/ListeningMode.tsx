@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
 
@@ -31,6 +31,30 @@ const genres = [
     playlistId: "37i9dQZF1DX3Ogo9pFvBkY",
     icon: Waves,
     accentColor: "from-cyan-500/20 to-teal-500/5"
+  }
+];
+
+const rapPlaylists = [
+  {
+    title: "🔥 Best of Jeezy",
+    subtitle: "Street anthems and trap classics",
+    playlistId: "62FBSHL4fu93EYWT18tgL7",
+    icon: Mic,
+    accentColor: "from-red-500/20 to-orange-500/5"
+  },
+  {
+    title: "🏁 Best of Nipsey Hussle",
+    subtitle: "Marathon energy, West Coast legacy",
+    playlistId: "1SIx1DgtH8YrQoiq4Wx4L2",
+    icon: Mic,
+    accentColor: "from-blue-500/20 to-indigo-500/5"
+  },
+  {
+    title: "🐬 Best of Young Dolph",
+    subtitle: "Memphis hustle, boss motivation",
+    playlistId: "5TkM6OUHeFujrujopXrzua",
+    icon: Mic,
+    accentColor: "from-emerald-500/20 to-teal-500/5"
   }
 ];
 
@@ -66,19 +90,46 @@ const ListeningMode = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {genres.map((genre) => (
-              <ListeningModeCard
-                key={genre.playlistId}
-                title={genre.title}
-                subtitle={genre.subtitle}
-                playlistId={genre.playlistId}
-                icon={genre.icon}
-                accentColor={genre.accentColor}
-              />
-            ))}
-          </div>
+        <div className="max-w-5xl mx-auto space-y-12">
+          {/* Vibes Section */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Music className="w-5 h-5 text-primary" />
+              Vibes
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {genres.map((genre) => (
+                <ListeningModeCard
+                  key={genre.playlistId}
+                  title={genre.title}
+                  subtitle={genre.subtitle}
+                  playlistId={genre.playlistId}
+                  icon={genre.icon}
+                  accentColor={genre.accentColor}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* RAP Section */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Mic className="w-5 h-5 text-primary" />
+              RAP
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {rapPlaylists.map((playlist) => (
+                <ListeningModeCard
+                  key={playlist.playlistId}
+                  title={playlist.title}
+                  subtitle={playlist.subtitle}
+                  playlistId={playlist.playlistId}
+                  icon={playlist.icon}
+                  accentColor={playlist.accentColor}
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </main>
     </div>
