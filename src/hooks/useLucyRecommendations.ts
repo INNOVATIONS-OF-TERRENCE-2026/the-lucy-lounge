@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { RecentlyPlayedItem } from './useRecentlyPlayed';
 import { FavoriteItem } from './useFavorites';
 
-export type MoodType = 'all' | 'focus' | 'study' | 'hustle' | 'late-night';
+export type MoodType = 'all' | 'focus' | 'study' | 'hustle' | 'late-night' | 'chill';
 
 export interface ContentItem {
   id: string;
@@ -65,6 +65,17 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
   }
   if (lowerGenre === 'smooth-rap') {
     moods.push('late-night');
+  }
+  if (lowerGenre === 'rnb') {
+    moods.push('late-night');
+  }
+  
+  // Chill mood: R&B, Smooth Rap, Lo-Fi, relaxed content
+  if (lowerGenre === 'rnb' || lowerGenre === 'smooth-rap' || lowerGenre === 'lofi') {
+    moods.push('chill');
+  }
+  if (lowerTitle.includes('chill') || lowerTitle.includes('relax') || lowerTitle.includes('smooth') || lowerTitle.includes('vibe')) {
+    moods.push('chill');
   }
   
   // Remove duplicates
