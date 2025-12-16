@@ -585,6 +585,39 @@ export type Database = {
         }
         Relationships: []
       }
+      listening_favorites: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          genre: string
+          id: string
+          subtitle: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          genre: string
+          id?: string
+          subtitle?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          genre?: string
+          id?: string
+          subtitle?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
