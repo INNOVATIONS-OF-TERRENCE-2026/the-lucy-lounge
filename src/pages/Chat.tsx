@@ -10,7 +10,6 @@ import { CosmicBackground } from "@/components/cosmic/CosmicBackground";
 import { WeatherEffectsOverlay } from "@/components/ambient/WeatherEffectsOverlay";
 import { WeatherAmbientProvider, useWeatherAmbient } from "@/hooks/useWeatherAmbient";
 import { FocusModeProvider, useFocusMode } from "@/hooks/useFocusMode";
-import { AudioManagerProvider } from "@/hooks/useAudioManager";
 import { CursorGlowOverlay } from "@/components/ambient/CursorGlowOverlay";
 import { ChatAmbientPlayer } from "@/components/chat/ChatAmbientPlayer";
 
@@ -105,11 +104,9 @@ const ChatContent = () => {
 const Chat = () => {
   return (
     <FocusModeProvider>
-      <AudioManagerProvider>
-        <WeatherAmbientProvider>
-          <ChatContent />
-        </WeatherAmbientProvider>
-      </AudioManagerProvider>
+      <WeatherAmbientProvider>
+        <ChatContent />
+      </WeatherAmbientProvider>
     </FocusModeProvider>
   );
 };

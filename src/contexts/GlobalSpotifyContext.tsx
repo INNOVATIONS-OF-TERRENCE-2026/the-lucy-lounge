@@ -1,14 +1,15 @@
-import { createContext, useContext, useRef, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 interface SpotifyState {
   currentPlaylistId: string;
   currentGenre: string;
+  contentType: 'playlist' | 'album';
   isDrawerOpen: boolean;
 }
 
 interface GlobalSpotifyContextType {
   state: SpotifyState;
-  setPlaylist: (playlistId: string, genre: string) => void;
+  setPlaylist: (playlistId: string, genre: string, contentType?: 'playlist' | 'album') => void;
   openDrawer: () => void;
   closeDrawer: () => void;
   toggleDrawer: () => void;
@@ -24,14 +25,16 @@ export const GlobalSpotifyProvider = ({ children }: { children: ReactNode }) => 
   const [state, setState] = useState<SpotifyState>({
     currentPlaylistId: DEFAULT_PLAYLIST,
     currentGenre: DEFAULT_GENRE,
+    contentType: 'playlist',
     isDrawerOpen: false,
   });
 
-  const setPlaylist = useCallback((playlistId: string, genre: string) => {
+  const setPlaylist = useCallback((playlistId: string, genre: string, contentType: 'playlist' | 'album' = 'playlist') => {
     setState(prev => ({
       ...prev,
       currentPlaylistId: playlistId,
       currentGenre: genre,
+      contentType,
     }));
   }, []);
 
@@ -48,8 +51,8 @@ export const GlobalSpotifyProvider = ({ children }: { children: ReactNode }) => 
   }, []);
 
   const getIframeSrc = useCallback(() => {
-    return `https://open.spotify.com/embed/playlist/${state.currentPlaylistId}?utm_source=generator&theme=0`;
-  }, [state.currentPlaylistId]);
+    return `https://open.spotify.com/embed/${state.contentType}/${state.currentPlaylistId}?utm_source=generator&theme=0`;
+  }, [state.currentPlaylistId, state.contentType]);
 
   return (
     <GlobalSpotifyContext.Provider

@@ -39,7 +39,7 @@ export const ListeningModeCard = ({
 
   const handlePlay = () => {
     // Set the global playlist and open the drawer
-    setPlaylist(contentId, genre);
+    setPlaylist(contentId, genre, contentType);
     openDrawer();
     
     if (onInteraction) {

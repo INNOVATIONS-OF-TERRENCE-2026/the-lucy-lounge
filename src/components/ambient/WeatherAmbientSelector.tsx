@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Cloud, 
   CloudRain, 
@@ -15,13 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   Focus,
-  Volume2,
-  VolumeX,
   Music,
-  SkipForward,
-  Shuffle,
-  Pause,
-  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -29,7 +23,7 @@ import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { WeatherMode, SeasonMode, useWeatherAmbient } from '@/hooks/useWeatherAmbient';
 import { useFocusMode } from '@/hooks/useFocusMode';
-import { useAudioManager, MusicGenre } from '@/hooks/useAudioManager';
+import { useGlobalSpotify } from '@/contexts/GlobalSpotifyContext';
 
 const WEATHER_OPTIONS: { mode: WeatherMode; icon: React.ElementType; label: string }[] = [
   { mode: 'clear', icon: X, label: 'Clear' },
@@ -51,12 +45,12 @@ const SEASON_OPTIONS: { mode: SeasonMode; icon: React.ElementType; label: string
   { mode: 'winter', icon: TreeDeciduous, label: 'Winter' },
 ];
 
-const MUSIC_OPTIONS: { genre: MusicGenre; label: string }[] = [
-  { genre: 'none', label: 'Off' },
-  { genre: 'jazz', label: 'Jazz' },
-  { genre: 'rnb', label: "90's R&B" },
-  { genre: 'lofi', label: 'Lo-Fi' },
-  { genre: 'ambient', label: 'Ambient' },
+// Spotify playlist IDs for music genres
+const SPOTIFY_GENRES = [
+  { id: 'lofi', label: 'Lo-Fi', spotifyId: '37i9dQZF1DWWQRwui0ExPn' },
+  { id: 'jazz', label: 'Jazz', spotifyId: '37i9dQZF1DX0SM0LYsmbMT' },
+  { id: 'rnb', label: "R&B", spotifyId: '37i9dQZF1DX4SBhb3fqCJd' },
+  { id: 'ambient', label: 'Ambient', spotifyId: '37i9dQZF1DX3Ogo9pFvBkY' },
 ];
 
 export const WeatherAmbientSelector = () => {
@@ -72,81 +66,22 @@ export const WeatherAmbientSelector = () => {
     setEnabled 
   } = useWeatherAmbient();
   const { focusMode, toggleFocusMode } = useFocusMode();
-  const {
-    audioState,
-    currentMusic,
-    currentTrackName,
-    volume,
-    soundEnabled,
-    musicEnabled,
-    shuffleEnabled,
-    isPlaying,
-    setSoundEnabled,
-    setMusicEnabled,
-    setShuffleEnabled,
-    setVolume,
-    playWeatherSound,
-    playMusic,
-    stopAll,
-    skipTrack,
-    togglePlayPause,
-  } = useAudioManager();
+  const { state, setPlaylist, toggleDrawer } = useGlobalSpotify();
 
   const activeWeatherOption = WEATHER_OPTIONS.find(w => w.mode === weather);
   const activeSeasonOption = SEASON_OPTIONS.find(s => s.mode === season);
 
-  // Trigger weather sound when weather/season changes and sound is enabled
-  useEffect(() => {
-    if (soundEnabled && enabled && !focusMode && weather !== 'clear') {
-      playWeatherSound(weather, season);
-    } else if (!soundEnabled || !enabled || focusMode || weather === 'clear') {
-      if (audioState === 'weather') {
-        stopAll();
-      }
-    }
-  }, [weather, season, soundEnabled, enabled, focusMode]);
-
   const handleWeatherChange = (mode: WeatherMode) => {
     setWeather(mode);
-    if (soundEnabled && enabled && !focusMode && mode !== 'clear') {
-      playWeatherSound(mode, season);
-    }
   };
 
   const handleSeasonChange = (mode: SeasonMode) => {
     setSeason(mode);
-    if (soundEnabled && enabled && !focusMode && weather !== 'clear') {
-      playWeatherSound(weather, mode);
-    }
   };
 
-  const handleSoundToggle = () => {
-    const newEnabled = !soundEnabled;
-    setSoundEnabled(newEnabled);
-    if (newEnabled && enabled && !focusMode && weather !== 'clear') {
-      playWeatherSound(weather, season);
-    } else if (!newEnabled) {
-      stopAll();
-    }
-    // Disable music when sound is enabled
-    if (newEnabled) {
-      setMusicEnabled(false);
-    }
-  };
-
-  const handleMusicSelect = (genre: MusicGenre) => {
-    if (genre === 'none') {
-      setMusicEnabled(false);
-      stopAll();
-    } else {
-      setMusicEnabled(true);
-      setSoundEnabled(false);
-      playMusic(genre);
-    }
-  };
-
-  const handleShuffleToggle = () => {
-    setShuffleEnabled(!shuffleEnabled);
+  const handleMusicSelect = (genre: typeof SPOTIFY_GENRES[number]) => {
+    setPlaylist(genre.spotifyId, genre.id);
+    toggleDrawer();
   };
 
   return (
@@ -204,84 +139,26 @@ export const WeatherAmbientSelector = () => {
           </Button>
         </div>
 
-        {/* Sound Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            {soundEnabled && !focusMode ? (
-              <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
-            ) : (
-              <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
-            )}
-            <span className="text-xs text-muted-foreground">Weather Sound</span>
-          </div>
-          <Button
-            variant={soundEnabled && !focusMode ? "default" : "outline"}
-            size="sm"
-            className="h-6 text-xs px-2"
-            onClick={handleSoundToggle}
-            disabled={focusMode}
-          >
-            {soundEnabled && !focusMode ? 'On' : 'Off'}
-          </Button>
-        </div>
-
-        {/* Shuffle Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Shuffle className={cn(
-              "h-3.5 w-3.5",
-              shuffleEnabled ? "text-primary" : "text-muted-foreground"
-            )} />
-            <span className="text-xs text-muted-foreground">Shuffle Mode</span>
-          </div>
-          <Button
-            variant={shuffleEnabled ? "default" : "outline"}
-            size="sm"
-            className="h-6 text-xs px-2"
-            onClick={handleShuffleToggle}
-            disabled={focusMode}
-          >
-            {shuffleEnabled ? 'On' : 'Off'}
-          </Button>
-        </div>
-
-        {/* Volume Slider */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Volume</span>
-            <span className="text-xs text-muted-foreground">{Math.round(volume * 100)}%</span>
-          </div>
-          <Slider
-            value={[volume * 100]}
-            onValueChange={([val]) => setVolume(val / 100)}
-            min={0}
-            max={100}
-            step={5}
-            disabled={focusMode}
-            className="w-full"
-          />
-        </div>
-
-        {/* Music Selection */}
+        {/* Music Selection - Now uses Spotify */}
         <div className="space-y-2">
           <div className="flex items-center gap-1.5">
             <Music className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Music Genre</span>
+            <span className="text-xs text-muted-foreground">Music (Spotify)</span>
           </div>
-          <div className="grid grid-cols-5 gap-1">
-            {MUSIC_OPTIONS.map(({ genre, label }) => (
+          <div className="grid grid-cols-4 gap-1">
+            {SPOTIFY_GENRES.map((genre) => (
               <Button
-                key={genre}
-                variant={currentMusic === genre ? "default" : "ghost"}
+                key={genre.id}
+                variant={state.currentGenre === genre.id ? "default" : "ghost"}
                 size="sm"
                 className={cn(
                   "h-7 text-[10px] p-1",
-                  currentMusic === genre && "ring-1 ring-primary"
+                  state.currentGenre === genre.id && "ring-1 ring-primary"
                 )}
                 onClick={() => handleMusicSelect(genre)}
                 disabled={focusMode}
               >
-                {label}
+                {genre.label}
               </Button>
             ))}
           </div>
@@ -350,38 +227,23 @@ export const WeatherAmbientSelector = () => {
           />
         </div>
 
-        {/* Now Playing Display with Pause and Skip Buttons */}
-        {(audioState === 'weather' || audioState === 'music') && currentTrackName && !focusMode && (
+        {/* Spotify Now Playing Indicator */}
+        {state.isDrawerOpen && !focusMode && (
           <div className="flex items-center justify-between gap-2 py-2 px-2 rounded-md bg-primary/5 border border-primary/10">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] text-muted-foreground truncate">Now Playing</p>
-                {shuffleEnabled && (
-                  <Shuffle className="h-2.5 w-2.5 text-primary/60" />
-                )}
-              </div>
-              <p className="text-xs font-medium text-foreground/90 truncate">{currentTrackName}</p>
+              <p className="text-[10px] text-muted-foreground truncate">Now Playing</p>
+              <p className="text-xs font-medium text-foreground/90 truncate">
+                {state.currentGenre.toUpperCase()} via Spotify
+              </p>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 hover:bg-primary/10"
-                onClick={togglePlayPause}
-                title={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 hover:bg-primary/10"
-                onClick={skipTrack}
-                title="Skip to next track"
-              >
-                <SkipForward className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[10px] px-2"
+              onClick={toggleDrawer}
+            >
+              {state.isDrawerOpen ? 'Hide' : 'Show'}
+            </Button>
           </div>
         )}
 
@@ -389,14 +251,12 @@ export const WeatherAmbientSelector = () => {
         <div className="pt-1 border-t border-border/50">
           <p className="text-[10px] text-center text-muted-foreground">
             {focusMode 
-              ? 'Focus Mode Active • All Audio Stopped'
-              : audioState === 'music' && currentMusic !== 'none'
-                ? `${MUSIC_OPTIONS.find(m => m.genre === currentMusic)?.label || 'Music'} Playlist${shuffleEnabled ? ' • Shuffle' : ''}`
-                : audioState === 'weather' && weather !== 'clear'
-                  ? `${activeWeatherOption?.label} Mix${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''}${shuffleEnabled ? ' • Shuffle' : ''}`
-                  : enabled && weather !== 'clear' 
-                    ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''} (Visual Only)`
-                    : 'No effects active'
+              ? 'Focus Mode Active'
+              : state.isDrawerOpen
+                ? `${state.currentGenre.toUpperCase()} • Spotify`
+                : enabled && weather !== 'clear' 
+                  ? `${activeWeatherOption?.label}${season !== 'none' ? ` • ${activeSeasonOption?.label}` : ''} (Visual Only)`
+                  : 'No effects active'
             }
           </p>
         </div>
