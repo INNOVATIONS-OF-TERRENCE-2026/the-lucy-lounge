@@ -70,7 +70,7 @@ const ChatContent = () => {
         <div
           className="
           flex flex-row w-screen h-screen max-h-screen overflow-hidden
-          bg-[var(--bg-1)] text-[var(--text)]
+          bg-[var(--theme-bg-1)] text-[var(--theme-text)]
           transition-all duration-500
         "
         >
@@ -83,7 +83,7 @@ const ChatContent = () => {
           <div
             className="
             relative flex flex-col flex-1 h-full w-full overflow-visible
-            bg-[var(--bg-2)]
+            bg-[var(--theme-bg-2)]
             transition-all duration-500
           "
           >
