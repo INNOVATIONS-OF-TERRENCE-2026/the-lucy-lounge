@@ -26,7 +26,8 @@ import {
   Settings,
   Shield,
   Folder,
-  Tag as TagIcon
+  Tag as TagIcon,
+  Headphones
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SettingsModal } from "./SettingsModal";
@@ -279,6 +280,14 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             >
               <MessageSquarePlus className="w-4 h-4 mr-2" />
               Studios
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/listening-mode")}
+            >
+              <Headphones className="w-4 h-4 mr-2" />
+              Listening Mode
             </Button>
             {isAdmin && (
               <Button
