@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa, Cloud, Flame, Crown, Home } from "lucide-react";
+import { ErrorBoundary } from "@/components/system/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1270,4 +1271,11 @@ const ListeningMode = () => {
   );
 };
 
-export default ListeningMode;
+// Wrap with ErrorBoundary for crash protection
+const ListeningModeWithBoundary = () => (
+  <ErrorBoundary routeTag="LISTENING_MODE" fallbackMessage="Listening Mode failed to load.">
+    <ListeningMode />
+  </ErrorBoundary>
+);
+
+export default ListeningModeWithBoundary;
