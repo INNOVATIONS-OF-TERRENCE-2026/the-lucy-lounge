@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen, Sofa, Cloud } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -309,6 +309,85 @@ const lofiContent = [
   }
 ];
 
+// Ambient Content - Tycho, Bonobo, Emancipator
+const ambientContent = [
+  // Tycho
+  {
+    title: "🌅 Tycho — Dive",
+    subtitle: "Warm ambient soundscapes for deep focus",
+    contentId: "6IK80FcQ0vDiLAPpZ23Wvq",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-sky-500/20 to-cyan-500/5"
+  },
+  {
+    title: "☀️ Tycho — Awake",
+    subtitle: "Uplifting electronic ambience",
+    contentId: "1dJhMH6MFmH6JHsqz4e4H3",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-amber-500/20 to-orange-500/5"
+  },
+  {
+    title: "🌊 Tycho — Weather",
+    subtitle: "Atmospheric textures with organic warmth",
+    contentId: "3ShtO5VCYa3ctlR5uzLWBa",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-teal-500/20 to-emerald-500/5"
+  },
+  // Bonobo
+  {
+    title: "🌿 Bonobo — Migration",
+    subtitle: "Cinematic ambient electronic journey",
+    contentId: "5m1RkwKeU7MV0Ni6KI6OVU",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-emerald-500/20 to-green-500/5"
+  },
+  {
+    title: "🖤 Bonobo — Black Sands",
+    subtitle: "Iconic downtempo ambient masterpiece",
+    contentId: "5qLMXDgTrLZP2EvISw8Wqz",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-slate-500/20 to-neutral-500/5"
+  },
+  {
+    title: "🌸 Bonobo — Fragments",
+    subtitle: "Delicate ambient textures and rhythms",
+    contentId: "1T1OfO5B9g3wFT2z4s4R8J",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-pink-500/20 to-rose-500/5"
+  },
+  // Emancipator
+  {
+    title: "🌲 Emancipator — Soon It Will Be Cold Enough",
+    subtitle: "Organic ambient with string arrangements",
+    contentId: "0v1XpBHnsbkCn7iJ8aQWFt",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-stone-500/20 to-amber-500/5"
+  },
+  {
+    title: "✨ Emancipator — Safe In The Steep Cliffs",
+    subtitle: "Lush ambient soundscapes for meditation",
+    contentId: "6YabEJJ2x5fOIzJC5sWFQo",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-violet-500/20 to-purple-500/5"
+  },
+  {
+    title: "🌙 Emancipator — Dusk to Dawn",
+    subtitle: "Ethereal ambient for late night sessions",
+    contentId: "4qMzPtAZe0C9KWpWIzvZAP",
+    contentType: "album" as const,
+    icon: Cloud,
+    accentColor: "from-indigo-500/20 to-blue-500/5"
+  }
+];
+
 // Build all content with genres for recommendations
 const allContent: ContentItem[] = [
   ...genres.map(g => ({ id: g.contentId, title: g.title, subtitle: g.subtitle, genre: 'vibes', contentType: g.contentType })),
@@ -316,9 +395,10 @@ const allContent: ContentItem[] = [
   ...smoothRapContent.map(s => ({ id: s.contentId, title: s.title, subtitle: s.subtitle, genre: 'smooth-rap', contentType: s.contentType })),
   ...lofiContent.map(l => ({ id: l.contentId, title: l.title, subtitle: l.subtitle, genre: 'lofi', contentType: l.contentType })),
   ...rnbContent.map(r => ({ id: r.contentId, title: r.title, subtitle: r.subtitle, genre: 'rnb', contentType: r.contentType })),
+  ...ambientContent.map(a => ({ id: a.contentId, title: a.title, subtitle: a.subtitle, genre: 'ambient', contentType: a.contentType })),
 ];
 
-type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'lofi' | 'rnb' | 'favorites';
+type GenreTab = 'vibes' | 'rap' | 'smooth-rap' | 'lofi' | 'rnb' | 'ambient' | 'favorites';
 
 const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
   { id: 'vibes', label: 'Vibes', icon: Music },
@@ -326,6 +406,7 @@ const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
   { id: 'rap', label: 'RAP', icon: Mic },
   { id: 'smooth-rap', label: 'Smooth Rap', icon: Gem },
   { id: 'lofi', label: 'LO-FI', icon: CloudMoon },
+  { id: 'ambient', label: 'Ambient', icon: Cloud },
 ];
 
 const moodTabs: { id: MoodType; label: string; icon: typeof Brain }[] = [
@@ -381,6 +462,7 @@ const ListeningMode = () => {
   const filteredSmoothRap = useMemo(() => filterItems(filterByMood(smoothRapContent, 'smooth-rap')), [searchQuery, activeMood]);
   const filteredLofi = useMemo(() => filterItems(filterByMood(lofiContent, 'lofi')), [searchQuery, activeMood]);
   const filteredRnb = useMemo(() => filterItems(filterByMood(rnbContent, 'rnb')), [searchQuery, activeMood]);
+  const filteredAmbient = useMemo(() => filterItems(filterByMood(ambientContent, 'ambient')), [searchQuery, activeMood]);
   const filteredFavorites = useMemo(() => {
     let filtered = favorites;
     if (activeMood !== 'all') {
@@ -407,13 +489,13 @@ const ListeningMode = () => {
   }, [favorites.length]);
 
   const getIconForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent, ...ambientContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.icon;
   };
 
   const getAccentForContent = (contentId: string) => {
-    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent];
+    const all = [...genres, ...rapPlaylists, ...smoothRapContent, ...lofiContent, ...rnbContent, ...ambientContent];
     const found = all.find(c => c.contentId === contentId);
     return found?.accentColor || 'from-primary/20 to-primary/5';
   };
@@ -582,6 +664,40 @@ const ListeningMode = () => {
                   title: item.title,
                   subtitle: item.subtitle,
                   genre: 'lofi',
+                  contentType: item.contentType
+                })}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptySearchState query={searchQuery} mood={activeMood} />
+        );
+      case 'ambient':
+        return filteredAmbient.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredAmbient.map((item, index) => (
+              <ListeningModeCard
+                key={item.contentId}
+                title={item.title}
+                subtitle={item.subtitle}
+                contentId={item.contentId}
+                contentType={item.contentType}
+                icon={item.icon}
+                accentColor={item.accentColor}
+                index={index}
+                isFavorite={isFavorite(item.contentId)}
+                onToggleFavorite={() => handleToggleFavorite({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'ambient',
+                  contentType: item.contentType
+                })}
+                onInteraction={() => handleCardInteraction({
+                  id: item.contentId,
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  genre: 'ambient',
                   contentType: item.contentType
                 })}
               />

@@ -37,6 +37,14 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
     moods.push('late-night');
   }
   
+  // Ambient genre gets Focus, Study, Chill, Late Night moods
+  if (lowerGenre === 'ambient') {
+    moods.push('focus');
+    moods.push('study');
+    moods.push('chill');
+    moods.push('late-night');
+  }
+  
   // Study mood: deep focus, minimal distraction
   if (
     lowerTitle.includes('instrumental') ||
