@@ -33,13 +33,14 @@ export const ListeningModeCard = ({
   showFavoriteButton = true,
   genre = 'lofi'
 }: ListeningModeCardProps) => {
-  const { setPlaylist, openDrawer, state } = useGlobalSpotify();
+  const { state, setPlayback, openDrawer } = useGlobalSpotify();
   
-  const isCurrentlyPlaying = state.currentPlaylistId === contentId;
+  // HC-05: Compare against currentContentId
+  const isCurrentlyPlaying = state.currentContentId === contentId;
 
+  // HC-03 & HC-09: User-initiated only, one-way data flow
   const handlePlay = () => {
-    // Set the global playlist and open the drawer
-    setPlaylist(contentId, genre, contentType);
+    setPlayback(contentId, genre, contentType);
     openDrawer();
     
     if (onInteraction) {
