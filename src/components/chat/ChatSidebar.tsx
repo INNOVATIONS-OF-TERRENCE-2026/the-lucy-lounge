@@ -27,7 +27,8 @@ import {
   Shield,
   Folder,
   Tag as TagIcon,
-  Headphones
+  Headphones,
+  Home
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SettingsModal } from "./SettingsModal";
@@ -273,6 +274,15 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             {/* Weather & Seasons Ambient Selector - Standalone Component */}
             <WeatherAmbientSelector />
             
+            {/* Home Button - Navigate without logout */}
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/")}
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Button>
             <Button
               variant="outline"
               className="w-full justify-start"
