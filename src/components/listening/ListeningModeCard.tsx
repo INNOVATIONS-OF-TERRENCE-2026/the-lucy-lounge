@@ -1,6 +1,7 @@
-import { LucideIcon, Star, Play } from "lucide-react";
+import { LucideIcon, Star, Play, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGlobalSpotify } from "@/contexts/GlobalSpotifyContext";
+import { useLucyDJ } from "@/contexts/LucyDJContext";
 
 interface ListeningModeCardProps {
   title: string;
@@ -34,14 +35,17 @@ export const ListeningModeCard = ({
   genre = 'lofi'
 }: ListeningModeCardProps) => {
   const { state, setPlayback, openDrawer } = useGlobalSpotify();
+  const { isLucyPick, recordSelection } = useLucyDJ();
   
   // HC-05: Compare against currentContentId
   const isCurrentlyPlaying = state.currentContentId === contentId;
+  const isLucyRecommended = isLucyPick(genre);
 
   // HC-03 & HC-09: User-initiated only, one-way data flow
   const handlePlay = () => {
     setPlayback(contentId, genre, contentType);
     openDrawer();
+    recordSelection(genre); // Record for Lucy DJ learning
     
     if (onInteraction) {
       onInteraction();
@@ -72,6 +76,20 @@ export const ListeningModeCard = ({
         compact ? 'p-4 min-w-[280px] max-w-[320px]' : 'p-6'
       } ${isCurrentlyPlaying ? 'ring-2 ring-primary/50' : ''}`}
     >
+      {/* Lucy Pick Badge */}
+      {isLucyRecommended && !isCurrentlyPlaying && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute -top-2 -left-2 z-10"
+        >
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-primary text-white text-[10px] font-medium shadow-lg">
+            <Sparkles className="w-2.5 h-2.5" />
+            Lucy Pick
+          </div>
+        </motion.div>
+      )}
+
       {/* Favorite Button */}
       {showFavoriteButton && onToggleFavorite && (
         <button
