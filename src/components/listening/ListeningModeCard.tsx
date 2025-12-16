@@ -4,7 +4,8 @@ import { SpotifyEmbed } from "./SpotifyEmbed";
 interface ListeningModeCardProps {
   title: string;
   subtitle: string;
-  playlistId: string;
+  contentId: string;
+  contentType?: 'playlist' | 'album';
   icon?: LucideIcon;
   accentColor?: string;
 }
@@ -12,7 +13,8 @@ interface ListeningModeCardProps {
 export const ListeningModeCard = ({ 
   title, 
   subtitle, 
-  playlistId,
+  contentId,
+  contentType = 'playlist',
   icon: Icon,
   accentColor = "from-primary/20 to-primary/5"
 }: ListeningModeCardProps) => {
@@ -25,7 +27,7 @@ export const ListeningModeCard = ({
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         </div>
       </div>
-      <SpotifyEmbed playlistId={playlistId} title={title} />
+      <SpotifyEmbed contentId={contentId} type={contentType} title={title} />
     </div>
   );
 };

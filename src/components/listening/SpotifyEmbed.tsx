@@ -1,15 +1,16 @@
 interface SpotifyEmbedProps {
-  playlistId: string;
+  contentId: string;
+  type?: 'playlist' | 'album';
   title?: string;
 }
 
-export const SpotifyEmbed = ({ playlistId, title }: SpotifyEmbedProps) => {
+export const SpotifyEmbed = ({ contentId, type = 'playlist', title }: SpotifyEmbedProps) => {
   return (
     <iframe
       data-testid="embed-iframe"
-      title={title || "Spotify Playlist"}
+      title={title || `Spotify ${type}`}
       style={{ borderRadius: '12px' }}
-      src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator`}
+      src={`https://open.spotify.com/embed/${type}/${contentId}?utm_source=generator`}
       width="100%"
       height="352"
       frameBorder="0"
