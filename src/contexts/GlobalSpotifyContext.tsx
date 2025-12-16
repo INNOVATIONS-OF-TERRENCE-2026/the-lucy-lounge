@@ -1,38 +1,39 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 
 interface SpotifyState {
-  currentPlaylistId: string;
-  currentGenre: string;
+  currentContentId: string | null;
+  currentGenre: string | null;
   contentType: 'playlist' | 'album';
   isDrawerOpen: boolean;
 }
 
 interface GlobalSpotifyContextType {
   state: SpotifyState;
-  setPlaylist: (playlistId: string, genre: string, contentType?: 'playlist' | 'album') => void;
+  iframeSrc: string | null;
+  setPlayback: (contentId: string, genre: string, contentType?: 'playlist' | 'album') => void;
   openDrawer: () => void;
   closeDrawer: () => void;
   toggleDrawer: () => void;
-  getIframeSrc: () => string;
 }
 
 const GlobalSpotifyContext = createContext<GlobalSpotifyContextType | null>(null);
 
-const DEFAULT_PLAYLIST = '37i9dQZF1DWWQRwui0ExPn'; // lofi beats
-const DEFAULT_GENRE = 'lofi';
+// HC-04: NO DEFAULT PLAYLIST - Boot in silence
+const INITIAL_STATE: SpotifyState = {
+  currentContentId: null,
+  currentGenre: null,
+  contentType: 'playlist',
+  isDrawerOpen: false,
+};
 
 export const GlobalSpotifyProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<SpotifyState>({
-    currentPlaylistId: DEFAULT_PLAYLIST,
-    currentGenre: DEFAULT_GENRE,
-    contentType: 'playlist',
-    isDrawerOpen: false,
-  });
+  const [state, setState] = useState<SpotifyState>(INITIAL_STATE);
 
-  const setPlaylist = useCallback((playlistId: string, genre: string, contentType: 'playlist' | 'album' = 'playlist') => {
+  // HC-09: ONE WAY DATA FLOW - Only way to change playback
+  const setPlayback = useCallback((contentId: string, genre: string, contentType: 'playlist' | 'album' = 'playlist') => {
     setState(prev => ({
       ...prev,
-      currentPlaylistId: playlistId,
+      currentContentId: contentId,
       currentGenre: genre,
       contentType,
     }));
@@ -50,19 +51,21 @@ export const GlobalSpotifyProvider = ({ children }: { children: ReactNode }) => 
     setState(prev => ({ ...prev, isDrawerOpen: !prev.isDrawerOpen }));
   }, []);
 
-  const getIframeSrc = useCallback(() => {
-    return `https://open.spotify.com/embed/${state.contentType}/${state.currentPlaylistId}?utm_source=generator&theme=0`;
-  }, [state.currentPlaylistId, state.contentType]);
+  // HC-05: SRC IMMUTABILITY - useMemo, depends ONLY on contentId and contentType
+  const iframeSrc = useMemo(() => {
+    if (!state.currentContentId) return null;
+    return `https://open.spotify.com/embed/${state.contentType}/${state.currentContentId}?utm_source=generator&theme=0`;
+  }, [state.currentContentId, state.contentType]);
 
   return (
     <GlobalSpotifyContext.Provider
       value={{
         state,
-        setPlaylist,
+        iframeSrc,
+        setPlayback,
         openDrawer,
         closeDrawer,
         toggleDrawer,
-        getIframeSrc,
       }}
     >
       {children}

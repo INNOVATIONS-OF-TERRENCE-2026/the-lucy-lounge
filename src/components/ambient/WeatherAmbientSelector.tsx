@@ -66,7 +66,7 @@ export const WeatherAmbientSelector = () => {
     setEnabled 
   } = useWeatherAmbient();
   const { focusMode, toggleFocusMode } = useFocusMode();
-  const { state, setPlaylist, toggleDrawer } = useGlobalSpotify();
+  const { state, setPlayback, toggleDrawer } = useGlobalSpotify();
 
   const activeWeatherOption = WEATHER_OPTIONS.find(w => w.mode === weather);
   const activeSeasonOption = SEASON_OPTIONS.find(s => s.mode === season);
@@ -79,8 +79,9 @@ export const WeatherAmbientSelector = () => {
     setSeason(mode);
   };
 
+  // HC-03 & HC-09: User-initiated only, one-way data flow
   const handleMusicSelect = (genre: typeof SPOTIFY_GENRES[number]) => {
-    setPlaylist(genre.spotifyId, genre.id);
+    setPlayback(genre.spotifyId, genre.id, 'playlist');
     toggleDrawer();
   };
 

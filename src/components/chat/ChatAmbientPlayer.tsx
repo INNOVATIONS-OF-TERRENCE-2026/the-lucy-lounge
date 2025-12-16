@@ -96,14 +96,16 @@ const NowPlayingWaveform = ({ className }: { className?: string }) => (
 
 export const ChatAmbientPlayer = () => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const { state, setPlaylist, toggleDrawer } = useGlobalSpotify();
+  const { state, setPlayback, toggleDrawer } = useGlobalSpotify();
   
-  const activeGenre = (state.currentGenre || 'lofi') as GenreId;
+  // HC-04: No default - activeGenre can be null
+  const activeGenre = state.currentGenre ? (state.currentGenre.toLowerCase() as GenreId) : null;
   const showSpotifyDrawer = state.isDrawerOpen;
-  const accentClasses = genreAccentClasses[activeGenre] || genreAccentClasses.lofi;
+  const accentClasses = activeGenre ? genreAccentClasses[activeGenre] : genreAccentClasses.lofi;
 
+  // HC-03 & HC-09: User-initiated only, one-way data flow
   const handleGenreChange = (genre: typeof genres[number]) => {
-    setPlaylist(genre.spotifyId, genre.id);
+    setPlayback(genre.spotifyId, genre.id, 'playlist');
     if (!showSpotifyDrawer) {
       toggleDrawer();
     }
