@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X, Clock, Sparkles, Brain, Zap, Moon, Star, CloudMoon, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,6 +170,7 @@ const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
 const moodTabs: { id: MoodType; label: string; icon: typeof Brain }[] = [
   { id: 'all', label: 'All Moods', icon: Sparkles },
   { id: 'focus', label: 'Focus', icon: Brain },
+  { id: 'study', label: 'Study', icon: BookOpen },
   { id: 'hustle', label: 'Hustle', icon: Zap },
   { id: 'late-night', label: 'Late Night', icon: Moon },
 ];
@@ -434,6 +435,11 @@ const ListeningMode = () => {
         <>
           <p className="text-muted-foreground">No results for "{query}"</p>
           <p className="text-sm text-muted-foreground/70 mt-1">Try a different search term</p>
+        </>
+      ) : mood === 'study' ? (
+        <>
+          <p className="text-muted-foreground">Lucy is building your perfect study vibe</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">Try the LO-FI or Vibes genre</p>
         </>
       ) : (
         <>

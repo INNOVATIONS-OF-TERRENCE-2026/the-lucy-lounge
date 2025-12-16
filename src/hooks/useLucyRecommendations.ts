@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { RecentlyPlayedItem } from './useRecentlyPlayed';
 import { FavoriteItem } from './useFavorites';
 
-export type MoodType = 'all' | 'focus' | 'hustle' | 'late-night';
+export type MoodType = 'all' | 'focus' | 'study' | 'hustle' | 'late-night';
 
 export interface ContentItem {
   id: string;
@@ -30,10 +30,25 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
     moods.push('focus'); // All vibes are good for focus
   }
   
-  // LO-FI genre always gets Focus and Late Night moods
+  // LO-FI genre always gets Focus, Study, and Late Night moods
   if (lowerGenre === 'lofi') {
     moods.push('focus');
+    moods.push('study');
     moods.push('late-night');
+  }
+  
+  // Study mood: deep focus, minimal distraction
+  if (
+    lowerTitle.includes('instrumental') ||
+    lowerTitle.includes('ambient') ||
+    lowerTitle.includes('lo-fi') ||
+    lowerTitle.includes('lofi')
+  ) {
+    moods.push('study');
+  }
+  // Content tagged with focus also qualifies for study
+  if (lowerGenre === 'vibes' && (lowerTitle.includes('jazz') || lowerTitle.includes('ambient'))) {
+    moods.push('study');
   }
   
   // Hustle moods: Rap, Motivation
@@ -52,7 +67,8 @@ export const getMoodTags = (genre: string, title: string): MoodType[] => {
     moods.push('late-night');
   }
   
-  return moods.length > 0 ? moods : ['all'];
+  // Remove duplicates
+  return moods.length > 0 ? [...new Set(moods)] : ['all'];
 };
 
 interface UseLucyRecommendationsProps {
