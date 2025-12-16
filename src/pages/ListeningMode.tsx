@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3 } from "lucide-react";
+import { ArrowLeft, Headphones, Heart, Music, Coffee, Waves, Mic, Gem, Disc3, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
 
 const genres = [
@@ -137,13 +138,26 @@ const tabs: { id: GenreTab; label: string; icon: typeof Music }[] = [
 const ListeningMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<GenreTab>('vibes');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterItems = <T extends { title: string; subtitle: string }>(items: T[]) => {
+    if (!searchQuery.trim()) return items;
+    const query = searchQuery.toLowerCase();
+    return items.filter(
+      item => item.title.toLowerCase().includes(query) || item.subtitle.toLowerCase().includes(query)
+    );
+  };
+
+  const filteredGenres = useMemo(() => filterItems(genres), [searchQuery]);
+  const filteredRap = useMemo(() => filterItems(rapPlaylists), [searchQuery]);
+  const filteredSmoothRap = useMemo(() => filterItems(smoothRapContent), [searchQuery]);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'vibes':
-        return (
+        return filteredGenres.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {genres.map((genre, index) => (
+            {filteredGenres.map((genre, index) => (
               <ListeningModeCard
                 key={genre.contentId}
                 title={genre.title}
@@ -156,11 +170,13 @@ const ListeningMode = () => {
               />
             ))}
           </div>
+        ) : (
+          <EmptySearchState query={searchQuery} />
         );
       case 'rap':
-        return (
+        return filteredRap.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {rapPlaylists.map((playlist, index) => (
+            {filteredRap.map((playlist, index) => (
               <ListeningModeCard
                 key={playlist.contentId}
                 title={playlist.title}
@@ -173,11 +189,13 @@ const ListeningMode = () => {
               />
             ))}
           </div>
+        ) : (
+          <EmptySearchState query={searchQuery} />
         );
       case 'smooth-rap':
-        return (
+        return filteredSmoothRap.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {smoothRapContent.map((item, index) => (
+            {filteredSmoothRap.map((item, index) => (
               <ListeningModeCard
                 key={item.contentId}
                 title={item.title}
@@ -190,9 +208,23 @@ const ListeningMode = () => {
               />
             ))}
           </div>
+        ) : (
+          <EmptySearchState query={searchQuery} />
         );
     }
   };
+
+  const EmptySearchState = ({ query }: { query: string }) => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center py-12"
+    >
+      <Search className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+      <p className="text-muted-foreground">No results for "{query}"</p>
+      <p className="text-sm text-muted-foreground/70 mt-1">Try a different search term</p>
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -221,35 +253,58 @@ const ListeningMode = () => {
         </div>
       </header>
 
-      {/* Genre Tabs */}
+      {/* Genre Tabs + Search */}
       <div className="sticky top-[73px] z-10 bg-background/80 backdrop-blur-sm border-b border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide py-3">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Tabs */}
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute inset-0 bg-primary rounded-lg -z-10"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative flex-1 sm:max-w-xs ml-auto">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="text"
+                placeholder="Search vibes, artists, or albums…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9 bg-muted/50 border-border/50 focus:bg-background transition-colors"
+              />
+              {searchQuery && (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 bg-primary rounded-lg -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
+                  <X className="w-4 h-4" />
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
         </div>
       </div>
