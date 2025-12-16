@@ -5,11 +5,14 @@ import {
   ChevronDown, 
   ChevronUp, 
   ExternalLink,
-  Headphones
+  Headphones,
+  Sparkles,
+  Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGlobalSpotify } from "@/contexts/GlobalSpotifyContext";
+import { useLucyDJ } from "@/contexts/LucyDJContext";
 
 // Shared playlist IDs
 const genres = [
@@ -95,16 +98,19 @@ const NowPlayingWaveform = ({ className }: { className?: string }) => (
 
 export const HeaderMusicPlayer = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { state, iframeSrc, setPlayback, openDrawer, toggleDrawer } = useGlobalSpotify();
+  const { state, setPlayback, openDrawer, toggleDrawer } = useGlobalSpotify();
+  const { state: lucyState, getVibeMessage, isLucyPick, openSuggestionDrawer, recordSelection } = useLucyDJ();
   
   const isPlaying = !!state.currentContentId;
   const activeGenre = state.currentGenre ? (state.currentGenre.toLowerCase() as GenreId) : null;
   const accentClasses = activeGenre ? genreAccentClasses[activeGenre] : genreAccentClasses.lofi;
+  const vibeMessage = getVibeMessage();
 
   // HC-03: Autoplay on selection - selecting genre immediately starts playback & opens drawer
   const handleGenreSelect = (genre: typeof genres[number]) => {
     setPlayback(genre.spotifyId, genre.id, 'playlist');
-    openDrawer(); // Opens the global Spotify drawer for playback
+    openDrawer();
+    recordSelection(genre.id); // Record for Lucy DJ learning
   };
 
   return (
@@ -183,6 +189,28 @@ export const HeaderMusicPlayer = () => {
               )}
             </div>
 
+            {/* Lucy DJ Vibe Message */}
+            {lucyState.isEnabled && vibeMessage && (
+              <div className="px-4 py-2 border-b border-border/30 bg-gradient-to-r from-violet-500/5 to-primary/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Brain className="w-3.5 h-3.5 text-violet-400" />
+                    <span className="text-xs text-muted-foreground">{vibeMessage}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      openSuggestionDrawer();
+                      setIsDropdownOpen(false);
+                    }}
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    Suggestions
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Genre Selector - HC-03: Autoplay on click */}
             <div className="px-4 py-3">
               <p className="text-xs text-muted-foreground mb-2">Tap genre to play instantly</p>
@@ -190,6 +218,7 @@ export const HeaderMusicPlayer = () => {
                 {genres.map((genre) => {
                   const isActive = activeGenre === genre.id;
                   const pillAccent = genreAccentClasses[genre.id];
+                  const lucyPick = isLucyPick(genre.id);
                   
                   return (
                     <button
@@ -197,12 +226,15 @@ export const HeaderMusicPlayer = () => {
                       onClick={() => handleGenreSelect(genre)}
                       className={cn(
                         "px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200",
-                        "border",
+                        "border relative",
                         isActive
                           ? cn(pillAccent.bg, pillAccent.text, pillAccent.border, pillAccent.glow)
                           : "bg-background/50 text-muted-foreground border-border/30 hover:bg-background/80 hover:text-foreground hover:border-border/50"
                       )}
                     >
+                      {lucyPick && !isActive && (
+                        <Sparkles className="w-2.5 h-2.5 absolute -top-1 -right-1 text-violet-400" />
+                      )}
                       {genre.label}
                     </button>
                   );

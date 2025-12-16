@@ -9,7 +9,9 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 import { IntroScreen } from "@/components/branding/IntroScreen";
 import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvider";
 import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
+import { LucyDJProvider } from "@/contexts/LucyDJContext";
 import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
+import { LucySuggestionDrawer } from "@/components/chat/LucySuggestionDrawer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
@@ -90,14 +92,16 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <GlobalSpotifyProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+        <LucyDJProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
 
-          {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+            {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-          <IOSAudioUnlockProvider />
-          <GlobalSpotifyAudioHost />
+            <IOSAudioUnlockProvider />
+            <GlobalSpotifyAudioHost />
+            <LucySuggestionDrawer />
 
           <InstallPrompt />
           <OfflineBanner />
@@ -163,9 +167,10 @@ const App = () => {
             </BrowserRouter>
           </div>
         </TooltipProvider>
-      </GlobalSpotifyProvider>
-    </QueryClientProvider>
-  );
+      </LucyDJProvider>
+    </GlobalSpotifyProvider>
+  </QueryClientProvider>
+);
 };
 
 export default App;
