@@ -32,6 +32,14 @@
   --theme-glow-soft: #a855f740;
   --theme-glow-strong: #a855f780;
   --theme-gradient: linear-gradient(135deg, #a855f7 0%, #f97316 100%);
+  
+  /* Genre accent colors - theme-aware HSL values */
+  --genre-lofi: 250 60% 65%;
+  --genre-jazz: 35 85% 55%;
+  --genre-rnb: 330 75% 60%;
+  --genre-ambient: 180 50% 50%;
+  --genre-rap: 0 70% 55%;
+  --genre-smooth-rap: 280 60% 55%;
 }
 
 html,

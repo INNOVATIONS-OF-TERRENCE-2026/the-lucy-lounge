@@ -92,14 +92,22 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			},
-  			cosmic: {
-  				onyx: 'hsl(var(--onyx-black))',
-  				purple: 'hsl(var(--cosmic-purple))',
-  				violet: 'hsl(var(--ultra-violet))',
-  				magenta: 'hsl(var(--magenta-starfire))',
-  				silver: 'hsl(var(--hologram-silver))',
-  				gold: 'hsl(var(--sacred-gold))'
-  			}
+			cosmic: {
+				onyx: 'hsl(var(--onyx-black))',
+				purple: 'hsl(var(--cosmic-purple))',
+				violet: 'hsl(var(--ultra-violet))',
+				magenta: 'hsl(var(--magenta-starfire))',
+				silver: 'hsl(var(--hologram-silver))',
+				gold: 'hsl(var(--sacred-gold))'
+			},
+			genre: {
+				lofi: 'hsl(var(--genre-lofi))',
+				jazz: 'hsl(var(--genre-jazz))',
+				rnb: 'hsl(var(--genre-rnb))',
+				ambient: 'hsl(var(--genre-ambient))',
+				rap: 'hsl(var(--genre-rap))',
+				'smooth-rap': 'hsl(var(--genre-smooth-rap))'
+			}
   		},
   		backgroundImage: {
   			'gradient-primary': 'var(--gradient-primary)',
