@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Hero } from '@/components/landing/Hero';
 import { Features } from '@/components/landing/Features';
@@ -14,16 +11,8 @@ import { StructuredData } from '@/components/seo/StructuredData';
 import { TopNav } from '@/components/navigation/TopNav';
 
 const Landing = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/chat');
-      }
-    });
-  }, [navigate]);
+  // AUDIT FIX: Removed auto-redirect for logged-in users
+  // Landing page is now accessible to all users regardless of auth state
 
   return (
     <>

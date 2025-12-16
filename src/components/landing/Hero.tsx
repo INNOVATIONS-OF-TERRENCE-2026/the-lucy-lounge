@@ -1,10 +1,25 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Sparkles } from 'lucide-react';
 import { LucyAvatar } from '@/components/avatar/LucyAvatar';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
@@ -49,16 +64,27 @@ export const Hero = () => {
           A next-generation AI assistant system designed and architected by Software Engineer Terrence Milliner Sr., powered by state-of-the-art AI models for advanced reasoning, vision, memory, and creativity
         </p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - Auth-aware */}
         <div className="flex flex-col sm:flex-row gap-5 justify-center mb-20">
-          <Button
-            size="lg"
-            variant="gradient"
-            onClick={() => navigate('/auth')}
-          >
-            <MessageSquare className="w-5 h-5 mr-2" />
-            🚀 Start Free
-          </Button>
+          {isLoggedIn ? (
+            <Button
+              size="lg"
+              variant="gradient"
+              onClick={() => navigate('/chat')}
+            >
+              <MessageSquare className="w-5 h-5 mr-2" />
+              🚀 Open Lucy
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              variant="gradient"
+              onClick={() => navigate('/auth')}
+            >
+              <MessageSquare className="w-5 h-5 mr-2" />
+              🚀 Start Free
+            </Button>
+          )}
           <Button
             size="lg"
             variant="outline"

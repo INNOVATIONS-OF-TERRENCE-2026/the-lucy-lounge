@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, MessageSquare } from "lucide-react";
 import { LucyAvatar } from "@/components/avatar/LucyAvatar";
 import { ThemeToggle } from "@/components/settings/ThemeToggle";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,19 @@ import {
 export const TopNav = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/20">
@@ -78,21 +92,33 @@ export const TopNav = () => {
             </Link>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Auth-aware */}
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/auth")}
-            >
-              Sign In
-            </Button>
-            <Button
-              variant="gradient"
-              onClick={() => navigate("/auth")}
-            >
-              Start Free
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                variant="gradient"
+                onClick={() => navigate("/chat")}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Open Lucy
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/auth")}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="gradient"
+                  onClick={() => navigate("/auth")}
+                >
+                  Start Free
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -190,32 +216,48 @@ export const TopNav = () => {
                 About
               </Link>
 
-              {/* Mobile CTA */}
+              {/* Mobile CTA - Auth-aware */}
               <div className="flex flex-col gap-2 pt-3 border-t border-border/20">
                 <div className="flex items-center justify-between py-2">
                   <span className="text-foreground/80">Theme</span>
                   <ThemeToggle />
                 </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    navigate("/auth");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="gradient"
-                  onClick={() => {
-                    navigate("/auth");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full"
-                >
-                  Start Free
-                </Button>
+                {isLoggedIn ? (
+                  <Button
+                    variant="gradient"
+                    onClick={() => {
+                      navigate("/chat");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Open Lucy
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        navigate("/auth");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      variant="gradient"
+                      onClick={() => {
+                        navigate("/auth");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      Start Free
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
