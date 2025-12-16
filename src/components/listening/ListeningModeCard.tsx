@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 import { SpotifyEmbed } from "./SpotifyEmbed";
 
 interface ListeningModeCardProps {
@@ -8,6 +9,7 @@ interface ListeningModeCardProps {
   contentType?: 'playlist' | 'album';
   icon?: LucideIcon;
   accentColor?: string;
+  index?: number;
 }
 
 export const ListeningModeCard = ({ 
@@ -16,10 +18,24 @@ export const ListeningModeCard = ({
   contentId,
   contentType = 'playlist',
   icon: Icon,
-  accentColor = "from-primary/20 to-primary/5"
+  accentColor = "from-primary/20 to-primary/5",
+  index = 0
 }: ListeningModeCardProps) => {
   return (
-    <div className={`rounded-xl bg-gradient-to-br ${accentColor} backdrop-blur-sm border border-border/50 p-6 shadow-lg hover:shadow-xl transition-shadow`}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        duration: 0.4, 
+        delay: index * 0.1,
+        ease: "easeOut"
+      }}
+      whileHover={{ 
+        scale: 1.02,
+        transition: { duration: 0.2 }
+      }}
+      className={`rounded-xl bg-gradient-to-br ${accentColor} backdrop-blur-sm border border-border/50 p-6 shadow-lg hover:shadow-xl transition-shadow`}
+    >
       <div className="mb-4 flex items-center gap-3">
         {Icon && <Icon className="w-6 h-6 text-primary" />}
         <div>
@@ -28,6 +44,6 @@ export const ListeningModeCard = ({
         </div>
       </div>
       <SpotifyEmbed contentId={contentId} type={contentType} title={title} />
-    </div>
+    </motion.div>
   );
 };
