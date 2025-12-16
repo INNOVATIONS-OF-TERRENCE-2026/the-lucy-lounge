@@ -639,6 +639,7 @@ const ListeningMode = () => {
                 icon={genre.icon}
                 accentColor={genre.accentColor}
                 index={index}
+                genre="lofi"
                 isFavorite={isFavorite(genre.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: genre.contentId,
@@ -673,6 +674,7 @@ const ListeningMode = () => {
                 icon={playlist.icon}
                 accentColor={playlist.accentColor}
                 index={index}
+                genre="rap"
                 isFavorite={isFavorite(playlist.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: playlist.contentId,
@@ -707,6 +709,7 @@ const ListeningMode = () => {
                 icon={item.icon}
                 accentColor={item.accentColor}
                 index={index}
+                genre="smooth-rap"
                 isFavorite={isFavorite(item.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: item.contentId,
@@ -741,6 +744,7 @@ const ListeningMode = () => {
                 icon={item.icon}
                 accentColor={item.accentColor}
                 index={index}
+                genre="rnb"
                 isFavorite={isFavorite(item.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: item.contentId,
@@ -775,6 +779,7 @@ const ListeningMode = () => {
                 icon={item.icon}
                 accentColor={item.accentColor}
                 index={index}
+                genre="lofi"
                 isFavorite={isFavorite(item.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: item.contentId,
@@ -809,6 +814,7 @@ const ListeningMode = () => {
                 icon={item.icon}
                 accentColor={item.accentColor}
                 index={index}
+                genre="ambient"
                 isFavorite={isFavorite(item.contentId)}
                 onToggleFavorite={() => handleToggleFavorite({
                   id: item.contentId,
@@ -843,6 +849,7 @@ const ListeningMode = () => {
                 icon={getIconForContent(item.id)}
                 accentColor={getAccentForContent(item.id)}
                 index={index}
+                genre={item.genre}
                 isFavorite={true}
                 onToggleFavorite={() => handleToggleFavorite(item)}
                 onInteraction={() => handleCardInteraction({
@@ -988,6 +995,7 @@ const ListeningMode = () => {
                       accentColor={getAccentForContent(item.id)}
                       index={index}
                       compact
+                      genre={item.genre}
                       isFavorite={isFavorite(item.id)}
                       onToggleFavorite={() => handleToggleFavorite({
                         id: item.id,
@@ -1069,6 +1077,7 @@ const ListeningMode = () => {
                       accentColor={getAccentForContent(item.id)}
                       index={index}
                       compact
+                      genre={item.genre}
                       isFavorite={isFavorite(item.id)}
                       onToggleFavorite={() => handleToggleFavorite({
                         id: item.id,
@@ -1123,6 +1132,7 @@ const ListeningMode = () => {
                       accentColor={getAccentForContent(item.id)}
                       index={index}
                       compact
+                      genre={item.genre}
                       isFavorite={isFavorite(item.id)}
                       onToggleFavorite={() => handleToggleFavorite({
                         id: item.id,

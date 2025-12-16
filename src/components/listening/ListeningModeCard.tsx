@@ -1,6 +1,6 @@
-import { LucideIcon, Star } from "lucide-react";
+import { LucideIcon, Star, Play } from "lucide-react";
 import { motion } from "framer-motion";
-import { SpotifyEmbed } from "./SpotifyEmbed";
+import { useGlobalSpotify } from "@/contexts/GlobalSpotifyContext";
 
 interface ListeningModeCardProps {
   title: string;
@@ -15,6 +15,7 @@ interface ListeningModeCardProps {
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
   showFavoriteButton?: boolean;
+  genre?: string;
 }
 
 export const ListeningModeCard = ({ 
@@ -29,9 +30,18 @@ export const ListeningModeCard = ({
   onInteraction,
   isFavorite = false,
   onToggleFavorite,
-  showFavoriteButton = true
+  showFavoriteButton = true,
+  genre = 'lofi'
 }: ListeningModeCardProps) => {
-  const handleClick = () => {
+  const { setPlaylist, openDrawer, state } = useGlobalSpotify();
+  
+  const isCurrentlyPlaying = state.currentPlaylistId === contentId;
+
+  const handlePlay = () => {
+    // Set the global playlist and open the drawer
+    setPlaylist(contentId, genre);
+    openDrawer();
+    
     if (onInteraction) {
       onInteraction();
     }
@@ -57,10 +67,9 @@ export const ListeningModeCard = ({
         scale: 1.02,
         transition: { duration: 0.2 }
       }}
-      onClick={handleClick}
       className={`relative rounded-xl bg-gradient-to-br ${accentColor} backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-xl transition-shadow ${
         compact ? 'p-4 min-w-[280px] max-w-[320px]' : 'p-6'
-      }`}
+      } ${isCurrentlyPlaying ? 'ring-2 ring-primary/50' : ''}`}
     >
       {/* Favorite Button */}
       {showFavoriteButton && onToggleFavorite && (
@@ -79,12 +88,33 @@ export const ListeningModeCard = ({
       
       <div className={`flex items-center gap-3 ${compact ? 'mb-3' : 'mb-4'} ${showFavoriteButton ? 'pr-8' : ''}`}>
         {Icon && <Icon className={`text-primary shrink-0 ${compact ? 'w-5 h-5' : 'w-6 h-6'}`} />}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className={`font-semibold text-foreground truncate ${compact ? 'text-base' : 'text-xl'}`}>{title}</h3>
           <p className={`text-muted-foreground truncate ${compact ? 'text-xs mt-0.5' : 'text-sm mt-1'}`}>{subtitle}</p>
         </div>
       </div>
-      <SpotifyEmbed contentId={contentId} type={contentType} title={title} />
+
+      {/* Play Button - Controls Global Spotify */}
+      <button
+        onClick={handlePlay}
+        className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium transition-all ${
+          isCurrentlyPlaying
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-primary/10 text-primary hover:bg-primary/20'
+        }`}
+      >
+        <Play className={`w-5 h-5 ${isCurrentlyPlaying ? 'fill-current' : ''}`} />
+        <span>{isCurrentlyPlaying ? 'Now Playing' : 'Play'}</span>
+      </button>
+
+      {/* Currently Playing Indicator */}
+      {isCurrentlyPlaying && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"
+        />
+      )}
     </motion.div>
   );
 };
