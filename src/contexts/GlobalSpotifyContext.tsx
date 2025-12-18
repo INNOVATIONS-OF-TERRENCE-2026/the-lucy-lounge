@@ -19,7 +19,8 @@ interface GlobalSpotifyContextType {
   toggleDrawer: () => void;
 }
 
-const GlobalSpotifyContext = createContext<GlobalSpotifyContextType | null>(null);
+// Exported for direct useContext access with null-safety in crash-proof components
+export const GlobalSpotifyContext = createContext<GlobalSpotifyContextType | null>(null);
 
 // HC-04: NO DEFAULT PLAYLIST - Boot in silence
 // PERSISTENCE: Restore selection only (not play state)
