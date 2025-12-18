@@ -14,6 +14,8 @@ interface ToolResultDisplayProps {
 }
 
 export const ToolResultDisplay = ({ results }: ToolResultDisplayProps) => {
+  const safeResults = Array.isArray(results) ? results : [];
+
   const getToolIcon = (tool: string) => {
     switch (tool) {
       case 'generate_image': return <Image className="h-4 w-4" />;
@@ -30,7 +32,7 @@ export const ToolResultDisplay = ({ results }: ToolResultDisplayProps) => {
 
   return (
     <div className="space-y-2 my-3">
-      {results.map((result, idx) => (
+      {safeResults.map((result, idx) => (
         <Card key={idx} className="p-3 bg-secondary/20 border-primary/20">
           <div className="flex items-start gap-3">
             <div className="mt-1 text-primary">

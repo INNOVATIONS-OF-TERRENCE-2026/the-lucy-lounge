@@ -34,7 +34,19 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const tag = this.props.routeTag || 'UNKNOWN';
+    // eslint-disable-next-line no-console
     console.error(`[${tag}_CRASH_GUARD]`, error, errorInfo);
+
+    // Extra explicit tag for chat triage (requested)
+    if (tag === 'CHAT') {
+      // eslint-disable-next-line no-console
+      console.error('[CHAT_ERROR_BOUNDARY]', {
+        message: error?.message,
+        stack: error?.stack,
+        componentStack: errorInfo?.componentStack,
+      });
+    }
+
     this.setState({ errorInfo });
   }
 
@@ -97,18 +109,32 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {isDev && this.state.error && (
-              <div className="mt-6 p-4 bg-muted/50 rounded-lg text-left overflow-auto max-h-64">
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg text-left overflow-auto max-h-72">
                 <p className="text-xs font-mono text-destructive font-semibold mb-2">
                   DEV ERROR DETAILS:
                 </p>
-                <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
-                  {this.state.error.toString()}
-                </pre>
-                {this.state.errorInfo && (
-                  <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words mt-2">
-                    {this.state.errorInfo.componentStack}
+
+                <div className="space-y-2">
+                  {/* Top stack line for quick pinpointing */}
+                  <div className="text-xs font-mono text-muted-foreground">
+                    <span className="font-semibold">Top stack:</span>{" "}
+                    {(() => {
+                      const stack = this.state.error?.stack;
+                      const top = stack ? stack.split('\n').slice(1).find(Boolean) : null;
+                      return top || '(no stack)';
+                    })()}
+                  </div>
+
+                  <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
+                    {this.state.error.toString()}
                   </pre>
-                )}
+
+                  {this.state.errorInfo && (
+                    <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
+                      {this.state.errorInfo.componentStack}
+                    </pre>
+                  )}
+                </div>
               </div>
             )}
           </div>
