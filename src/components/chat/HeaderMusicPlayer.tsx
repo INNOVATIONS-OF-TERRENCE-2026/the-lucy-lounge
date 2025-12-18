@@ -1,4 +1,8 @@
-import { useState } from "react";
+// SAFETY NOTE:
+// This component MUST NEVER hard-throw.
+// Any missing provider must degrade gracefully to avoid blank-screen crashes.
+
+import { useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Music2, 
@@ -7,12 +11,15 @@ import {
   ExternalLink,
   Headphones,
   Sparkles,
-  Brain
+  Brain,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useGlobalSpotify } from "@/contexts/GlobalSpotifyContext";
-import { useLucyDJ } from "@/contexts/LucyDJContext";
+
+// Import contexts directly for safe access
+import { GlobalSpotifyContext } from "@/contexts/GlobalSpotifyContext";
+import { LucyDJContext } from "@/contexts/LucyDJContext";
 
 // Shared playlist IDs
 const genres = [
@@ -96,10 +103,43 @@ const NowPlayingWaveform = ({ className }: { className?: string }) => (
   </div>
 );
 
+// Safe fallback component when Spotify context unavailable
+const FallbackMusicButton = () => (
+  <Button
+    variant="ghost"
+    size="sm"
+    disabled
+    className="h-9 px-3 gap-2 rounded-xl bg-background/30 border border-border/30 opacity-60"
+  >
+    <AlertCircle className="w-4 h-4 text-muted-foreground" />
+    <span className="text-xs text-muted-foreground hidden sm:inline">Music</span>
+  </Button>
+);
+
 export const HeaderMusicPlayer = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { state, setPlayback, openDrawer, toggleDrawer } = useGlobalSpotify();
-  const { state: lucyState, getVibeMessage, isLucyPick, openSuggestionDrawer, recordSelection } = useLucyDJ();
+  
+  // CRASH-PROOF: Use useContext directly with null checks instead of throwing hooks
+  const spotifyContext = useContext(GlobalSpotifyContext);
+  const lucyDJContext = useContext(LucyDJContext);
+  
+  // If Spotify context is unavailable, render safe fallback
+  if (!spotifyContext) {
+    console.warn('[CHAT_CRASH_GUARD] GlobalSpotifyContext unavailable - rendering fallback');
+    return <FallbackMusicButton />;
+  }
+  
+  const state = spotifyContext.state;
+  const setPlayback = spotifyContext.setPlayback;
+  const openDrawer = spotifyContext.openDrawer;
+  const toggleDrawer = spotifyContext.toggleDrawer;
+  
+  // Lucy DJ is optional - degrade gracefully if unavailable
+  const lucyState = lucyDJContext?.state ?? { isEnabled: false };
+  const getVibeMessage = lucyDJContext?.getVibeMessage ?? (() => null);
+  const isLucyPick = lucyDJContext?.isLucyPick ?? (() => false);
+  const openSuggestionDrawerFn = lucyDJContext?.openSuggestionDrawer ?? (() => {});
+  const recordSelectionFn = lucyDJContext?.recordSelection ?? (() => {});
   
   const isPlaying = !!state.currentContentId;
   const activeGenre = state.currentGenre ? (state.currentGenre.toLowerCase() as GenreId) : null;
@@ -108,9 +148,13 @@ export const HeaderMusicPlayer = () => {
 
   // HC-03: Autoplay on selection - selecting genre immediately starts playback & opens drawer
   const handleGenreSelect = (genre: typeof genres[number]) => {
-    setPlayback(genre.spotifyId, genre.id, 'playlist');
-    openDrawer();
-    recordSelection(genre.id); // Record for Lucy DJ learning
+    try {
+      setPlayback(genre.spotifyId, genre.id, 'playlist');
+      openDrawer();
+      recordSelectionFn(genre.id);
+    } catch (error) {
+      console.error('[CHAT_CRASH_GUARD] Genre selection failed:', error);
+    }
   };
 
   return (
@@ -199,7 +243,7 @@ export const HeaderMusicPlayer = () => {
                   </div>
                   <button
                     onClick={() => {
-                      openSuggestionDrawer();
+                      openSuggestionDrawerFn();
                       setIsDropdownOpen(false);
                     }}
                     className="text-xs text-primary hover:underline flex items-center gap-1"

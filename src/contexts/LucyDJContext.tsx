@@ -45,7 +45,8 @@ interface LucyDJContextType {
   isLucyPick: (genre: string) => boolean;
 }
 
-const LucyDJContext = createContext<LucyDJContextType | null>(null);
+// Exported for direct useContext access with null-safety in crash-proof components
+export const LucyDJContext = createContext<LucyDJContextType | null>(null);
 
 // Curated suggestion database
 const SUGGESTION_DATABASE: Omit<SuggestedItem, 'confidence'>[] = [
