@@ -162,16 +162,25 @@ const ChatContent = () => {
     return <LoggedOutView />;
   }
 
+  const debugChat =
+    import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    window.localStorage?.getItem("DEBUG_CHAT") === "1";
+
+  const isolateMode = debugChat && typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("isolate")
+    : null;
+
   return (
     <>
       {!safeMode && <CosmicBackground />}
       {showEffects && (
         <>
-          <WeatherEffectsOverlay 
-            weather={weather as any} 
-            season={season as any} 
-            intensity={intensity} 
-            enabled={enabled} 
+          <WeatherEffectsOverlay
+            weather={weather as any}
+            season={season as any}
+            intensity={intensity}
+            enabled={enabled}
           />
           <CursorGlowOverlay enabled={enabled} />
         </>
@@ -198,11 +207,18 @@ const ChatContent = () => {
             transition-all duration-500
           "
           >
-            <ChatInterface
-              userId={user?.id}
-              conversationId={currentConversationId}
-              onConversationCreated={setCurrentConversationId}
-            />
+            {/* DEBUG: isolate chat failures without changing production behavior */}
+            {debugChat && isolateMode === "shell" ? (
+              <div className="p-6 text-sm text-muted-foreground">
+                DEBUG_CHAT enabled • isolate=shell • ChatInterface disabled
+              </div>
+            ) : (
+              <ChatInterface
+                userId={user?.id}
+                conversationId={currentConversationId}
+                onConversationCreated={setCurrentConversationId}
+              />
+            )}
           </div>
         </div>
       </SidebarProvider>

@@ -46,6 +46,15 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
 
+  const debugChat =
+    import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    window.localStorage?.getItem("DEBUG_CHAT") === "1";
+  const isolateMode = debugChat && typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("isolate")
+    : null;
+  const disableData = isolateMode === "lite";
+
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -82,6 +91,13 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   });
 
   useEffect(() => {
+    if (disableData) {
+      // DEBUG: intentionally avoid any data subscriptions/fetching
+      setMessages([]);
+      setConversationTitle(conversationId ? "Conversation (debug lite)" : "New Conversation");
+      return;
+    }
+
     if (conversationId) {
       loadMessages();
       loadConversationDetails();
@@ -110,7 +126,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       setConversationTitle("New Conversation");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]);
+  }, [conversationId, disableData]);
 
   const loadConversationDetails = async () => {
     if (!conversationId) return;
@@ -539,7 +555,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             );
           })}
 
-          {toolResults && <ToolResultDisplay results={toolResults.results} />}
+          {toolResults && (
+            <ToolResultDisplay
+              results={
+                Array.isArray(toolResults)
+                  ? toolResults
+                  : Array.isArray(toolResults?.results)
+                    ? toolResults.results
+                    : []
+              }
+            />
+          )}
 
           {/* Show streaming message from backend OR local streaming */}
           {(streamingMessage || displayText) && (
