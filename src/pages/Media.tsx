@@ -20,7 +20,7 @@ import {
   Video,
 } from "lucide-react";
 
-import { youtubeCatalog, FreeMediaItem, FreeMediaCategory } from "@/features/media/services/youtubeCatalog";
+import { FreeMediaItem, FreeMediaCategory } from "@/features/media/services/youtubeCatalog";
 import { vimeoCatalog } from "@/features/media/services/vimeoCatalog";
 import { EmbeddedPlayerModal } from "@/features/media/components/EmbeddedPlayerModal";
 import { FreeMovieCard } from "@/features/media/components/FreeMovieCard";
@@ -31,11 +31,7 @@ type SelectedVideo = {
   title: string;
 } | null;
 
-const FILTER_OPTIONS: {
-  value: FreeMediaCategory;
-  label: string;
-  icon: React.ReactNode;
-}[] = [
+const FILTER_OPTIONS: { value: FreeMediaCategory; label: string; icon: React.ReactNode }[] = [
   { value: "youtube_free", label: "YouTube", icon: <Youtube className="h-4 w-4" /> },
   { value: "public_domain", label: "Public Domain", icon: <Globe className="h-4 w-4" /> },
   { value: "trailers", label: "Trailers", icon: <Play className="h-4 w-4" /> },
@@ -46,49 +42,34 @@ export default function Media() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("free");
 
-  // FREE MOVIES STATE
   const [freeLoading, setFreeLoading] = useState(false);
   const [freeError, setFreeError] = useState<string | null>(null);
   const [freeItems, setFreeItems] = useState<FreeMediaItem[]>([]);
   const [freeFilter, setFreeFilter] = useState<FreeMediaCategory>("youtube_free");
   const [selectedVideo, setSelectedVideo] = useState<SelectedVideo>(null);
 
-  // 🔥 FIX #2 — FORCE LOAD ON MOUNT (GUARANTEED)
+  // 🔥 STEP 2 FIX — SERVER-SIDE FETCH (NO CORS, FULL PLAYLISTS)
   useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        await loadFreeMovies();
-      } catch (e) {
-        console.error("[MEDIA_BOOT_FREE_MOVIES_FAIL]", e);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
+    loadFreeMovies();
   }, []);
 
-  // 🔥 FIX #3 — GUARANTEED FALLBACK
   async function loadFreeMovies() {
     setFreeLoading(true);
     setFreeError(null);
 
     try {
-      const yt = await youtubeCatalog.loadTopFree(120);
+      const res = await fetch("/functions/v1/free-movies");
+      if (!res.ok) throw new Error("Edge function failed");
+
+      const yt: FreeMediaItem[] = await res.json();
       const vimeo = vimeoCatalog.getCurated();
+
       const combined = [...yt, ...vimeo];
 
-      if (!combined || combined.length === 0) {
-        setFreeItems(youtubeCatalog.getFallbackCurated());
-      } else {
-        setFreeItems(combined);
-      }
-    } catch (e: unknown) {
-      console.error("[FREE_MOVIES_LOAD_FAIL]", e);
-      setFreeError("Could not load free movies right now.");
-      setFreeItems(youtubeCatalog.getFallbackCurated());
+      setFreeItems(combined);
+    } catch (e) {
+      console.error("[FREE_MOVIES_EDGE_FAIL]", e);
+      setFreeError("Could not load free movies.");
     } finally {
       setFreeLoading(false);
     }
@@ -112,21 +93,18 @@ export default function Media() {
   return (
     <div className="min-h-screen bg-background">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Lucy Media</h1>
-              <p className="text-sm text-muted-foreground">Stream movies, TV shows, and more</p>
-            </div>
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Lucy Media</h1>
+            <p className="text-sm text-muted-foreground">Stream movies, TV shows, and more</p>
           </div>
         </div>
       </header>
 
-      {/* CONTENT */}
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-6 mb-6">
@@ -150,7 +128,7 @@ export default function Media() {
             </TabsTrigger>
           </TabsList>
 
-          {/* FREE MOVIES */}
+          {/* FREE MOVIES TAB */}
           <TabsContent value="free">
             <div className="space-y-6">
               <div className="flex flex-wrap gap-2">
@@ -168,10 +146,22 @@ export default function Media() {
 
               {freeLoading && (
                 <div className="grid grid-cols-5 gap-4">
-                  {Array.from({ length: 10 }).map((_, i) => (
+                  {Array.from({ length: 12 }).map((_, i) => (
                     <Skeleton key={i} className="aspect-video rounded-lg" />
                   ))}
                 </div>
+              )}
+
+              {!freeLoading && freeError && (
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-destructive">{freeError}</p>
+                    <Button onClick={loadFreeMovies} className="mt-4">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry
+                    </Button>
+                  </CardContent>
+                </Card>
               )}
 
               {!freeLoading && filteredItems.length > 0 && (
@@ -182,20 +172,7 @@ export default function Media() {
                 </div>
               )}
 
-              {!freeLoading && filteredItems.length === 0 && (
-                <Card>
-                  <CardContent className="pt-6 text-center">
-                    <Clapperboard className="mx-auto h-10 w-10 text-muted-foreground" />
-                    <p className="mt-2 font-medium">No movies found</p>
-                    <Button variant="outline" className="mt-4" onClick={loadFreeMovies}>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Reload
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {freeItems.length > 0 && (
+              {!freeLoading && freeItems.length > 0 && (
                 <div className="flex justify-between text-sm text-muted-foreground border-t pt-4">
                   <span>
                     Showing {filteredItems.length} of {freeItems.length} free titles
@@ -208,7 +185,6 @@ export default function Media() {
         </Tabs>
       </main>
 
-      {/* EMBED PLAYER */}
       <EmbeddedPlayerModal
         open={!!selectedVideo}
         onClose={() => setSelectedVideo(null)}
