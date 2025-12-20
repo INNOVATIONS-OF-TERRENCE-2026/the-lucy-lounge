@@ -19,6 +19,7 @@ import {
   Globe,
   Video,
 } from "lucide-react";
+
 import { youtubeCatalog, FreeMediaItem, FreeMediaCategory } from "@/features/media/services/youtubeCatalog";
 import { vimeoCatalog } from "@/features/media/services/vimeoCatalog";
 import { EmbeddedPlayerModal } from "@/features/media/components/EmbeddedPlayerModal";
@@ -30,7 +31,11 @@ type SelectedVideo = {
   title: string;
 } | null;
 
-const FILTER_OPTIONS: { value: FreeMediaCategory; label: string; icon: React.ReactNode }[] = [
+const FILTER_OPTIONS: {
+  value: FreeMediaCategory;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
   { value: "youtube_free", label: "YouTube", icon: <Youtube className="h-4 w-4" /> },
   { value: "public_domain", label: "Public Domain", icon: <Globe className="h-4 w-4" /> },
   { value: "trailers", label: "Trailers", icon: <Play className="h-4 w-4" /> },
@@ -41,28 +46,41 @@ export default function Media() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("free");
 
-  // Free Movies state
+  // FREE MOVIES STATE
   const [freeLoading, setFreeLoading] = useState(false);
   const [freeError, setFreeError] = useState<string | null>(null);
   const [freeItems, setFreeItems] = useState<FreeMediaItem[]>([]);
   const [freeFilter, setFreeFilter] = useState<FreeMediaCategory>("youtube_free");
   const [selectedVideo, setSelectedVideo] = useState<SelectedVideo>(null);
 
-  // Load free movies on mount
+  // 🔥 FIX #2 — FORCE LOAD ON MOUNT (GUARANTEED)
   useEffect(() => {
-    loadFreeMovies();
+    let mounted = true;
+
+    (async () => {
+      try {
+        await loadFreeMovies();
+      } catch (e) {
+        console.error("[MEDIA_BOOT_FREE_MOVIES_FAIL]", e);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
+  // 🔥 FIX #3 — GUARANTEED FALLBACK
   async function loadFreeMovies() {
     setFreeLoading(true);
     setFreeError(null);
+
     try {
       const yt = await youtubeCatalog.loadTopFree(120);
       const vimeo = vimeoCatalog.getCurated();
       const combined = [...yt, ...vimeo];
-      
-      if (combined.length === 0) {
-        // Use fallback if RSS completely fails
+
+      if (!combined || combined.length === 0) {
         setFreeItems(youtubeCatalog.getFallbackCurated());
       } else {
         setFreeItems(combined);
@@ -78,7 +96,6 @@ export default function Media() {
 
   const filteredItems = freeItems.filter((item) => {
     if (freeFilter === "trailers") {
-      // For now, show youtube_free items as trailers (placeholder)
       return item.category === "youtube_free";
     }
     return item.category === freeFilter;
@@ -94,176 +111,92 @@ export default function Media() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* HEADER */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate(-1)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Lucy Media</h1>
-                <p className="text-sm text-muted-foreground">
-                  Stream movies, TV shows, and more
-                </p>
-              </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Lucy Media</h1>
+              <p className="text-sm text-muted-foreground">Stream movies, TV shows, and more</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* CONTENT */}
       <main className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
-            <TabsTrigger value="movies" className="gap-2">
-              <Film className="h-4 w-4" />
-              <span className="hidden sm:inline">Movies</span>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-6 mb-6">
+            <TabsTrigger value="movies">
+              <Film className="h-4 w-4" /> Movies
             </TabsTrigger>
-            <TabsTrigger value="tv" className="gap-2">
-              <Tv className="h-4 w-4" />
-              <span className="hidden sm:inline">TV</span>
+            <TabsTrigger value="tv">
+              <Tv className="h-4 w-4" /> TV
             </TabsTrigger>
-            <TabsTrigger value="free" className="gap-2">
-              <Clapperboard className="h-4 w-4" />
-              <span className="hidden sm:inline">Free Movies</span>
+            <TabsTrigger value="free">
+              <Clapperboard className="h-4 w-4" /> Free Movies
             </TabsTrigger>
-            <TabsTrigger value="party" className="gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Watch Party</span>
+            <TabsTrigger value="party">
+              <Users className="h-4 w-4" /> Watch Party
             </TabsTrigger>
-            <TabsTrigger value="plex" className="gap-2">
-              <Server className="h-4 w-4" />
-              <span className="hidden sm:inline">My Plex</span>
+            <TabsTrigger value="plex">
+              <Server className="h-4 w-4" /> My Plex
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
+            <TabsTrigger value="settings">
+              <Settings className="h-4 w-4" /> Settings
             </TabsTrigger>
           </TabsList>
 
-          {/* Movies Tab */}
-          <TabsContent value="movies">
-            <Card>
-              <CardHeader>
-                <CardTitle>Movies</CardTitle>
-                <CardDescription>
-                  Connect to Plex or browse free movies in the Free Movies tab
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Movies from your connected services will appear here.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* TV Tab */}
-          <TabsContent value="tv">
-            <Card>
-              <CardHeader>
-                <CardTitle>TV Shows</CardTitle>
-                <CardDescription>
-                  Your TV shows and series
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  TV content from your connected services will appear here.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Free Movies Tab */}
+          {/* FREE MOVIES */}
           <TabsContent value="free">
             <div className="space-y-6">
-              {/* Filter Buttons */}
               <div className="flex flex-wrap gap-2">
                 {FILTER_OPTIONS.map((opt) => (
                   <Button
                     key={opt.value}
-                    variant={freeFilter === opt.value ? "default" : "outline"}
                     size="sm"
+                    variant={freeFilter === opt.value ? "default" : "outline"}
                     onClick={() => setFreeFilter(opt.value)}
-                    className="gap-2"
                   >
-                    {opt.icon}
-                    {opt.label}
+                    {opt.icon} {opt.label}
                   </Button>
                 ))}
               </div>
 
-              {/* Loading State */}
               {freeLoading && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-5 gap-4">
                   {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <Skeleton className="aspect-video w-full rounded-lg" />
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
-                    </div>
+                    <Skeleton key={i} className="aspect-video rounded-lg" />
                   ))}
                 </div>
               )}
 
-              {/* Error State */}
-              {freeError && !freeLoading && (
-                <Card className="border-destructive/50">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center gap-4 text-center">
-                      <p className="text-destructive">{freeError}</p>
-                      <Button onClick={loadFreeMovies} variant="outline" className="gap-2">
-                        <RefreshCw className="h-4 w-4" />
-                        Retry
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Content Grid */}
               {!freeLoading && filteredItems.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {filteredItems.map((item) => (
-                    <FreeMovieCard
-                      key={`${item.provider}:${item.id}`}
-                      item={item}
-                      onPlay={handlePlayVideo}
-                    />
+                    <FreeMovieCard key={`${item.provider}:${item.id}`} item={item} onPlay={handlePlayVideo} />
                   ))}
                 </div>
               )}
 
-              {/* Empty State */}
-              {!freeLoading && !freeError && filteredItems.length === 0 && (
+              {!freeLoading && filteredItems.length === 0 && (
                 <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center gap-4 text-center">
-                      <Clapperboard className="h-12 w-12 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium text-foreground">No content available</p>
-                        <p className="text-sm text-muted-foreground">
-                          {freeFilter === "vimeo"
-                            ? "Vimeo content coming soon"
-                            : "Try a different category"}
-                        </p>
-                      </div>
-                    </div>
+                  <CardContent className="pt-6 text-center">
+                    <Clapperboard className="mx-auto h-10 w-10 text-muted-foreground" />
+                    <p className="mt-2 font-medium">No movies found</p>
+                    <Button variant="outline" className="mt-4" onClick={loadFreeMovies}>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Reload
+                    </Button>
                   </CardContent>
                 </Card>
               )}
 
-              {/* Stats */}
-              {!freeLoading && freeItems.length > 0 && (
-                <div className="flex items-center justify-between text-sm text-muted-foreground pt-4 border-t border-border">
+              {freeItems.length > 0 && (
+                <div className="flex justify-between text-sm text-muted-foreground border-t pt-4">
                   <span>
                     Showing {filteredItems.length} of {freeItems.length} free titles
                   </span>
@@ -272,82 +205,10 @@ export default function Media() {
               )}
             </div>
           </TabsContent>
-
-          {/* Watch Party Tab */}
-          <TabsContent value="party">
-            <Card>
-              <CardHeader>
-                <CardTitle>Watch Party</CardTitle>
-                <CardDescription>
-                  Watch together with friends in real-time
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Create or join a watch party to stream content together.
-                </p>
-                <Button className="mt-4" disabled>
-                  Coming Soon
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* My Plex Tab */}
-          <TabsContent value="plex">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Plex</CardTitle>
-                <CardDescription>
-                  Connect your Plex Media Server
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Link your Plex account to stream your personal media library.
-                </p>
-                <Button variant="outline" disabled>
-                  Connect Plex (Coming Soon)
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Media Settings</CardTitle>
-                <CardDescription>
-                  Configure your media preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Autoplay trailers</p>
-                    <p className="text-sm text-muted-foreground">
-                      Automatically play trailers on hover
-                    </p>
-                  </div>
-                  <Badge variant="secondary">Coming Soon</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Default quality</p>
-                    <p className="text-sm text-muted-foreground">
-                      Set preferred streaming quality
-                    </p>
-                  </div>
-                  <Badge variant="secondary">Coming Soon</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </main>
 
-      {/* Embedded Player Modal */}
+      {/* EMBED PLAYER */}
       <EmbeddedPlayerModal
         open={!!selectedVideo}
         onClose={() => setSelectedVideo(null)}
