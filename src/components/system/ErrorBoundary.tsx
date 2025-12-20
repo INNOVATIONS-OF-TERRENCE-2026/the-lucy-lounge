@@ -76,8 +76,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      const isDev = import.meta.env.DEV;
-      const message = this.props.fallbackMessage || 'Something went wrong loading this page.';
+      const debugEnabled =
+        import.meta.env.DEV ||
+        (typeof window !== "undefined" &&
+          (window.localStorage?.getItem("DEBUG_CHAT") === "1" ||
+            new URLSearchParams(window.location.search).get("debug_chat") === "1"));
+      const message = this.props.fallbackMessage || "Something went wrong loading this page.";
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -108,7 +112,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </Button>
             </div>
 
-            {isDev && this.state.error && (
+            {debugEnabled && this.state.error && (
               <div className="mt-6 p-4 bg-muted/50 rounded-lg text-left overflow-auto max-h-72">
                 <p className="text-xs font-mono text-destructive font-semibold mb-2">
                   DEV ERROR DETAILS:

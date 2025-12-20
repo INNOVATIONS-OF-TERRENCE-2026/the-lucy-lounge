@@ -12,7 +12,9 @@ import "./index.css";
 try {
   const debugChatEnabled =
     import.meta.env.DEV ||
-    (typeof window !== "undefined" && window.localStorage?.getItem("DEBUG_CHAT") === "1");
+    (typeof window !== "undefined" &&
+      (window.localStorage?.getItem("DEBUG_CHAT") === "1" ||
+        new URLSearchParams(window.location.search).get("debug_chat") === "1"));
 
   if (debugChatEnabled && typeof window !== "undefined") {
     window.addEventListener("error", (event) => {
