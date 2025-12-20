@@ -62,6 +62,7 @@ import CreditRepairLocation from "./pages/programmatic/CreditRepairLocation";
 import SBAFundingScenario from "./pages/programmatic/SBAFundingScenario";
 import ComparisonPage from "./pages/programmatic/ComparisonPage";
 import ListeningMode from "./pages/ListeningMode";
+import Media from "./pages/Media";
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ const App = () => {
               <Route path="/studios/audio" element={<StudiosAudio />} />
               <Route path="/studios/dev" element={<StudiosDev />} />
               <Route path="/listening-mode" element={<ListeningMode />} />
+              <Route path="/media" element={<Media />} />
               <Route path="/shared/:token" element={<SharedConversation />} />
               <Route path="/rooms" element={<RoomList />} />
               <Route path="/room/:roomId" element={<RoomChat />} />
