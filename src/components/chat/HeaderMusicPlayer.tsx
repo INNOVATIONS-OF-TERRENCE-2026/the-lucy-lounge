@@ -142,8 +142,21 @@ export const HeaderMusicPlayer = () => {
   const recordSelectionFn = lucyDJContext?.recordSelection ?? (() => {});
   
   const isPlaying = !!state.currentContentId;
-  const activeGenre = state.currentGenre ? (state.currentGenre.toLowerCase() as GenreId) : null;
-  const accentClasses = activeGenre ? genreAccentClasses[activeGenre] : genreAccentClasses.lofi;
+
+  // currentGenre can come from multiple sources; never assume it's a valid key.
+  const rawGenre = (state.currentGenre ?? "").toString().toLowerCase().trim();
+  const activeGenre: GenreId | null = (rawGenre && rawGenre in genreAccentClasses
+    ? (rawGenre as GenreId)
+    : null);
+
+  if (isPlaying && rawGenre && !activeGenre) {
+    console.warn("[CHAT_CRASH_GUARD] Unknown currentGenre from Spotify state; falling back", {
+      currentGenre: state.currentGenre,
+      normalized: rawGenre,
+    });
+  }
+
+  const accentClasses = genreAccentClasses[activeGenre ?? "lofi"];
   const vibeMessage = getVibeMessage();
 
   // HC-03: Autoplay on selection - selecting genre immediately starts playback & opens drawer
@@ -182,7 +195,7 @@ export const HeaderMusicPlayer = () => {
           "text-xs font-medium hidden sm:inline max-w-[80px] truncate",
           isPlaying ? accentClasses.text : "text-muted-foreground"
         )}>
-          {isPlaying ? genreLabels[activeGenre] || 'Playing' : 'Music'}
+          {isPlaying ? (activeGenre ? genreLabels[activeGenre] : "Playing") : "Music"}
         </span>
         
         {isDropdownOpen ? (
@@ -219,7 +232,7 @@ export const HeaderMusicPlayer = () => {
               {isPlaying && (
                 <div className="flex items-center gap-1">
                   <span className={cn("text-xs px-2 py-0.5 rounded-full", accentClasses.bg, accentClasses.text)}>
-                    {genreLabels[activeGenre]}
+                    {activeGenre ? genreLabels[activeGenre] : "Playing"}
                   </span>
                   <a
                     href={`https://open.spotify.com/${state.contentType}/${state.currentContentId}`}
