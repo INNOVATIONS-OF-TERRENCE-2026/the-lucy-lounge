@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Film, Tv, Clapperboard, Users, Server, Settings, ArrowLeft, Youtube, Globe, Play, Video } from "lucide-react";
-import { EmbeddedPlayerModal } from "@/features/media/components/EmbeddedPlayerModal";
+
+// 🔐 MOBILE DEVICE DETECTION (iOS + Android ONLY)
+const isMobileDevice = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 export default function Media() {
   const navigate = useNavigate();
@@ -96,7 +98,7 @@ export default function Media() {
                 </Button>
               </div>
 
-              {/* YOUTUBE MOVIES PLAYLIST */}
+              {/* YOUTUBE MOVIES PLAYLIST (DESKTOP INLINE, MOBILE REDIRECT) */}
               {freeFilter === "youtube" && (
                 <Card>
                   <CardHeader>
@@ -104,15 +106,29 @@ export default function Media() {
                     <CardDescription>Official YouTube Movies playlist</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="aspect-video w-full rounded-xl overflow-hidden border">
-                      <iframe
-                        src="https://www.youtube-nocookie.com/embed/videoseries?list=PL8jVTN1qurcMB8yUZfVF2SDBZabAhAOuO"
-                        title="YouTube Movies Playlist"
-                        className="w-full h-full"
-                        allow="autoplay; encrypted-media; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
+                    {isMobileDevice ? (
+                      <Button
+                        className="w-full h-14 text-lg"
+                        onClick={() =>
+                          window.open(
+                            "https://www.youtube.com/watch?v=GXCmSXMbx64&list=PL8jVTN1qurcMB8yUZfVF2SDBZabAhAOuO",
+                            "_blank",
+                          )
+                        }
+                      >
+                        ▶️ Watch on YouTube (Mobile Friendly)
+                      </Button>
+                    ) : (
+                      <div className="aspect-video w-full rounded-xl overflow-hidden border">
+                        <iframe
+                          src="https://www.youtube.com/embed/videoseries?list=PL8jVTN1qurcMB8yUZfVF2SDBZabAhAOuO"
+                          title="YouTube Movies Playlist"
+                          className="w-full h-full"
+                          allow="autoplay; encrypted-media; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -140,7 +156,7 @@ export default function Media() {
             </div>
           </TabsContent>
 
-          {/* OTHER TABS (UNCHANGED) */}
+          {/* OTHER TABS (UNCHANGED PLACEHOLDERS) */}
           <TabsContent value="movies">
             <Card>
               <CardHeader>
