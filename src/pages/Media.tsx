@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Film,
@@ -12,15 +12,14 @@ import {
   Server,
   Settings,
   ArrowLeft,
-  Youtube,
 } from "lucide-react";
 
-/* 🔐 Mobile device detection (iOS + Android only) */
+/* 📱 Mobile device detection (iOS + Android) */
 const isMobileDevice =
   typeof navigator !== "undefined" &&
   /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/* 🎬 YOUR PLAYLISTS */
+/* 🎬 PLAYLISTS */
 const PLAYLISTS = [
   { title: "Free Family Movies", id: "PLCriYrweK0098Mtl95jNTBNPdgGj26RXK" },
   { title: "Free Movies & Shows", id: "PLX9_I-EOJPdHZJDzvjjRjpj86ClhZSsVm" },
@@ -33,7 +32,143 @@ const PLAYLISTS = [
   { title: "Courage the Cowardly Dog", id: "PLLIU9nFd9IrGmATWUdDgpsMzTAMgDXrNp" },
 ];
 
-/* 🎥 YOUR SINGLE MOVIES / EPISODES */
+/* 🎥 SINGLE MOVIES / EPISODES */
+const SINGLES = [
+  { title: "Casper's Haunted Christmas", id: "hr2rI0qn5EA" },
+  { title: "SpongeBob Classic Marathon", id: "8B8jplhrlso" },
+  { title: "SpongeBob Season 2", id: "pr80hyFCeGY" },
+  { title: "Ed, Edd n Eddy", id: "X-HRLChOTOA" },
+  { title: "Courage – Muriel’s Story", id: "uAVQgEXrZZU" },
+  { title: "Dexter’s Laboratory", id: "3bLNQgRn-Wg" },
+  { title: "Powerpuff Girls", id: "c0KlvkCKpE4" },
+  { title: "Recess (Disney)", id: "-UtUuT8AJjQ" },
+  { title: "That’s So Raven", id: "Tr7FcIvjVc4" },
+  { title: "Django", id: "ZxHLuzOnVNo" },
+  { title: "First Sunday", id: "3Aky7idipRk" },
+  { title: "Norbit", id: "-lbDPdksl-E" },
+  { title: "Gotti", id: "twW1G_yji5Q" },
+  { title: "Dumb and Dumber To", id: "TTgsopmTDG8" },
+  { title: "ATL", id: "ybzh6_5GFD0" },
+  { title: "The New Edition Story", id: "Iz7PQsBYM7g" },
+];
+
+export default function Media() {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("free");
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 bg-background border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Lucy Media</h1>
+            <p className="text-sm text-muted-foreground">
+              Movies, shows & cartoons
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-6 mb-6">
+            <TabsTrigger value="movies"><Film className="h-4 w-4" /> Movies</TabsTrigger>
+            <TabsTrigger value="tv"><Tv className="h-4 w-4" /> TV</TabsTrigger>
+            <TabsTrigger value="free"><Clapperboard className="h-4 w-4" /> Free</TabsTrigger>
+            <TabsTrigger value="party"><Users className="h-4 w-4" /> Party</TabsTrigger>
+            <TabsTrigger value="plex"><Server className="h-4 w-4" /> Plex</TabsTrigger>
+            <TabsTrigger value="settings"><Settings className="h-4 w-4" /> Settings</TabsTrigger>
+          </TabsList>
+
+          {/* FREE TAB */}
+          <TabsContent value="free">
+            <div className="space-y-8">
+              {/* PLAYLISTS */}
+              {PLAYLISTS.map((pl) => (
+                <Card key={pl.id}>
+                  <CardHeader>
+                    <CardTitle>{pl.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {isMobileDevice ? (
+                      <Button
+                        className="w-full"
+                        onClick={() =>
+                          window.open(
+                            `https://www.youtube.com/playlist?list=${pl.id}`,
+                            "_blank"
+                          )
+                        }
+                      >
+                        ▶️ Open Playlist on YouTube
+                      </Button>
+                    ) : (
+                      <div className="aspect-video rounded-xl overflow-hidden border">
+                        <iframe
+                          src={`https://www.youtube.com/embed/videoseries?list=${pl.id}`}
+                          className="w-full h-full"
+                          allow="encrypted-media; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* SINGLE MOVIES GRID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {SINGLES.map((m) => (
+                  <Card key={m.id}>
+                    <CardContent className="p-0">
+                      {isMobileDevice ? (
+                        <Button
+                          className="w-full h-14"
+                          onClick={() =>
+                            window.open(
+                              `https://www.youtube.com/watch?v=${m.id}`,
+                              "_blank"
+                            )
+                          }
+                        >
+                          ▶️ {m.title}
+                        </Button>
+                      ) : (
+                        <div className="aspect-video">
+                          <iframe
+                            src={`https://www.youtube.com/embed/${m.id}`}
+                            className="w-full h-full"
+                            allow="encrypted-media; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="flex justify-end">
+                <Badge variant="outline">YouTube • Free with ads</Badge>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* PLACEHOLDER TABS */}
+          <TabsContent value="movies"><Card><CardContent>Coming Soon</CardContent></Card></TabsContent>
+          <TabsContent value="tv"><Card><CardContent>Coming Soon</CardContent></Card></TabsContent>
+          <TabsContent value="party"><Card><CardContent>Coming Soon</CardContent></Card></TabsContent>
+          <TabsContent value="plex"><Card><CardContent>Coming Soon</CardContent></Card></TabsContent>
+          <TabsContent value="settings"><Card><CardContent>Coming Soon</CardContent></Card></TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
 const SINGLES = [
   { title: "Casper's Haunted Christmas", id: "hr2rI0qn5EA" },
   { title: "SpongeBob Classic Marathon", id: "8B8jplhrlso" },
