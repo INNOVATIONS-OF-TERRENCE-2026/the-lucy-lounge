@@ -10,29 +10,27 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { 
-  MessageSquarePlus, 
-  Search, 
+import {
+  MessageSquarePlus,
+  Search,
   LogOut,
   Moon,
   Sun,
   Settings,
   Shield,
   Folder,
-  Tag as TagIcon,
   Headphones,
-  Home
+  Home,
+  Film, // ✅ ADDED
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SettingsModal } from "./SettingsModal";
-import { TagManager } from "./TagManager";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
 import { WeatherAmbientSelector } from "@/components/ambient/WeatherAmbientSelector";
@@ -52,36 +50,29 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [editingTags, setEditingTags] = useState<string | null>(null);
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check theme
     const isDarkMode = document.documentElement.classList.contains("dark");
     setIsDark(isDarkMode);
-
-    // Check if user is admin
     checkAdminStatus();
-
-    // Load conversations and folders
     loadConversations();
     loadFolders();
 
-    // Set up realtime subscription
     const channel = supabase
-      .channel('conversations-changes')
+      .channel("conversations-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
-          filter: `user_id=eq.${userId}`
+          event: "*",
+          schema: "public",
+          table: "conversations",
+          filter: `user_id=eq.${userId}`,
         },
         () => {
           loadConversations();
-        }
+        },
       )
       .subscribe();
 
@@ -91,47 +82,30 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   }, [userId]);
 
   const checkAdminStatus = async () => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
       .maybeSingle();
 
-    if (data) {
-      setIsAdmin(true);
-    }
+    if (data) setIsAdmin(true);
   };
 
   const loadFolders = async () => {
-    const { data } = await supabase
-      .from('folders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('position');
+    const { data } = await supabase.from("folders").select("*").eq("user_id", userId).order("position");
     if (data) setFolders(data);
   };
 
   const loadConversations = async () => {
-    let query = supabase
-      .from('conversations')
-      .select('*')
-      .eq('user_id', userId);
+    let query = supabase.from("conversations").select("*").eq("user_id", userId);
 
     if (selectedFolder) {
-      query = query.eq('folder_id', selectedFolder);
+      query = query.eq("folder_id", selectedFolder);
     }
 
-    const { data } = await query.order('updated_at', { ascending: false });
+    const { data } = await query.order("updated_at", { ascending: false });
     if (data) setConversations(data);
-  };
-
-  const updateConversationTags = async (convId: string, tags: string[]) => {
-    await supabase
-      .from('conversations')
-      .update({ tags })
-      .eq('id', convId);
-    loadConversations();
   };
 
   const handleNewChat = () => {
@@ -152,25 +126,23 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
     setIsDark(!isDark);
   };
 
-  const filteredConversations = conversations.filter(conv =>
-    conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.tags?.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredConversations = conversations.filter(
+    (conv) =>
+      conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conv.tags?.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   return (
     <Sidebar className="border-r-0 bg-sidebar shadow-[4px_0_20px_rgba(0,0,0,0.1)] flex flex-col h-screen overflow-hidden">
-      <SidebarHeader className="p-4 border-b-0">
+      <SidebarHeader className="p-4">
         <div className="flex items-center gap-3 mb-4">
           <LucyLogo size="sm" showGlow />
           <div>
-            <h2 className="font-bold text-lg text-sidebar-foreground">Lucy AI</h2>
+            <h2 className="font-bold text-lg">Lucy AI</h2>
             <p className="text-xs text-muted-foreground">Beyond Intelligence</p>
           </div>
         </div>
-        <Button
-          onClick={handleNewChat}
-          className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-        >
+        <Button onClick={handleNewChat} className="w-full bg-gradient-primary">
           <MessageSquarePlus className="w-4 h-4 mr-2" />
           New Chat
         </Button>
@@ -190,160 +162,84 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </div>
 
         <ScrollArea className="flex-1">
-          {folders.length > 0 && (
-            <SidebarGroup>
-              <SidebarGroupLabel>Folders</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => setSelectedFolder(null)}
-                      isActive={selectedFolder === null}
-                    >
-                      <Folder className="w-4 h-4 mr-2" />
-                      All Conversations
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  {folders.map((folder) => (
-                    <SidebarMenuItem key={folder.id}>
-                      <SidebarMenuButton
-                        onClick={() => setSelectedFolder(folder.id)}
-                        isActive={selectedFolder === folder.id}
-                      >
-                        <Folder className="w-4 h-4 mr-2" />
-                        {folder.name}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          )}
-
           <SidebarGroup>
             <SidebarGroupLabel>Conversations</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {filteredConversations.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    No conversations yet. Start a new chat!
-                  </div>
-                ) : (
-                  filteredConversations.map((conversation) => (
-                    <SidebarMenuItem key={conversation.id}>
-                      <div className="w-full">
-                        <SidebarMenuButton
-                          onClick={() => onConversationSelect(conversation.id)}
-                          isActive={currentConversationId === conversation.id}
-                          className="w-full justify-start"
-                        >
-                          <MessageSquarePlus className="w-4 h-4 mr-2 flex-shrink-0" />
-                          <span className="truncate flex-1">{conversation.title}</span>
-                        </SidebarMenuButton>
-                        {conversation.tags && conversation.tags.length > 0 && (
-                          <div className="px-4 py-1 flex flex-wrap gap-1">
-                            {conversation.tags.slice(0, 3).map((tag: string) => (
-                              <span key={tag} className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </SidebarMenuItem>
-                  ))
-                )}
+                {filteredConversations.map((conversation) => (
+                  <SidebarMenuItem key={conversation.id}>
+                    <SidebarMenuButton
+                      onClick={() => onConversationSelect(conversation.id)}
+                      isActive={currentConversationId === conversation.id}
+                    >
+                      <MessageSquarePlus className="w-4 h-4 mr-2" />
+                      {conversation.title}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-0 border-t-0 flex-shrink-0 min-h-0 overflow-y-auto max-h-[50vh]">
-        <div className="overflow-y-auto max-h-[50vh]">
-          <div className="p-4 space-y-2">
-            {videoControls && (
-              <div className="pb-2 border-b border-border/50">
-                {videoControls}
-              </div>
-            )}
-            
-            {/* Color Theme Selector - Standalone Component */}
-            <ColorThemeSelector />
-            
-            {/* Weather & Seasons Ambient Selector - Standalone Component */}
-            <WeatherAmbientSelector />
-            
-            {/* Home Button - Navigate without logout */}
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => navigate("/")}
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Home
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => navigate("/studios")}
-            >
-              <MessageSquarePlus className="w-4 h-4 mr-2" />
-              Studios
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => navigate("/listening-mode")}
-            >
-              <Headphones className="w-4 h-4 mr-2" />
-              Listening Mode
-            </Button>
-            {isAdmin && (
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => navigate("/admin")}
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Admin Dashboard
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setShowSettings(true)}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={toggleTheme}
-            >
-              {isDark ? (
-                <>
-                  <Sun className="w-4 h-4 mr-2" />
-                  Light Mode
-                </>
-              ) : (
-                <>
-                  <Moon className="w-4 h-4 mr-2" />
-                  Dark Mode
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-destructive hover:text-destructive"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
+      <SidebarFooter className="p-4 space-y-2">
+        {videoControls}
+
+        <ColorThemeSelector />
+        <WeatherAmbientSelector />
+
+        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/")}>
+          <Home className="w-4 h-4 mr-2" />
+          Home
+        </Button>
+
+        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/studios")}>
+          <MessageSquarePlus className="w-4 h-4 mr-2" />
+          Studios
+        </Button>
+
+        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/listening-mode")}>
+          <Headphones className="w-4 h-4 mr-2" />
+          Listening Mode
+        </Button>
+
+        {/* 🎬 MEDIA BUTTON — THIS WAS MISSING */}
+        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/media")}>
+          <Film className="w-4 h-4 mr-2" />
+          Media
+        </Button>
+
+        {isAdmin && (
+          <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin")}>
+            <Shield className="w-4 h-4 mr-2" />
+            Admin Dashboard
+          </Button>
+        )}
+
+        <Button variant="outline" className="w-full justify-start" onClick={() => setShowSettings(true)}>
+          <Settings className="w-4 h-4 mr-2" />
+          Settings
+        </Button>
+
+        <Button variant="outline" className="w-full justify-start" onClick={toggleTheme}>
+          {isDark ? (
+            <>
+              <Sun className="w-4 h-4 mr-2" />
+              Light Mode
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4 mr-2" />
+              Dark Mode
+            </>
+          )}
+        </Button>
+
+        <Button variant="outline" className="w-full justify-start text-destructive" onClick={handleSignOut}>
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </SidebarFooter>
 
       <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
