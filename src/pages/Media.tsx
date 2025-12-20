@@ -7,9 +7,8 @@ import { ArrowLeft } from "lucide-react";
 /* Mobile detection */
 const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/* PLAYLISTS */
+/* PLAYLISTS (UPDATED – REMOVED Free Family Movies) */
 const PLAYLISTS = [
-  { title: "Free Family Movies", id: "PLCriYrweK0098Mtl95jNTBNPdgGj26RXK" },
   { title: "Free Movies & Shows", id: "PLX9_I-EOJPdHZJDzvjjRjpj86ClhZSsVm" },
   { title: "Nicktoons Full Episodes", id: "PLUQR09yEYrP0RaHE3f9vNQkOx08IT9ZTe" },
   { title: "CatDog Full Episodes", id: "PLfrgt_xI4Xq2Cg78vsEjqEs-aJv1HQmO0" },
