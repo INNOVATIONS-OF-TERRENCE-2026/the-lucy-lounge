@@ -1,96 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-  Film,
-  Tv,
-  Clapperboard,
-  Users,
-  Server,
-  Settings,
-  ArrowLeft,
-  RefreshCw,
-  Play,
-  Youtube,
-  Globe,
-  Video,
-} from "lucide-react";
-
-import { FreeMediaItem, FreeMediaCategory } from "@/features/media/services/youtubeCatalog";
-import { vimeoCatalog } from "@/features/media/services/vimeoCatalog";
+import { Film, Tv, Clapperboard, Users, Server, Settings, ArrowLeft, Youtube, Globe, Play, Video } from "lucide-react";
 import { EmbeddedPlayerModal } from "@/features/media/components/EmbeddedPlayerModal";
-import { FreeMovieCard } from "@/features/media/components/FreeMovieCard";
-
-type SelectedVideo = {
-  provider: "youtube" | "vimeo";
-  id: string;
-  title: string;
-} | null;
-
-const FILTER_OPTIONS: { value: FreeMediaCategory; label: string; icon: React.ReactNode }[] = [
-  { value: "youtube_free", label: "YouTube", icon: <Youtube className="h-4 w-4" /> },
-  { value: "public_domain", label: "Public Domain", icon: <Globe className="h-4 w-4" /> },
-  { value: "trailers", label: "Trailers", icon: <Play className="h-4 w-4" /> },
-  { value: "vimeo", label: "Vimeo", icon: <Video className="h-4 w-4" /> },
-];
 
 export default function Media() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("free");
-
-  const [freeLoading, setFreeLoading] = useState(false);
-  const [freeError, setFreeError] = useState<string | null>(null);
-  const [freeItems, setFreeItems] = useState<FreeMediaItem[]>([]);
-  const [freeFilter, setFreeFilter] = useState<FreeMediaCategory>("youtube_free");
-  const [selectedVideo, setSelectedVideo] = useState<SelectedVideo>(null);
-
-  // ✅ LOAD FREE MOVIES FROM LOVABLE CLOUD API
-  useEffect(() => {
-    loadFreeMovies();
-  }, []);
-
-  async function loadFreeMovies() {
-    setFreeLoading(true);
-    setFreeError(null);
-
-    try {
-      const res = await fetch("/api/free-movies");
-
-      if (!res.ok) {
-        throw new Error("Free movies API failed");
-      }
-
-      const yt: FreeMediaItem[] = await res.json();
-      const vimeo = vimeoCatalog.getCurated();
-
-      const combined = [...yt, ...vimeo];
-      setFreeItems(combined);
-    } catch (err) {
-      console.error("[FREE_MOVIES_API_FAIL]", err);
-      setFreeError("Could not load free movies.");
-    } finally {
-      setFreeLoading(false);
-    }
-  }
-
-  const filteredItems = freeItems.filter((item) => {
-    if (freeFilter === "trailers") {
-      return item.category === "youtube_free";
-    }
-    return item.category === freeFilter;
-  });
-
-  const handlePlayVideo = (item: FreeMediaItem) => {
-    setSelectedVideo({
-      provider: item.provider,
-      id: item.id,
-      title: item.title,
-    });
-  };
+  const [freeFilter, setFreeFilter] = useState<"youtube" | "public" | "trailers" | "vimeo">("youtube");
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,70 +50,154 @@ export default function Media() {
             </TabsTrigger>
           </TabsList>
 
-          {/* FREE MOVIES */}
+          {/* FREE MOVIES TAB */}
           <TabsContent value="free">
             <div className="space-y-6">
+              {/* FILTER BUTTONS */}
               <div className="flex flex-wrap gap-2">
-                {FILTER_OPTIONS.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    size="sm"
-                    variant={freeFilter === opt.value ? "default" : "outline"}
-                    onClick={() => setFreeFilter(opt.value)}
-                  >
-                    {opt.icon} {opt.label}
-                  </Button>
-                ))}
+                <Button
+                  size="sm"
+                  variant={freeFilter === "youtube" ? "default" : "outline"}
+                  onClick={() => setFreeFilter("youtube")}
+                  className="gap-2"
+                >
+                  <Youtube className="h-4 w-4" />
+                  YouTube Movies
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant={freeFilter === "public" ? "default" : "outline"}
+                  onClick={() => setFreeFilter("public")}
+                  className="gap-2"
+                >
+                  <Globe className="h-4 w-4" />
+                  Public Domain
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant={freeFilter === "trailers" ? "default" : "outline"}
+                  onClick={() => setFreeFilter("trailers")}
+                  className="gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  Trailers
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant={freeFilter === "vimeo" ? "default" : "outline"}
+                  onClick={() => setFreeFilter("vimeo")}
+                  className="gap-2"
+                >
+                  <Video className="h-4 w-4" />
+                  Vimeo
+                </Button>
               </div>
 
-              {freeLoading && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-video rounded-lg" />
-                  ))}
-                </div>
-              )}
-
-              {!freeLoading && freeError && (
+              {/* YOUTUBE MOVIES PLAYLIST */}
+              {freeFilter === "youtube" && (
                 <Card>
-                  <CardContent className="pt-6 text-center">
-                    <p className="text-destructive">{freeError}</p>
-                    <Button onClick={loadFreeMovies} className="mt-4">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Retry
-                    </Button>
+                  <CardHeader>
+                    <CardTitle>YouTube Movies — Free With Ads</CardTitle>
+                    <CardDescription>Official YouTube Movies playlist</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="aspect-video w-full rounded-xl overflow-hidden border">
+                      <iframe
+                        src="https://www.youtube-nocookie.com/embed/videoseries?list=PL8jVTN1qurcMB8yUZfVF2SDBZabAhAOuO"
+                        title="YouTube Movies Playlist"
+                        className="w-full h-full"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               )}
 
-              {!freeLoading && filteredItems.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {filteredItems.map((item) => (
-                    <FreeMovieCard key={`${item.provider}:${item.id}`} item={item} onPlay={handlePlayVideo} />
-                  ))}
-                </div>
+              {/* PLACEHOLDERS FOR OTHER FILTERS */}
+              {freeFilter !== "youtube" && (
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <Clapperboard className="h-12 w-12 mx-auto text-muted-foreground" />
+                    <p className="mt-2 font-medium">
+                      {freeFilter === "public" && "Public domain movies coming next"}
+                      {freeFilter === "trailers" && "Trailers coming soon"}
+                      {freeFilter === "vimeo" && "Vimeo films coming soon"}
+                    </p>
+                    <Badge className="mt-3" variant="secondary">
+                      Coming Soon
+                    </Badge>
+                  </CardContent>
+                </Card>
               )}
 
-              {!freeLoading && freeItems.length > 0 && (
-                <div className="flex justify-between text-sm text-muted-foreground border-t pt-4">
-                  <span>
-                    Showing {filteredItems.length} of {freeItems.length} free titles
-                  </span>
-                  <Badge variant="outline">No API key required</Badge>
-                </div>
-              )}
+              <div className="flex justify-end text-sm text-muted-foreground pt-4 border-t">
+                <Badge variant="outline">No API key required</Badge>
+              </div>
             </div>
+          </TabsContent>
+
+          {/* OTHER TABS (UNCHANGED) */}
+          <TabsContent value="movies">
+            <Card>
+              <CardHeader>
+                <CardTitle>Movies</CardTitle>
+                <CardDescription>Connect to Plex or browse free movies</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Movies from connected services will appear here.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="tv">
+            <Card>
+              <CardHeader>
+                <CardTitle>TV Shows</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">TV content coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="party">
+            <Card>
+              <CardHeader>
+                <CardTitle>Watch Party</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button disabled>Coming Soon</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="plex">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Plex</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button disabled>Connect Plex (Coming Soon)</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Media Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge variant="secondary">Coming Soon</Badge>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
-
-      <EmbeddedPlayerModal
-        open={!!selectedVideo}
-        onClose={() => setSelectedVideo(null)}
-        provider={selectedVideo?.provider ?? "youtube"}
-        id={selectedVideo?.id ?? ""}
-        title={selectedVideo?.title ?? ""}
-      />
     </div>
   );
 }
