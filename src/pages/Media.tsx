@@ -48,7 +48,7 @@ export default function Media() {
   const [freeFilter, setFreeFilter] = useState<FreeMediaCategory>("youtube_free");
   const [selectedVideo, setSelectedVideo] = useState<SelectedVideo>(null);
 
-  // 🔥 STEP 2 FIX — SERVER-SIDE FETCH (NO CORS, FULL PLAYLISTS)
+  // ✅ LOAD FREE MOVIES FROM LOVABLE CLOUD API
   useEffect(() => {
     loadFreeMovies();
   }, []);
@@ -58,17 +58,19 @@ export default function Media() {
     setFreeError(null);
 
     try {
-      const res = await fetch("/functions/v1/free-movies");
-      if (!res.ok) throw new Error("Edge function failed");
+      const res = await fetch("/api/free-movies");
+
+      if (!res.ok) {
+        throw new Error("Free movies API failed");
+      }
 
       const yt: FreeMediaItem[] = await res.json();
       const vimeo = vimeoCatalog.getCurated();
 
       const combined = [...yt, ...vimeo];
-
       setFreeItems(combined);
-    } catch (e) {
-      console.error("[FREE_MOVIES_EDGE_FAIL]", e);
+    } catch (err) {
+      console.error("[FREE_MOVIES_API_FAIL]", err);
       setFreeError("Could not load free movies.");
     } finally {
       setFreeLoading(false);
@@ -93,7 +95,7 @@ export default function Media() {
   return (
     <div className="min-h-screen bg-background">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
@@ -128,7 +130,7 @@ export default function Media() {
             </TabsTrigger>
           </TabsList>
 
-          {/* FREE MOVIES TAB */}
+          {/* FREE MOVIES */}
           <TabsContent value="free">
             <div className="space-y-6">
               <div className="flex flex-wrap gap-2">
@@ -145,7 +147,7 @@ export default function Media() {
               </div>
 
               {freeLoading && (
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <Skeleton key={i} className="aspect-video rounded-lg" />
                   ))}
