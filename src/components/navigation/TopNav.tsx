@@ -1,278 +1,145 @@
-import { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Menu, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate, Link } from "react-router-dom";
-import { Menu, X, ChevronDown, MessageSquare } from "lucide-react";
-import { LucyAvatar } from "@/components/avatar/LucyAvatar";
-import { ThemeToggle } from "@/components/settings/ThemeToggle";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export const TopNav = () => {
-  const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsLoggedIn(!!session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    cn("text-sm font-medium transition-colors hover:text-primary", isActive ? "text-primary" : "text-foreground/80");
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/20">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <LucyAvatar size="sm" />
-            <span className="text-xl font-bold text-foreground">Lucy AI</span>
-          </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/80 backdrop-blur">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
+        <Link to="/" className="text-xl font-bold">
+          Lucy AI
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {/* Studios Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors font-medium">
-                Studios
-                <ChevronDown className="w-4 h-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/studios/ai")}>
-                  AI Studio
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/studios/audio")}>
-                  Audio Studio
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/studios/dev")}>
-                  Dev Studio
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-6">
+          <NavLink to="/features" className={linkClass}>
+            Features
+          </NavLink>
+          <NavLink to="/pricing" className={linkClass}>
+            Pricing
+          </NavLink>
+          <NavLink to="/tools" className={linkClass}>
+            Tools
+          </NavLink>
 
-            <Link to="/features" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-              Features
-            </Link>
-            <Link to="/pricing" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-              Pricing
-            </Link>
-            <Link to="/tools" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-              Tools
-            </Link>
-            {/* Guides Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors font-medium">
-                Guides
-                <ChevronDown className="w-4 h-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem onClick={() => navigate("/guides/business-credit-repair")}>
-                  Business Credit Repair Guide
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/guides/sba-loan-complete-guide")}>
-                  SBA Loan Complete Guide
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/guides/funding-for-women-entrepreneurs")}>
-                  Funding for Women Entrepreneurs
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Link to="/blog" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-              Blog
-            </Link>
-            <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-              About
-            </Link>
-          </div>
-
-          {/* CTA Buttons - Auth-aware */}
-          <div className="hidden md:flex items-center gap-3">
-            <ThemeToggle />
-            {isLoggedIn ? (
-              <Button
-                variant="gradient"
-                onClick={() => navigate("/chat")}
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Open Lucy
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate("/auth")}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="gradient"
-                  onClick={() => navigate("/auth")}
-                >
-                  Start Free
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-border/20 pt-4">
-            <div className="flex flex-col gap-4">
-              {/* Studios Section */}
-              <div className="border-b border-border/20 pb-3">
-                <div className="text-foreground/60 text-sm font-semibold mb-2">Studios</div>
-                <Link
-                  to="/studios/ai"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  AI Studio
-                </Link>
-                <Link
-                  to="/studios/audio"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Audio Studio
-                </Link>
-                <Link
-                  to="/studios/dev"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Dev Studio
-                </Link>
-              </div>
-
-              <Link
-                to="/features"
-                className="text-foreground/80 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Features
-              </Link>
-              <Link
-                to="/pricing"
-                className="text-foreground/80 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                to="/tools"
-                className="text-foreground/80 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Tools
-              </Link>
-              
-              {/* Guides Section */}
-              <div className="border-t border-border/20 pt-3 mt-3">
-                <div className="text-foreground/60 text-sm font-semibold mb-2">Guides</div>
-                <Link
-                  to="/guides/business-credit-repair"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Business Credit Repair
-                </Link>
-                <Link
-                  to="/guides/sba-loan-complete-guide"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  SBA Loan Guide
-                </Link>
-                <Link
-                  to="/guides/funding-for-women-entrepreneurs"
-                  className="block py-2 text-foreground/80 hover:text-foreground transition-colors pl-4"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Women Entrepreneurs Funding
-                </Link>
-              </div>
-              
-              <Link
-                to="/blog"
-                className="text-foreground/80 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Blog
-              </Link>
-              <Link
-                to="/about"
-                className="text-foreground/80 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
-
-              {/* Mobile CTA - Auth-aware */}
-              <div className="flex flex-col gap-2 pt-3 border-t border-border/20">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-foreground/80">Theme</span>
-                  <ThemeToggle />
-                </div>
-                {isLoggedIn ? (
-                  <Button
-                    variant="gradient"
-                    onClick={() => {
-                      navigate("/chat");
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Open Lucy
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        navigate("/auth");
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full"
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      variant="gradient"
-                      onClick={() => {
-                        navigate("/auth");
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full"
-                    >
-                      Start Free
-                    </Button>
-                  </>
-                )}
-              </div>
+          {/* Studios */}
+          <div className="relative group">
+            <button className="flex items-center gap-1 text-sm font-medium text-foreground/80 hover:text-primary">
+              Studios <ChevronDown className="h-4 w-4" />
+            </button>
+            <div className="absolute left-0 mt-2 w-48 rounded-md border border-border bg-background shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition">
+              <NavLink to="/studios/ai" className="block px-4 py-2 hover:bg-muted">
+                AI Studio
+              </NavLink>
+              <NavLink to="/studios/audio" className="block px-4 py-2 hover:bg-muted">
+                Audio Studio
+              </NavLink>
+              <NavLink to="/studios/dev" className="block px-4 py-2 hover:bg-muted">
+                Dev Studio
+              </NavLink>
             </div>
           </div>
-        )}
+
+          {/* Guides */}
+          <div className="relative group">
+            <button className="flex items-center gap-1 text-sm font-medium text-foreground/80 hover:text-primary">
+              Guides <ChevronDown className="h-4 w-4" />
+            </button>
+            <div className="absolute left-0 mt-2 w-72 rounded-md border border-border bg-background shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition">
+              <NavLink to="/guides/business-credit-repair" className="block px-4 py-2 hover:bg-muted">
+                Business Credit Repair
+              </NavLink>
+              <NavLink to="/guides/sba-loan-complete-guide" className="block px-4 py-2 hover:bg-muted">
+                SBA Loan Complete Guide
+              </NavLink>
+              <NavLink to="/guides/funding-for-women-entrepreneurs" className="block px-4 py-2 hover:bg-muted">
+                Funding for Women Entrepreneurs
+              </NavLink>
+            </div>
+          </div>
+
+          <NavLink to="/about" className={linkClass}>
+            About
+          </NavLink>
+          <NavLink to="/blog" className={linkClass}>
+            Blog
+          </NavLink>
+        </nav>
+
+        {/* CTA */}
+        <div className="hidden md:flex gap-3">
+          <Button asChild variant="outline">
+            <Link to="/auth">Sign In</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/chat">Try Free</Link>
+          </Button>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)}>
+          <Menu />
+        </Button>
       </div>
-    </nav>
+
+      {/* Mobile Menu */}
+      {open && (
+        <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-3">
+          <NavLink to="/features" onClick={() => setOpen(false)}>
+            Features
+          </NavLink>
+          <NavLink to="/pricing" onClick={() => setOpen(false)}>
+            Pricing
+          </NavLink>
+          <NavLink to="/tools" onClick={() => setOpen(false)}>
+            Tools
+          </NavLink>
+
+          <div className="pt-2 border-t border-border">
+            <p className="text-xs text-muted-foreground mb-2">Studios</p>
+            <NavLink to="/studios/ai" onClick={() => setOpen(false)}>
+              AI Studio
+            </NavLink>
+            <NavLink to="/studios/audio" onClick={() => setOpen(false)}>
+              Audio Studio
+            </NavLink>
+            <NavLink to="/studios/dev" onClick={() => setOpen(false)}>
+              Dev Studio
+            </NavLink>
+          </div>
+
+          <div className="pt-2 border-t border-border">
+            <p className="text-xs text-muted-foreground mb-2">Guides</p>
+            <NavLink to="/guides/business-credit-repair" onClick={() => setOpen(false)}>
+              Business Credit
+            </NavLink>
+            <NavLink to="/guides/sba-loan-complete-guide" onClick={() => setOpen(false)}>
+              SBA Loans
+            </NavLink>
+            <NavLink to="/guides/funding-for-women-entrepreneurs" onClick={() => setOpen(false)}>
+              Women Funding
+            </NavLink>
+          </div>
+
+          <NavLink to="/about" onClick={() => setOpen(false)}>
+            About
+          </NavLink>
+          <NavLink to="/blog" onClick={() => setOpen(false)}>
+            Blog
+          </NavLink>
+          <NavLink to="/auth" onClick={() => setOpen(false)}>
+            Sign In
+          </NavLink>
+        </div>
+      )}
+    </header>
   );
 };
