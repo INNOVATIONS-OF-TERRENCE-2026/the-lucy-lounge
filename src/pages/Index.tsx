@@ -11,38 +11,51 @@ export default function Index() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/chat");
+      if (data.session) {
+        navigate("/chat");
+      }
     });
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-      <ThemeToggle className="absolute top-4 right-4" />
+    <div className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+      {/* Theme Toggle (wrapped safely — no props passed) */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
 
-      <img src={lucyLogo} alt="Lucy AI" className="w-32 h-32 mb-6 rounded-full" />
+      {/* Logo */}
+      <div className="mb-8">
+        <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg mx-auto">
+          <img src={lucyLogo} alt="Lucy AI" className="w-full h-full object-cover" />
+        </div>
+      </div>
 
-      <h1 className="text-6xl font-bold mb-4">Lucy AI</h1>
-      <p className="text-xl mb-8">Beyond Intelligence</p>
+      {/* Title */}
+      <h1 className="text-6xl md:text-7xl font-bold mb-4">Lucy AI</h1>
+      <p className="text-xl md:text-2xl mb-8 text-muted-foreground">Beyond Intelligence</p>
 
-      <div className="flex gap-4 mb-10">
-        <Button size="lg" onClick={() => navigate("/auth")}>
-          <MessageSquare className="mr-2 h-5 w-5" />
+      {/* CTA */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-12">
+        <Button size="lg" className="gap-2" onClick={() => navigate("/auth")}>
+          <MessageSquare className="w-5 h-5" />
           Start Chatting
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 text-center">
-        <div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl w-full">
+        <div className="rounded-xl border p-6 bg-background/60 backdrop-blur">
           <div className="text-3xl font-bold">9,700+</div>
-          <div className="text-sm">Active Users</div>
+          <div className="text-sm text-muted-foreground">Active Users</div>
         </div>
-        <div>
+        <div className="rounded-xl border p-6 bg-background/60 backdrop-blur">
           <div className="text-3xl font-bold">39,500+</div>
-          <div className="text-sm">Conversions</div>
+          <div className="text-sm text-muted-foreground">Conversions</div>
         </div>
-        <div>
+        <div className="rounded-xl border p-6 bg-background/60 backdrop-blur">
           <div className="text-3xl font-bold">4.9⭐️</div>
-          <div className="text-sm">User Rating</div>
+          <div className="text-sm text-muted-foreground">User Rating</div>
         </div>
       </div>
     </div>
