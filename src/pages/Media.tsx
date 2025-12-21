@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 /* Mobile detection */
 const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/* PLAYLISTS (UPDATED – REMOVED Free Family Movies) */
+/* PLAYLISTS */
 const PLAYLISTS = [
   { title: "Free Movies & Shows", id: "PLX9_I-EOJPdHZJDzvjjRjpj86ClhZSsVm" },
   { title: "Nicktoons Full Episodes", id: "PLUQR09yEYrP0RaHE3f9vNQkOx08IT9ZTe" },
@@ -17,8 +17,9 @@ const PLAYLISTS = [
   { title: "Courage the Cowardly Dog", id: "PLLIU9nFd9IrGmATWUdDgpsMzTAMgDXrNp" },
 ];
 
-/* SINGLE MOVIES */
+/* SINGLE MOVIES (EXISTING + NEW ADDED) */
 const MOVIES = [
+  // existing
   { title: "Casper's Haunted Christmas", id: "hr2rI0qn5EA" },
   { title: "SpongeBob Marathon", id: "8B8jplhrlso" },
   { title: "Ed, Edd n Eddy", id: "X-HRLChOTOA" },
@@ -30,6 +31,26 @@ const MOVIES = [
   { title: "First Sunday", id: "3Aky7idipRk" },
   { title: "Norbit", id: "-lbDPdksl-E" },
   { title: "ATL", id: "ybzh6_5GFD0" },
+
+  // 🔥 NEW ADDED EMBEDS (NO REMOVALS)
+  { title: "Featured Movie", id: "1JOf7Gbn4Is" },
+  { title: "Featured Movie", id: "jgHnkc2Hn-k" },
+  { title: "Featured Movie", id: "q3m9nwWItVg" },
+  { title: "Featured Movie", id: "EWLL8zHlaAM" },
+  { title: "Featured Movie", id: "f9-DU9lwWqk" },
+  { title: "Featured Movie", id: "q9i29JAjcIg" },
+  { title: "Featured Movie", id: "64wMmlmxEYU" },
+  { title: "Featured Movie", id: "uDkjFRjFCnU" },
+  { title: "Featured Movie", id: "CvuxwyAzY28" },
+  { title: "Featured Movie", id: "h5L-pULo-pU" },
+  { title: "Featured Movie", id: "fXKt2FhFgUQ" },
+  { title: "Featured Movie", id: "-4p4p2PPqa8" },
+  { title: "Featured Movie", id: "rWq6vRXnWXo" },
+  { title: "Featured Movie", id: "IlbUKVpxokc" },
+  { title: "Featured Movie", id: "iiYWtxznLEA" },
+  { title: "Featured Movie", id: "hYLadBjERb4" },
+  { title: "Featured Movie", id: "K2nmrEvgv0M" },
+  { title: "Featured Movie", id: "tGHYZKXmoPI" },
 ];
 
 export default function Media() {
@@ -37,7 +58,6 @@ export default function Media() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* HEADER */}
       <header className="sticky top-0 z-50 bg-background border-b">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -51,7 +71,6 @@ export default function Media() {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* PLAYLISTS */}
         {PLAYLISTS.map((pl) => (
           <Card key={pl.id}>
             <CardHeader>
@@ -79,7 +98,6 @@ export default function Media() {
           </Card>
         ))}
 
-        {/* MOVIES GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {MOVIES.map((m) => (
             <Card key={m.id}>
