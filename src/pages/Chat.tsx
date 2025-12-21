@@ -19,9 +19,9 @@ import { LogIn } from "lucide-react";
 
 // Loading skeleton for chat
 const ChatLoadingSkeleton = () => (
-  <div className="flex flex-row w-screen h-screen max-h-screen overflow-hidden bg-background">
+  <div className="flex flex-row w-full h-screen max-h-screen overflow-hidden bg-background">
     <div className="w-64 h-full bg-muted/20 animate-pulse hidden md:block" />
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col max-w-full min-w-0">
       <div className="h-16 bg-muted/10 animate-pulse" />
       <div className="flex-1 p-4 space-y-4">
         {[1, 2, 3].map(i => (
@@ -189,9 +189,11 @@ const ChatContent = () => {
       <SidebarProvider>
         <div
           className="
-          flex flex-row w-screen h-screen max-h-screen overflow-hidden
+          flex flex-row w-full h-screen max-h-screen overflow-hidden
+          max-w-full min-w-0
           bg-[var(--theme-bg-1)] text-[var(--theme-text)]
           transition-all duration-500
+          chat-container
         "
         >
           <ChatSidebar

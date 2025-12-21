@@ -134,7 +134,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
 
   return (
     <Sidebar className="border-r-0 bg-sidebar shadow-[4px_0_20px_rgba(0,0,0,0.1)] flex flex-col h-screen overflow-hidden">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-4 flex-shrink-0">
         <div className="flex items-center gap-3 mb-4">
           <LucyLogo size="sm" showGlow />
           <div>
@@ -148,7 +148,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </Button>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="px-4 py-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -161,7 +161,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
           </div>
         </div>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <SidebarGroup>
             <SidebarGroupLabel>Conversations</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -183,7 +183,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 space-y-2">
+      <SidebarFooter className="p-4 space-y-2 flex-shrink-0 overflow-y-auto max-h-[50vh]">
         {videoControls}
 
         <ColorThemeSelector />

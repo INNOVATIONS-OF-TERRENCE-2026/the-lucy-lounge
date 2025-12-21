@@ -87,6 +87,9 @@ export const TopNav = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Link to="/blog" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+              Blog
+            </Link>
             <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
               About
             </Link>
@@ -208,6 +211,13 @@ export const TopNav = () => {
                 </Link>
               </div>
               
+              <Link
+                to="/blog"
+                className="text-foreground/80 hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </Link>
               <Link
                 to="/about"
                 className="text-foreground/80 hover:text-foreground transition-colors"

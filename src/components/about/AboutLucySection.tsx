@@ -55,12 +55,12 @@ export const AboutLucySection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
-              className="text-center p-6 glass rounded-xl backdrop-blur-sm"
+              className="relative text-center p-6 rounded-xl backdrop-blur-sm bg-card/50 border border-border/30"
             >
-              <div className="text-3xl font-bold bg-gradient-button bg-clip-text text-transparent mb-2">
+              <div className="relative z-10 text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                 Custom Built
               </div>
-              <div className="text-foreground/70 text-sm">
+              <div className="relative z-10 text-muted-foreground text-sm">
                 Every aspect engineered by Terrence Milliner Sr.
               </div>
             </motion.div>
@@ -70,12 +70,12 @@ export const AboutLucySection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               viewport={{ once: true }}
-              className="text-center p-6 glass rounded-xl backdrop-blur-sm"
+              className="relative text-center p-6 rounded-xl backdrop-blur-sm bg-card/50 border border-border/30"
             >
-              <div className="text-3xl font-bold bg-gradient-button bg-clip-text text-transparent mb-2">
+              <div className="relative z-10 text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                 Thoughtful Design
               </div>
-              <div className="text-foreground/70 text-sm">
+              <div className="relative z-10 text-muted-foreground text-sm">
                 Personality, logic, and emotion crafted with care
               </div>
             </motion.div>
@@ -85,12 +85,12 @@ export const AboutLucySection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
               viewport={{ once: true }}
-              className="text-center p-6 glass rounded-xl backdrop-blur-sm"
+              className="relative text-center p-6 rounded-xl backdrop-blur-sm bg-card/50 border border-border/30"
             >
-              <div className="text-3xl font-bold bg-gradient-button bg-clip-text text-transparent mb-2">
+              <div className="relative z-10 text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                 Built to Evolve
               </div>
-              <div className="text-foreground/70 text-sm">
+              <div className="relative z-10 text-muted-foreground text-sm">
                 Continuously refined and enhanced
               </div>
             </motion.div>
