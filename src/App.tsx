@@ -18,6 +18,9 @@ import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 import { RoomList } from "@/components/rooms/RoomList";
 import { RoomChat } from "@/components/rooms/RoomChat";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Chat from "./pages/Chat";
@@ -105,12 +108,14 @@ const App = () => {
             <GlobalSpotifyAudioHost />
             <GlobalMiniPlayer />
             <LucySuggestionDrawer />
+            <FloatingCalculator />
 
           <InstallPrompt />
           <OfflineBanner />
 
           <div className={`w-full min-h-screen h-auto overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
             <BrowserRouter>
+              <ScrollToTop />
               <AnalyticsTracker />
 
             <Routes>
@@ -165,7 +170,7 @@ const App = () => {
               <Route path="/shared/:token" element={<SharedConversation />} />
               <Route path="/rooms" element={<RoomList />} />
               <Route path="/room/:roomId" element={<RoomChat />} />
-              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/analytics" element={<AdminRoute><Analytics /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

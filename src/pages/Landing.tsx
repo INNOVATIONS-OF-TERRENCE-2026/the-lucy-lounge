@@ -9,6 +9,7 @@ import { EmailCapture } from '@/components/landing/EmailCapture';
 import { ShareButtons } from '@/components/landing/ShareButtons';
 import { StructuredData } from '@/components/seo/StructuredData';
 import { TopNav } from '@/components/navigation/TopNav';
+import { WhatsNewSection } from '@/components/landing/WhatsNewSection';
 
 const Landing = () => {
   // AUDIT FIX: Removed auto-redirect for logged-in users
@@ -34,6 +35,7 @@ const Landing = () => {
         <TopNav />
         <div className="relative z-10">
           <Hero />
+          <WhatsNewSection />
           <Features />
           
           {/* Email Capture Section */}

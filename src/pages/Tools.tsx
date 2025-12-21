@@ -31,6 +31,8 @@ const Tools = () => {
     'web-fetch': 'browser_fetch'
   };
 
+  const comingSoonTools = ['pdf-extractor', 'website-summarizer', 'image-caption', 'calculator', 'html-cleaner', 'data-analyzer', 'code-runner', 'web-fetch'];
+
   const tools = [
     {
       id: 'pdf-extractor',
@@ -227,11 +229,12 @@ const Tools = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
               {filteredTools.map((tool) => {
                 const Icon = tool.icon;
+                const isComingSoon = comingSoonTools.includes(tool.id);
                 return (
                   <Card 
                     key={tool.id}
-                    className="p-6 bg-card/80 backdrop-blur-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-                    onClick={() => handleToolClick(tool.id)}
+                    className={`p-6 bg-card/80 backdrop-blur-lg transition-transform duration-300 ${isComingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 cursor-pointer'}`}
+                    onClick={() => !isComingSoon && handleToolClick(tool.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center">
@@ -241,9 +244,15 @@ const Tools = () => {
                           <Icon className="w-6 h-6 text-white" />
                         )}
                       </div>
-                      <Badge variant={tool.free ? 'default' : 'secondary'}>
-                        {tool.free ? 'Free' : 'Pro'}
-                      </Badge>
+                      {isComingSoon ? (
+                        <Badge variant="outline" className="text-xs whitespace-nowrap">
+                          Coming Soon January 8, 2026
+                        </Badge>
+                      ) : (
+                        <Badge variant={tool.free ? 'default' : 'secondary'}>
+                          {tool.free ? 'Free' : 'Pro'}
+                        </Badge>
+                      )}
                     </div>
                     <h3 className="text-lg font-semibold mb-2">{tool.name}</h3>
                     <p className="text-sm text-muted-foreground mb-4">{tool.description}</p>

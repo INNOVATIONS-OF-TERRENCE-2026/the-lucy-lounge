@@ -65,3 +65,15 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+/* === SAFE AREA FOR iOS === */
+.chat-container {
+  padding-right: env(safe-area-inset-right);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* === MEDIA PAGE DESKTOP MODE (iOS) === */
+body.media-desktop-mode .media-container {
+  min-width: 1024px;
+  overflow-x: auto;
+}

@@ -99,12 +99,12 @@ export const Hero = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
           <div className="relative text-center p-6 hover:scale-105 transition-transform rounded-2xl backdrop-blur-xl bg-black/40 border border-primary/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-2xl" />
-            <div className="text-4xl font-bold text-white mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">500K+</div>
+            <div className="text-4xl font-bold text-white mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">9,700+</div>
             <div className="text-white/90 text-sm font-medium">Active Users</div>
           </div>
           <div className="relative text-center p-6 hover:scale-105 transition-transform rounded-2xl backdrop-blur-xl bg-black/40 border border-primary/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-t-2xl" />
-            <div className="text-4xl font-bold text-white mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">10M+</div>
+            <div className="text-4xl font-bold text-white mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">39,500+</div>
             <div className="text-white/90 text-sm font-medium">Conversations</div>
           </div>
           <div className="relative text-center p-6 hover:scale-105 transition-transform rounded-2xl backdrop-blur-xl bg-black/40 border border-primary/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">

@@ -165,15 +165,15 @@ const CreatorStudio = () => {
 
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="p-6 text-center bg-card/80 backdrop-blur-lg">
-                <div className="text-4xl font-bold text-accent mb-2">10M+</div>
+                <div className="text-4xl font-bold text-accent mb-2">32,500+</div>
                 <div className="text-sm text-muted-foreground">Content Pieces Generated</div>
               </Card>
               <Card className="p-6 text-center bg-card/80 backdrop-blur-lg">
-                <div className="text-4xl font-bold text-accent mb-2">500K+</div>
+                <div className="text-4xl font-bold text-accent mb-2">10K+</div>
                 <div className="text-sm text-muted-foreground">Creators Using Lucy</div>
               </Card>
               <Card className="p-6 text-center bg-card/80 backdrop-blur-lg">
-                <div className="text-4xl font-bold text-accent mb-2">95%</div>
+                <div className="text-4xl font-bold text-accent mb-2">98%</div>
                 <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
               </Card>
             </div>
