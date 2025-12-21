@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Search, Download, Settings2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
@@ -47,12 +46,11 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { isAdmin } = useAdminCheck();
 
   const debugChat =
-    import.meta.env.DEV &&
-    typeof window !== "undefined" &&
-    window.localStorage?.getItem("DEBUG_CHAT") === "1";
-  const isolateMode = debugChat && typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("isolate")
-    : null;
+    import.meta.env.DEV && typeof window !== "undefined" && window.localStorage?.getItem("DEBUG_CHAT") === "1";
+
+  const isolateMode =
+    debugChat && typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("isolate") : null;
+
   const disableData = isolateMode === "lite";
 
   const [messages, setMessages] = useState<any[]>([]);
@@ -81,7 +79,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { analyzeContext } = useContextAnalyzer(conversationId);
   const { readingMode, setReadingMode, getSpacingClass } = useReadingMode();
   const { speed, setSpeed } = useStreamingSpeed();
-  const { showScrollButton, scrollToBottom } = useScrollDetection(chatContainerRef);
+  const { showScrollButton } = useScrollDetection(chatContainerRef);
   const { displayText, isStreaming: isLocalStreaming, startStreaming, skipToEnd } = useLucyStreaming();
 
   useKeyboardShortcuts({
@@ -92,7 +90,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
   useEffect(() => {
     if (disableData) {
-      // DEBUG: intentionally avoid any data subscriptions/fetching
       setMessages([]);
       setConversationTitle(conversationId ? "Conversation (debug lite)" : "New Conversation");
       return;
@@ -106,15 +103,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         .channel(`messages-${conversationId}`)
         .on(
           "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "messages",
-            filter: `conversation_id=eq.${conversationId}`,
-          },
-          (payload) => {
-            setMessages((prev) => [...prev, payload.new]);
-          },
+          { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+          (payload) => setMessages((prev) => [...prev, payload.new]),
         )
         .subscribe();
 
@@ -134,11 +124,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     if (data) setConversationTitle(data.title);
   };
 
-  // Auto-scroll when messages change or streaming
   const scrollToLatest = useCallback(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   useEffect(() => {
@@ -147,16 +134,13 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
   const loadMessages = async () => {
     if (!conversationId) return;
-
     const { data } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
 
-    if (data) {
-      setMessages(data);
-    }
+    if (data) setMessages(data);
   };
 
   const createConversation = async (firstMessage: string) => {
@@ -174,12 +158,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   const saveMessage = async (convId: string, role: string, content: string) => {
-    const { error } = await supabase.from("messages").insert({
-      conversation_id: convId,
-      role,
-      content,
-    });
-
+    const { error } = await supabase.from("messages").insert({ conversation_id: convId, role, content });
     if (error) throw error;
   };
 
@@ -187,6 +166,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     if (selectedFiles.length === 0) return [];
 
     const attachments: any[] = [];
+
     for (const file of selectedFiles) {
       const formData = new FormData();
       formData.append("file", file);
@@ -196,17 +176,16 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-attachment`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
         body: formData,
       });
 
       if (response.ok) {
-        const data = await response.json();
-        attachments.push(data.attachment);
+        const json = await response.json();
+        attachments.push(json.attachment);
       }
     }
 
@@ -220,6 +199,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/multimodal-analysis`, {
         method: "POST",
         headers: {
@@ -243,8 +223,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
       const data = await response.json();
       return data.analysis;
-    } catch (error) {
-      console.error("Multimodal analysis error:", error);
+    } catch (err) {
+      console.error("Multimodal analysis error:", err);
       return null;
     }
   };
@@ -264,26 +244,25 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         const lines = chunk.split("\n");
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") continue;
 
-            try {
-              const parsed = JSON.parse(data);
+          try {
+            const parsed = JSON.parse(data);
 
-              if (parsed.toolResults && !receivedToolResults) {
-                setToolResults(parsed.toolResults);
-                receivedToolResults = true;
-              }
-
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                fullResponse += content;
-                setStreamingMessage(fullResponse);
-              }
-            } catch {
-              // ignore parse errors
+            if (parsed.toolResults && !receivedToolResults) {
+              setToolResults(parsed.toolResults);
+              receivedToolResults = true;
             }
+
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullResponse += content;
+              setStreamingMessage(fullResponse);
+            }
+          } catch {
+            // ignore parse errors
           }
         }
       }
@@ -337,6 +316,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         .select()
         .single();
 
+      // handle attachments
       let attachments: any[] = [];
       if (selectedFiles.length > 0 && userMsgData) {
         attachments = await uploadFiles(convId, userMsgData.id);
@@ -359,10 +339,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               },
               body: JSON.stringify({
                 messages: [
-                  ...messages.map((m) => ({
-                    role: m.role,
-                    content: m.content,
-                  })),
+                  ...messages.map((m) => ({ role: m.role, content: m.content })),
                   { role: "user", content: enhancedMessage },
                 ],
                 preferredModel: selectedModel,
@@ -370,16 +347,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               }),
             });
 
-            if (!response.ok) {
-              throw new Error("Failed to get AI response");
-            }
-
+            if (!response.ok) throw new Error("Failed to get AI response");
             await processStreamingResponse(response, convId);
             return;
           }
         }
       }
 
+      // normal send
       const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
         method: "POST",
@@ -397,19 +372,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to get AI response");
-      }
-
+      if (!response.ok) throw new Error("Failed to get AI response");
       await processStreamingResponse(response, convId);
-    } catch (error: any) {
-      console.error("Error sending message:", error);
-      setError(error.message || "Failed to send message");
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send message",
-        variant: "destructive",
-      });
+    } catch (err: any) {
+      console.error("Error sending message:", err);
+      setError(err?.message || "Failed to send message");
+      toast({ title: "Error", description: err?.message || "Failed to send message", variant: "destructive" });
     } finally {
       setIsLoading(false);
       setSelectedFiles([]);
@@ -418,11 +386,10 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   const handleRetry = () => {
-    if (lastUserMessage) {
-      setInput(lastUserMessage);
-      setError(null);
-      setTimeout(() => handleSend(), 100);
-    }
+    if (!lastUserMessage) return;
+    setInput(lastUserMessage);
+    setError(null);
+    setTimeout(() => handleSend(), 100);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -438,7 +405,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
       <ScrollToBottom
         visible={showScrollButton && messages.length > 3}
-        onClick={() => scrollToLatest()}
+        onClick={scrollToLatest}
         newMessageCount={messages.length - lastReadMessageIndex - 1}
       />
 
@@ -452,12 +419,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             <p className="text-xs text-muted-foreground">Divine Intelligence</p>
           </div>
         </div>
-        
+
         {/* Center: Music Player */}
         <div className="flex-1 flex justify-center px-4">
           <HeaderMusicPlayer />
         </div>
-        
+
         <div className="flex items-center gap-1.5">
           {isAdmin && (
             <Button
@@ -472,6 +439,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               </Badge>
             </Button>
           )}
+
           <ChatSettings
             readingMode={readingMode}
             setReadingMode={setReadingMode}
@@ -479,6 +447,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             setStreamingSpeed={setSpeed}
           />
           <MemoryPanel userId={userId} />
+
           <Button
             variant="ghost"
             size="icon"
@@ -487,6 +456,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           >
             <Search className="w-4 h-4" />
           </Button>
+
           {conversationId && (
             <Button
               variant="ghost"
@@ -497,6 +467,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               <Download className="w-4 h-4" />
             </Button>
           )}
+
           <Button
             variant="ghost"
             size="icon"
@@ -523,15 +494,13 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      {/* MAIN CHAT AREA – full width and height */}
-      <ScrollArea ref={chatContainerRef} className="flex-1 px-2 md:px-4 py-2 overflow-y-auto">
+      {/* ✅ REAL SCROLL CONTAINER (so scroll detection works everywhere) */}
+      <div ref={chatContainerRef} className="flex-1 px-2 md:px-4 py-2 overflow-y-auto overscroll-contain">
         {messages.length === 0 && !streamingMessage && !isLocalStreaming && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 max-w-2xl mx-auto py-8">
             <LucyLogo size="xl" showGlow />
             <div className="bg-card/60 backdrop-blur-sm p-8 rounded-2xl shadow-[0_0_25px_rgba(168,85,247,0.15)]">
-              <h2 className="text-3xl font-bold mb-3 text-foreground">
-                Welcome to Lucy AI
-              </h2>
+              <h2 className="text-3xl font-bold mb-3 text-foreground">Welcome to Lucy AI</h2>
               <p className="text-muted-foreground">Divine intelligence awaits. Ask me anything!</p>
             </div>
           </div>
@@ -567,7 +536,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             />
           )}
 
-          {/* Show streaming message from backend OR local streaming */}
           {(streamingMessage || displayText) && (
             <ChatMessage
               message={{
@@ -597,10 +565,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(lastUserMessage);
-                    toast({
-                      title: "Copied",
-                      description: "Message copied to clipboard",
-                    });
+                    toast({ title: "Copied", description: "Message copied to clipboard" });
                   }}
                   variant="outline"
                   size="sm"
@@ -623,12 +588,11 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
           <div ref={scrollRef} />
         </div>
-      </ScrollArea>
+      </div>
 
-      {/* INPUT AREA – transparent container */}
+      {/* INPUT AREA */}
       <div className="p-3 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
         <div className="max-w-full md:max-w-5xl mx-auto space-y-2">
-          {/* File previews above input if files selected */}
           {selectedFiles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-2">
               {selectedFiles.map((file, index) => {
@@ -655,15 +619,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               })}
             </div>
           )}
-          
+
           <div className="relative flex items-end gap-2">
-            {/* Inline upload button */}
             <InlineFileUpload
               selectedFiles={[]}
               onFilesSelected={(files) => setSelectedFiles([...selectedFiles, ...files])}
               onRemoveFile={() => {}}
             />
-            
+
             <div className="flex-1 relative">
               <Textarea
                 ref={inputRef}
@@ -685,7 +648,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               </Button>
             </div>
           </div>
-          
+
           <p className="text-xs text-muted-foreground text-center opacity-70">
             <span className="hidden md:inline">Enter to send • Shift+Enter for new line • </span>
             Ctrl/Cmd+K to search
