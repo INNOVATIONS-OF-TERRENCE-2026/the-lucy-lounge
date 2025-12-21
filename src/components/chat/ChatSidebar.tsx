@@ -1,244 +1,109 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  MessageSquarePlus,
-  Search,
-  LogOut,
-  Moon,
-  Sun,
-  Settings,
-  Shield,
-  Folder,
-  Headphones,
-  Home,
-  Film, // ✅ ADDED
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { SettingsModal } from "./SettingsModal";
+import { MessageSquarePlus, Search, LogOut, Moon, Sun, Settings, Home, Film } from "lucide-react";
 import { LucyLogo } from "@/components/branding/LucyLogo";
+import { SettingsModal } from "./SettingsModal";
 import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
 import { WeatherAmbientSelector } from "@/components/ambient/WeatherAmbientSelector";
 
-interface ChatSidebarProps {
+interface Props {
   userId: string;
   currentConversationId: string | null;
-  onConversationSelect: (id: string) => void;
-  videoControls?: React.ReactNode;
+  onConversationSelect: (id: string | null) => void;
 }
 
-export function ChatSidebar({ userId, currentConversationId, onConversationSelect, videoControls }: ChatSidebarProps) {
+export function ChatSidebar({ userId, currentConversationId, onConversationSelect }: Props) {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [conversations, setConversations] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDark, setIsDark] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [search, setSearch] = useState("");
+  const [dark, setDark] = useState(document.documentElement.classList.contains("dark"));
   const [showSettings, setShowSettings] = useState(false);
-  const [folders, setFolders] = useState<any[]>([]);
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
 
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
-    checkAdminStatus();
-    loadConversations();
-    loadFolders();
-
-    const channel = supabase
-      .channel("conversations-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "conversations",
-          filter: `user_id=eq.${userId}`,
-        },
-        () => {
-          loadConversations();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    supabase
+      .from("conversations")
+      .select("*")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false })
+      .then(({ data }) => data && setConversations(data));
   }, [userId]);
 
-  const checkAdminStatus = async () => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (data) setIsAdmin(true);
-  };
-
-  const loadFolders = async () => {
-    const { data } = await supabase.from("folders").select("*").eq("user_id", userId).order("position");
-    if (data) setFolders(data);
-  };
-
-  const loadConversations = async () => {
-    let query = supabase.from("conversations").select("*").eq("user_id", userId);
-
-    if (selectedFolder) {
-      query = query.eq("folder_id", selectedFolder);
-    }
-
-    const { data } = await query.order("updated_at", { ascending: false });
-    if (data) setConversations(data);
-  };
-
-  const handleNewChat = () => {
-    onConversationSelect(null as any);
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out.",
-    });
-  };
-
-  const toggleTheme = () => {
-    document.documentElement.classList.toggle("dark");
-    setIsDark(!isDark);
-  };
-
-  const filteredConversations = conversations.filter(
-    (conv) =>
-      conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.tags?.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  );
+  const filtered = conversations.filter((c) => c.title?.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <Sidebar className="border-r-0 bg-sidebar shadow-[4px_0_20px_rgba(0,0,0,0.1)] flex flex-col h-screen overflow-hidden">
-      <SidebarHeader className="p-4 flex-shrink-0">
-        <div className="flex items-center gap-3 mb-4">
-          <LucyLogo size="sm" showGlow />
-          <div>
-            <h2 className="font-bold text-lg">Lucy AI</h2>
-            <p className="text-xs text-muted-foreground">Beyond Intelligence</p>
-          </div>
-        </div>
-        <Button onClick={handleNewChat} className="w-full bg-gradient-primary">
-          <MessageSquarePlus className="w-4 h-4 mr-2" />
-          New Chat
+    <Sidebar className="flex flex-col h-screen overflow-hidden">
+      <SidebarHeader className="p-4">
+        <LucyLogo size="sm" showGlow />
+        <Button className="w-full mt-4" onClick={() => onConversationSelect(null)}>
+          <MessageSquarePlus className="mr-2 h-4 w-4" /> New Chat
         </Button>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        <div className="px-4 py-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+      <SidebarContent className="flex-1 min-h-0 overflow-hidden">
+        <div className="px-4 pb-2">
+          <Search className="absolute mt-3 ml-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Search chats"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         <ScrollArea className="flex-1 min-h-0">
-          <SidebarGroup>
-            <SidebarGroupLabel>Conversations</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {filteredConversations.map((conversation) => (
-                  <SidebarMenuItem key={conversation.id}>
-                    <SidebarMenuButton
-                      onClick={() => onConversationSelect(conversation.id)}
-                      isActive={currentConversationId === conversation.id}
-                    >
-                      <MessageSquarePlus className="w-4 h-4 mr-2" />
-                      {conversation.title}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {filtered.map((c) => (
+            <Button
+              key={c.id}
+              variant={c.id === currentConversationId ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => onConversationSelect(c.id)}
+            >
+              {c.title}
+            </Button>
+          ))}
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 space-y-2 flex-shrink-0 overflow-y-auto max-h-[50vh]">
-        {videoControls}
-
+      <SidebarFooter className="p-4 space-y-2 overflow-y-auto max-h-[45vh]">
         <ColorThemeSelector />
         <WeatherAmbientSelector />
 
-        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/")}>
-          <Home className="w-4 h-4 mr-2" />
-          Home
+        <Button variant="outline" onClick={() => navigate("/")}>
+          <Home className="mr-2 h-4 w-4" /> Home
         </Button>
 
-        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/studios")}>
-          <MessageSquarePlus className="w-4 h-4 mr-2" />
-          Studios
+        <Button variant="outline" onClick={() => navigate("/media")}>
+          <Film className="mr-2 h-4 w-4" /> Media
         </Button>
 
-        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/listening-mode")}>
-          <Headphones className="w-4 h-4 mr-2" />
-          Listening Mode
+        <Button variant="outline" onClick={() => setShowSettings(true)}>
+          <Settings className="mr-2 h-4 w-4" /> Settings
         </Button>
 
-        {/* 🎬 MEDIA BUTTON — THIS WAS MISSING */}
-        <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/media")}>
-          <Film className="w-4 h-4 mr-2" />
-          Media
+        <Button
+          variant="outline"
+          onClick={() => {
+            document.documentElement.classList.toggle("dark");
+            setDark(!dark);
+          }}
+        >
+          {dark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+          {dark ? "Light" : "Dark"} Mode
         </Button>
 
-        {isAdmin && (
-          <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin")}>
-            <Shield className="w-4 h-4 mr-2" />
-            Admin Dashboard
-          </Button>
-        )}
-
-        <Button variant="outline" className="w-full justify-start" onClick={() => setShowSettings(true)}>
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
-        </Button>
-
-        <Button variant="outline" className="w-full justify-start" onClick={toggleTheme}>
-          {isDark ? (
-            <>
-              <Sun className="w-4 h-4 mr-2" />
-              Light Mode
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4 mr-2" />
-              Dark Mode
-            </>
-          )}
-        </Button>
-
-        <Button variant="outline" className="w-full justify-start text-destructive" onClick={handleSignOut}>
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
+        <Button
+          variant="destructive"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            navigate("/auth");
+          }}
+        >
+          <LogOut className="mr-2 h-4 w-4" /> Sign Out
         </Button>
       </SidebarFooter>
 
