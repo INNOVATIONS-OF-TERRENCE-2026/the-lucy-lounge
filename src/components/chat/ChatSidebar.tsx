@@ -19,7 +19,7 @@ import {
   MoonStar,
   Eye,
   Users,
-  Timeline,
+  History,
   Command,
   Atom,
   Sparkles,
@@ -57,12 +57,11 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   const lounges = [
     { label: "Listening Mode", icon: Headphones, path: "/listening" },
     { label: "Media Mode", icon: Film, path: "/media" },
-
     { label: "Neural Mode", icon: Brain, path: "/neural" },
     { label: "Dream Mode", icon: MoonStar, path: "/dream" },
     { label: "Vision Mode", icon: Eye, path: "/vision" },
     { label: "Silent Room", icon: Users, path: "/silent-room" },
-    { label: "Memory Timeline", icon: Timeline, path: "/timeline" },
+    { label: "Memory Timeline", icon: History, path: "/timeline" },
     { label: "Quantum Mode", icon: Atom, path: "/quantum" },
     { label: "Presence Mode", icon: Sparkles, path: "/presence" },
     { label: "World Events", icon: Globe, path: "/events" },
@@ -71,7 +70,6 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
 
   return (
     <Sidebar className="flex flex-col h-screen overflow-hidden">
-      {/* HEADER */}
       <SidebarHeader className="p-4 space-y-4">
         <LucyLogo size="sm" showGlow />
         <Button className="w-full" onClick={() => onConversationSelect(null)}>
@@ -79,9 +77,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </Button>
       </SidebarHeader>
 
-      {/* CONTENT */}
       <SidebarContent className="flex-1 min-h-0 overflow-hidden">
-        {/* Search */}
         <div className="px-4 pb-2 relative">
           <Search className="absolute mt-3 ml-3 h-4 w-4 text-muted-foreground" />
           <Input
@@ -92,7 +88,6 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
           />
         </div>
 
-        {/* Conversations */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="space-y-1">
             {filtered.map((c) => (
@@ -107,7 +102,6 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             ))}
           </div>
 
-          {/* Lounges */}
           <div className="mt-6 px-2">
             <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Lounges</p>
             <div className="space-y-1">
@@ -122,7 +116,6 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
         </ScrollArea>
       </SidebarContent>
 
-      {/* FOOTER */}
       <SidebarFooter className="p-4 space-y-2">
         <ColorThemeSelector />
         <WeatherAmbientSelector />
