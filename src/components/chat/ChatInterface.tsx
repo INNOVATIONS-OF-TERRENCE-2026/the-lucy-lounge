@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,22 +23,8 @@ import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { useLucyStreaming } from "@/hooks/useLucyStreaming";
 import { useReadingMode } from "@/hooks/useReadingMode";
 import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-
-/* ────────────────────────────────────────────── */
-/* Lounge → Color Map (Logo reacts to Lounges) */
-/* ────────────────────────────────────────────── */
-const LOUNGE_GLOW_MAP: Record<string, string> = {
-  listening: "shadow-cyan-400/40",
-  media: "shadow-purple-500/40",
-  neural: "shadow-emerald-400/40",
-  dream: "shadow-indigo-400/40",
-  vision: "shadow-amber-400/40",
-  quantum: "shadow-fuchsia-500/40",
-  presence: "shadow-rose-400/40",
-  events: "shadow-blue-400/40",
-  command: "shadow-red-500/40",
-};
 
 interface ChatInterfaceProps {
   userId: string;
@@ -50,7 +35,6 @@ interface ChatInterfaceProps {
 export function ChatInterface({ userId, conversationId, onConversationCreated }: ChatInterfaceProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAdmin } = useAdminCheck();
 
   const { readingMode, setReadingMode } = useReadingMode();
@@ -71,11 +55,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
   const { displayText, isStreaming, startStreaming } = useLucyStreaming();
   const { showScrollButton } = useScrollDetection(chatContainerRef);
-
-  /* 🔮 Detect active lounge from URL */
-  const activeLoungeKey = Object.keys(LOUNGE_GLOW_MAP).find((key) => location.pathname.includes(key)) ?? "neural";
-
-  const loungeGlow = LOUNGE_GLOW_MAP[activeLoungeKey];
 
   useKeyboardShortcuts({
     onSend: () => handleSend(),
@@ -200,21 +179,10 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
       {/* HEADER */}
       <header className="h-14 md:h-16 flex items-center px-4 md:px-6 backdrop-blur-md bg-background/60 border-b">
-        {/* LEFT */}
+        {/* LEFT (LOCKED) */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <SidebarTrigger />
-
-          {/* 🌟 LUCY LOGO (GLOW + PULSE + LOUNGE REACTIVE) */}
-          <div
-            className={[
-              "transition-all duration-500 rounded-full",
-              "hover:shadow-lg",
-              loungeGlow,
-              isStreaming ? "animate-pulse" : "",
-            ].join(" ")}
-          >
-            <LucyLogo size="sm" showGlow />
-          </div>
+          <LucyLogo size="sm" showGlow />
 
           <div className="hidden sm:block">
             <h1 className="font-semibold text-sm">{conversationTitle}</h1>
@@ -224,7 +192,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           <LoungesDropdown />
         </div>
 
-        {/* CENTER */}
+        {/* CENTER (CONSTRAINED) */}
         <div className="flex-1 min-w-0 flex justify-center px-4">
           <HeaderMusicPlayer />
         </div>
