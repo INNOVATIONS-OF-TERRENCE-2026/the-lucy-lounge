@@ -44,7 +44,10 @@ import StudiosAudio from "@/pages/StudiosAudio";
 import StudiosDev from "@/pages/StudiosDev";
 import Media from "@/pages/Media";
 import ListeningMode from "@/pages/ListeningMode";
-import ListeningExplore from "@/pages/ListeningExplore"; // ✅ NEW
+
+/* ✅ CORRECT EXPLORE IMPORT (THIS IS THE FIX) */
+import ExploreMode from "@/pages/listening/ExploreMode";
+
 import NotFound from "@/pages/NotFound";
 
 /* ===== LOUNGES ===== */
@@ -142,18 +145,22 @@ const App = () => {
                   <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
                   <Route path="/creator-studio" element={<CreatorStudio />} />
                   <Route path="/launch" element={<Launch />} />
-                  {/* LISTENING */}
+
+                  {/* 🎧 LISTENING */}
                   <Route path="/listening-mode" element={<ListeningMode />} />
-                  <Route path="/listening/explore" element={<ListeningExplore />} /> {/* ✅ NEW */}
+                  <Route path="/listening/explore" element={<ExploreMode />} />
+
                   {/* STUDIOS */}
                   <Route path="/studios" element={<Studios />} />
                   <Route path="/studios/ai" element={<StudiosAI />} />
                   <Route path="/studios/audio" element={<StudiosAudio />} />
                   <Route path="/studios/dev" element={<StudiosDev />} />
+
                   {/* GUIDES */}
                   <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
                   <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
                   <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
+
                   {/* COMPANY */}
                   <Route path="/about" element={<About />} />
                   <Route path="/about/terrence-milliner" element={<AuthorPage />} />
@@ -163,10 +170,12 @@ const App = () => {
                   <Route path="/press" element={<Press />} />
                   <Route path="/editorial-standards" element={<EditorialStandards />} />
                   <Route path="/contact" element={<Contact />} />
+
                   {/* ROOMS */}
                   <Route path="/rooms" element={<RoomList />} />
                   <Route path="/room/:roomId" element={<RoomChat />} />
                   <Route path="/shared/:token" element={<SharedConversation />} />
+
                   {/* LOUNGES */}
                   <Route path="/neural" element={<NeuralMode />} />
                   <Route path="/dream" element={<DreamMode />} />
@@ -184,6 +193,7 @@ const App = () => {
                   <Route path="/quantum" element={<QuantumMode />} />
                   <Route path="/presence" element={<PresenceMode />} />
                   <Route path="/events" element={<WorldEvents />} />
+
                   {/* ADMIN */}
                   <Route path="/admin" element={<Admin />} />
                   <Route
@@ -194,6 +204,7 @@ const App = () => {
                       </AdminRoute>
                     }
                   />
+
                   {/* FALLBACK */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
