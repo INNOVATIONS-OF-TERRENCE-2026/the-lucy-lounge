@@ -6,12 +6,11 @@ import { Search } from "lucide-react";
 
 /**
  * =========================================================
- * LISTENING MODE (REBUILT – SAFE, FIXED)
+ * LISTENING MODE (FINAL FIXED VERSION)
  * =========================================================
- * - ALL existing music preserved
- * - ErrorBoundary removed (file does not exist in repo)
- * - Streaming-app UX intact
- * - No regressions
+ * - No ErrorBoundary import
+ * - All existing music preserved
+ * - Streaming-app structure intact
  * =========================================================
  */
 
@@ -30,12 +29,6 @@ const MOODS: { key: Mood; label: string }[] = [
 export default function ListeningMode() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMood, setActiveMood] = useState<Mood>("all");
-
-  /**
-   * =========================================================
-   * ORIGINAL MUSIC (PRESERVED)
-   * =========================================================
-   */
 
   const originalMusicSections = useMemo(
     () => [
@@ -106,15 +99,11 @@ export default function ListeningMode() {
 
   return (
     <main className="w-full min-h-screen px-4 md:px-8 py-6 space-y-6">
-      {/* Header */}
       <header className="space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold">🎧 Listening Mode</h1>
-        <p className="text-sm opacity-80 max-w-2xl">
-          Your immersive, AI-powered listening environment — now structured like a real streaming app.
-        </p>
+        <p className="text-sm opacity-80 max-w-2xl">Your immersive, AI-powered listening environment.</p>
       </header>
 
-      {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60" />
         <Input
@@ -125,7 +114,6 @@ export default function ListeningMode() {
         />
       </div>
 
-      {/* Mood Selector */}
       <div className="flex flex-wrap gap-2">
         {MOODS.map((mood) => (
           <Button
@@ -139,7 +127,6 @@ export default function ListeningMode() {
         ))}
       </div>
 
-      {/* Music Sections */}
       <ScrollArea className="w-full">
         <div className="space-y-10">
           {filteredSections.map((section) => (
