@@ -21,6 +21,8 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { useLucyStreaming } from "@/hooks/useLucyStreaming";
+import { useReadingMode } from "@/hooks/useReadingMode";
+import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -35,11 +37,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
 
+  /* REQUIRED HOOKS FOR EXISTING COMPONENT CONTRACTS */
+  const { readingMode, setReadingMode } = useReadingMode();
+  const { speed: streamingSpeed, setSpeed: setStreamingSpeed } = useStreamingSpeed();
+
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [streamingMessage, setStreamingMessage] = useState("");
   const [showExport, setShowExport] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [conversationTitle, setConversationTitle] = useState("New Conversation");
@@ -90,7 +95,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
   useEffect(() => {
     scrollToLatest();
-  }, [messages, streamingMessage, scrollToLatest]);
+  }, [messages, displayText, scrollToLatest]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -98,7 +103,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     const userMessage = input.trim();
     setInput("");
     setIsLoading(true);
-    setStreamingMessage("");
     setError(null);
     setLastReadMessageIndex(messages.length);
 
@@ -119,11 +123,23 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         onConversationCreated(convId);
       }
 
+      const createdAt = new Date().toISOString();
+
       await supabase.from("messages").insert({
         conversation_id: convId,
         role: "user",
         content: userMessage,
+        created_at: createdAt,
       });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: userMessage,
+          created_at: createdAt,
+        },
+      ]);
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`, {
         method: "POST",
@@ -188,7 +204,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             </Button>
           )}
 
-          <ChatSettings />
+          <ChatSettings
+            readingMode={readingMode}
+            setReadingMode={setReadingMode}
+            streamingSpeed={streamingSpeed}
+            setStreamingSpeed={setStreamingSpeed}
+          />
 
           <MemoryPanel userId={userId} />
 
@@ -214,17 +235,18 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           {conversationId && <ContextIndicator conversationId={conversationId} />}
 
           {messages.map((message, index) => (
-            <div key={message.id || index}>
+            <div key={`${index}-${message.created_at}`}>
               {index === lastReadMessageIndex + 1 && <NewMessageDivider />}
               <ChatMessage message={message} />
             </div>
           ))}
 
-          {(streamingMessage || displayText) && (
+          {displayText && (
             <ChatMessage
               message={{
                 role: "assistant",
-                content: streamingMessage || displayText,
+                content: displayText,
+                created_at: new Date().toISOString(),
               }}
               isStreaming
             />
@@ -253,7 +275,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </div>
 
-      <SearchModal open={showSearch} onOpenChange={setShowSearch} />
+      <SearchModal
+        open={showSearch}
+        onOpenChange={setShowSearch}
+        onSelectConversation={(id: string) => {
+          onConversationCreated(id);
+          setShowSearch(false);
+        }}
+      />
 
       {conversationId && (
         <ExportDialog
