@@ -1,0 +1,149 @@
+/* Cinematic Lounge Animations */
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.02); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-10px) translateX(5px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(-15px) translateX(3px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(var(--lounge-glow), 0.2); }
+  50% { box-shadow: 0 0 40px rgba(var(--lounge-glow), 0.4); }
+}
+
+@keyframes drift {
+  0% { transform: translateX(-100%) translateY(100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(100%) translateY(-100%); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fractal-rotate {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Lounge-specific color identities */
+.lounge-neural {
+  --lounge-primary: 220 70% 50%;
+  --lounge-secondary: 230 60% 30%;
+  --lounge-glow: 66, 133, 244;
+}
+
+.lounge-dream {
+  --lounge-primary: 280 70% 60%;
+  --lounge-secondary: 270 50% 40%;
+  --lounge-glow: 167, 139, 250;
+}
+
+.lounge-vision {
+  --lounge-primary: 45 90% 55%;
+  --lounge-secondary: 35 80% 45%;
+  --lounge-glow: 245, 195, 66;
+}
+
+.lounge-silent {
+  --lounge-primary: 220 10% 60%;
+  --lounge-secondary: 220 10% 40%;
+  --lounge-glow: 156, 163, 175;
+}
+
+.lounge-timeline {
+  --lounge-primary: 30 80% 55%;
+  --lounge-secondary: 25 70% 40%;
+  --lounge-glow: 245, 158, 66;
+}
+
+.lounge-command {
+  --lounge-primary: 220 20% 20%;
+  --lounge-secondary: 220 30% 10%;
+  --lounge-glow: 100, 116, 139;
+}
+
+.lounge-quantum {
+  --lounge-primary: 180 70% 50%;
+  --lounge-secondary: 200 60% 40%;
+  --lounge-glow: 34, 211, 238;
+}
+
+.lounge-presence {
+  --lounge-primary: 0 0% 95%;
+  --lounge-secondary: 0 0% 85%;
+  --lounge-glow: 255, 255, 255;
+}
+
+.lounge-events {
+  --lounge-primary: 0 80% 60%;
+  --lounge-secondary: 350 70% 50%;
+  --lounge-glow: 239, 68, 68;
+}
+
+/* Particle styles */
+.cinematic-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsl(var(--lounge-primary) / 0.6);
+  animation: float 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.cinematic-particle:nth-child(odd) {
+  animation-duration: 10s;
+  animation-delay: -2s;
+}
+
+.cinematic-particle:nth-child(even) {
+  animation-duration: 12s;
+  animation-delay: -4s;
+}
+
+/* Ambient glow overlay */
+.cinematic-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    hsl(var(--lounge-primary) / 0.1) 0%,
+    transparent 70%
+  );
+  animation: breathe 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Premium scroll enhancement */
+.cinematic-scroll {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--lounge-primary) / 0.3) transparent;
+}
+
+.cinematic-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cinematic-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cinematic-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--lounge-primary) / 0.3);
+  border-radius: 3px;
+}
+
+.cinematic-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--lounge-primary) / 0.5);
+}
