@@ -7,7 +7,7 @@ import {
   MoonStar,
   Eye,
   Users,
-  Timeline,
+  History,
   Command,
   Atom,
   Sparkles,
@@ -27,7 +27,7 @@ const Tools = () => {
     { title: "Dream Mode", icon: MoonStar, path: "/dream" },
     { title: "Vision Mode", icon: Eye, path: "/vision" },
     { title: "Silent Room", icon: Users, path: "/silent-room" },
-    { title: "Memory Timeline", icon: Timeline, path: "/timeline" },
+    { title: "Memory Timeline", icon: History, path: "/timeline" },
     { title: "Quantum Mode", icon: Atom, path: "/quantum" },
     { title: "Presence Mode", icon: Sparkles, path: "/presence" },
     { title: "World Events", icon: Globe, path: "/events" },
@@ -77,7 +77,7 @@ const Tools = () => {
           </div>
         </section>
 
-        {/* COMING SOON */}
+        {/* COMING SOON TOOLS */}
         <section>
           <h2 className="text-2xl font-semibold mb-6">🚀 AI Tools (Coming January 2026)</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
