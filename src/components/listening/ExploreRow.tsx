@@ -1,52 +1,57 @@
-import { ExploreCard } from "./ExploreCard";
-import type { ExplorePlaylist } from "@/data/explorePlaylists";
+// =========================================================
+// 🎧 EXPLORE ROW — FULLY TYPE-SAFE
+// File: src/components/listening/ExploreRow.tsx
+// =========================================================
+
+import { motion } from "framer-motion";
+import { ExplorePlaylist } from "@/data/explorePlaylists";
 
 type ExploreRowProps = {
   title: string;
   subtitle?: string;
-  playlists: ExplorePlaylist[];
+  items: ExplorePlaylist[];
 };
 
-export function ExploreRow({ title, subtitle, playlists }: ExploreRowProps) {
-  if (!playlists || playlists.length === 0) return null;
+export const ExploreRow = ({ title, subtitle, items }: ExploreRowProps) => {
+  if (!items || items.length === 0) return null;
 
   return (
     <section className="space-y-3">
       {/* Header */}
-      <div className="px-1">
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-        )}
+      <div>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
       </div>
 
-      {/* Horizontal Scroll */}
-      <div className="relative">
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
-          {playlists.map((playlist) => (
-            <ExploreCard
-              key={playlist.id}
+      {/* Horizontal rail */}
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+        {items.map((playlist, index) => (
+          <motion.div
+            key={playlist.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.05 }}
+            className="min-w-[320px] max-w-[320px] rounded-xl overflow-hidden bg-black shadow-md"
+          >
+            {/* Spotify Embed */}
+            <iframe
               title={playlist.title}
-              subtitle={playlist.subtitle}
-              spotifyId={playlist.spotifyId}
-              fullTrackFriendly={playlist.fullTrackFriendly}
-              accent={
-                playlist.category === "dallas"
-                  ? "from-emerald-500/20 to-green-500/5"
-                  : playlist.category === "trap"
-                  ? "from-red-500/20 to-orange-500/5"
-                  : playlist.category === "rnb"
-                  ? "from-pink-500/20 to-rose-500/5"
-                  : playlist.category === "lofi"
-                  ? "from-violet-500/20 to-purple-500/5"
-                  : playlist.category === "ambient"
-                  ? "from-cyan-500/20 to-teal-500/5"
-                  : "from-primary/20 to-primary/5"
-              }
+              src={playlist.spotifyEmbedUrl}
+              width="100%"
+              height="380"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
             />
-          ))}
-        </div>
+
+            {/* Meta */}
+            <div className="p-3 bg-background">
+              <h4 className="text-sm font-semibold">{playlist.title}</h4>
+              <p className="text-xs text-muted-foreground">{playlist.subtitle}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
-}
+};
