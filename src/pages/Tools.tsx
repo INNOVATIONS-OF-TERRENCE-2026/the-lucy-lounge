@@ -20,7 +20,7 @@ const Tools = () => {
   const navigate = useNavigate();
 
   const LOUNGES = [
-    { title: "Listening Mode", icon: Headphones, path: "/listening-mode" },
+    { title: "Listening Mode", icon: Headphones, path: "/listening" },
     { title: "Media Mode", icon: Film, path: "/media" },
 
     { title: "Neural Mode", icon: Brain, path: "/neural" },
