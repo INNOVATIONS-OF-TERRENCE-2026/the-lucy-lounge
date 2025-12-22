@@ -5,7 +5,26 @@ import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/compone
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquarePlus, Search, LogOut, Moon, Sun, Settings, Home, Film } from "lucide-react";
+import {
+  MessageSquarePlus,
+  Search,
+  LogOut,
+  Moon,
+  Sun,
+  Settings,
+  Home,
+  Film,
+  Headphones,
+  Brain,
+  MoonStar,
+  Eye,
+  Users,
+  History,
+  Command,
+  Atom,
+  Sparkles,
+  Globe,
+} from "lucide-react";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { SettingsModal } from "./SettingsModal";
 import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
@@ -35,17 +54,31 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
 
   const filtered = conversations.filter((c) => c.title?.toLowerCase().includes(search.toLowerCase()));
 
+  const lounges = [
+    { label: "Listening Mode", icon: Headphones, path: "/listening-mode" },
+    { label: "Media Mode", icon: Film, path: "/media" },
+    { label: "Neural Mode", icon: Brain, path: "/neural" },
+    { label: "Dream Mode", icon: MoonStar, path: "/dream" },
+    { label: "Vision Mode", icon: Eye, path: "/vision" },
+    { label: "Silent Room", icon: Users, path: "/silent-room" },
+    { label: "Memory Timeline", icon: History, path: "/timeline" },
+    { label: "Quantum Mode", icon: Atom, path: "/quantum" },
+    { label: "Presence Mode", icon: Sparkles, path: "/presence" },
+    { label: "World Events", icon: Globe, path: "/events" },
+    { label: "Command Center", icon: Command, path: "/command" },
+  ];
+
   return (
     <Sidebar className="flex flex-col h-screen overflow-hidden">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-4 space-y-4">
         <LucyLogo size="sm" showGlow />
-        <Button className="w-full mt-4" onClick={() => onConversationSelect(null)}>
+        <Button className="w-full" onClick={() => onConversationSelect(null)}>
           <MessageSquarePlus className="mr-2 h-4 w-4" /> New Chat
         </Button>
       </SidebarHeader>
 
       <SidebarContent className="flex-1 min-h-0 overflow-hidden">
-        <div className="px-4 pb-2">
+        <div className="px-4 pb-2 relative">
           <Search className="absolute mt-3 ml-3 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
@@ -55,30 +88,40 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
           />
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          {filtered.map((c) => (
-            <Button
-              key={c.id}
-              variant={c.id === currentConversationId ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => onConversationSelect(c.id)}
-            >
-              {c.title}
-            </Button>
-          ))}
+        <ScrollArea className="flex-1 min-h-0 px-2">
+          <div className="space-y-1">
+            {filtered.map((c) => (
+              <Button
+                key={c.id}
+                variant={c.id === currentConversationId ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => onConversationSelect(c.id)}
+              >
+                {c.title}
+              </Button>
+            ))}
+          </div>
+
+          <div className="mt-6 px-2">
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Lounges</p>
+            <div className="space-y-1">
+              {lounges.map((l) => (
+                <Button key={l.path} variant="ghost" className="w-full justify-start" onClick={() => navigate(l.path)}>
+                  <l.icon className="mr-2 h-4 w-4" />
+                  {l.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 space-y-2 overflow-y-auto max-h-[45vh]">
+      <SidebarFooter className="p-4 space-y-2">
         <ColorThemeSelector />
         <WeatherAmbientSelector />
 
         <Button variant="outline" onClick={() => navigate("/")}>
           <Home className="mr-2 h-4 w-4" /> Home
-        </Button>
-
-        <Button variant="outline" onClick={() => navigate("/media")}>
-          <Film className="mr-2 h-4 w-4" /> Media
         </Button>
 
         <Button variant="outline" onClick={() => setShowSettings(true)}>
