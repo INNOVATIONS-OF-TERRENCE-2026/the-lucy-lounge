@@ -55,7 +55,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   const filtered = conversations.filter((c) => c.title?.toLowerCase().includes(search.toLowerCase()));
 
   const lounges = [
-    { label: "Listening Mode", icon: Headphones, path: "/listening" },
+    { label: "Listening Mode", icon: Headphones, path: "/listening-mode" },
     { label: "Media Mode", icon: Film, path: "/media" },
     { label: "Neural Mode", icon: Brain, path: "/neural" },
     { label: "Dream Mode", icon: MoonStar, path: "/dream" },
