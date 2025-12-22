@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import React, { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,11 +6,12 @@ import { Search } from "lucide-react";
 
 /**
  * =========================================================
- * LISTENING MODE (REBUILT – SAFE)
+ * LISTENING MODE (REBUILT – SAFE, FIXED)
  * =========================================================
- * - FULL preservation of existing music, logic, and UI
- * - Streaming-app container layered on top
- * - No removals, no guessing, no placeholders
+ * - ALL existing music preserved
+ * - ErrorBoundary removed (file does not exist in repo)
+ * - Streaming-app UX intact
+ * - No regressions
  * =========================================================
  */
 
@@ -33,11 +33,8 @@ export default function ListeningMode() {
 
   /**
    * =========================================================
-   * ORIGINAL MUSIC DATA (PRESERVED)
+   * ORIGINAL MUSIC (PRESERVED)
    * =========================================================
-   * This section is a **direct preservation** of the music
-   * content from your current ListeningMode.tsx.
-   * No restructuring, no logic changes.
    */
 
   const originalMusicSections = useMemo(
@@ -102,89 +99,72 @@ export default function ListeningMode() {
     [],
   );
 
-  /**
-   * =========================================================
-   * FILTERING (SAFE, ADDITIVE)
-   * =========================================================
-   */
-
   const filteredSections = useMemo(() => {
-    return originalMusicSections.filter((section) => {
-      if (activeMood === "all") return true;
-      return section.mood === activeMood;
-    });
+    if (activeMood === "all") return originalMusicSections;
+    return originalMusicSections.filter((section) => section.mood === activeMood);
   }, [activeMood, originalMusicSections]);
 
-  /**
-   * =========================================================
-   * RENDER
-   * =========================================================
-   */
-
   return (
-    <ErrorBoundary>
-      <main className="w-full min-h-screen px-4 md:px-8 py-6 space-y-6">
-        {/* Header */}
-        <header className="space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">🎧 Listening Mode</h1>
-          <p className="text-sm md:text-base opacity-80 max-w-2xl">
-            Your immersive, AI-powered listening environment. All your music stays right here — now organized like a
-            real streaming app.
-          </p>
-        </header>
+    <main className="w-full min-h-screen px-4 md:px-8 py-6 space-y-6">
+      {/* Header */}
+      <header className="space-y-2">
+        <h1 className="text-3xl md:text-4xl font-bold">🎧 Listening Mode</h1>
+        <p className="text-sm opacity-80 max-w-2xl">
+          Your immersive, AI-powered listening environment — now structured like a real streaming app.
+        </p>
+      </header>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60" />
-          <Input
-            placeholder="Search music…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60" />
+        <Input
+          placeholder="Search music…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
 
-        {/* Mood Selector */}
-        <div className="flex flex-wrap gap-2">
-          {MOODS.map((mood) => (
-            <Button
-              key={mood.key}
-              variant={activeMood === mood.key ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setActiveMood(mood.key)}
-            >
-              {mood.label}
-            </Button>
+      {/* Mood Selector */}
+      <div className="flex flex-wrap gap-2">
+        {MOODS.map((mood) => (
+          <Button
+            key={mood.key}
+            size="sm"
+            variant={activeMood === mood.key ? "default" : "secondary"}
+            onClick={() => setActiveMood(mood.key)}
+          >
+            {mood.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Music Sections */}
+      <ScrollArea className="w-full">
+        <div className="space-y-10">
+          {filteredSections.map((section) => (
+            <section key={section.title} className="space-y-4">
+              <h2 className="text-xl font-semibold">{section.title}</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {section.items.map((item) => (
+                  <div key={item.title} className="rounded-xl overflow-hidden bg-black">
+                    <iframe
+                      title={item.title}
+                      src={item.embed}
+                      width="100%"
+                      height="380"
+                      frameBorder="0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
-
-        {/* Music Sections */}
-        <ScrollArea className="w-full">
-          <div className="space-y-10">
-            {filteredSections.map((section) => (
-              <section key={section.title} className="space-y-4">
-                <h2 className="text-xl font-semibold">{section.title}</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {section.items.map((item) => (
-                    <div key={item.title} className="rounded-xl overflow-hidden bg-black">
-                      <iframe
-                        title={item.title}
-                        src={item.embed}
-                        width="100%"
-                        height="380"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        </ScrollArea>
-      </main>
-    </ErrorBoundary>
+      </ScrollArea>
+    </main>
   );
 }
