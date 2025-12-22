@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,19 +23,8 @@ import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { useLucyStreaming } from "@/hooks/useLucyStreaming";
 import { useReadingMode } from "@/hooks/useReadingMode";
 import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-
-const LOUNGE_GLOW_MAP: Record<string, string> = {
-  listening: "shadow-cyan-400/50",
-  media: "shadow-purple-500/50",
-  neural: "shadow-emerald-400/50",
-  dream: "shadow-indigo-400/50",
-  vision: "shadow-amber-400/50",
-  quantum: "shadow-fuchsia-500/50",
-  presence: "shadow-rose-400/50",
-  events: "shadow-blue-400/50",
-  command: "shadow-red-500/50",
-};
 
 interface ChatInterfaceProps {
   userId: string;
@@ -47,9 +35,9 @@ interface ChatInterfaceProps {
 export function ChatInterface({ userId, conversationId, onConversationCreated }: ChatInterfaceProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAdmin } = useAdminCheck();
 
+  /* REQUIRED HOOKS FOR EXISTING COMPONENT CONTRACTS */
   const { readingMode, setReadingMode } = useReadingMode();
   const { speed: streamingSpeed, setSpeed: setStreamingSpeed } = useStreamingSpeed();
 
@@ -69,10 +57,6 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { displayText, isStreaming, startStreaming } = useLucyStreaming();
   const { showScrollButton } = useScrollDetection(chatContainerRef);
 
-  const activeLounge = Object.keys(LOUNGE_GLOW_MAP).find((k) => location.pathname.includes(k)) ?? "neural";
-
-  const glowClass = LOUNGE_GLOW_MAP[activeLounge];
-
   useKeyboardShortcuts({
     onSend: () => handleSend(),
     onFocusInput: () => inputRef.current?.focus(),
@@ -91,25 +75,35 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       .select("title")
       .eq("id", conversationId)
       .single()
-      .then(({ data }) => data?.title && setConversationTitle(data.title));
+      .then(({ data }) => {
+        if (data?.title) setConversationTitle(data.title);
+      });
 
     supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true })
-      .then(({ data }) => data && setMessages(data));
+      .then(({ data }) => {
+        if (data) setMessages(data);
+      });
   }, [conversationId]);
 
-  const scrollToLatest = useCallback(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), []);
+  const scrollToLatest = useCallback(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-  useEffect(scrollToLatest, [messages, displayText]);
+  useEffect(() => {
+    scrollToLatest();
+  }, [messages, displayText, scrollToLatest]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
+
     const userMessage = input.trim();
     setInput("");
     setIsLoading(true);
+    setError(null);
     setLastReadMessageIndex(messages.length);
 
     try {
@@ -118,36 +112,57 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       if (!convId) {
         const { data } = await supabase
           .from("conversations")
-          .insert({ user_id: userId, title: userMessage.slice(0, 50) })
+          .insert({
+            user_id: userId,
+            title: userMessage.slice(0, 50),
+          })
           .select()
           .single();
+
         convId = data.id;
         onConversationCreated(convId);
       }
 
-      const created_at = new Date().toISOString();
+      const createdAt = new Date().toISOString();
 
       await supabase.from("messages").insert({
         conversation_id: convId,
         role: "user",
         content: userMessage,
-        created_at,
+        created_at: createdAt,
       });
 
-      setMessages((m) => [...m, { role: "user", content: userMessage, created_at }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: userMessage,
+          created_at: createdAt,
+        },
+      ]);
 
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, { role: "user", content: userMessage }] }),
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: userMessage }],
+        }),
       });
 
-      startStreaming(await res.text());
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      if (!response.ok) throw new Error("Failed to get AI response");
+
+      const text = await response.text();
+      startStreaming(text);
+    } catch (err: any) {
+      setError(err.message || "Failed to send message");
+      toast({
+        title: "Error",
+        description: err.message || "Failed to send message",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -157,33 +172,34 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     <main className="flex-1 flex flex-col h-screen overflow-hidden">
       <ReadingProgressBar isStreaming={isStreaming} />
 
-      <header className="relative isolate z-10 h-16 flex items-center px-4 border-b backdrop-blur-md bg-background/70">
-        {/* LEFT */}
-        <div className="flex items-center gap-3 z-30 relative pointer-events-auto">
-          <SidebarTrigger />
+      <ScrollToBottom
+        visible={showScrollButton && messages.length > 3}
+        onClick={scrollToLatest}
+        newMessageCount={messages.length - lastReadMessageIndex - 1}
+      />
 
-          {/* ✅ LUCY LOGO — FORCED VISIBLE */}
-          <div
-            className={`relative z-40 rounded-full transition-all duration-500 hover:shadow-lg ${glowClass} ${
-              isStreaming ? "animate-pulse" : ""
-            }`}
-          >
-            <LucyLogo size="sm" showGlow />
+      {/* HEADER */}
+      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 border-b">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger />
+          <LucyLogo size="sm" showGlow />
+
+          <div className="hidden sm:block">
+            <h1 className="font-semibold text-sm">{conversationTitle}</h1>
+            <p className="text-xs text-muted-foreground">Divine Intelligence</p>
           </div>
 
           <LoungesDropdown />
         </div>
 
-        {/* CENTER */}
-        <div className="absolute inset-0 flex justify-center pointer-events-none">
+        <div className="flex-1 flex justify-center px-4">
           <HeaderMusicPlayer />
         </div>
 
-        {/* RIGHT */}
-        <div className="ml-auto flex items-center gap-2 z-30">
+        <div className="flex items-center gap-1.5">
           {isAdmin && (
-            <Button size="sm" variant="ghost" onClick={() => navigate("/admin")}>
-              <Shield className="w-4 h-4 mr-1" />
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
+              <Shield className="w-4 h-4 mr-2" />
               <Badge>Admin</Badge>
             </Button>
           )}
@@ -200,11 +216,82 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           <Button variant="ghost" size="icon" onClick={() => setShowSearch(true)}>
             <Search className="w-4 h-4" />
           </Button>
+
+          {conversationId && (
+            <Button variant="ghost" size="icon" onClick={() => setShowExport(true)}>
+              <Download className="w-4 h-4" />
+            </Button>
+          )}
+
+          <Button variant="ghost" size="icon">
+            <Settings2 className="w-4 h-4" />
+          </Button>
         </div>
       </header>
 
-      {/* BODY + INPUT unchanged */}
-      {/* (Intentionally left same to avoid regressions) */}
+      {/* BODY */}
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-2">
+        <div className="max-w-5xl mx-auto space-y-4">
+          {conversationId && <ContextIndicator conversationId={conversationId} />}
+
+          {messages.map((message, index) => (
+            <div key={`${index}-${message.created_at}`}>
+              {index === lastReadMessageIndex + 1 && <NewMessageDivider />}
+              <ChatMessage message={message} />
+            </div>
+          ))}
+
+          {displayText && (
+            <ChatMessage
+              message={{
+                role: "assistant",
+                content: displayText,
+                created_at: new Date().toISOString(),
+              }}
+              isStreaming
+            />
+          )}
+
+          {error && <div className="text-destructive text-sm">{error}</div>}
+
+          <div ref={scrollRef} />
+        </div>
+      </div>
+
+      {/* INPUT */}
+      <div className="p-4 border-t">
+        <div className="max-w-5xl mx-auto flex gap-2">
+          <Textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Message Lucy..."
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            className="resize-none"
+          />
+          <Button onClick={handleSend} disabled={isLoading}>
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          </Button>
+        </div>
+      </div>
+
+      <SearchModal
+        open={showSearch}
+        onOpenChange={setShowSearch}
+        onSelectConversation={(id: string) => {
+          onConversationCreated(id);
+          setShowSearch(false);
+        }}
+      />
+
+      {conversationId && (
+        <ExportDialog
+          open={showExport}
+          onOpenChange={setShowExport}
+          conversationId={conversationId}
+          conversationTitle={conversationTitle}
+        />
+      )}
     </main>
   );
 }
