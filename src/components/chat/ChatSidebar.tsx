@@ -5,30 +5,12 @@ import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/compone
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  MessageSquarePlus,
-  Search,
-  LogOut,
-  Moon,
-  Sun,
-  Settings,
-  Home,
-  Film,
-  Headphones,
-  Brain,
-  MoonStar,
-  Eye,
-  Users,
-  History,
-  Command,
-  Atom,
-  Sparkles,
-  Globe,
-} from "lucide-react";
+import { MessageSquarePlus, Search, LogOut, Moon, Sun, Settings, Home } from "lucide-react";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { SettingsModal } from "./SettingsModal";
 import { ColorThemeSelector } from "@/components/sidebar/ColorThemeSelector";
 import { WeatherAmbientSelector } from "@/components/ambient/WeatherAmbientSelector";
+import { LOUNGES } from "@/config/lounges";
 
 interface Props {
   userId: string;
@@ -53,20 +35,6 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   }, [userId]);
 
   const filtered = conversations.filter((c) => c.title?.toLowerCase().includes(search.toLowerCase()));
-
-  const lounges = [
-    { label: "Listening Mode", icon: Headphones, path: "/listening-mode" },
-    { label: "Media Mode", icon: Film, path: "/media" },
-    { label: "Neural Mode", icon: Brain, path: "/neural" },
-    { label: "Dream Mode", icon: MoonStar, path: "/dream" },
-    { label: "Vision Mode", icon: Eye, path: "/vision" },
-    { label: "Silent Room", icon: Users, path: "/silent-room" },
-    { label: "Memory Timeline", icon: History, path: "/timeline" },
-    { label: "Quantum Mode", icon: Atom, path: "/quantum" },
-    { label: "Presence Mode", icon: Sparkles, path: "/presence" },
-    { label: "World Events", icon: Globe, path: "/events" },
-    { label: "Command Center", icon: Command, path: "/command" },
-  ];
 
   return (
     <Sidebar className="flex flex-col h-screen overflow-hidden">
@@ -105,7 +73,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
           <div className="mt-6 px-2">
             <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Lounges</p>
             <div className="space-y-1">
-              {lounges.map((l) => (
+              {LOUNGES.map((l) => (
                 <Button key={l.path} variant="ghost" className="w-full justify-start" onClick={() => navigate(l.path)}>
                   <l.icon className="mr-2 h-4 w-4" />
                   {l.label}
