@@ -111,7 +111,39 @@ const ListeningMode = () => {
       <main className="container py-8">
         <AnimatePresence>
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-            {/* 🔒 Your existing renderContent logic stays here */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {genres.map((item, index) => (
+                <ListeningModeCard
+                  key={item.contentId}
+                  title={item.title}
+                  contentId={item.contentId}
+                  contentType={item.contentType}
+                  icon={item.icon}
+                  accentColor={item.accentColor}
+                  genre="vibes"
+                  index={index}
+                  isFavorite={isFavorite(item.contentId)}
+                  onToggleFavorite={() =>
+                    toggleFavorite({
+                      id: item.contentId,
+                      title: item.title,
+                      subtitle: item.subtitle,
+                      genre: "vibes",
+                      contentType: item.contentType,
+                    })
+                  }
+                  onInteraction={() =>
+                    addRecentlyPlayed({
+                      id: item.contentId,
+                      title: item.title,
+                      subtitle: item.subtitle,
+                      genre: "vibes",
+                      contentType: item.contentType,
+                    })
+                  }
+                />
+              ))}
+            </div>
           </motion.div>
         </AnimatePresence>
       </main>
