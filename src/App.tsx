@@ -46,6 +46,17 @@ import Media from "@/pages/Media";
 import ListeningMode from "@/pages/ListeningMode";
 import NotFound from "@/pages/NotFound";
 
+/* ===== LOUNGES ===== */
+import NeuralMode from "@/pages/lounges/NeuralMode";
+import DreamMode from "@/pages/lounges/DreamMode";
+import VisionMode from "@/pages/lounges/VisionMode";
+import SilentRoom from "@/pages/lounges/SilentRoom";
+import MemoryTimeline from "@/pages/lounges/MemoryTimeline";
+import CommandCenter from "@/pages/lounges/CommandCenter";
+import QuantumMode from "@/pages/lounges/QuantumMode";
+import PresenceMode from "@/pages/lounges/PresenceMode";
+import WorldEvents from "@/pages/lounges/WorldEvents";
+
 /* ===== GUIDES ===== */
 import CreditRepairGuide from "@/pages/guides/CreditRepairGuide";
 import SBALoanGuide from "@/pages/guides/SBALoanGuide";
@@ -157,6 +168,17 @@ const App = () => {
                   <Route path="/rooms" element={<RoomList />} />
                   <Route path="/room/:roomId" element={<RoomChat />} />
                   <Route path="/shared/:token" element={<SharedConversation />} />
+
+                  {/* LOUNGES */}
+                  <Route path="/neural" element={<NeuralMode />} />
+                  <Route path="/dream" element={<DreamMode />} />
+                  <Route path="/vision" element={<VisionMode />} />
+                  <Route path="/silent-room" element={<SilentRoom />} />
+                  <Route path="/timeline" element={<MemoryTimeline />} />
+                  <Route path="/command" element={<AdminRoute><CommandCenter /></AdminRoute>} />
+                  <Route path="/quantum" element={<QuantumMode />} />
+                  <Route path="/presence" element={<PresenceMode />} />
+                  <Route path="/events" element={<WorldEvents />} />
 
                   {/* ADMIN */}
                   <Route path="/admin" element={<Admin />} />
