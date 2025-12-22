@@ -1,50 +1,93 @@
-import React from "react";
-import { SpotifyEmbed } from "./SpotifyEmbed";
+import { motion } from "framer-motion";
+import { Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-/**
- * =========================================================
- * ListeningModeCard
- * =========================================================
- * Unified card component for all Listening Mode content.
- * - Editorial playlists (full playback)
- * - Albums / singles / EPs (preview where applicable)
- * - Used in both legacy sections and new streaming UI
- * =========================================================
- */
-
-export type PlaybackType = "full" | "preview";
-
-export interface ListeningModeCardProps {
+export type ListeningModeCardProps = {
   title: string;
-  embedUrl: string;
-  playbackType: PlaybackType;
-  description?: string;
-  height?: number;
-}
+  subtitle?: string;
+  contentId: string;
+  contentType: "album" | "playlist";
+  icon?: React.ElementType;
+  accentColor?: string;
+  index?: number;
+  compact?: boolean;
+  genre: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  onInteraction?: () => void;
+};
 
-export function ListeningModeCard({ title, embedUrl, playbackType, description, height }: ListeningModeCardProps) {
+export function ListeningModeCard({
+  title,
+  subtitle,
+  contentId,
+  contentType,
+  icon: Icon,
+  accentColor = "from-primary/20 to-primary/5",
+  index = 0,
+  compact = false,
+  genre,
+  isFavorite = false,
+  onToggleFavorite,
+  onInteraction,
+}: ListeningModeCardProps) {
+  const embedSrc =
+    contentType === "album"
+      ? `https://open.spotify.com/embed/album/${contentId}`
+      : `https://open.spotify.com/embed/playlist/${contentId}`;
+
   return (
-    <div className="w-full rounded-2xl border bg-card p-4 space-y-3 shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className={cn(
+        "relative rounded-xl overflow-hidden border border-border/50 bg-background shadow-sm hover:shadow-md transition-all",
+        compact && "min-w-[240px] max-w-[240px]",
+      )}
+      onClick={onInteraction}
+    >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h3 className="text-base font-semibold leading-tight">{title}</h3>
+      <div className={cn("p-4 bg-gradient-to-br", accentColor)}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            {Icon && (
+              <div className="p-2 rounded-lg bg-background/60">
+                <Icon className="w-5 h-5 text-foreground" />
+              </div>
+            )}
+            <div>
+              <h3 className="font-semibold leading-tight text-foreground">{title}</h3>
+              {subtitle && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{subtitle}</p>}
+            </div>
+          </div>
 
-          {description && <p className="text-xs opacity-70">{description}</p>}
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite();
+              }}
+              className="text-muted-foreground hover:text-red-500 transition-colors"
+              aria-label="Toggle favorite"
+            >
+              <Heart className={cn("w-4 h-4", isFavorite && "fill-red-500 text-red-500")} />
+            </button>
+          )}
         </div>
-
-        {/* Playback badge */}
-        <span
-          className={`text-[11px] px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-            playbackType === "full" ? "bg-green-500/15 text-green-500" : "bg-yellow-500/15 text-yellow-500"
-          }`}
-        >
-          {playbackType === "full" ? "Full Songs" : "Preview"}
-        </span>
       </div>
 
       {/* Spotify Embed */}
-      <SpotifyEmbed embedUrl={embedUrl} title={title} height={height} />
-    </div>
+      <div className="bg-black">
+        <iframe
+          src={embedSrc}
+          width="100%"
+          height={compact ? 80 : 152}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        />
+      </div>
+    </motion.div>
   );
 }
