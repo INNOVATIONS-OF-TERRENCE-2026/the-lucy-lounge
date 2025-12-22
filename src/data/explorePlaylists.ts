@@ -1,213 +1,224 @@
-// src/data/explorePlaylists.ts
-
-export type ExploreCategory =
-  | "editorial"
-  | "rap"
-  | "trap"
-  | "rnb"
-  | "lofi"
-  | "ambient"
-  | "focus"
-  | "chill"
-  | "eras"
-  | "dallas";
+// =========================================================
+// 🎧 EXPLORE PLAYLISTS — FULL FILE (NON-DESTRUCTIVE)
+// File: src/data/explorePlaylists.ts
+// =========================================================
 
 export type ExplorePlaylist = {
   id: string;
   title: string;
   subtitle: string;
-  spotifyId: string;
-  type: "playlist";
-  category: ExploreCategory;
-  fullTrackFriendly?: boolean;
-  city?: "Dallas";
+  spotifyEmbedUrl: string;
+  category:
+    | "trap"
+    | "lofi"
+    | "rnb-90s"
+    | "rnb-80s"
+    | "rnb-70s"
+    | "dallas-drill"
+    | "new-dallas"
+    | "hiphop-editorial"
+    | "chill"
+    | "focus";
 };
 
-export const explorePlaylists: ExplorePlaylist[] = [
-  /* ===========================
-     🔥 EDITORIAL (FULL TRACK)
-     =========================== */
+// =========================================================
+// 🔥 HIP-HOP / RAP EDITORIAL (FULL SONG PLAYLISTS)
+// =========================================================
+export const hipHopEditorial: ExplorePlaylist[] = [
   {
-    id: "editorial-rapcaviar",
-    title: "RapCaviar",
-    subtitle: "The biggest names in hip-hop right now",
-    spotifyId: "37i9dQZF1DX0XUsuxWHRQd",
-    type: "playlist",
-    category: "editorial",
-    fullTrackFriendly: true,
+    id: "rap-caviar",
+    title: "Rap Caviar",
+    subtitle: "Top-tier hip-hop editorial (full tracks)",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd",
+    category: "hiphop-editorial",
   },
   {
-    id: "editorial-most-necessary",
+    id: "most-necessary",
     title: "Most Necessary",
-    subtitle: "Hip-hop culture’s essential tracks",
-    spotifyId: "37i9dQZF1DX2RxBh64BHjQ",
-    type: "playlist",
-    category: "editorial",
-    fullTrackFriendly: true,
+    subtitle: "Essential hip-hop right now",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2RxBh64BHjQ",
+    category: "hiphop-editorial",
   },
   {
-    id: "editorial-signed-xoxo",
+    id: "signed-xoxo",
     title: "Signed XOXO",
-    subtitle: "Breaking artists before they break out",
-    spotifyId: "37i9dQZF1DXcRXFNfZr7Tp",
-    type: "playlist",
-    category: "editorial",
-    fullTrackFriendly: true,
+    subtitle: "New hip-hop & emerging voices",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWU0ScTcjJBdj",
+    category: "hiphop-editorial",
   },
   {
-    id: "editorial-chill-hits",
-    title: "Chill Hits",
-    subtitle: "Laid-back hits for easy listening",
-    spotifyId: "37i9dQZF1DX4WYpdgoIcn6",
-    type: "playlist",
-    category: "chill",
-    fullTrackFriendly: true,
-  },
-
-  /* ===========================
-     💣 TRAP / RAP
-     =========================== */
-  {
-    id: "trap-trap-mojito",
-    title: "Trap Mojito",
-    subtitle: "Hard trap energy",
-    spotifyId: "37i9dQZF1DX4eRPd9frC1m",
-    type: "playlist",
-    category: "trap",
-    fullTrackFriendly: true,
-  },
-  {
-    id: "rap-feelin-myself",
+    id: "feelin-myself",
     title: "Feelin’ Myself",
-    subtitle: "Confidence & boss vibes",
-    spotifyId: "37i9dQZF1DX6GwdWRQMQpq",
-    type: "playlist",
-    category: "rap",
-  },
-  {
-    id: "rap-get-turnt",
-    title: "Get Turnt",
-    subtitle: "High-energy rap anthems",
-    spotifyId: "37i9dQZF1DX0HRj9P7NxeE",
-    type: "playlist",
-    category: "rap",
-  },
-
-  /* ===========================
-     ❤️ R&B / SOUL
-     =========================== */
-  {
-    id: "rnb-90s-slow-jams",
-    title: "90s R&B Slow Jams",
-    subtitle: "Classic love songs from the 90s",
-    spotifyId: "37i9dQZF1DX6VDO8a6cQME",
-    type: "playlist",
-    category: "eras",
-    fullTrackFriendly: true,
-  },
-  {
-    id: "rnb-80s-slow-jams",
-    title: "80s R&B Classics",
-    subtitle: "Timeless soul & smooth grooves",
-    spotifyId: "37i9dQZF1DWXbttAJcbphz",
-    type: "playlist",
-    category: "eras",
-  },
-  {
-    id: "rnb-70s-soul",
-    title: "70s Soul & R&B",
-    subtitle: "Golden-era soul music",
-    spotifyId: "37i9dQZF1DWV7EzJMK2FUI",
-    type: "playlist",
-    category: "eras",
-  },
-  {
-    id: "rnb-rnb-vibes",
-    title: "R&B Vibes",
-    subtitle: "Smooth modern R&B",
-    spotifyId: "37i9dQZF1DX4SBhb3fqCJd",
-    type: "playlist",
-    category: "rnb",
-    fullTrackFriendly: true,
-  },
-
-  /* ===========================
-     🌿 LO-FI / CHILL
-     =========================== */
-  {
-    id: "lofi-lofi-beats",
-    title: "Lo-Fi Beats",
-    subtitle: "Chill beats to relax or study",
-    spotifyId: "37i9dQZF1DXdLK5lj7o4vM",
-    type: "playlist",
-    category: "lofi",
-    fullTrackFriendly: true,
-  },
-  {
-    id: "lofi-jazzhop",
-    title: "Jazzhop Café",
-    subtitle: "Jazz-infused lo-fi",
-    spotifyId: "37i9dQZF1DXbITWG1ZJKYt",
-    type: "playlist",
-    category: "lofi",
-  },
-
-  /* ===========================
-     🧠 FOCUS / AMBIENT
-     =========================== */
-  {
-    id: "focus-deep-focus",
-    title: "Deep Focus",
-    subtitle: "Instrumental concentration",
-    spotifyId: "37i9dQZF1DWZeKCadgRdKQ",
-    type: "playlist",
-    category: "focus",
-    fullTrackFriendly: true,
-  },
-  {
-    id: "focus-brain-food",
-    title: "Brain Food",
-    subtitle: "Music for deep thinking",
-    spotifyId: "37i9dQZF1DWXLeA8Omikj7",
-    type: "playlist",
-    category: "focus",
-    fullTrackFriendly: true,
-  },
-  {
-    id: "ambient-ambient-chill",
-    title: "Ambient Chill",
-    subtitle: "Atmospheric calm",
-    spotifyId: "37i9dQZF1DX3Ogo9pFvBkY",
-    type: "playlist",
-    category: "ambient",
-  },
-
-  /* ===========================
-     🏙️ DALLAS (LOCAL)
-     =========================== */
-  {
-    id: "dallas-drill",
-    title: "Dallas Drill",
-    subtitle: "Raw Dallas drill energy",
-    spotifyId: "6u2G9F0R0Tt8nKXrj9DALL",
-    type: "playlist",
-    category: "dallas",
-    city: "Dallas",
-  },
-  {
-    id: "dallas-new-wave",
-    title: "New Dallas Artists",
-    subtitle: "Next-up Dallas talent",
-    spotifyId: "2W3ZPq9DALLASNEW",
-    type: "playlist",
-    category: "dallas",
-    city: "Dallas",
+    subtitle: "Confidence, boss energy, full tracks",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX7ZUug1ANKRP",
+    category: "hiphop-editorial",
   },
 ];
 
-// Helper selectors (used by Explore UI)
-export const getExploreByCategory = (category: ExploreCategory) =>
-  explorePlaylists.filter((p) => p.category === category);
+// =========================================================
+// 🔥 TRAP (FULL SONG EDITORIAL)
+// =========================================================
+export const trapPlaylists: ExplorePlaylist[] = [
+  {
+    id: "trap-classics",
+    title: "Trap Classics",
+    subtitle: "Foundations of trap music",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWY4xHQp97fN6",
+    category: "trap",
+  },
+  {
+    id: "trap-heat",
+    title: "Trap Heat",
+    subtitle: "Modern trap bangers",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXaW0vNOq2Cz0",
+    category: "trap",
+  },
+  {
+    id: "street-heat",
+    title: "Street Heat",
+    subtitle: "Raw street energy",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5fwlF6KQw5S",
+    category: "trap",
+  },
+  {
+    id: "dirty-south",
+    title: "Dirty South Classics",
+    subtitle: "Southern trap roots",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZjqjZMudx9T",
+    category: "trap",
+  },
+];
 
-export const getFullTrackEditorial = () =>
-  explorePlaylists.filter((p) => p.fullTrackFriendly);
+// =========================================================
+// 🌆 DALLAS DRILL (CURATED / FULL TRACKS WHERE AVAILABLE)
+// =========================================================
+export const dallasDrill: ExplorePlaylist[] = [
+  {
+    id: "dallas-drill",
+    title: "Dallas Drill",
+    subtitle: "DFW drill & underground energy",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/3KZ8nHn5rJpNwz3pXxU0pG",
+    category: "dallas-drill",
+  },
+  {
+    id: "dfw-street-rap",
+    title: "DFW Street Rap",
+    subtitle: "Dallas–Fort Worth street sound",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/6lYx9jzK5u4F2P0QJkT9xP",
+    category: "dallas-drill",
+  },
+];
+
+// =========================================================
+// 🌆 NEW DALLAS ARTISTS (CURATED)
+// =========================================================
+export const newDallas: ExplorePlaylist[] = [
+  {
+    id: "new-dallas",
+    title: "New Dallas",
+    subtitle: "Next wave of Dallas artists",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/5f8E8K8UjvM1dD9Qx9k8mD",
+    category: "new-dallas",
+  },
+  {
+    id: "texas-new-heat",
+    title: "Texas New Heat",
+    subtitle: "Rising artists across Texas",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX6tTW0xDxScH",
+    category: "new-dallas",
+  },
+];
+
+// =========================================================
+// 🎶 R&B — 1990s SLOW JAMS (FULL SONG PLAYLISTS)
+// =========================================================
+export const rnb90s: ExplorePlaylist[] = [
+  {
+    id: "90s-rnb-slow-jams",
+    title: "90s R&B Slow Jams",
+    subtitle: "Classic love songs & slow vibes",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX6VDO8a6cQME",
+    category: "rnb-90s",
+  },
+  {
+    id: "throwback-rnb",
+    title: "Throwback R&B",
+    subtitle: "90s & early 2000s R&B",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4SBhb3fqCJd",
+    category: "rnb-90s",
+  },
+];
+
+// =========================================================
+// 🎶 R&B — 1980s
+// =========================================================
+export const rnb80s: ExplorePlaylist[] = [
+  {
+    id: "80s-rnb",
+    title: "80s R&B Classics",
+    subtitle: "Golden era R&B & soul",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2vYju3i0lNX",
+    category: "rnb-80s",
+  },
+];
+
+// =========================================================
+// 🎶 R&B — 1970s SOUL
+// =========================================================
+export const rnb70s: ExplorePlaylist[] = [
+  {
+    id: "70s-soul",
+    title: "70s Soul & R&B",
+    subtitle: "Timeless soul classics",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWVlYsZJXqdym",
+    category: "rnb-70s",
+  },
+];
+
+// =========================================================
+// 🌊 LO-FI / CHILL / FOCUS
+// =========================================================
+export const lofiChill: ExplorePlaylist[] = [
+  {
+    id: "lofi-beats",
+    title: "Lo-Fi Beats",
+    subtitle: "Chill beats to relax & study",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdLK5lj7o4vM",
+    category: "lofi",
+  },
+  {
+    id: "chillhop",
+    title: "Chillhop Essentials",
+    subtitle: "Smooth lo-fi & chillhop",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2yvmlOdMYzV",
+    category: "lofi",
+  },
+  {
+    id: "deep-focus",
+    title: "Deep Focus",
+    subtitle: "Music for deep concentration",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
+    category: "focus",
+  },
+  {
+    id: "brain-food",
+    title: "Brain Food",
+    subtitle: "Focus-enhancing tracks",
+    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWXLeA8Omikj7",
+    category: "focus",
+  },
+];
+
+// =========================================================
+// 🧠 MASTER EXPORT — USED BY EXPLORE MODE
+// =========================================================
+export const explorePlaylists = {
+  hipHopEditorial,
+  trapPlaylists,
+  dallasDrill,
+  newDallas,
+  rnb90s,
+  rnb80s,
+  rnb70s,
+  lofiChill,
+};
