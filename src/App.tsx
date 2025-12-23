@@ -28,55 +28,29 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 
-/* =========================
-   ROUTE-LEVEL LAZY PAGES
-   ========================= */
+/* ======================
+   LAZY PAGES
+   ====================== */
 
-/* PUBLIC */
 const Landing = lazy(() => import("@/pages/Landing"));
 const Chat = lazy(() => import("@/pages/Chat"));
 const Auth = lazy(() => import("@/pages/Auth"));
-const Media = lazy(() => import("@/pages/Media"));
 const Features = lazy(() => import("@/pages/Features"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const About = lazy(() => import("@/pages/About"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const Tools = lazy(() => import("@/pages/Tools"));
 const ToolsMarketplace = lazy(() => import("@/pages/ToolsMarketplace"));
 const CreatorStudio = lazy(() => import("@/pages/CreatorStudio"));
 const Launch = lazy(() => import("@/pages/Launch"));
-
-/* LISTENING */
-const ListeningMode = lazy(() => import("@/pages/ListeningMode"));
-const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode").then((m) => ({ default: m.default })));
-
-/* STUDIOS */
 const Studios = lazy(() => import("@/pages/Studios"));
 const StudiosAI = lazy(() => import("@/pages/StudiosAI"));
 const StudiosAudio = lazy(() => import("@/pages/StudiosAudio"));
 const StudiosDev = lazy(() => import("@/pages/StudiosDev"));
-
-/* GUIDES */
-const CreditRepairGuide = lazy(() => import("@/pages/guides/CreditRepairGuide"));
-const SBALoanGuide = lazy(() => import("@/pages/guides/SBALoanGuide"));
-const WomenFundingGuide = lazy(() => import("@/pages/guides/WomenFundingGuide"));
-
-/* COMPANY */
-const About = lazy(() => import("@/pages/About"));
-const AuthorPage = lazy(() => import("@/pages/about/AuthorPage"));
-const Blog = lazy(() => import("@/pages/Blog"));
-const BlogPost = lazy(() => import("@/pages/BlogPost"));
-const Testimonials = lazy(() => import("@/pages/Testimonials"));
-const Press = lazy(() => import("@/pages/Press"));
-const EditorialStandards = lazy(() => import("@/pages/EditorialStandards"));
-const Contact = lazy(() => import("@/pages/Contact"));
-
-/* ROOMS — NAMED EXPORT FIX */
-const RoomList = lazy(() => import("@/components/rooms/RoomList").then((m) => ({ default: m.RoomList })));
-const RoomChat = lazy(() => import("@/components/rooms/RoomChat").then((m) => ({ default: m.RoomChat })));
-const SharedConversation = lazy(() =>
-  import("@/pages/SharedConversation").then((m) => ({
-    default: m.SharedConversation,
-  })),
-);
+const Media = lazy(() => import("@/pages/Media"));
+const ListeningMode = lazy(() => import("@/pages/ListeningMode"));
+const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode"));
 
 /* LOUNGES */
 const NeuralMode = lazy(() => import("@/pages/lounges/NeuralMode"));
@@ -89,9 +63,30 @@ const QuantumMode = lazy(() => import("@/pages/lounges/QuantumMode"));
 const PresenceMode = lazy(() => import("@/pages/lounges/PresenceMode"));
 const WorldEvents = lazy(() => import("@/pages/lounges/WorldEvents"));
 
+/* GUIDES */
+const CreditRepairGuide = lazy(() => import("@/pages/guides/CreditRepairGuide"));
+const SBALoanGuide = lazy(() => import("@/pages/guides/SBALoanGuide"));
+const WomenFundingGuide = lazy(() => import("@/pages/guides/WomenFundingGuide"));
+
+/* COMPANY */
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const Press = lazy(() => import("@/pages/Press"));
+const EditorialStandards = lazy(() => import("@/pages/EditorialStandards"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const AuthorPage = lazy(() => import("@/pages/about/AuthorPage"));
+
 /* ADMIN */
-const Admin = lazy(() => import("@/pages/Admin"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
+const Admin = lazy(() => import("@/pages/Admin"));
+
+/* ROOMS — NAMED EXPORT ADAPTERS (CRITICAL FIX) */
+const RoomList = lazy(() => import("@/components/rooms/RoomList").then((m) => ({ default: m.RoomList })));
+const RoomChat = lazy(() => import("@/components/rooms/RoomChat").then((m) => ({ default: m.RoomChat })));
+const SharedConversation = lazy(() =>
+  import("@/pages/SharedConversation").then((m) => ({
+    default: m.SharedConversation,
+  })),
+);
 
 const queryClient = new QueryClient();
 
@@ -150,22 +145,8 @@ const App = () => {
                     <Routes>
                       <Route path="/" element={<Landing />} />
                       <Route path="/auth" element={<Auth />} />
-                      <Route
-                        path="/chat"
-                        element={
-                          <Suspense fallback={<PageSkeleton variant="chat" />}>
-                            <Chat />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/media"
-                        element={
-                          <Suspense fallback={<PageSkeleton variant="media" />}>
-                            <Media />
-                          </Suspense>
-                        }
-                      />
+                      <Route path="/chat" element={<Chat />} />
+                      <Route path="/media" element={<Media />} />
                       <Route path="/features" element={<Features />} />
                       <Route path="/pricing" element={<Pricing />} />
                       <Route path="/tools" element={<Tools />} />
@@ -180,6 +161,10 @@ const App = () => {
                       <Route path="/studios/ai" element={<StudiosAI />} />
                       <Route path="/studios/audio" element={<StudiosAudio />} />
                       <Route path="/studios/dev" element={<StudiosDev />} />
+
+                      <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
+                      <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
+                      <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
 
                       <Route path="/about" element={<About />} />
                       <Route path="/about/terrence-milliner" element={<AuthorPage />} />
