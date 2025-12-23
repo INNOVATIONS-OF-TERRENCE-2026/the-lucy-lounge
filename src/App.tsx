@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -13,9 +13,12 @@ import { IntroScreen } from "@/components/branding/IntroScreen";
 import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvider";
 import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
 import { LucyDJProvider } from "@/contexts/LucyDJContext";
+import { LucyWorldsProvider } from "@/contexts/LucyWorldsContext";
 import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
 import { GlobalMiniPlayer } from "@/components/audio/GlobalMiniPlayer";
 import { LucySuggestionDrawer } from "@/components/chat/LucySuggestionDrawer";
+import { LucyWorldsOverlay } from "@/components/worlds/LucyWorldsOverlay";
+import { PageSkeleton } from "@/components/skeleton/PageSkeleton";
 
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
@@ -113,17 +116,19 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <GlobalSpotifyProvider>
         <LucyDJProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
+          <LucyWorldsProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
 
-            {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+              {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-            <IOSAudioUnlockProvider />
-            <GlobalSpotifyAudioHost />
-            <GlobalMiniPlayer />
-            <LucySuggestionDrawer />
-            <FloatingCalculator />
+              <IOSAudioUnlockProvider />
+              <GlobalSpotifyAudioHost />
+              <GlobalMiniPlayer />
+              <LucySuggestionDrawer />
+              <FloatingCalculator />
+              <LucyWorldsOverlay />
 
             <InstallPrompt />
             <OfflineBanner />
@@ -210,6 +215,7 @@ const App = () => {
               </BrowserRouter>
             </div>
           </TooltipProvider>
+        </LucyWorldsProvider>
         </LucyDJProvider>
       </GlobalSpotifyProvider>
     </QueryClientProvider>
