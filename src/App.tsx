@@ -28,62 +28,66 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 
-/* ===== PAGES ===== */
-import Landing from "@/pages/Landing";
-import Chat from "@/pages/Chat";
-import Auth from "@/pages/Auth";
-import Features from "@/pages/Features";
-import Pricing from "@/pages/Pricing";
-import About from "@/pages/About";
-import Blog from "@/pages/Blog";
-import BlogPost from "@/pages/BlogPost";
-import Tools from "@/pages/Tools";
-import ToolsMarketplace from "@/pages/ToolsMarketplace";
-import CreatorStudio from "@/pages/CreatorStudio";
-import Launch from "@/pages/Launch";
-import Studios from "@/pages/Studios";
-import StudiosAI from "@/pages/StudiosAI";
-import StudiosAudio from "@/pages/StudiosAudio";
-import StudiosDev from "@/pages/StudiosDev";
-import Media from "@/pages/Media";
-import ListeningMode from "@/pages/ListeningMode";
+/* =========================
+   ROUTE-LEVEL LAZY PAGES
+   ========================= */
 
-/* ✅ CORRECT EXPLORE IMPORT (THIS IS THE FIX) */
-import ExploreMode from "@/pages/listening/ExploreMode";
+/* PUBLIC */
+const Landing = lazy(() => import("@/pages/Landing"));
+const Chat = lazy(() => import("@/pages/Chat"));
+const Auth = lazy(() => import("@/pages/Auth"));
+const Media = lazy(() => import("@/pages/Media"));
+const Features = lazy(() => import("@/pages/Features"));
+const Pricing = lazy(() => import("@/pages/Pricing"));
+const Tools = lazy(() => import("@/pages/Tools"));
+const ToolsMarketplace = lazy(() => import("@/pages/ToolsMarketplace"));
+const CreatorStudio = lazy(() => import("@/pages/CreatorStudio"));
+const Launch = lazy(() => import("@/pages/Launch"));
 
-import NotFound from "@/pages/NotFound";
+/* LISTENING */
+const ListeningMode = lazy(() => import("@/pages/ListeningMode"));
+const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode"));
 
-/* ===== LOUNGES ===== */
-import NeuralMode from "@/pages/lounges/NeuralMode";
-import DreamMode from "@/pages/lounges/DreamMode";
-import VisionMode from "@/pages/lounges/VisionMode";
-import SilentRoom from "@/pages/lounges/SilentRoom";
-import MemoryTimeline from "@/pages/lounges/MemoryTimeline";
-import CommandCenter from "@/pages/lounges/CommandCenter";
-import QuantumMode from "@/pages/lounges/QuantumMode";
-import PresenceMode from "@/pages/lounges/PresenceMode";
-import WorldEvents from "@/pages/lounges/WorldEvents";
+/* STUDIOS */
+const Studios = lazy(() => import("@/pages/Studios"));
+const StudiosAI = lazy(() => import("@/pages/StudiosAI"));
+const StudiosAudio = lazy(() => import("@/pages/StudiosAudio"));
+const StudiosDev = lazy(() => import("@/pages/StudiosDev"));
 
-/* ===== GUIDES ===== */
-import CreditRepairGuide from "@/pages/guides/CreditRepairGuide";
-import SBALoanGuide from "@/pages/guides/SBALoanGuide";
-import WomenFundingGuide from "@/pages/guides/WomenFundingGuide";
+/* GUIDES */
+const CreditRepairGuide = lazy(() => import("@/pages/guides/CreditRepairGuide"));
+const SBALoanGuide = lazy(() => import("@/pages/guides/SBALoanGuide"));
+const WomenFundingGuide = lazy(() => import("@/pages/guides/WomenFundingGuide"));
 
-/* ===== COMPANY ===== */
-import Testimonials from "@/pages/Testimonials";
-import Press from "@/pages/Press";
-import EditorialStandards from "@/pages/EditorialStandards";
-import Contact from "@/pages/Contact";
-import AuthorPage from "@/pages/about/AuthorPage";
+/* COMPANY */
+const About = lazy(() => import("@/pages/About"));
+const AuthorPage = lazy(() => import("@/pages/about/AuthorPage"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const Press = lazy(() => import("@/pages/Press"));
+const EditorialStandards = lazy(() => import("@/pages/EditorialStandards"));
+const Contact = lazy(() => import("@/pages/Contact"));
 
-/* ===== ADMIN ===== */
-import Analytics from "@/pages/Analytics";
-import Admin from "@/pages/Admin";
+/* ROOMS */
+const RoomList = lazy(() => import("@/components/rooms/RoomList"));
+const RoomChat = lazy(() => import("@/components/rooms/RoomChat"));
+const SharedConversation = lazy(() => import("@/pages/SharedConversation"));
 
-/* ===== ROOMS ===== */
-import { RoomList } from "@/components/rooms/RoomList";
-import { RoomChat } from "@/components/rooms/RoomChat";
-import { SharedConversation } from "@/pages/SharedConversation";
+/* LOUNGES */
+const NeuralMode = lazy(() => import("@/pages/lounges/NeuralMode"));
+const DreamMode = lazy(() => import("@/pages/lounges/DreamMode"));
+const VisionMode = lazy(() => import("@/pages/lounges/VisionMode"));
+const SilentRoom = lazy(() => import("@/pages/lounges/SilentRoom"));
+const MemoryTimeline = lazy(() => import("@/pages/lounges/MemoryTimeline"));
+const CommandCenter = lazy(() => import("@/pages/lounges/CommandCenter"));
+const QuantumMode = lazy(() => import("@/pages/lounges/QuantumMode"));
+const PresenceMode = lazy(() => import("@/pages/lounges/PresenceMode"));
+const WorldEvents = lazy(() => import("@/pages/lounges/WorldEvents"));
+
+/* ADMIN */
+const Admin = lazy(() => import("@/pages/Admin"));
+const Analytics = lazy(() => import("@/pages/Analytics"));
 
 const queryClient = new QueryClient();
 
@@ -130,92 +134,106 @@ const App = () => {
               <FloatingCalculator />
               <LucyWorldsOverlay />
 
-            <InstallPrompt />
-            <OfflineBanner />
+              <InstallPrompt />
+              <OfflineBanner />
 
-            <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
-              <BrowserRouter>
-                <ScrollToTop />
-                <AnalyticsTracker />
+              <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <AnalyticsTracker />
 
-                <Routes>
-                  {/* PUBLIC */}
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/chat" element={<Chat />} />
-                  <Route path="/media" element={<Media />} />
-                  <Route path="/features" element={<Features />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/tools" element={<Tools />} />
-                  <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
-                  <Route path="/creator-studio" element={<CreatorStudio />} />
-                  <Route path="/launch" element={<Launch />} />
+                  <Suspense fallback={<PageSkeleton variant="default" />}>
+                    <Routes>
+                      {/* PUBLIC */}
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route
+                        path="/chat"
+                        element={
+                          <Suspense fallback={<PageSkeleton variant="chat" />}>
+                            <Chat />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/media"
+                        element={
+                          <Suspense fallback={<PageSkeleton variant="media" />}>
+                            <Media />
+                          </Suspense>
+                        }
+                      />
+                      <Route path="/features" element={<Features />} />
+                      <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/tools" element={<Tools />} />
+                      <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
+                      <Route path="/creator-studio" element={<CreatorStudio />} />
+                      <Route path="/launch" element={<Launch />} />
 
-                  {/* 🎧 LISTENING */}
-                  <Route path="/listening-mode" element={<ListeningMode />} />
-                  <Route path="/listening/explore" element={<ExploreMode />} />
+                      {/* LISTENING */}
+                      <Route path="/listening-mode" element={<ListeningMode />} />
+                      <Route path="/listening/explore" element={<ExploreMode />} />
 
-                  {/* STUDIOS */}
-                  <Route path="/studios" element={<Studios />} />
-                  <Route path="/studios/ai" element={<StudiosAI />} />
-                  <Route path="/studios/audio" element={<StudiosAudio />} />
-                  <Route path="/studios/dev" element={<StudiosDev />} />
+                      {/* STUDIOS */}
+                      <Route path="/studios" element={<Studios />} />
+                      <Route path="/studios/ai" element={<StudiosAI />} />
+                      <Route path="/studios/audio" element={<StudiosAudio />} />
+                      <Route path="/studios/dev" element={<StudiosDev />} />
 
-                  {/* GUIDES */}
-                  <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
-                  <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
-                  <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
+                      {/* GUIDES */}
+                      <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
+                      <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
+                      <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
 
-                  {/* COMPANY */}
-                  <Route path="/about" element={<About />} />
-                  <Route path="/about/terrence-milliner" element={<AuthorPage />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/testimonials" element={<Testimonials />} />
-                  <Route path="/press" element={<Press />} />
-                  <Route path="/editorial-standards" element={<EditorialStandards />} />
-                  <Route path="/contact" element={<Contact />} />
+                      {/* COMPANY */}
+                      <Route path="/about" element={<About />} />
+                      <Route path="/about/terrence-milliner" element={<AuthorPage />} />
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:slug" element={<BlogPost />} />
+                      <Route path="/testimonials" element={<Testimonials />} />
+                      <Route path="/press" element={<Press />} />
+                      <Route path="/editorial-standards" element={<EditorialStandards />} />
+                      <Route path="/contact" element={<Contact />} />
 
-                  {/* ROOMS */}
-                  <Route path="/rooms" element={<RoomList />} />
-                  <Route path="/room/:roomId" element={<RoomChat />} />
-                  <Route path="/shared/:token" element={<SharedConversation />} />
+                      {/* ROOMS */}
+                      <Route path="/rooms" element={<RoomList />} />
+                      <Route path="/room/:roomId" element={<RoomChat />} />
+                      <Route path="/shared/:token" element={<SharedConversation />} />
 
-                  {/* LOUNGES */}
-                  <Route path="/neural" element={<NeuralMode />} />
-                  <Route path="/dream" element={<DreamMode />} />
-                  <Route path="/vision" element={<VisionMode />} />
-                  <Route path="/silent-room" element={<SilentRoom />} />
-                  <Route path="/timeline" element={<MemoryTimeline />} />
-                  <Route
-                    path="/command"
-                    element={
-                      <AdminRoute>
-                        <CommandCenter />
-                      </AdminRoute>
-                    }
-                  />
-                  <Route path="/quantum" element={<QuantumMode />} />
-                  <Route path="/presence" element={<PresenceMode />} />
-                  <Route path="/events" element={<WorldEvents />} />
+                      {/* LOUNGES */}
+                      <Route path="/neural" element={<NeuralMode />} />
+                      <Route path="/dream" element={<DreamMode />} />
+                      <Route path="/vision" element={<VisionMode />} />
+                      <Route path="/silent-room" element={<SilentRoom />} />
+                      <Route path="/timeline" element={<MemoryTimeline />} />
+                      <Route
+                        path="/command"
+                        element={
+                          <AdminRoute>
+                            <CommandCenter />
+                          </AdminRoute>
+                        }
+                      />
+                      <Route path="/quantum" element={<QuantumMode />} />
+                      <Route path="/presence" element={<PresenceMode />} />
+                      <Route path="/events" element={<WorldEvents />} />
 
-                  {/* ADMIN */}
-                  <Route path="/admin" element={<Admin />} />
-                  <Route
-                    path="/analytics"
-                    element={
-                      <AdminRoute>
-                        <Analytics />
-                      </AdminRoute>
-                    }
-                  />
-
-                  {/* FALLBACK */}
-                </Routes>
-              </BrowserRouter>
-            </div>
-          </TooltipProvider>
-        </LucyWorldsProvider>
+                      {/* ADMIN */}
+                      <Route path="/admin" element={<Admin />} />
+                      <Route
+                        path="/analytics"
+                        element={
+                          <AdminRoute>
+                            <Analytics />
+                          </AdminRoute>
+                        }
+                      />
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </div>
+            </TooltipProvider>
+          </LucyWorldsProvider>
         </LucyDJProvider>
       </GlobalSpotifyProvider>
     </QueryClientProvider>
