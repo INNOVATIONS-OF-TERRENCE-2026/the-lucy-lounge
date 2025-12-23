@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 
 /**
  * =========================================================
- * LISTENING EXPLORE MODE
+ * LISTENING EXPLORE MODE (CLEAN)
  * =========================================================
- * - Separate discovery page
- * - Spotify editorial + full-track playlists
- * - ZERO coupling to ListeningMode
+ * - Editorial + era-based playlists
+ * - No street / Dallas / lo-fi content
  * =========================================================
  */
 
@@ -22,57 +21,57 @@ type ExplorePlaylist = {
 const EDITORIAL: ExplorePlaylist[] = [
   {
     title: "Rap Caviar",
-    subtitle: "Spotify flagship hip-hop playlist (full tracks)",
+    subtitle: "Spotify flagship hip-hop playlist",
     spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd",
     spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd",
   },
   {
     title: "Most Necessary",
-    subtitle: "Culture-driving hip-hop & street records",
+    subtitle: "Culture-driving hip-hop records",
     spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2RxBh64BHjQ",
     spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DX2RxBh64BHjQ",
   },
   {
     title: "Signed XOXO",
     subtitle: "New rap artists on the rise",
-    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DXaQm3ZVg9Z2X",
-    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DXaQm3ZVg9Z2X",
+    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DWU0ScTcjJBdj",
+    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj",
   },
 ];
 
 const RNB_ERAS: ExplorePlaylist[] = [
   {
     title: "90s R&B Slow Jams",
-    subtitle: "Timeless slow jams & late-night classics",
+    subtitle: "Timeless slow jams",
     spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DX6VDO8a6cQME",
     spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DX6VDO8a6cQME",
   },
   {
     title: "80s R&B Classics",
-    subtitle: "Soulful 80s grooves & legends",
-    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DXbITWG1ZJKYt",
-    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DXbITWG1ZJKYt",
+    subtitle: "Golden era R&B & soul",
+    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2vYju3i0lNX",
+    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DX2vYju3i0lNX",
   },
   {
     title: "70s Soul & R&B",
-    subtitle: "Golden era soul music",
-    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2UgsUIg75Vg",
-    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DX2UgsUIg75Vg",
+    subtitle: "Timeless soul classics",
+    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DWVlYsZJXqdym",
+    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DWVlYsZJXqdym",
   },
 ];
 
-const CHILL_FOCUS: ExplorePlaylist[] = [
-  {
-    title: "Lo-Fi Beats",
-    subtitle: "Chill beats to relax & study",
-    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdLK5lj7o4vM",
-    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DXdLK5lj7o4vM",
-  },
+const FOCUS: ExplorePlaylist[] = [
   {
     title: "Deep Focus",
     subtitle: "Minimal distractions, maximum focus",
     spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
     spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
+  },
+  {
+    title: "Brain Food",
+    subtitle: "Music to stay sharp",
+    spotifyEmbed: "https://open.spotify.com/embed/playlist/37i9dQZF1DWXLeA8Omikj7",
+    spotifyLink: "https://open.spotify.com/playlist/37i9dQZF1DWXLeA8Omikj7",
   },
 ];
 
@@ -121,7 +120,6 @@ export default function ListeningExplore() {
 
   return (
     <main className="w-full min-h-screen px-4 md:px-8 py-6 space-y-10">
-      {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate("/listening-mode")}>
@@ -139,10 +137,9 @@ export default function ListeningExplore() {
         </Button>
       </header>
 
-      {/* Sections */}
       <ExploreRow title="🔥 Editorial Playlists" items={EDITORIAL} />
       <ExploreRow title="❤️ R&B Eras" items={RNB_ERAS} />
-      <ExploreRow title="🌿 Chill & Focus" items={CHILL_FOCUS} />
+      <ExploreRow title="🧠 Focus" items={FOCUS} />
     </main>
   );
 }
