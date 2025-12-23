@@ -1,11 +1,26 @@
 import { Link, NavLink } from "react-router-dom";
-import { Menu, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export const TopNav = () => {
   const [open, setOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  // Sync with existing theme system
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const nextIsDark = !root.classList.contains("dark");
+
+    root.classList.toggle("dark", nextIsDark);
+    setIsDark(nextIsDark);
+    localStorage.setItem("theme", nextIsDark ? "dark" : "light");
+  };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("text-sm font-medium transition-colors hover:text-primary", isActive ? "text-primary" : "text-foreground/80");
@@ -74,8 +89,14 @@ export const TopNav = () => {
           </NavLink>
         </nav>
 
-        {/* CTA */}
-        <div className="hidden md:flex gap-3">
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Dark / Light Toggle */}
+          <Button variant="ghost" size="sm" onClick={toggleTheme} className="flex items-center gap-2 text-foreground">
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <span className="text-sm">{isDark ? "Light Mode" : "Dark Mode"}</span>
+          </Button>
+
           <Button asChild variant="outline">
             <Link to="/auth">Sign In</Link>
           </Button>
@@ -135,6 +156,20 @@ export const TopNav = () => {
           <NavLink to="/blog" onClick={() => setOpen(false)}>
             Blog
           </NavLink>
+
+          {/* Mobile Dark / Light Toggle */}
+          <Button
+            variant="ghost"
+            onClick={() => {
+              toggleTheme();
+              setOpen(false);
+            }}
+            className="w-full flex items-center justify-start gap-2"
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? "Light Mode" : "Dark Mode"}
+          </Button>
+
           <NavLink to="/auth" onClick={() => setOpen(false)}>
             Sign In
           </NavLink>
