@@ -206,7 +206,6 @@ const App = () => {
                   />
 
                   {/* FALLBACK */}
-                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
             </div>
