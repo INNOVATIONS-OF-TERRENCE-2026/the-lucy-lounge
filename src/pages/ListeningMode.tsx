@@ -1,8 +1,8 @@
-// 🔥 FULL FILE — CLEAN, TYPE-SAFE, NON-DESTRUCTIVE
+// 🔥 FULL FILE — LISTENING MODE (STABLE + EXPLORE ENTRY)
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home, Compass } from "lucide-react";
 import { ErrorBoundary } from "@/components/system/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,6 @@ import { ListeningModeCard } from "@/components/listening/ListeningModeCard";
 import { useRecentlyPlayed } from "@/hooks/useRecentlyPlayed";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLucyRecommendations, MoodType, ContentItem } from "@/hooks/useLucyRecommendations";
-
-/* =========================================================
-   ✅ IMPORT YOUR MUSIC DATA (THIS IS THE FIX)
-   ========================================================= */
 
 import {
   genres,
@@ -25,7 +21,7 @@ import {
 } from "@/data/listeningContent";
 
 /* =========================================================
-   🔑 BUILD Lucy’s MASTER INDEX
+   BUILD MASTER INDEX (UNCHANGED)
    ========================================================= */
 
 const allContent: ContentItem[] = [
@@ -79,12 +75,12 @@ const allContent: ContentItem[] = [
 
 const ListeningMode = () => {
   const navigate = useNavigate();
-  const [activeMood, setActiveMood] = useState<MoodType>("all");
+  const [activeMood] = useState<MoodType>("all");
 
   const { recentlyPlayed, addRecentlyPlayed } = useRecentlyPlayed();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
-  const { recommendations } = useLucyRecommendations({
+  useLucyRecommendations({
     allContent,
     recentlyPlayed,
     favorites,
@@ -93,57 +89,69 @@ const ListeningMode = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* HEADER */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
-        <div className="container flex justify-between items-center py-4">
+        <div className="container flex items-center justify-between py-4 gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate("/chat")}>
             <ArrowLeft />
           </Button>
 
-          <h1 className="text-2xl font-bold">Listening Mode</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Listening Mode</h1>
 
-          <Button variant="outline" size="sm" onClick={() => navigate("/")}>
-            <Home className="mr-2 w-4 h-4" />
-            Home
-          </Button>
+          <div className="flex gap-2">
+            {/* ✅ EXPLORE BUTTON (THIS WAS MISSING) */}
+            <Button variant="secondary" size="sm" onClick={() => navigate("/listening/explore")}>
+              <Compass className="w-4 h-4 mr-2" />
+              Explore
+            </Button>
+
+            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Button>
+          </div>
         </div>
       </header>
 
+      {/* CONTENT */}
       <main className="container py-8">
         <AnimatePresence>
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {genres.map((item, index) => (
-                <ListeningModeCard
-                  key={item.contentId}
-                  title={item.title}
-                  contentId={item.contentId}
-                  contentType={item.contentType}
-                  icon={item.icon}
-                  accentColor={item.accentColor}
-                  genre="vibes"
-                  index={index}
-                  isFavorite={isFavorite(item.contentId)}
-                  onToggleFavorite={() =>
-                    toggleFavorite({
-                      id: item.contentId,
-                      title: item.title,
-                      subtitle: item.subtitle,
-                      genre: "vibes",
-                      contentType: item.contentType,
-                    })
-                  }
-                  onInteraction={() =>
-                    addRecentlyPlayed({
-                      id: item.contentId,
-                      title: item.title,
-                      subtitle: item.subtitle,
-                      genre: "vibes",
-                      contentType: item.contentType,
-                    })
-                  }
-                />
-              ))}
-            </div>
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {genres.map((item, index) => (
+              <ListeningModeCard
+                key={item.contentId}
+                title={item.title}
+                contentId={item.contentId}
+                contentType={item.contentType}
+                icon={item.icon}
+                accentColor={item.accentColor}
+                genre="vibes"
+                index={index}
+                isFavorite={isFavorite(item.contentId)}
+                onToggleFavorite={() =>
+                  toggleFavorite({
+                    id: item.contentId,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    genre: "vibes",
+                    contentType: item.contentType,
+                  })
+                }
+                onInteraction={() =>
+                  addRecentlyPlayed({
+                    id: item.contentId,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    genre: "vibes",
+                    contentType: item.contentType,
+                  })
+                }
+              />
+            ))}
           </motion.div>
         </AnimatePresence>
       </main>
