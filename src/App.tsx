@@ -46,7 +46,7 @@ const Launch = lazy(() => import("@/pages/Launch"));
 
 /* LISTENING */
 const ListeningMode = lazy(() => import("@/pages/ListeningMode"));
-const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode"));
+const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode").then((m) => ({ default: m.default })));
 
 /* STUDIOS */
 const Studios = lazy(() => import("@/pages/Studios"));
@@ -69,10 +69,14 @@ const Press = lazy(() => import("@/pages/Press"));
 const EditorialStandards = lazy(() => import("@/pages/EditorialStandards"));
 const Contact = lazy(() => import("@/pages/Contact"));
 
-/* ROOMS */
-const RoomList = lazy(() => import("@/components/rooms/RoomList"));
-const RoomChat = lazy(() => import("@/components/rooms/RoomChat"));
-const SharedConversation = lazy(() => import("@/pages/SharedConversation"));
+/* ROOMS — NAMED EXPORT FIX */
+const RoomList = lazy(() => import("@/components/rooms/RoomList").then((m) => ({ default: m.RoomList })));
+const RoomChat = lazy(() => import("@/components/rooms/RoomChat").then((m) => ({ default: m.RoomChat })));
+const SharedConversation = lazy(() =>
+  import("@/pages/SharedConversation").then((m) => ({
+    default: m.SharedConversation,
+  })),
+);
 
 /* LOUNGES */
 const NeuralMode = lazy(() => import("@/pages/lounges/NeuralMode"));
@@ -144,7 +148,6 @@ const App = () => {
 
                   <Suspense fallback={<PageSkeleton variant="default" />}>
                     <Routes>
-                      {/* PUBLIC */}
                       <Route path="/" element={<Landing />} />
                       <Route path="/auth" element={<Auth />} />
                       <Route
@@ -170,22 +173,14 @@ const App = () => {
                       <Route path="/creator-studio" element={<CreatorStudio />} />
                       <Route path="/launch" element={<Launch />} />
 
-                      {/* LISTENING */}
                       <Route path="/listening-mode" element={<ListeningMode />} />
                       <Route path="/listening/explore" element={<ExploreMode />} />
 
-                      {/* STUDIOS */}
                       <Route path="/studios" element={<Studios />} />
                       <Route path="/studios/ai" element={<StudiosAI />} />
                       <Route path="/studios/audio" element={<StudiosAudio />} />
                       <Route path="/studios/dev" element={<StudiosDev />} />
 
-                      {/* GUIDES */}
-                      <Route path="/guides/business-credit-repair" element={<CreditRepairGuide />} />
-                      <Route path="/guides/sba-loan-complete-guide" element={<SBALoanGuide />} />
-                      <Route path="/guides/funding-for-women-entrepreneurs" element={<WomenFundingGuide />} />
-
-                      {/* COMPANY */}
                       <Route path="/about" element={<About />} />
                       <Route path="/about/terrence-milliner" element={<AuthorPage />} />
                       <Route path="/blog" element={<Blog />} />
@@ -195,12 +190,10 @@ const App = () => {
                       <Route path="/editorial-standards" element={<EditorialStandards />} />
                       <Route path="/contact" element={<Contact />} />
 
-                      {/* ROOMS */}
                       <Route path="/rooms" element={<RoomList />} />
                       <Route path="/room/:roomId" element={<RoomChat />} />
                       <Route path="/shared/:token" element={<SharedConversation />} />
 
-                      {/* LOUNGES */}
                       <Route path="/neural" element={<NeuralMode />} />
                       <Route path="/dream" element={<DreamMode />} />
                       <Route path="/vision" element={<VisionMode />} />
@@ -218,7 +211,6 @@ const App = () => {
                       <Route path="/presence" element={<PresenceMode />} />
                       <Route path="/events" element={<WorldEvents />} />
 
-                      {/* ADMIN */}
                       <Route path="/admin" element={<Admin />} />
                       <Route
                         path="/analytics"
