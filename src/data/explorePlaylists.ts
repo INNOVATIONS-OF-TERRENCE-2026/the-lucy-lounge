@@ -1,5 +1,5 @@
 // =========================================================
-// 🎧 EXPLORE PLAYLISTS — FULL FILE (NON-DESTRUCTIVE)
+// 🎧 EXPLORE PLAYLISTS — FULL FILE (CLEANED)
 // File: src/data/explorePlaylists.ts
 // =========================================================
 
@@ -8,17 +8,7 @@ export type ExplorePlaylist = {
   title: string;
   subtitle: string;
   spotifyEmbedUrl: string;
-  category:
-    | "trap"
-    | "lofi"
-    | "rnb-90s"
-    | "rnb-80s"
-    | "rnb-70s"
-    | "dallas-drill"
-    | "new-dallas"
-    | "hiphop-editorial"
-    | "chill"
-    | "focus";
+  category: "trap" | "rnb-90s" | "rnb-80s" | "rnb-70s" | "hiphop-editorial" | "chill" | "focus";
 };
 
 // =========================================================
@@ -49,14 +39,14 @@ export const hipHopEditorial: ExplorePlaylist[] = [
   {
     id: "feelin-myself",
     title: "Feelin’ Myself",
-    subtitle: "Confidence, boss energy, full tracks",
+    subtitle: "Confidence, boss energy",
     spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX7ZUug1ANKRP",
     category: "hiphop-editorial",
   },
 ];
 
 // =========================================================
-// 🔥 TRAP (FULL SONG EDITORIAL)
+// 🔥 TRAP (CLEANED — NO STREET / HEAT)
 // =========================================================
 export const trapPlaylists: ExplorePlaylist[] = [
   {
@@ -64,20 +54,6 @@ export const trapPlaylists: ExplorePlaylist[] = [
     title: "Trap Classics",
     subtitle: "Foundations of trap music",
     spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWY4xHQp97fN6",
-    category: "trap",
-  },
-  {
-    id: "trap-heat",
-    title: "Trap Heat",
-    subtitle: "Modern trap bangers",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXaW0vNOq2Cz0",
-    category: "trap",
-  },
-  {
-    id: "street-heat",
-    title: "Street Heat",
-    subtitle: "Raw street energy",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5fwlF6KQw5S",
     category: "trap",
   },
   {
@@ -90,47 +66,7 @@ export const trapPlaylists: ExplorePlaylist[] = [
 ];
 
 // =========================================================
-// 🌆 DALLAS DRILL (CURATED / FULL TRACKS WHERE AVAILABLE)
-// =========================================================
-export const dallasDrill: ExplorePlaylist[] = [
-  {
-    id: "dallas-drill",
-    title: "Dallas Drill",
-    subtitle: "DFW drill & underground energy",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/3KZ8nHn5rJpNwz3pXxU0pG",
-    category: "dallas-drill",
-  },
-  {
-    id: "dfw-street-rap",
-    title: "DFW Street Rap",
-    subtitle: "Dallas–Fort Worth street sound",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/6lYx9jzK5u4F2P0QJkT9xP",
-    category: "dallas-drill",
-  },
-];
-
-// =========================================================
-// 🌆 NEW DALLAS ARTISTS (CURATED)
-// =========================================================
-export const newDallas: ExplorePlaylist[] = [
-  {
-    id: "new-dallas",
-    title: "New Dallas",
-    subtitle: "Next wave of Dallas artists",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/5f8E8K8UjvM1dD9Qx9k8mD",
-    category: "new-dallas",
-  },
-  {
-    id: "texas-new-heat",
-    title: "Texas New Heat",
-    subtitle: "Rising artists across Texas",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX6tTW0xDxScH",
-    category: "new-dallas",
-  },
-];
-
-// =========================================================
-// 🎶 R&B — 1990s SLOW JAMS (FULL SONG PLAYLISTS)
+// 🎶 R&B — 1990s
 // =========================================================
 export const rnb90s: ExplorePlaylist[] = [
   {
@@ -163,7 +99,7 @@ export const rnb80s: ExplorePlaylist[] = [
 ];
 
 // =========================================================
-// 🎶 R&B — 1970s SOUL
+// 🎶 R&B — 1970s
 // =========================================================
 export const rnb70s: ExplorePlaylist[] = [
   {
@@ -176,23 +112,9 @@ export const rnb70s: ExplorePlaylist[] = [
 ];
 
 // =========================================================
-// 🌊 LO-FI / CHILL / FOCUS
+// 🌿 CHILL / FOCUS (NO LO-FI BEATS)
 // =========================================================
-export const lofiChill: ExplorePlaylist[] = [
-  {
-    id: "lofi-beats",
-    title: "Lo-Fi Beats",
-    subtitle: "Chill beats to relax & study",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdLK5lj7o4vM",
-    category: "lofi",
-  },
-  {
-    id: "chillhop",
-    title: "Chillhop Essentials",
-    subtitle: "Smooth lo-fi & chillhop",
-    spotifyEmbedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX2yvmlOdMYzV",
-    category: "lofi",
-  },
+export const chillFocus: ExplorePlaylist[] = [
   {
     id: "deep-focus",
     title: "Deep Focus",
@@ -210,15 +132,13 @@ export const lofiChill: ExplorePlaylist[] = [
 ];
 
 // =========================================================
-// 🧠 MASTER EXPORT — USED BY EXPLORE MODE
+// 🧠 MASTER EXPORT
 // =========================================================
 export const explorePlaylists = {
   hipHopEditorial,
   trapPlaylists,
-  dallasDrill,
-  newDallas,
   rnb90s,
   rnb80s,
   rnb70s,
-  lofiChill,
+  chillFocus,
 };
