@@ -48,8 +48,6 @@ import ListeningMode from "@/pages/ListeningMode";
 /* ✅ CORRECT EXPLORE IMPORT (THIS IS THE FIX) */
 import ExploreMode from "@/pages/listening/ExploreMode";
 
-import NotFound from "@/pages/NotFound";
-
 /* ===== LOUNGES ===== */
 import NeuralMode from "@/pages/lounges/NeuralMode";
 import DreamMode from "@/pages/lounges/DreamMode";
@@ -206,6 +204,7 @@ const App = () => {
                   />
 
                   {/* FALLBACK */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
             </div>
