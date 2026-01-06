@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock, Calendar, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { creditRepairGuide, getRelatedPosts } from '@/data/blogPosts';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const CreditRepairGuide = () => {
   const navigate = useNavigate();
@@ -56,8 +57,8 @@ const CreditRepairGuide = () => {
         description={post.metaDescription}
         keywords={post.tags.join(', ')}
         image={post.image}
-        url={`https://lucylounge.org/guides/business-credit-repair`}
-        canonical="https://lucylounge.org/guides/business-credit-repair"
+        url={`${CANONICAL_DOMAIN}/guides/business-credit-repair`}
+        canonical={`${CANONICAL_DOMAIN}/guides/business-credit-repair`}
       />
       <ArticleSchema
         title={post.title}
@@ -66,7 +67,7 @@ const CreditRepairGuide = () => {
         datePublished={post.date}
         dateModified={post.modifiedDate}
         authorName={post.author}
-        url="https://lucylounge.org/guides/business-credit-repair"
+        url={`${CANONICAL_DOMAIN}/guides/business-credit-repair`}
       />
       <BreadcrumbSchema
         items={[

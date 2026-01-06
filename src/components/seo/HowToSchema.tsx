@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 interface HowToStep {
   name: string;
@@ -26,7 +27,7 @@ export const HowToSchema = ({
   estimatedCost
 }: HowToSchemaProps) => {
   useEffect(() => {
-    const baseUrl = 'https://lucylounge.org';
+    const baseUrl = CANONICAL_DOMAIN;
     
     const schemaData: any = {
       '@context': 'https://schema.org',

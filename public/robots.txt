@@ -16,7 +16,7 @@ Disallow: /shared/
 Disallow: /rooms/
 
 # Sitemap location
-Sitemap: https://lucylounge.org/sitemap.xml
+Sitemap: https://thelucylounge.com/sitemap.xml
 
 # Crawl delay (be respectful)
 Crawl-delay: 1

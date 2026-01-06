@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN, getImageUrl, SITE_AUTHOR } from '@/lib/seoConfig';
 
 interface StructuredDataProps {
   type: 'WebSite' | 'Organization' | 'SoftwareApplication' | 'AboutPage' | 'Blog' | 'CollectionPage';
@@ -10,7 +11,7 @@ interface StructuredDataProps {
 export const StructuredData = ({ type, name, description, data }: StructuredDataProps) => {
   useEffect(() => {
     const getStructuredData = () => {
-      const baseUrl = 'https://lucylounge.org';
+      const baseUrl = CANONICAL_DOMAIN;
       
       switch (type) {
         case 'WebSite':
@@ -34,10 +35,10 @@ export const StructuredData = ({ type, name, description, data }: StructuredData
             name: 'Lucy AI',
             url: baseUrl,
             logo: `${baseUrl}/lucy-og-image.png`,
-            description: 'Engineered by Terrence Milliner Sr., Lucy AI is a premium AI assistant platform with advanced capabilities beyond traditional AI models.',
+            description: `Engineered by ${SITE_AUTHOR}, Lucy AI is a premium AI assistant platform with advanced capabilities beyond traditional AI models.`,
             founder: {
               '@type': 'Person',
-              name: 'Terrence Milliner Sr.'
+              name: SITE_AUTHOR
             }
           };
         
@@ -58,7 +59,7 @@ export const StructuredData = ({ type, name, description, data }: StructuredData
             screenshot: `${baseUrl}/og-features.png`,
             author: {
               '@type': 'Person',
-              name: 'Terrence Milliner Sr.'
+              name: SITE_AUTHOR
             },
             featureList: [
               'Advanced chain-of-thought reasoning',
@@ -75,14 +76,14 @@ export const StructuredData = ({ type, name, description, data }: StructuredData
             '@context': 'https://schema.org',
             '@type': 'AboutPage',
             name: name || 'About Lucy AI',
-            description: description || 'Learn about Lucy AI and its creator Terrence Milliner Sr.',
+            description: description || `Learn about Lucy AI and its creator ${SITE_AUTHOR}.`,
             url: `${baseUrl}/about`,
             mainEntity: {
               '@type': 'Organization',
               name: 'Lucy AI',
               founder: {
                 '@type': 'Person',
-                name: 'Terrence Milliner Sr.'
+                name: SITE_AUTHOR
               }
             }
           };

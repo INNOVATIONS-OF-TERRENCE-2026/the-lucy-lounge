@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Analytics = () => {
   const navigate = useNavigate();
@@ -78,8 +79,8 @@ const Analytics = () => {
         title="Analytics - Lucy AI | Growth Metrics Dashboard"
         description="Track Lucy AI's growth, user engagement, and platform performance. Real-time analytics for the future of AI conversation."
         keywords="Lucy AI analytics, AI platform metrics, user growth dashboard"
-        url="https://lucylounge.org/analytics"
-        canonical="https://lucylounge.org/analytics"
+        url={`${CANONICAL_DOMAIN}/analytics`}
+        canonical={`${CANONICAL_DOMAIN}/analytics`}
       />
       
       <div className="min-h-screen relative overflow-hidden">

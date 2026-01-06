@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN, getImageUrl, SITE_NAME, SITE_AUTHOR, SITE_TWITTER, SITE_THEME_COLOR } from '@/lib/seoConfig';
 
 interface SEOHeadProps {
   title?: string;
@@ -12,10 +13,10 @@ interface SEOHeadProps {
 
 export const SEOHead = ({
   title = 'Lucy AI - Divine Digital Companion Beyond Intelligence',
-  description = 'Lucy AI is your divine digital companion with advanced reasoning, multimodal intelligence, real-time web search, code execution, and long-term memory. Engineered by Terrence Milliner Sr. Try free at LucyLounge.org',
+  description = 'Lucy AI is your divine digital companion with advanced reasoning, multimodal intelligence, real-time web search, code execution, and long-term memory. Engineered by Terrence Milliner Sr. Try free at TheLucyLounge.com',
   keywords = 'AI assistant, artificial intelligence, chat AI, Lucy AI, conversational AI, smart assistant, AI companion, multimodal AI, Terrence Milliner, advanced reasoning, AI chatbot, digital companion, AI tools, intelligent assistant',
   image = '/lucy-og-image.png',
-  url = 'https://lucylounge.org',
+  url = CANONICAL_DOMAIN,
   type = 'website',
   canonical
 }: SEOHeadProps) => {
@@ -39,30 +40,30 @@ export const SEOHead = ({
     // Standard meta tags
     updateMetaTag('description', description);
     updateMetaTag('keywords', keywords);
-    updateMetaTag('author', 'Terrence Milliner Sr.');
+    updateMetaTag('author', SITE_AUTHOR);
     updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     updateMetaTag('googlebot', 'index, follow');
-    updateMetaTag('theme-color', '#7B3FF2');
+    updateMetaTag('theme-color', SITE_THEME_COLOR);
     updateMetaTag('format-detection', 'telephone=no');
 
     // Open Graph tags
     updateMetaTag('og:title', title, true);
     updateMetaTag('og:description', description, true);
-    updateMetaTag('og:image', `https://lucylounge.org${image}`, true);
+    updateMetaTag('og:image', getImageUrl(image), true);
     updateMetaTag('og:image:width', '1200', true);
     updateMetaTag('og:image:height', '630', true);
     updateMetaTag('og:url', url, true);
     updateMetaTag('og:type', type, true);
-    updateMetaTag('og:site_name', 'Lucy AI', true);
+    updateMetaTag('og:site_name', SITE_NAME, true);
     updateMetaTag('og:locale', 'en_US', true);
 
     // Twitter Card tags
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
-    updateMetaTag('twitter:image', `https://lucylounge.org${image}`);
-    updateMetaTag('twitter:creator', '@LucyAI');
-    updateMetaTag('twitter:site', '@LucyAI');
+    updateMetaTag('twitter:image', getImageUrl(image));
+    updateMetaTag('twitter:creator', SITE_TWITTER);
+    updateMetaTag('twitter:site', SITE_TWITTER);
 
     // Canonical link
     const canonicalUrl = canonical || url;
@@ -88,7 +89,7 @@ export const SEOHead = ({
     const schemaData = {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "Lucy AI",
+      "name": SITE_NAME,
       "applicationCategory": "AI Assistant",
       "offers": {
         "@type": "Offer",
@@ -97,7 +98,7 @@ export const SEOHead = ({
       },
       "operatingSystem": "Web Browser",
       "description": description,
-      "image": image,
+      "image": getImageUrl(image),
       "url": url,
       "aggregateRating": {
         "@type": "AggregateRating",

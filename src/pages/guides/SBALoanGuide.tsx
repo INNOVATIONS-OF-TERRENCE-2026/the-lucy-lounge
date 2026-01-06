@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock, Calendar, CheckCircle2, ArrowRight, BookOpen, DollarSign } from 'lucide-react';
 import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { sbaLoanGuide, getRelatedPosts } from '@/data/blogPosts';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const SBALoanGuide = () => {
   const navigate = useNavigate();
@@ -56,8 +57,8 @@ const SBALoanGuide = () => {
         description={post.metaDescription}
         keywords={post.tags.join(', ')}
         image={post.image}
-        url="https://lucylounge.org/guides/sba-loan-complete-guide"
-        canonical="https://lucylounge.org/guides/sba-loan-complete-guide"
+        url={`${CANONICAL_DOMAIN}/guides/sba-loan-complete-guide`}
+        canonical={`${CANONICAL_DOMAIN}/guides/sba-loan-complete-guide`}
       />
       <ArticleSchema
         title={post.title}
@@ -66,7 +67,7 @@ const SBALoanGuide = () => {
         datePublished={post.date}
         dateModified={post.modifiedDate}
         authorName={post.author}
-        url="https://lucylounge.org/guides/sba-loan-complete-guide"
+        url={`${CANONICAL_DOMAIN}/guides/sba-loan-complete-guide`}
       />
       <BreadcrumbSchema
         items={[
