@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 interface BreadcrumbItem {
   name: string;
@@ -11,7 +12,7 @@ interface BreadcrumbSchemaProps {
 
 export const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
   useEffect(() => {
-    const baseUrl = 'https://lucylounge.org';
+    const baseUrl = CANONICAL_DOMAIN;
     
     const schemaData = {
       '@context': 'https://schema.org',

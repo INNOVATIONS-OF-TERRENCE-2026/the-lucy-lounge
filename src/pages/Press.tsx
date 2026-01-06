@@ -19,6 +19,7 @@ import {
   Award
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Press = () => {
   const navigate = useNavigate();
@@ -87,14 +88,14 @@ const Press = () => {
       <SEOHead 
         title="Press & Media Kit | Lucy AI"
         description="Media resources, founder bio, company facts, and story angles for journalists and podcast hosts covering Lucy AI."
-        url="https://lucylounge.org/press"
+        url={`${CANONICAL_DOMAIN}/press`}
       />
       <PersonSchema 
         name="Terrence Milliner Sr."
         jobTitle="Software Engineer & AI Architect"
         description="Founder of Lucy AI, specializing in AI-powered credit repair and business funding solutions for entrepreneurs."
         url="/about/terrence-milliner"
-        worksFor={{ name: "Lucy AI", url: "https://lucylounge.org" }}
+        worksFor={{ name: "Lucy AI", url: CANONICAL_DOMAIN }}
         knowsAbout={["Artificial Intelligence", "Credit Repair", "SBA Loans", "Business Credit", "Software Engineering"]}
       />
 
@@ -107,7 +108,7 @@ const Press = () => {
           </Button>
           <Link to="/" className="text-xl font-bold text-primary">Lucy AI</Link>
           <Button asChild variant="outline" className="gap-2">
-            <a href="mailto:press@lucylounge.org">
+            <a href="mailto:press@thelucylounge.com">
               <Mail className="w-4 h-4" />
               Contact Press
             </a>
@@ -129,7 +130,7 @@ const Press = () => {
               Download Full Press Kit
             </Button>
             <Button variant="outline" asChild className="gap-2">
-              <a href="mailto:press@lucylounge.org">
+              <a href="mailto:press@thelucylounge.com">
                 <Mail className="w-4 h-4" />
                 Media Inquiries
               </a>

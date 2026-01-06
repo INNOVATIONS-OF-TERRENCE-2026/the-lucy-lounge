@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 interface PersonSchemaProps {
   name: string;
@@ -27,7 +28,7 @@ export const PersonSchema = ({
   knowsAbout = []
 }: PersonSchemaProps) => {
   useEffect(() => {
-    const baseUrl = 'https://lucylounge.org';
+    const baseUrl = CANONICAL_DOMAIN;
     
     const schemaData: Record<string, unknown> = {
       '@context': 'https://schema.org',

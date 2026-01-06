@@ -18,16 +18,16 @@ export const Footer = () => {
             Beyond Intelligence. A next-generation AI companion engineered by Software Engineer Terrence Milliner Sr.
           </p>
           <div className="flex gap-4">
-            <a href="https://twitter.com/lucyai">
+            <a href="https://twitter.com/lucyai" aria-label="Twitter">
               <Twitter className="w-5 h-5 text-white/80" />
             </a>
-            <a href="https://github.com/lucyai">
+            <a href="https://github.com/lucyai" aria-label="GitHub">
               <Github className="w-5 h-5 text-white/80" />
             </a>
-            <a href="https://linkedin.com/company/lucyai">
+            <a href="https://linkedin.com/company/lucyai" aria-label="LinkedIn">
               <Linkedin className="w-5 h-5 text-white/80" />
             </a>
-            <a href="mailto:hello@lucylounge.org">
+            <a href="mailto:hello@thelucylounge.com" aria-label="Email">
               <Mail className="w-5 h-5 text-white/80" />
             </a>
           </div>

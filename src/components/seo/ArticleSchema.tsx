@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 interface ArticleSchemaProps {
   title: string;
@@ -20,7 +21,7 @@ export const ArticleSchema = ({
   url
 }: ArticleSchemaProps) => {
   useEffect(() => {
-    const baseUrl = 'https://lucylounge.org';
+    const baseUrl = CANONICAL_DOMAIN;
     
     const schemaData = {
       '@context': 'https://schema.org',

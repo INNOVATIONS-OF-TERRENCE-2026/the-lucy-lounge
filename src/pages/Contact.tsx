@@ -11,6 +11,7 @@ import { ArrowLeft, Mail, MessageSquare, Clock, Send, CheckCircle } from 'lucide
 import { useNavigate } from 'react-router-dom';
 import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { toast } from 'sonner';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -48,8 +49,8 @@ const Contact = () => {
         description="Get in touch with the Lucy AI team. Contact us for support, content corrections, partnership inquiries, or general questions."
         keywords="contact Lucy AI, support, help, inquiries, business contact"
         image="/og-default.png"
-        url="https://lucylounge.org/contact"
-        canonical="https://lucylounge.org/contact"
+        url={`${CANONICAL_DOMAIN}/contact`}
+        canonical={`${CANONICAL_DOMAIN}/contact`}
       />
       <BreadcrumbSchema
         items={[

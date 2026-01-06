@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock, Calendar, CheckCircle2, ArrowRight, BookOpen, Star, Award } from 'lucide-react';
 import { CosmicBackground } from '@/components/cosmic/CosmicBackground';
 import { womenFundingGuide, getRelatedPosts } from '@/data/blogPosts';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const WomenFundingGuide = () => {
   const navigate = useNavigate();
@@ -56,8 +57,8 @@ const WomenFundingGuide = () => {
         description={post.metaDescription}
         keywords={post.tags.join(', ')}
         image={post.image}
-        url="https://lucylounge.org/guides/funding-for-women-entrepreneurs"
-        canonical="https://lucylounge.org/guides/funding-for-women-entrepreneurs"
+        url={`${CANONICAL_DOMAIN}/guides/funding-for-women-entrepreneurs`}
+        canonical={`${CANONICAL_DOMAIN}/guides/funding-for-women-entrepreneurs`}
       />
       <ArticleSchema
         title={post.title}
@@ -66,7 +67,7 @@ const WomenFundingGuide = () => {
         datePublished={post.date}
         dateModified={post.modifiedDate}
         authorName={post.author}
-        url="https://lucylounge.org/guides/funding-for-women-entrepreneurs"
+        url={`${CANONICAL_DOMAIN}/guides/funding-for-women-entrepreneurs`}
       />
       <BreadcrumbSchema
         items={[

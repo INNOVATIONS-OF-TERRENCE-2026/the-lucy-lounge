@@ -4,6 +4,7 @@ import { FAQSchema } from './FAQSchema';
 import { HowToSchema } from './HowToSchema';
 import { YMYLDisclaimer } from '../blog/YMYLDisclaimer';
 import { CheckCircle, AlertTriangle, ArrowRight, Shield, Sparkles, BookOpen, Scale } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 interface Step {
   title: string;
@@ -74,7 +75,7 @@ export const ProgrammaticTemplate = ({
   showHowToSchema = true,
   howToTime = 'PT30M'
 }: ProgrammaticTemplateProps) => {
-  const baseUrl = 'https://lucylounge.org';
+  const baseUrl = CANONICAL_DOMAIN;
   
   return (
     <div className="min-h-screen bg-background">

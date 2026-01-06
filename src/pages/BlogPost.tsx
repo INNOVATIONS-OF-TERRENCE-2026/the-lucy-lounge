@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Calendar, Clock, Share2 } from 'lucide-react';
 import { blogPosts } from '@/data/blogPosts';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -28,7 +29,7 @@ const BlogPost = () => {
     content: `Lucy AI represents a breakthrough in artificial intelligence assistants. Unlike traditional chatbots, Lucy combines multiple cutting-edge AI capabilities into a single, seamless experience.`
   };
 
-  const articleUrl = `https://lucylounge.org/blog/${slug}`;
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/${slug}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,9 +75,9 @@ const BlogPost = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
-          { name: post.title, url: articleUrl }
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blog' },
+          { name: post.title, url: `/blog/${slug}` }
         ]}
       />
 
