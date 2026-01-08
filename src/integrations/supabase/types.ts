@@ -95,6 +95,129 @@ export type Database = {
         }
         Relationships: []
       }
+      arcade_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      arcade_game_stats: {
+        Row: {
+          created_at: string | null
+          game_id: string
+          high_score: number | null
+          id: string
+          last_played_at: string | null
+          losses: number | null
+          plays: number | null
+          total_playtime_seconds: number | null
+          user_id: string
+          wins: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          game_id: string
+          high_score?: number | null
+          id?: string
+          last_played_at?: string | null
+          losses?: number | null
+          plays?: number | null
+          total_playtime_seconds?: number | null
+          user_id: string
+          wins?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          game_id?: string
+          high_score?: number | null
+          id?: string
+          last_played_at?: string | null
+          losses?: number | null
+          plays?: number | null
+          total_playtime_seconds?: number | null
+          user_id?: string
+          wins?: number | null
+        }
+        Relationships: []
+      }
+      arcade_leaderboards: {
+        Row: {
+          achieved_at: string | null
+          game_id: string
+          id: string
+          metadata: Json | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          game_id: string
+          id?: string
+          metadata?: Json | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          game_id?: string
+          id?: string
+          metadata?: Json | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      arcade_player_profiles: {
+        Row: {
+          avatar_url: string | null
+          coins: number | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          level: number | null
+          total_xp: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          coins?: number | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          level?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          coins?: number | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          level?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       attachments: {
         Row: {
           conversation_id: string

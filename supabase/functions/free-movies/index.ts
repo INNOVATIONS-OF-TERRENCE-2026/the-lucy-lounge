@@ -35,7 +35,7 @@ serve(async () => {
   }
 
   const unique = Array.from(
-    new Map(all.map(x => [x.id, x])).values()
+    new Map(all.filter((x): x is NonNullable<typeof x> => x !== null).map(x => [x.id, x])).values()
   );
 
   return new Response(JSON.stringify(unique), {

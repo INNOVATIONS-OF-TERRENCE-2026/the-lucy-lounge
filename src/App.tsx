@@ -63,6 +63,10 @@ const QuantumMode = lazy(() => import("@/pages/lounges/QuantumMode"));
 const PresenceMode = lazy(() => import("@/pages/lounges/PresenceMode"));
 const WorldEvents = lazy(() => import("@/pages/lounges/WorldEvents"));
 
+/* ARCADE */
+const ArcadeHub = lazy(() => import("@/arcade/pages/ArcadeHub"));
+const GamePage = lazy(() => import("@/arcade/pages/GamePage"));
+
 /* GUIDES */
 const CreditRepairGuide = lazy(() => import("@/pages/guides/CreditRepairGuide"));
 const SBALoanGuide = lazy(() => import("@/pages/guides/SBALoanGuide"));
@@ -195,6 +199,10 @@ const App = () => {
                       <Route path="/quantum" element={<QuantumMode />} />
                       <Route path="/presence" element={<PresenceMode />} />
                       <Route path="/events" element={<WorldEvents />} />
+
+                      {/* ARCADE */}
+                      <Route path="/arcade" element={<ArcadeHub />} />
+                      <Route path="/arcade/:gameId" element={<GamePage />} />
 
                       <Route path="/admin" element={<Admin />} />
                       <Route
