@@ -10,6 +10,7 @@ import {
   Sparkles,
   Globe,
   Command,
+  Gamepad2,
 } from "lucide-react";
 
 export const LOUNGES = [
@@ -24,4 +25,5 @@ export const LOUNGES = [
   { label: "Presence Mode", icon: Sparkles, path: "/presence" },
   { label: "World Events", icon: Globe, path: "/events" },
   { label: "Command Center", icon: Command, path: "/command" },
+  { label: "Lucy Arcade", icon: Gamepad2, path: "/arcade" },
 ] as const;
