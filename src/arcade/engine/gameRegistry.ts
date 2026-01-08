@@ -1,35 +1,23 @@
-// Lucy Arcade — Game Registry
-// Authoritative execution map for ALL games
-// This file is the reason "Play Now" actually works
+import { lazy } from "react";
+import type { ComponentType } from "react";
 
-import { lazy, type ComponentType } from "react";
+/**
+ * Lucy Arcade — Game Registry
+ * The single source of truth for mapping gameId → executable component
+ * Every entry MUST resolve to a default export React component
+ */
 
-export type ArcadeGameId =
-  | "chess"
-  | "checkers"
-  | "memory-match";
+type GameModule = ComponentType<any>;
 
-export type ArcadeGameComponent = ComponentType<Record<string, never>>;
-
-export const GAME_REGISTRY: Record<ArcadeGameId, ArcadeGameComponent> = {
-  chess: lazy(() => import("../games/chess/ChessGame")),
-  checkers: lazy(() => import("../games/checkers/CheckersGame")),
-  "memory-match": lazy(() => import("../games/memory/MemoryGame")),
+const registry: Record<string, () => Promise<{ default: GameModule }>> = {
+  chess: () => import("../games/chess/ChessGame"),
+  checkers: () => import("../games/checkers/CheckersGame"),
+  "memory-match": () => import("../games/memory/MemoryGame"),
 };
 
-/**
- * Safe resolver — NEVER throws
- * Returns null instead of crashing UI
- */
-export function resolveGameComponent(
-  gameId: string,
-): ArcadeGameComponent | null {
-  return (GAME_REGISTRY as Record<string, ArcadeGameComponent>)[gameId] ?? null;
-}
+export function resolveGameComponent(gameId: string): GameModule | null {
+  const loader = registry[gameId];
+  if (!loader) return null;
 
-/**
- * Runtime guard (optional analytics / logging hook)
- */
-export function isValidGameId(gameId: string): gameId is ArcadeGameId {
-  return gameId in GAME_REGISTRY;
+  return lazy(loader);
 }
