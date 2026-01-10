@@ -2,7 +2,12 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 const MCP_ENDPOINT =
   "https://alexnasa-ltx-2-turbo.hf.space/gradio_api/mcp/";
+
 const HF_TOKEN = Deno.env.get("HF_TOKEN");
+
+if (!HF_TOKEN) {
+  throw new Error("HF_TOKEN is not set in Supabase secrets");
+}
 
 serve(async (req) => {
   try {
@@ -26,39 +31,70 @@ serve(async (req) => {
       );
     }
 
-    const payload = {
-      tool: "ltx_2_TURBO_generate_video",
-      args: {
-        prompt,
-        duration,
-        width,
-        height,
-        enhance_prompt,
-        seed,
-        randomize_seed: false,
-      },
+    /**
+     * ✅ MCP REQUIRES messages[] FORMAT
+     */
+    const mcpPayload = {
+      messages: [
+        {
+          role: "user",
+          content: "",
+          tool_calls: [
+            {
+              name: "ltx_2_TURBO_generate_video",
+              arguments: {
+                prompt,
+                duration,
+                width,
+                height,
+                enhance_prompt,
+                seed,
+                randomize_seed: false,
+              },
+            },
+          ],
+        },
+      ],
     };
 
     const response = await fetch(MCP_ENDPOINT, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${HF_TOKEN}`,
+        Authorization: `Bearer ${HF_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(mcpPayload),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return new Response(err, { status: 500 });
+      const errorText = await response.text();
+      return new Response(
+        JSON.stringify({ error: errorText }),
+        { status: 500 }
+      );
     }
 
     const result = await response.json();
 
+    /**
+     * MCP returns tool output here:
+     * result.choices[0].message.tool_results[0]
+     */
+    const toolResult =
+      result?.choices?.[0]?.message?.tool_results?.[0];
+
+    if (!toolResult) {
+      return new Response(
+        JSON.stringify({ error: "No tool result returned from MCP" }),
+        { status: 500 }
+      );
+    }
+
     return new Response(
       JSON.stringify({
-        video_url: result?.[0],
-        seed: result?.[1],
+        video_url: toolResult?.output?.video,
+        seed: toolResult?.output?.seed,
+        raw: toolResult,
       }),
       { headers: { "Content-Type": "application/json" } }
     );
