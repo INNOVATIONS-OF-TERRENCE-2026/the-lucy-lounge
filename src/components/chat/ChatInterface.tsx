@@ -3,7 +3,14 @@ import type { KeyboardEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Search, Download, Settings2, Shield } from "lucide-react";
+import {
+  Send,
+  Loader2,
+  Search,
+  Download,
+  Settings2,
+  Shield,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -54,34 +61,13 @@ export function ChatInterface({
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
 
-  const debugChat =
-    import.meta.env.DEV &&
-    typeof window !== "undefined" &&
-    window.localStorage?.getItem("DEBUG_CHAT") === "1";
-
-  const isolateMode =
-    debugChat && typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("isolate")
-      : null;
-
-  const disableData = isolateMode === "lite";
-
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUserMessage, setLastUserMessage] = useState("");
   const [streamingMessage, setStreamingMessage] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploadedAttachments, setUploadedAttachments] = useState<any[]>([]);
-  const [showExport, setShowExport] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [conversationTitle, setConversationTitle] = useState("New Conversation");
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [fusionEnabled, setFusionEnabled] = useState(false);
-  const [showModelSelector, setShowModelSelector] = useState(false);
-  const [toolResults, setToolResults] = useState<any>(null);
-  const [lastReadMessageIndex, setLastReadMessageIndex] = useState(-1);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -101,82 +87,49 @@ export function ChatInterface({
     onSearch: () => setShowSearch(true),
   });
 
-  /* ----------------------------------
-     MESSAGE LOAD + SUBSCRIPTION
-  ----------------------------------- */
-
-  useEffect(() => {
-    if (disableData) {
-      setMessages([]);
-      setConversationTitle(
-        conversationId ? "Conversation (debug lite)" : "New Conversation"
-      );
-      return;
-    }
-
-    if (conversationId) {
-      loadMessages();
-      loadConversationDetails();
-
-      const channel = supabase
-        .channel(`messages-${conversationId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "messages",
-            filter: `conversation_id=eq.${conversationId}`,
-          },
-          (payload) => setMessages((prev) => [...prev, payload.new]),
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    } else {
-      setMessages([]);
-      setConversationTitle("New Conversation");
-    }
-  }, [conversationId, disableData]);
-
-  const loadConversationDetails = async () => {
-    if (!conversationId) return;
-    const { data } = await supabase
-      .from("conversations")
-      .select("title")
-      .eq("id", conversationId)
-      .single();
-    if (data) setConversationTitle(data.title);
-  };
-
   const scrollToLatest = useCallback(() => {
-    if (scrollRef.current)
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  useEffect(() => {
-    scrollToLatest();
-  }, [messages, streamingMessage, scrollToLatest]);
+  useEffect(scrollToLatest, [messages, streamingMessage, videoUrl]);
 
-  const loadMessages = async () => {
+  /* ----------------------------------
+     LOAD MESSAGES
+  ----------------------------------- */
+  useEffect(() => {
     if (!conversationId) return;
-    const { data } = await supabase
+
+    supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .then(({ data }) => data && setMessages(data));
 
-    if (data) setMessages(data);
-  };
+    const channel = supabase
+      .channel(`messages-${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => setMessages((prev) => [...prev, payload.new]),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId]);
 
   /* ----------------------------------
-     CORE CHAT SEND (🔥 CINEMATIC BRIDGE)
+     SEND MESSAGE (🎬 CINEMATIC WIRED)
   ----------------------------------- */
-
   const handleSend = async () => {
-    if ((!input.trim() && selectedFiles.length === 0) || isLoading) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     setLastUserMessage(userMessage);
@@ -184,7 +137,7 @@ export function ChatInterface({
     setIsLoading(true);
     setStreamingMessage("");
     setError(null);
-    setLastReadMessageIndex(messages.length);
+    setVideoUrl(null);
 
     try {
       let convId = conversationId;
@@ -193,9 +146,7 @@ export function ChatInterface({
           .from("conversations")
           .insert({
             user_id: userId,
-            title:
-              userMessage.slice(0, 50) +
-              (userMessage.length > 50 ? "..." : ""),
+            title: userMessage.slice(0, 50),
           })
           .select()
           .single();
@@ -209,7 +160,7 @@ export function ChatInterface({
         content: userMessage,
       });
 
-      /* 🎬 CINEMATIC INTENT INTERCEPT */
+      /* 🎬 CINEMATIC INTERCEPT */
       if (detectCinematicIntent(userMessage)) {
         setStreamingMessage("🎬 Lucy is generating your cinematic video…");
 
@@ -227,33 +178,30 @@ export function ChatInterface({
             },
             body: JSON.stringify({
               prompt: userMessage,
-              aspectRatio: "9:16",
-              duration: 12,
-              stylePreset: "luxury",
-              includeVoice: true,
-              includeMusic: true,
+              duration: 8,
+              width: 512,
+              height: 512,
+              enhance_prompt: true,
             }),
           },
         );
 
-        if (!res.ok) {
-          throw new Error(await res.text());
-        }
+        if (!res.ok) throw new Error(await res.text());
 
         const result = await res.json();
+        setVideoUrl(result.video_url);
 
         await supabase.from("messages").insert({
           conversation_id: convId,
           role: "assistant",
-          content: result.video_url,
+          content: "🎬 Your cinematic video is ready.",
         });
 
         setStreamingMessage("");
-        await loadMessages();
-        return; // ⛔ stop normal chat
+        return;
       }
 
-      /* NORMAL AI CHAT FALLBACK */
+      /* NORMAL CHAT */
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`,
         {
@@ -263,20 +211,27 @@ export function ChatInterface({
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            messages: [
-              ...messages.map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-              { role: "user", content: userMessage },
-            ],
+            messages: [...messages, { role: "user", content: userMessage }],
           }),
         },
       );
 
-      await processStreamingResponse(response, convId!, userMessage);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fullText += decoder.decode(value);
+          setStreamingMessage(fullText);
+        }
+      }
+
+      setMessages((prev) => [...prev, { role: "assistant", content: fullText }]);
+      setStreamingMessage("");
     } catch (err: any) {
-      console.error(err);
       setError(err.message);
       toast({
         title: "Error",
@@ -285,21 +240,60 @@ export function ChatInterface({
       });
     } finally {
       setIsLoading(false);
-      setSelectedFiles([]);
-      setUploadedAttachments([]);
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   /* ----------------------------------
-     RENDER (UNCHANGED UI)
+     RENDER
   ----------------------------------- */
-
   return (
     <main className="flex-1 flex flex-col h-screen relative overflow-hidden">
-      {/* UI REMAINS EXACTLY AS YOU PROVIDED */}
-      {/* No changes below this point */}
-      {/* … */}
-      <div ref={scrollRef} />
+      <ReadingProgressBar isStreaming={isLoading} />
+
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-4">
+        {messages.map((m, i) => (
+          <ChatMessage key={i} message={m} />
+        ))}
+
+        {(streamingMessage || displayText) && (
+          <ChatMessage
+            message={{ role: "assistant", content: streamingMessage || displayText }}
+            isStreaming
+          />
+        )}
+
+        {videoUrl && (
+          <div className="rounded-xl overflow-hidden border shadow-xl mt-4">
+            <video src={videoUrl} controls autoPlay className="w-full" />
+          </div>
+        )}
+
+        <div ref={scrollRef} />
+      </div>
+
+      <div className="p-4 border-t">
+        <div className="flex gap-2">
+          <Textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Message Lucy…"
+            className="flex-1 resize-none"
+            disabled={isLoading}
+          />
+          <Button onClick={handleSend} disabled={isLoading}>
+            {isLoading ? <Loader2 className="animate-spin" /> : <Send />}
+          </Button>
+        </div>
+      </div>
     </main>
   );
 }
