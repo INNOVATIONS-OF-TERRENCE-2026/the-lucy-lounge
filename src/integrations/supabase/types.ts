@@ -741,6 +741,235 @@ export type Database = {
         }
         Relationships: []
       }
+      lucy_cinematic_jobs: {
+        Row: {
+          aspect_ratio: string | null
+          attempt_count: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          error_message: string | null
+          export_urls: Json | null
+          id: string
+          idempotency_key: string | null
+          job_type: Database["public"]["Enums"]["cinematic_job_type"]
+          mcp_payload: Json | null
+          parent_job_id: string | null
+          prompt_enhanced: string | null
+          prompt_raw: string
+          result_audio_url: string | null
+          result_composite_url: string | null
+          result_music_url: string | null
+          result_video_url: string | null
+          seed: number | null
+          shots: Json | null
+          status: Database["public"]["Enums"]["cinematic_job_status"]
+          style_preset: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          attempt_count?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          export_urls?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          job_type?: Database["public"]["Enums"]["cinematic_job_type"]
+          mcp_payload?: Json | null
+          parent_job_id?: string | null
+          prompt_enhanced?: string | null
+          prompt_raw: string
+          result_audio_url?: string | null
+          result_composite_url?: string | null
+          result_music_url?: string | null
+          result_video_url?: string | null
+          seed?: number | null
+          shots?: Json | null
+          status?: Database["public"]["Enums"]["cinematic_job_status"]
+          style_preset?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          attempt_count?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          export_urls?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          job_type?: Database["public"]["Enums"]["cinematic_job_type"]
+          mcp_payload?: Json | null
+          parent_job_id?: string | null
+          prompt_enhanced?: string | null
+          prompt_raw?: string
+          result_audio_url?: string | null
+          result_composite_url?: string | null
+          result_music_url?: string | null
+          result_video_url?: string | null
+          seed?: number | null
+          shots?: Json | null
+          status?: Database["public"]["Enums"]["cinematic_job_status"]
+          style_preset?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucy_cinematic_jobs_parent_job_id_fkey"
+            columns: ["parent_job_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_cinematic_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lucy_plans: {
+        Row: {
+          created_at: string | null
+          credits_per_month: number | null
+          features: Json | null
+          id: string
+          max_duration_seconds: number | null
+          max_exports_per_job: number | null
+          max_parallel_jobs: number | null
+          monthly_price: number | null
+          name: string
+          plan_key: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_per_month?: number | null
+          features?: Json | null
+          id?: string
+          max_duration_seconds?: number | null
+          max_exports_per_job?: number | null
+          max_parallel_jobs?: number | null
+          monthly_price?: number | null
+          name: string
+          plan_key: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_per_month?: number | null
+          features?: Json | null
+          id?: string
+          max_duration_seconds?: number | null
+          max_exports_per_job?: number | null
+          max_parallel_jobs?: number | null
+          monthly_price?: number | null
+          name?: string
+          plan_key?: string
+        }
+        Relationships: []
+      }
+      lucy_prompt_memory: {
+        Row: {
+          created_at: string | null
+          final_score: number | null
+          id: string
+          prompt_enhanced: string | null
+          prompt_raw: string
+          shots: Json | null
+          style_preset: string | null
+          success: boolean | null
+          tags: string[] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          final_score?: number | null
+          id?: string
+          prompt_enhanced?: string | null
+          prompt_raw: string
+          shots?: Json | null
+          style_preset?: string | null
+          success?: boolean | null
+          tags?: string[] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          final_score?: number | null
+          id?: string
+          prompt_enhanced?: string | null
+          prompt_raw?: string
+          shots?: Json | null
+          style_preset?: string | null
+          success?: boolean | null
+          tags?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lucy_usage_ledger: {
+        Row: {
+          action: string
+          created_at: string | null
+          credits_delta: number
+          id: string
+          job_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          credits_delta: number
+          id?: string
+          job_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          credits_delta?: number
+          id?: string
+          job_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucy_usage_ledger_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_cinematic_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lucy_user_plan: {
+        Row: {
+          created_at: string | null
+          credits_balance: number | null
+          plan_key: string
+          renewal_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_balance?: number | null
+          plan_key?: string
+          renewal_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_balance?: number | null
+          plan_key?: string
+          renewal_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -1420,6 +1649,19 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      cinematic_job_status:
+        | "queued"
+        | "running"
+        | "complete"
+        | "failed"
+        | "canceled"
+      cinematic_job_type:
+        | "video"
+        | "voice"
+        | "music"
+        | "composite"
+        | "export_pack"
+        | "cutscene"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1548,6 +1790,21 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      cinematic_job_status: [
+        "queued",
+        "running",
+        "complete",
+        "failed",
+        "canceled",
+      ],
+      cinematic_job_type: [
+        "video",
+        "voice",
+        "music",
+        "composite",
+        "export_pack",
+        "cutscene",
+      ],
     },
   },
 } as const
