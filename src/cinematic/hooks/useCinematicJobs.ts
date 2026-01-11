@@ -9,16 +9,18 @@ import type { Json } from '@/integrations/supabase/types';
 const shotsToJson = (shots: CinematicShot[]): Json[] =>
   shots.map((s) => ({
     id: s.id,
-    description: s.description,
+    name: s.name,
+    prompt: s.prompt,
     duration: s.duration,
     camera: s.camera,
+    movement: s.movement,
     transition: s.transition,
-    metadata: s.metadata ?? {},
+    notes: s.notes ?? null,
   })) as Json[];
 
 const jsonToShots = (value: Json | null | undefined): CinematicShot[] => {
   if (!Array.isArray(value)) return [];
-  return value.map((v) => v as CinematicShot);
+  return value.map((v) => v as unknown as CinematicShot);
 };
 
 export function useCinematicJobs() {
@@ -128,6 +130,8 @@ export function useCinematicJobs() {
       const job: CinematicJob = {
         ...data,
         shots: jsonToShots(data.shots),
+        mcp_payload: data.mcp_payload as Record<string, unknown> | undefined,
+        export_urls: data.export_urls as Record<string, string> | undefined,
       };
 
       addToQueue(job);
