@@ -1,21 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Download, Instagram, Youtube, Twitter } from "lucide-react";
 
-const PLATFORMS = ["tiktok", "instagram", "youtube", "twitter", "facebook"];
+const PLATFORMS = [
+  { id: "tiktok", name: "TikTok", icon: "📱" },
+  { id: "instagram", name: "Instagram", icon: "📷" },
+  { id: "youtube", name: "YouTube", icon: "▶️" },
+  { id: "twitter", name: "X", icon: "𝕏" },
+  { id: "facebook", name: "Facebook", icon: "📘" },
+];
 
 export const LucyExportPanel: React.FC<{
-  onExport: (platform: string) => void;
-}> = ({ onExport }) => {
+  videoUrl?: string;
+  onExport: (platforms: string[]) => void;
+}> = ({ videoUrl, onExport }) => {
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggle = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    );
+  };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-      {PLATFORMS.map((p) => (
-        <button
-          key={p}
-          onClick={() => onExport(p)}
-          className="rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 py-3 text-white text-sm uppercase tracking-wide hover:opacity-90"
-        >
-          {p}
-        </button>
-      ))}
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+        {PLATFORMS.map((p) => (
+          <Button
+            key={p.id}
+            variant={selected.includes(p.id) ? "default" : "outline"}
+            size="sm"
+            onClick={() => toggle(p.id)}
+            className="flex items-center gap-2"
+          >
+            <span>{p.icon}</span>
+            <span className="hidden sm:inline">{p.name}</span>
+          </Button>
+        ))}
+      </div>
+      <Button
+        onClick={() => onExport(selected)}
+        disabled={selected.length === 0}
+        className="w-full"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        Export to {selected.length} Platform{selected.length !== 1 ? "s" : ""}
+      </Button>
     </div>
   );
 };

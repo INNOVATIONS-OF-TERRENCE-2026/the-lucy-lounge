@@ -84,7 +84,6 @@ export function ChatInterface({
   useKeyboardShortcuts({
     onSend: () => handleSend(),
     onFocusInput: () => inputRef.current?.focus(),
-    onSearch: () => setShowSearch(true),
   });
 
   const scrollToLatest = useCallback(() => {
@@ -264,7 +263,7 @@ export function ChatInterface({
 
         {(streamingMessage || displayText) && (
           <ChatMessage
-            message={{ role: "assistant", content: streamingMessage || displayText }}
+            message={{ role: "assistant", content: streamingMessage || displayText, created_at: new Date().toISOString() }}
             isStreaming
           />
         )}
