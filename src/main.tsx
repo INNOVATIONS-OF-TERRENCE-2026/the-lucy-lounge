@@ -2,13 +2,17 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
-
-// 🔥 This line is REQUIRED so all your Tailwind + CSS variables + theme styles load
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./index.css";
 
-// DEV-ONLY (or debug-flag) global runtime error capture for /chat crash diagnosis
-// Enable by default in dev builds, or in prod by setting: localStorage.DEBUG_CHAT = "1"
+const queryClient = new QueryClient();
+
+/* -------------------------------------------------------
+   GLOBAL RUNTIME ERROR CAPTURE (SAFE)
+------------------------------------------------------- */
 try {
   const debugChatEnabled =
     import.meta.env.DEV ||
@@ -18,8 +22,7 @@ try {
 
   if (debugChatEnabled && typeof window !== "undefined") {
     window.addEventListener("error", (event) => {
-      // eslint-disable-next-line no-console
-      console.error("[CHAT_RUNTIME_ERROR]", {
+      console.error("[RUNTIME_ERROR]", {
         route: window.location.pathname + window.location.search,
         message: event.message,
         filename: event.filename,
@@ -31,8 +34,7 @@ try {
 
     window.addEventListener("unhandledrejection", (event) => {
       const reason: any = (event as PromiseRejectionEvent).reason;
-      // eslint-disable-next-line no-console
-      console.error("[CHAT_RUNTIME_ERROR]", {
+      console.error("[RUNTIME_ERROR]", {
         route: window.location.pathname + window.location.search,
         message: reason?.message ?? String(reason),
         stack: reason?.stack,
@@ -41,14 +43,20 @@ try {
     });
   }
 } catch (e) {
-  // Never allow debug tooling to crash the app
-  // eslint-disable-next-line no-console
-  console.warn("[CHAT_RUNTIME_ERROR] Failed to attach global handlers", e);
+  console.warn("[RUNTIME_ERROR] Debug handler failed", e);
 }
 
+/* -------------------------------------------------------
+   APP BOOTSTRAP
+------------------------------------------------------- */
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
-
