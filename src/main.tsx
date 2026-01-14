@@ -1,17 +1,27 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+
+/* ===============================
+   CORE APP
+================================ */
 import App from "./App";
 
-import "./index.css"; // keep global styles only
+/* ===============================
+   GLOBAL STYLES
+================================ */
+import "./index.css";
 
-const rootElement = document.getElementById("root");
+/* ===============================
+   ROOT MOUNT
+================================ */
+const root = document.getElementById("root");
 
-if (!rootElement) {
-  throw new Error("Root element #root not found");
+if (!root) {
+  throw new Error("Lucy Lounge failed to mount: #root not found");
 }
 
-ReactDOM.createRoot(rootElement).render(
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
