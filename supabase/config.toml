@@ -59,21 +59,3 @@ verify_jwt = true
 
 [functions.memory-manager]
 verify_jwt = true
-
-[functions.lucy-generate-video]
-verify_jwt = false
-
-[functions.lucy-generate-image]
-verify_jwt = false
-
-[functions.lucy-generate-voice]
-verify_jwt = false
-
-[functions.lucy-intent-router]
-verify_jwt = false
-
-[functions.lucy-export-pack]
-verify_jwt = true
-
-[functions.lucy-cinematic-enhancer]
-verify_jwt = true

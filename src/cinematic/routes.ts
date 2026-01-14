@@ -1,10 +1,8 @@
-import { lazy } from "react";
+import CinematicStudio from "./pages/CinematicStudio";
 
-const CinematicStudio = lazy(() => import("./pages/CinematicStudio"));
-
-export { CinematicStudio };
-
-export const cinematicRouteConfig = {
-  path: "/cinematic",
-  component: CinematicStudio,
-};
+export const cinematicRoutes = [
+  {
+    path: "/cinematic",
+    element: <CinematicStudio />,
+  },
+];

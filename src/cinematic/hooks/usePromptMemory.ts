@@ -9,7 +9,7 @@ const shotsToJson = (shots?: CinematicShot[]): Json[] | null =>
   shots ? shots.map((s) => ({ ...s })) : null;
 
 const jsonToShots = (value: Json | null | undefined): CinematicShot[] =>
-  Array.isArray(value) ? (value as unknown as CinematicShot[]) : [];
+  Array.isArray(value) ? (value as CinematicShot[]) : [];
 
 export function usePromptMemory() {
   const [loading, setLoading] = useState(false);
