@@ -741,6 +741,56 @@ export type Database = {
         }
         Relationships: []
       }
+      lucy_agent_decisions: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          decision_output: Json | null
+          decision_type: string
+          execution_time_ms: number | null
+          id: string
+          input_context: Json | null
+          model_used: string | null
+          reasoning: string | null
+          run_id: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          decision_output?: Json | null
+          decision_type: string
+          execution_time_ms?: number | null
+          id?: string
+          input_context?: Json | null
+          model_used?: string | null
+          reasoning?: string | null
+          run_id: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          decision_output?: Json | null
+          decision_type?: string
+          execution_time_ms?: number | null
+          id?: string
+          input_context?: Json | null
+          model_used?: string | null
+          reasoning?: string | null
+          run_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucy_agent_decisions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lucy_cinematic_jobs: {
         Row: {
           aspect_ratio: string | null
@@ -826,6 +876,56 @@ export type Database = {
             columns: ["parent_job_id"]
             isOneToOne: false
             referencedRelation: "lucy_cinematic_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lucy_healing_events: {
+        Row: {
+          created_at: string | null
+          diagnosis: string | null
+          healed_at: string | null
+          healing_type: string
+          id: string
+          original_error: string | null
+          remedy_applied: string | null
+          retry_attempt: number | null
+          run_id: string
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          diagnosis?: string | null
+          healed_at?: string | null
+          healing_type: string
+          id?: string
+          original_error?: string | null
+          remedy_applied?: string | null
+          retry_attempt?: number | null
+          run_id: string
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          diagnosis?: string | null
+          healed_at?: string | null
+          healing_type?: string
+          id?: string
+          original_error?: string | null
+          remedy_applied?: string | null
+          retry_attempt?: number | null
+          run_id?: string
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucy_healing_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_workflow_runs"
             referencedColumns: ["id"]
           },
         ]
@@ -969,6 +1069,135 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lucy_workflow_registry: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          external_id: string | null
+          failure_count: number | null
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          name: string
+          node_count: number | null
+          required_secrets: string[] | null
+          run_count: number | null
+          success_count: number | null
+          tags: string[] | null
+          trigger_type: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at: string | null
+          user_id: string
+          workflow_json: Json
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          external_id?: string | null
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name: string
+          node_count?: number | null
+          required_secrets?: string[] | null
+          run_count?: number | null
+          success_count?: number | null
+          tags?: string[] | null
+          trigger_type?: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at?: string | null
+          user_id: string
+          workflow_json: Json
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          external_id?: string | null
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name?: string
+          node_count?: number | null
+          required_secrets?: string[] | null
+          run_count?: number | null
+          success_count?: number | null
+          tags?: string[] | null
+          trigger_type?: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at?: string | null
+          user_id?: string
+          workflow_json?: Json
+        }
+        Relationships: []
+      }
+      lucy_workflow_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          duration_ms: number | null
+          error_message: string | null
+          error_node: string | null
+          id: string
+          parent_run_id: string | null
+          result_data: Json | null
+          retry_count: number | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["automation_workflow_status"]
+          trigger_payload: Json | null
+          trigger_source: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_node?: string | null
+          id?: string
+          parent_run_id?: string | null
+          result_data?: Json | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_workflow_status"]
+          trigger_payload?: Json | null
+          trigger_source?: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_node?: string | null
+          id?: string
+          parent_run_id?: string | null
+          result_data?: Json | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_workflow_status"]
+          trigger_payload?: Json | null
+          trigger_source?: string | null
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucy_workflow_runs_parent_run_id_fkey"
+            columns: ["parent_run_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_workflow_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lucy_workflow_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "lucy_workflow_registry"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_reactions: {
         Row: {
@@ -1649,6 +1878,19 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      automation_trigger_type:
+        | "manual"
+        | "chat"
+        | "schedule"
+        | "webhook"
+        | "event"
+      automation_workflow_status:
+        | "idle"
+        | "running"
+        | "failed"
+        | "healed"
+        | "complete"
+        | "canceled"
       cinematic_job_status:
         | "queued"
         | "running"
@@ -1790,6 +2032,21 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      automation_trigger_type: [
+        "manual",
+        "chat",
+        "schedule",
+        "webhook",
+        "event",
+      ],
+      automation_workflow_status: [
+        "idle",
+        "running",
+        "failed",
+        "healed",
+        "complete",
+        "canceled",
+      ],
       cinematic_job_status: [
         "queued",
         "running",
