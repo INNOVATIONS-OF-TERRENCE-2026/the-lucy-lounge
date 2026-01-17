@@ -5,16 +5,52 @@ import type { PromptMemory, CinematicShot } from '../types/cinematic.types';
 import { useCinematicStore } from '../stores/cinematicStore';
 import type { Json } from '@/integrations/supabase/types';
 
-const shotsToJson = (shots?: CinematicShot[]): Json[] | null =>
-  shots ? shots.map((s) => ({ ...s })) : null;
+/* ------------------------------------------------------------------
+   SAFE JSON ↔ SHOT NORMALIZATION
+------------------------------------------------------------------- */
 
-const jsonToShots = (value: Json | null | undefined): CinematicShot[] =>
-  Array.isArray(value) ? (value as CinematicShot[]) : [];
+function shotsToJson(shots?: CinematicShot[]): Json[] | null {
+  if (!shots) return null;
+
+  return shots.map((s) => ({
+    id: s.id,
+    name: s.name,
+    prompt: s.prompt,
+    duration: s.duration,
+    camera: s.camera ?? null,
+    movement: s.movement ?? null,
+    transition: s.transition ?? null,
+    notes: s.notes ?? null,
+  }));
+}
+
+function jsonToShots(value: Json | null | undefined): CinematicShot[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((v): v is Record<string, Json> => typeof v === 'object' && v !== null)
+    .map((v) => ({
+      id: String(v.id ?? crypto.randomUUID()),
+      name: String(v.name ?? 'Shot'),
+      prompt: String(v.prompt ?? ''),
+      duration: Number(v.duration ?? 3),
+      camera: typeof v.camera === 'string' ? v.camera : undefined,
+      movement: typeof v.movement === 'string' ? v.movement : undefined,
+      transition: typeof v.transition === 'string' ? v.transition : undefined,
+      notes: typeof v.notes === 'string' ? v.notes : undefined,
+    }));
+}
+
+/* ------------------------------------------------------------------
+   HOOK
+------------------------------------------------------------------- */
 
 export function usePromptMemory() {
   const [loading, setLoading] = useState(false);
   const { promptHistory, setPromptHistory, addPromptToHistory } =
     useCinematicStore();
+
+  /* ---------------- FETCH ---------------- */
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -39,6 +75,8 @@ export function usePromptMemory() {
       setLoading(false);
     }
   }, [setPromptHistory]);
+
+  /* ---------------- SAVE ---------------- */
 
   const saveMemory = useCallback(
     async (params: {
