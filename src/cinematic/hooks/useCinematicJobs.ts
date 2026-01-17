@@ -6,20 +6,43 @@ import { useCinematicStore } from '../stores/cinematicStore';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
 
-const shotsToJson = (shots: CinematicShot[]): Json[] =>
-  shots.map((s) => ({
-    id: s.id,
-    description: s.description,
-    duration: s.duration,
-    camera: s.camera,
-    transition: s.transition,
-    metadata: s.metadata ?? {},
-  })) as Json[];
+/* ------------------------------------------------------------------
+   SAFE JSON ↔ CINEMATIC SHOT NORMALIZATION
+------------------------------------------------------------------- */
 
-const jsonToShots = (value: Json | null | undefined): CinematicShot[] => {
+function shotsToJson(shots: CinematicShot[]): Json[] {
+  return shots.map((s) => ({
+    id: s.id,
+    name: s.name,
+    prompt: s.prompt,
+    duration: s.duration,
+    camera: s.camera ?? null,
+    movement: s.movement ?? null,
+    transition: s.transition ?? null,
+    notes: s.notes ?? null,
+  }));
+}
+
+function jsonToShots(value: Json | null | undefined): CinematicShot[] {
   if (!Array.isArray(value)) return [];
-  return value.map((v) => v as CinematicShot);
-};
+
+  return value
+    .filter((v): v is Record<string, Json> => typeof v === 'object' && v !== null)
+    .map((v) => ({
+      id: String(v.id ?? crypto.randomUUID()),
+      name: String(v.name ?? 'Shot'),
+      prompt: String(v.prompt ?? ''),
+      duration: Number(v.duration ?? 3),
+      camera: typeof v.camera === 'string' ? v.camera : undefined,
+      movement: typeof v.movement === 'string' ? v.movement : undefined,
+      transition: typeof v.transition === 'string' ? v.transition : undefined,
+      notes: typeof v.notes === 'string' ? v.notes : undefined,
+    }));
+}
+
+/* ------------------------------------------------------------------
+   HOOK
+------------------------------------------------------------------- */
 
 export function useCinematicJobs() {
   const { toast } = useToast();
@@ -33,6 +56,8 @@ export function useCinematicJobs() {
     addToQueue,
     removeFromQueue,
   } = useCinematicStore();
+
+  /* ---------------- FETCH JOBS ---------------- */
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -51,8 +76,14 @@ export function useCinematicJobs() {
       const jobs: CinematicJob[] = (data ?? []).map((job: any) => ({
         ...job,
         shots: jsonToShots(job.shots),
-        mcp_payload: job.mcp_payload ?? undefined,
-        export_urls: job.export_urls ?? undefined,
+        mcp_payload:
+          typeof job.mcp_payload === 'object' && job.mcp_payload !== null
+            ? (job.mcp_payload as Record<string, unknown>)
+            : undefined,
+        export_urls:
+          typeof job.export_urls === 'object' && job.export_urls !== null
+            ? (job.export_urls as Record<string, unknown>)
+            : undefined,
       }));
 
       setJobQueue(jobs.filter((j) => j.status === 'queued'));
@@ -63,6 +94,8 @@ export function useCinematicJobs() {
       setLoading(false);
     }
   }, [setJobQueue, setActiveJobs]);
+
+  /* ---------------- REALTIME ---------------- */
 
   useEffect(() => {
     fetchJobs();
@@ -81,6 +114,8 @@ export function useCinematicJobs() {
     };
   }, [fetchJobs]);
 
+  /* ---------------- CREATE JOB ---------------- */
+
   const createJob = useCallback(
     async (params: {
       title: string;
@@ -95,10 +130,7 @@ export function useCinematicJobs() {
     }): Promise<CinematicJob | null> => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth?.user) {
-        toast({
-          title: 'Authentication required',
-          variant: 'destructive',
-        });
+        toast({ title: 'Authentication required', variant: 'destructive' });
         return null;
       }
 
@@ -137,16 +169,21 @@ export function useCinematicJobs() {
     [addToQueue, toast]
   );
 
+  /* ---------------- CANCEL ---------------- */
+
   const cancelJob = useCallback(
     async (jobId: string) => {
       await supabase
         .from('lucy_cinematic_jobs')
         .update({ status: 'canceled' })
         .eq('id', jobId);
+
       removeFromQueue(jobId);
     },
     [removeFromQueue]
   );
+
+  /* ---------------- RETRY ---------------- */
 
   const retryJob = useCallback(
     async (jobId: string) => {
@@ -154,6 +191,7 @@ export function useCinematicJobs() {
         .from('lucy_cinematic_jobs')
         .update({ status: 'queued', error_message: null, attempt_count: 0 })
         .eq('id', jobId);
+
       fetchJobs();
     },
     [fetchJobs]
