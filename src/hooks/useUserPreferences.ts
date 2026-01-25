@@ -1,8 +1,8 @@
 /**
  * THE LUCY LOUNGE - User Preferences Hook
  * 
- * Replaces localStorage with Supabase-backed preferences
- * Provides real-time sync across devices
+ * Uses localStorage for preferences storage
+ * Database sync available when profiles.preferences JSONB column is used
  */
 
 import { useEffect, useState, useCallback } from 'react';
@@ -58,7 +58,7 @@ const DEFAULT_PREFERENCES: Partial<UserPreferences> = {
   arcade_muted: false,
 };
 
-// LocalStorage keys for fallback (offline support)
+// LocalStorage key
 const LOCAL_STORAGE_KEY = 'lucy-user-preferences';
 
 export function useUserPreferences() {
@@ -76,87 +76,60 @@ export function useUserPreferences() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load preferences
+  // Load preferences from localStorage
   useEffect(() => {
-    if (!user) {
-      // Use localStorage for anonymous users
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        try {
-          setPreferences({ ...DEFAULT_PREFERENCES, ...JSON.parse(stored) } as UserPreferences);
-        } catch {
-          setPreferences(DEFAULT_PREFERENCES as UserPreferences);
-        }
-      } else {
-        setPreferences(DEFAULT_PREFERENCES as UserPreferences);
-      }
-      setLoading(false);
-      return;
-    }
-
-    const fetchPreferences = async () => {
+    const loadPreferences = async () => {
       try {
-        const { data, error: fetchError } = await supabase
-          .from('user_preferences')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          throw fetchError;
-        }
-
-        if (data) {
-          setPreferences(data as UserPreferences);
-          // Sync to localStorage for offline
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-        } else {
-          // Create default preferences
-          const { data: newPrefs, error: insertError } = await supabase
-            .from('user_preferences')
-            .insert({ user_id: user.id })
-            .select()
-            .single();
-
-          if (insertError) throw insertError;
-          setPreferences(newPrefs as UserPreferences);
-        }
-      } catch (err: any) {
-        console.error('Error loading preferences:', err);
-        setError(err.message);
-        // Fallback to localStorage
         const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (stored) {
-          setPreferences(JSON.parse(stored));
+          const parsed = JSON.parse(stored);
+          setPreferences({ 
+            ...DEFAULT_PREFERENCES, 
+            ...parsed,
+            user_id: user?.id ?? 'anonymous'
+          } as UserPreferences);
+        } else {
+          setPreferences({ 
+            ...DEFAULT_PREFERENCES,
+            user_id: user?.id ?? 'anonymous'
+          } as UserPreferences);
         }
+      } catch (err) {
+        console.warn('Error loading preferences from localStorage:', err);
+        setPreferences({ 
+          ...DEFAULT_PREFERENCES,
+          user_id: user?.id ?? 'anonymous'
+        } as UserPreferences);
       } finally {
         setLoading(false);
       }
-    };
 
-    fetchPreferences();
+      // Optional: Try to sync from profiles.preferences if user is logged in
+      if (user) {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('preferences')
+            .eq('id', user.id)
+            .single();
 
-    // Subscribe to realtime changes
-    const channel = supabase
-      .channel('user_preferences_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'user_preferences',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          setPreferences(payload.new as UserPreferences);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload.new));
+          if (data?.preferences && typeof data.preferences === 'object') {
+            const dbPrefs = data.preferences as Record<string, unknown>;
+            const merged = { 
+              ...DEFAULT_PREFERENCES, 
+              ...dbPrefs,
+              user_id: user.id 
+            } as UserPreferences;
+            setPreferences(merged);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+          }
+        } catch {
+          // Silently fail - localStorage is primary source
         }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+      }
     };
+
+    loadPreferences();
   }, [user]);
 
   // Update single preference
@@ -167,23 +140,28 @@ export function useUserPreferences() {
     ): Promise<void> => {
       if (!preferences) return;
 
-      // Optimistic update
-      const updated = { ...preferences, [key]: value };
+      // Update state and localStorage
+      const updated = { 
+        ...preferences, 
+        [key]: value, 
+        updated_at: new Date().toISOString() 
+      };
       setPreferences(updated);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
 
-      if (!user) return; // Anonymous - localStorage only
-
-      try {
-        const { error: updateError } = await supabase
-          .from('user_preferences')
-          .update({ [key]: value, updated_at: new Date().toISOString() })
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-      } catch (err: any) {
-        console.error('Error updating preference:', err);
-        setError(err.message);
+      // Optional: background sync to profiles.preferences
+      if (user) {
+        try {
+          await supabase
+            .from('profiles')
+            .update({ 
+              preferences: JSON.parse(JSON.stringify(updated)),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id);
+        } catch (err) {
+          console.warn('Background sync failed:', err);
+        }
       }
     },
     [user, preferences]
@@ -194,23 +172,27 @@ export function useUserPreferences() {
     async (updates: Partial<UserPreferences>): Promise<void> => {
       if (!preferences) return;
 
-      // Optimistic update
-      const updated = { ...preferences, ...updates };
+      const updated = { 
+        ...preferences, 
+        ...updates, 
+        updated_at: new Date().toISOString() 
+      };
       setPreferences(updated);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
 
-      if (!user) return;
-
-      try {
-        const { error: updateError } = await supabase
-          .from('user_preferences')
-          .update({ ...updates, updated_at: new Date().toISOString() })
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-      } catch (err: any) {
-        console.error('Error updating preferences:', err);
-        setError(err.message);
+      // Optional: background sync to profiles.preferences
+      if (user) {
+        try {
+          await supabase
+            .from('profiles')
+            .update({ 
+              preferences: JSON.parse(JSON.stringify(updated)),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id);
+        } catch (err) {
+          console.warn('Background sync failed:', err);
+        }
       }
     },
     [user, preferences]
@@ -218,21 +200,27 @@ export function useUserPreferences() {
 
   // Reset to defaults
   const resetPreferences = useCallback(async (): Promise<void> => {
-    setPreferences(DEFAULT_PREFERENCES as UserPreferences);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_PREFERENCES));
+    const reset = { 
+      ...DEFAULT_PREFERENCES,
+      user_id: user?.id ?? 'anonymous',
+      updated_at: new Date().toISOString()
+    } as UserPreferences;
+    
+    setPreferences(reset);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(reset));
 
-    if (!user) return;
-
-    try {
-      const { error: updateError } = await supabase
-        .from('user_preferences')
-        .update({ ...DEFAULT_PREFERENCES, updated_at: new Date().toISOString() })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-    } catch (err: any) {
-      console.error('Error resetting preferences:', err);
-      setError(err.message);
+    if (user) {
+      try {
+        await supabase
+          .from('profiles')
+          .update({ 
+            preferences: JSON.parse(JSON.stringify(reset)),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+      } catch (err) {
+        console.warn('Background sync failed:', err);
+      }
     }
   }, [user]);
 

@@ -269,9 +269,9 @@ export function MultimodalOutput({
                       />
                     )}
                   </motion.div>
-                  {result.metadata?.duration && (
+                  {result.metadata?.duration !== undefined && (
                     <p className="text-sm text-muted-foreground">
-                      Duration: {result.metadata.duration}s
+                      Duration: {String(result.metadata.duration)}s
                     </p>
                   )}
                 </div>
@@ -283,7 +283,7 @@ export function MultimodalOutput({
                   <div className="p-6 rounded-lg bg-muted/50 border border-border">
                     <FileText className="w-16 h-16 text-muted-foreground mx-auto" />
                     <p className="mt-2 font-medium text-center">
-                      {result.metadata?.filename || 'Document.pdf'}
+                      {String(result.metadata?.filename || 'Document.pdf')}
                     </p>
                   </div>
                   <a
