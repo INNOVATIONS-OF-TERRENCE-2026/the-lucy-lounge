@@ -50,16 +50,8 @@ export function GlobalCinematicLayer({ children }: GlobalCinematicLayerProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = requestIdleCallback?.(() => setMounted(true)) ?? 
-                  setTimeout(() => setMounted(true), 100);
-    return () => {
-      if (typeof timer === 'number') clearTimeout(timer);
-    };
-  }, []);
-
-  // DO NOT CALL requestIdleCallback DIRECTLY. Use safeRequestIdleCallback.
-  // Delay cinematic effects until after initial render for performance
-  useEffect(() => {
+    // DO NOT CALL requestIdleCallback DIRECTLY. Use safeRequestIdleCallback.
+    // Delay cinematic effects until after initial render for performance
     const timer = safeRequestIdleCallback(() => setMounted(true)) ??
                   setTimeout(() => setMounted(true), 100);
     return () => {

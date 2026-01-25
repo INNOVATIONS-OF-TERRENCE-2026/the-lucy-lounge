@@ -34,11 +34,11 @@ export const FeatureToggles = () => {
         .select('*');
 
       if (data) {
-        const settingsObj: any = {};
+        const settingsObj: Partial<FeatureSettings> = {};
         data.forEach((item) => {
-          settingsObj[item.setting_key] = item.setting_value;
+          settingsObj[item.setting_key as keyof FeatureSettings] = item.setting_value;
         });
-        setSettings(settingsObj);
+        setSettings((prev) => ({ ...prev, ...settingsObj }));
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -47,7 +47,7 @@ export const FeatureToggles = () => {
     }
   };
 
-  const updateSetting = async (key: string, value: any) => {
+  const updateSetting = async (key: string, value: unknown) => {
     try {
       const { error } = await supabase
         .from('app_settings')
@@ -62,10 +62,11 @@ export const FeatureToggles = () => {
         title: "Setting updated",
         description: "Feature toggle has been updated successfully",
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }

@@ -39,16 +39,8 @@ export const CinematicWrapper: React.FC<CinematicWrapperProps> = ({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = requestIdleCallback?.(() => setMounted(true)) ?? 
-                  setTimeout(() => setMounted(true), 100);
-    return () => {
-      if (typeof timer === 'number') clearTimeout(timer);
-    };
-  }, []);
-
-  // DO NOT CALL requestIdleCallback DIRECTLY. Use safeRequestIdleCallback.
-  // Delay effects until after TTI for performance
-  useEffect(() => {
+    // DO NOT CALL requestIdleCallback DIRECTLY. Use safeRequestIdleCallback.
+    // Delay effects until after TTI for performance
     const timer = safeRequestIdleCallback(() => setMounted(true)) ??
                   setTimeout(() => setMounted(true), 100);
     return () => {
