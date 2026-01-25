@@ -225,7 +225,9 @@ export function useAuthResolver(): UseAuthResolverReturn {
 
   useEffect(() => {
     mountedRef.current = true;
-    resolvedRef.current = false;
+
+    // Only initialize once - don't reset on re-renders
+    if (resolvedRef.current) return;
 
     // Start the hard timeout (ESCAPE HATCH)
     timeoutRef.current = setTimeout(forceTimeout, AUTH_TIMEOUT_MS);
@@ -257,7 +259,8 @@ export function useAuthResolver(): UseAuthResolverReturn {
       
       subscription.unsubscribe();
     };
-  }, [checkSession, forceTimeout, resolveAuth]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return {
     ...state,
