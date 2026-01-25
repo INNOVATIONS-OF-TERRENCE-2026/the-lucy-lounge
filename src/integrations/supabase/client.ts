@@ -4,8 +4,9 @@ import type { Database } from './types';
 
 // The Lucy Lounge Supabase Configuration
 // These are PUBLIC keys - safe to include in client-side code
+// PRODUCTION: Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vabrcwdngngdbjmtpwxp.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_2kKuXfNZWm6NdEdGM6k9pg_D5LL4Eui';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

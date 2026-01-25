@@ -367,11 +367,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             }`;
 
             const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                Authorization: `Bearer ${currentSession?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
               },
               body: JSON.stringify({
                 messages: [
@@ -392,11 +393,12 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
       // normal send
       const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
+      const { data: { session: sendSession } } = await supabase.auth.getSession();
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${sendSession?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
           messages: [
