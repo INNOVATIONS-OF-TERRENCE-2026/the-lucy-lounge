@@ -16,6 +16,7 @@ import { CinematicProvider } from '@/contexts/CinematicContext';
 import { CognitiveModeProvider, DreamModeLayer } from './DreamModeLayer';
 import { PageTransition } from './PageTransition';
 import { CinematicWrapper } from './CinematicWrapper';
+import { safeRequestIdleCallback } from '@/polyfills';
 
 // Lazy load audio cinema layer (only needed in listening mode)
 const AudioCinemaLayer = lazy(() => 

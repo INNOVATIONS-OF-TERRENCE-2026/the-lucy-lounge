@@ -16,6 +16,7 @@
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useCinematicSafe } from '@/contexts/CinematicContext';
+import { safeRequestIdleCallback } from '@/polyfills';
 import './cinematic.css';
 
 interface CinematicWrapperProps {
