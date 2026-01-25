@@ -55,9 +55,12 @@ const Studios = lazy(() => import("@/pages/Studios"));
 const StudiosAI = lazy(() => import("@/pages/StudiosAI"));
 const StudiosAudio = lazy(() => import("@/pages/StudiosAudio"));
 const StudiosDev = lazy(() => import("@/pages/StudiosDev"));
-const Media = lazy(() => import("@/pages/Media"));
-const ListeningMode = lazy(() => import("@/pages/ListeningMode"));
-const ExploreMode = lazy(() => import("@/pages/listening/ExploreMode"));
+// PHASE 2: MediaV2 with Universal Media Intelligence Layer
+const Media = lazy(() => import("@/pages/MediaV2"));
+// PHASE 2: ListeningModeV2 with Graph-driven recommendations
+const ListeningMode = lazy(() => import("@/pages/ListeningModeV2"));
+// PHASE 2: ExploreModeV2 with Lucy Journeys & Mood Discovery
+const ExploreMode = lazy(() => import("@/pages/listening/ExploreModeV2"));
 
 /* LOUNGES */
 const NeuralMode = lazy(() => import("@/pages/lounges/NeuralMode"));
