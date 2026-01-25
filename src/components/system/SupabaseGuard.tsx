@@ -34,25 +34,34 @@ interface ValidationResult {
  * Validate Supabase configuration
  */
 function validateSupabaseConfig(): ValidationResult {
+  // Get environment variables - support both Lovable Cloud and standard naming
   const url = import.meta.env.VITE_SUPABASE_URL || "";
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
-  const hasUrl = url.length > 0;
-  const hasKey = key.length > 0;
+  // Hardcoded fallbacks for Lovable Cloud (matches client.ts)
+  const FALLBACK_URL = "https://guqljelishrthxiftedq.supabase.co";
+  const FALLBACK_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1cWxqZWxpc2hydGh4aWZ0ZWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5ODY1OTEsImV4cCI6MjA3ODU2MjU5MX0.eWFoSl6lgwgO9Hp1OMlP6rnSS1x_8W0jvoiSPvoD3Rs";
+
+  // Use fallbacks if env vars are missing (Lovable Cloud has hardcoded values in client.ts)
+  const effectiveUrl = url || FALLBACK_URL;
+  const effectiveKey = key || FALLBACK_KEY;
+
+  const hasUrl = effectiveUrl.length > 0;
+  const hasKey = effectiveKey.length > 0;
   
   // URL should be a valid Supabase URL
   const urlFormat = hasUrl && (
-    url.includes("supabase.co") || 
-    url.includes("supabase.in") ||
-    url.startsWith("https://")
+    effectiveUrl.includes("supabase.co") || 
+    effectiveUrl.includes("supabase.in") ||
+    effectiveUrl.startsWith("https://")
   );
   
   // Key can be:
   // 1. Standard JWT format (eyJ...)
   // 2. Lovable publishable format (sb_publishable_...)
   const keyFormat = hasKey && (
-    key.startsWith("eyJ") || 
-    key.startsWith("sb_publishable_")
+    effectiveKey.startsWith("eyJ") || 
+    effectiveKey.startsWith("sb_publishable_")
   );
 
   return {

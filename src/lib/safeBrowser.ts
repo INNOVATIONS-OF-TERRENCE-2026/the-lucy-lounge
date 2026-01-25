@@ -123,7 +123,7 @@ export function supportsFileSystemAccess(): boolean {
 export function supportsSpeechRecognition(): boolean {
   if (!isBrowser()) return false;
   try {
-    return !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition);
+    return !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
   } catch {
     return false;
   }
