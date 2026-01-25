@@ -49,7 +49,6 @@ export function GlobalCinematicLayer({ children }: GlobalCinematicLayerProps) {
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
-  // Delay cinematic effects until after initial render for performance
   useEffect(() => {
     const timer = requestIdleCallback?.(() => setMounted(true)) ?? 
                   setTimeout(() => setMounted(true), 100);
@@ -58,6 +57,15 @@ export function GlobalCinematicLayer({ children }: GlobalCinematicLayerProps) {
     };
   }, []);
 
+  // DO NOT CALL requestIdleCallback DIRECTLY. Use safeRequestIdleCallback.
+  // Delay cinematic effects until after initial render for performance
+  useEffect(() => {
+    const timer = safeRequestIdleCallback(() => setMounted(true)) ??
+                  setTimeout(() => setMounted(true), 100);
+    return () => {
+      if (typeof timer === 'number') clearTimeout(timer);
+    };
+  }, []);
   const loungeType = getRouteLounge(location.pathname);
   const isListeningMode = location.pathname.includes('listening');
 

@@ -161,6 +161,32 @@ All risky features must be wrapped:
 
 ---
 
+## Polyfill
+
+- requestIdleCallback and cancelIdleCallback are polyfilled for iOS/legacy WebKit.
+- Polyfill is loaded BEFORE React and all app code.
+
+## Defensive Practices
+
+- All mobile APIs must be guarded.
+- All scheduler logic must use safeRequestIdleCallback.
+- No silent fallbacks or error suppression.
+
+## Enforcement
+
+- DEV-ONLY runtime assertion logs polyfill activation on iOS.
+- Static code comments and assertions are present at all call sites.
+
+## Non-Negotiable Rules
+
+- DO NOT use requestIdleCallback directly. Use safeRequestIdleCallback ONLY.
+- DO NOT initialize media APIs before user interaction.
+- DO NOT bypass RootErrorBoundary or SupabaseGuard.
+- DO NOT add fallback secrets or silent error handling.
+- DO NOT introduce mobile regressions.
+
+---
+
 ## Boot Sequence
 
 1. `initViewportFix()` - Fix mobile 100vh
