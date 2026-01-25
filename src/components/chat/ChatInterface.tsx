@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { KeyboardEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,8 @@ import { ReadingProgressBar } from "./ReadingProgressBar";
 import { TimestampDivider } from "./TimestampDivider";
 import { HeaderMusicPlayer } from "./HeaderMusicPlayer";
 import { AIGenerationModal } from "./AIGenerationModal";
-import { LoungeSwitcher } from "@/components/lounge/LoungeSwitcher"; // ✅ NEW (file provided below)
+import { IntentIndicator } from "./IntentIndicator";
+import { LoungeSwitcher } from "@/components/lounge/LoungeSwitcher";
 import { useSmartSceneSuggestion } from "@/hooks/useSmartSceneSuggestion";
 import { useMemoryManager } from "@/hooks/useMemoryManager";
 import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
@@ -32,6 +33,7 @@ import { useLucyStreaming } from "@/hooks/useLucyStreaming";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
+import { useLucyIntentRouter } from "@/hooks/useLucyIntentRouter";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToBottom } from "./ScrollToBottom";
@@ -73,6 +75,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [toolResults, setToolResults] = useState<any>(null);
   const [lastReadMessageIndex, setLastReadMessageIndex] = useState(-1);
   const [showAIGeneration, setShowAIGeneration] = useState(false);
+  const [dismissedIntent, setDismissedIntent] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -85,6 +88,32 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { speed, setSpeed } = useStreamingSpeed();
   const { showScrollButton } = useScrollDetection(chatContainerRef);
   const { displayText, isStreaming: isLocalStreaming, startStreaming, skipToEnd } = useLucyStreaming();
+  const { shouldSuggestMode, getRoutePath } = useLucyIntentRouter();
+
+  // Detect intent from current input (debounced via useMemo)
+  const detectedIntent = useMemo(() => {
+    if (dismissedIntent || input.length < 8) return null;
+    return shouldSuggestMode(input);
+  }, [input, dismissedIntent, shouldSuggestMode]);
+
+  // Reset dismissed state when input changes significantly
+  useEffect(() => {
+    if (input.length < 5) {
+      setDismissedIntent(false);
+    }
+  }, [input]);
+
+  // Handle intent action (route to appropriate studio/modal)
+  const handleIntentAction = useCallback(() => {
+    if (!detectedIntent) return;
+    
+    const routePath = getRoutePath(detectedIntent.intent);
+    if (routePath) {
+      navigate(routePath);
+    } else if (detectedIntent.intent === 'image' || detectedIntent.intent === 'video' || detectedIntent.intent === 'document') {
+      setShowAIGeneration(true);
+    }
+  }, [detectedIntent, getRoutePath, navigate]);
 
   useKeyboardShortcuts({
     onSend: () => handleSend(),
@@ -598,6 +627,15 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       {/* INPUT AREA */}
       <div className="p-3 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
         <div className="max-w-full md:max-w-5xl mx-auto space-y-2">
+          {/* Intent Detection Indicator */}
+          {detectedIntent && (
+            <IntentIndicator
+              result={detectedIntent}
+              onAccept={handleIntentAction}
+              onDismiss={() => setDismissedIntent(true)}
+            />
+          )}
+
           {selectedFiles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-2">
               {selectedFiles.map((file, index) => {
