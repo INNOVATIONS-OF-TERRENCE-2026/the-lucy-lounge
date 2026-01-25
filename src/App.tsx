@@ -36,67 +36,95 @@ import { UserGestureGateProvider } from "@/hooks/useUserGestureGate";
 import { OfflineGateProvider } from "@/components/system/OfflineGate";
 
 /* ======================
+   LAZY IMPORT WITH AUTO-RELOAD ON CHUNK ERROR
+   ====================== */
+
+/**
+ * Wraps lazy import to auto-reload page when chunk fails to load.
+ * This handles deployment cache mismatches gracefully.
+ */
+const lazyWithReload = (importFn: () => Promise<{ default: React.ComponentType<any> }>) => {
+  return lazy(() => 
+    importFn().catch((error) => {
+      // Check if this is a chunk load error
+      if (
+        error.message?.includes('Failed to fetch dynamically imported module') ||
+        error.message?.includes('Loading chunk') ||
+        error.name === 'ChunkLoadError'
+      ) {
+        console.warn('[App] Chunk load failed, reloading page...', error.message);
+        // Reload the page to get fresh chunks
+        window.location.reload();
+        // Return a dummy component while reloading
+        return { default: () => null };
+      }
+      throw error;
+    })
+  );
+};
+
+/* ======================
    LAZY PAGES
    ====================== */
 
-const Landing = lazy(() => import("@/pages/Landing"));
-const Chat = lazy(() => import("@/pages/Chat"));
-const Auth = lazy(() => import("@/pages/Auth"));
-const Features = lazy(() => import("@/pages/Features"));
-const Pricing = lazy(() => import("@/pages/Pricing"));
-const About = lazy(() => import("@/pages/About"));
-const Blog = lazy(() => import("@/pages/Blog"));
-const BlogPost = lazy(() => import("@/pages/BlogPost"));
-const Tools = lazy(() => import("@/pages/Tools"));
-const ToolsMarketplace = lazy(() => import("@/pages/ToolsMarketplace"));
-const CreatorStudio = lazy(() => import("@/pages/CreatorStudio"));
-const Launch = lazy(() => import("@/pages/Launch"));
-const Studios = lazy(() => import("@/pages/Studios"));
-const StudiosAI = lazy(() => import("@/pages/StudiosAI"));
-const StudiosAudio = lazy(() => import("@/pages/StudiosAudio"));
-const StudiosDev = lazy(() => import("@/pages/StudiosDev"));
+const Landing = lazyWithReload(() => import("@/pages/Landing"));
+const Chat = lazyWithReload(() => import("@/pages/Chat"));
+const Auth = lazyWithReload(() => import("@/pages/Auth"));
+const Features = lazyWithReload(() => import("@/pages/Features"));
+const Pricing = lazyWithReload(() => import("@/pages/Pricing"));
+const About = lazyWithReload(() => import("@/pages/About"));
+const Blog = lazyWithReload(() => import("@/pages/Blog"));
+const BlogPost = lazyWithReload(() => import("@/pages/BlogPost"));
+const Tools = lazyWithReload(() => import("@/pages/Tools"));
+const ToolsMarketplace = lazyWithReload(() => import("@/pages/ToolsMarketplace"));
+const CreatorStudio = lazyWithReload(() => import("@/pages/CreatorStudio"));
+const Launch = lazyWithReload(() => import("@/pages/Launch"));
+const Studios = lazyWithReload(() => import("@/pages/Studios"));
+const StudiosAI = lazyWithReload(() => import("@/pages/StudiosAI"));
+const StudiosAudio = lazyWithReload(() => import("@/pages/StudiosAudio"));
+const StudiosDev = lazyWithReload(() => import("@/pages/StudiosDev"));
 // PHASE 2: MediaV2 with Universal Media Intelligence Layer
-const Media = lazy(() => import("@/pages/MediaV2"));
+const Media = lazyWithReload(() => import("@/pages/MediaV2"));
 // PHASE 2: ListeningModeV2 with Graph-driven recommendations
-const ListeningMode = lazy(() => import("@/pages/ListeningModeV2"));
+const ListeningMode = lazyWithReload(() => import("@/pages/ListeningModeV2"));
 // PHASE 2: ExploreModeV2 with Lucy Journeys & Mood Discovery
-const ExploreMode = lazy(() => import("@/pages/listening/ExploreModeV2"));
+const ExploreMode = lazyWithReload(() => import("@/pages/listening/ExploreModeV2"));
 
 /* LOUNGES */
-const NeuralMode = lazy(() => import("@/pages/lounges/NeuralMode"));
-const DreamMode = lazy(() => import("@/pages/lounges/DreamMode"));
-const VisionMode = lazy(() => import("@/pages/lounges/VisionMode"));
-const SilentRoom = lazy(() => import("@/pages/lounges/SilentRoom"));
-const MemoryTimeline = lazy(() => import("@/pages/lounges/MemoryTimeline"));
-const CommandCenter = lazy(() => import("@/pages/lounges/CommandCenter"));
-const QuantumMode = lazy(() => import("@/pages/lounges/QuantumMode"));
-const PresenceMode = lazy(() => import("@/pages/lounges/PresenceMode"));
-const WorldEvents = lazy(() => import("@/pages/lounges/WorldEvents"));
+const NeuralMode = lazyWithReload(() => import("@/pages/lounges/NeuralMode"));
+const DreamMode = lazyWithReload(() => import("@/pages/lounges/DreamMode"));
+const VisionMode = lazyWithReload(() => import("@/pages/lounges/VisionMode"));
+const SilentRoom = lazyWithReload(() => import("@/pages/lounges/SilentRoom"));
+const MemoryTimeline = lazyWithReload(() => import("@/pages/lounges/MemoryTimeline"));
+const CommandCenter = lazyWithReload(() => import("@/pages/lounges/CommandCenter"));
+const QuantumMode = lazyWithReload(() => import("@/pages/lounges/QuantumMode"));
+const PresenceMode = lazyWithReload(() => import("@/pages/lounges/PresenceMode"));
+const WorldEvents = lazyWithReload(() => import("@/pages/lounges/WorldEvents"));
 
 /* ARCADE */
-const ArcadeHub = lazy(() => import("@/arcade/pages/ArcadeHub"));
-const GamePage = lazy(() => import("@/arcade/pages/GamePage"));
+const ArcadeHub = lazyWithReload(() => import("@/arcade/pages/ArcadeHub"));
+const GamePage = lazyWithReload(() => import("@/arcade/pages/GamePage"));
 
 /* GUIDES */
-const CreditRepairGuide = lazy(() => import("@/pages/guides/CreditRepairGuide"));
-const SBALoanGuide = lazy(() => import("@/pages/guides/SBALoanGuide"));
-const WomenFundingGuide = lazy(() => import("@/pages/guides/WomenFundingGuide"));
+const CreditRepairGuide = lazyWithReload(() => import("@/pages/guides/CreditRepairGuide"));
+const SBALoanGuide = lazyWithReload(() => import("@/pages/guides/SBALoanGuide"));
+const WomenFundingGuide = lazyWithReload(() => import("@/pages/guides/WomenFundingGuide"));
 
 /* COMPANY */
-const Testimonials = lazy(() => import("@/pages/Testimonials"));
-const Press = lazy(() => import("@/pages/Press"));
-const EditorialStandards = lazy(() => import("@/pages/EditorialStandards"));
-const Contact = lazy(() => import("@/pages/Contact"));
-const AuthorPage = lazy(() => import("@/pages/about/AuthorPage"));
+const Testimonials = lazyWithReload(() => import("@/pages/Testimonials"));
+const Press = lazyWithReload(() => import("@/pages/Press"));
+const EditorialStandards = lazyWithReload(() => import("@/pages/EditorialStandards"));
+const Contact = lazyWithReload(() => import("@/pages/Contact"));
+const AuthorPage = lazyWithReload(() => import("@/pages/about/AuthorPage"));
 
 /* ADMIN */
-const Analytics = lazy(() => import("@/pages/Analytics"));
-const Admin = lazy(() => import("@/pages/Admin"));
+const Analytics = lazyWithReload(() => import("@/pages/Analytics"));
+const Admin = lazyWithReload(() => import("@/pages/Admin"));
 
 /* ROOMS — NAMED EXPORT ADAPTERS (CRITICAL FIX) */
-const RoomList = lazy(() => import("@/components/rooms/RoomList").then((m) => ({ default: m.RoomList })));
-const RoomChat = lazy(() => import("@/components/rooms/RoomChat").then((m) => ({ default: m.RoomChat })));
-const SharedConversation = lazy(() =>
+const RoomList = lazyWithReload(() => import("@/components/rooms/RoomList").then((m) => ({ default: m.RoomList })));
+const RoomChat = lazyWithReload(() => import("@/components/rooms/RoomChat").then((m) => ({ default: m.RoomChat })));
+const SharedConversation = lazyWithReload(() =>
   import("@/pages/SharedConversation").then((m) => ({
     default: m.SharedConversation,
   })),
