@@ -160,6 +160,14 @@ export function useCinematicJobs() {
       const job: CinematicJob = {
         ...data,
         shots: jsonToShots(data.shots),
+        mcp_payload:
+          typeof data.mcp_payload === 'object' && data.mcp_payload !== null
+            ? (data.mcp_payload as Record<string, unknown>)
+            : undefined,
+        export_urls:
+          typeof data.export_urls === 'object' && data.export_urls !== null
+            ? (data.export_urls as Record<string, string>)
+            : undefined,
       };
 
       addToQueue(job);
