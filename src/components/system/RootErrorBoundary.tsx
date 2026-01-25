@@ -1,12 +1,26 @@
 /**
- * THE LUCY LOUNGE — ROOT ERROR BOUNDARY
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │ THE LUCY LOUNGE — ROOT ERROR BOUNDARY                                      │
+ * │                                                                             │
+ * │ DO NOT MODIFY: Governed by /docs/REGRESSION_PACT.md                        │
+ * │ DO NOT MODIFY: Governed by /docs/PRODUCTION_SPEC_v1.md                     │
+ * └─────────────────────────────────────────────────────────────────────────────┘
  * 
+ * PURPOSE:
  * INCIDENT-PROOF crash guard that wraps the entire application.
  * Prevents white screens and provides safe recovery options.
+ * 
+ * REQUIREMENTS (from REGRESSION_PACT.md LAW 5):
+ * - Catches all unhandled errors
+ * - Shows a user-friendly fallback UI
+ * - Provides "Reload" and "Go Home" buttons
+ * - Offers "Copy Diagnostics" (with NO secrets)
+ * - Never crashes into a white screen
  * 
  * SECURITY: Never exposes secrets, API keys, or sensitive data.
  * 
  * @see /docs/REGRESSION_PACT.md
+ * @see /docs/PRODUCTION_SPEC_v1.md
  */
 import { Component, ErrorInfo, ReactNode } from 'react';
 

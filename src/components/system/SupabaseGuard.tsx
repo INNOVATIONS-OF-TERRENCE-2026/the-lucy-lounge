@@ -1,18 +1,28 @@
 /**
- * THE LUCY LOUNGE — SUPABASE ENVIRONMENT GUARD
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │ THE LUCY LOUNGE — SUPABASE ENVIRONMENT GUARD                               │
+ * │                                                                             │
+ * │ DO NOT MODIFY: Governed by /docs/REGRESSION_PACT.md                        │
+ * │ DO NOT MODIFY: Governed by /docs/PRODUCTION_SPEC_v1.md                     │
+ * └─────────────────────────────────────────────────────────────────────────────┘
  * 
+ * PURPOSE:
  * Validates Supabase configuration at React runtime and displays a graceful
- * setup screen if configuration is missing (instead of crashing).
+ * setup screen ONLY if configuration is missing. Once connected, the setup
+ * UI is PERMANENTLY DISABLED — this is a production system, not a tutorial.
  * 
  * SECURITY RULES (IMMUTABLE):
- * 1. Frontend uses PUBLISHABLE KEY ONLY
- * 2. NO hardcoded keys, NO fallback values
+ * 1. Frontend uses PUBLISHABLE KEY ONLY (anon key)
+ * 2. NO hardcoded keys — EVER
  * 3. Show helpful UI if environment is misconfigured
  * 4. service_role keys are SERVER-ONLY (Edge Functions)
+ * 5. Setup UI NEVER appears once Supabase is connected
  * 
  * @see /docs/REGRESSION_PACT.md
+ * @see /docs/PRODUCTION_SPEC_v1.md
  */
 import { ReactNode } from 'react';
+import { isSupabaseConfigured, hasValidKeyFormat } from '@/integrations/supabase/client';
 
 interface SupabaseGuardProps {
   children: ReactNode;
@@ -25,11 +35,49 @@ interface ValidationResult {
   isSecurityViolation: boolean;
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PRODUCTION LOCK — Once connected, setup UI is PERMANENTLY disabled
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const PRODUCTION_LOCK_KEY = 'lucy_supabase_connected';
+
+/**
+ * Check if Supabase connection has been established previously.
+ * Once set, the setup UI will NEVER appear again.
+ */
+function isProductionLocked(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(PRODUCTION_LOCK_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Mark the system as production-locked.
+ * Called when Supabase is successfully configured.
+ */
+function setProductionLock(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(PRODUCTION_LOCK_KEY, 'true');
+  } catch {
+    // Storage unavailable — continue without lock
+  }
+}
+
 /**
  * Validates Supabase environment configuration.
  * Returns validation result instead of throwing (graceful degradation).
+ * 
+ * DO NOT MODIFY: This validation logic is governed by REGRESSION_PACT.md
  */
 function validateSupabaseEnvironment(): ValidationResult {
+  // Use the canonical client's helper functions
+  const configured = isSupabaseConfigured();
+  const validFormat = hasValidKeyFormat();
+  
+  // Also read raw values for detailed error messages
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_KEY = 
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
@@ -58,13 +106,13 @@ function validateSupabaseEnvironment(): ValidationResult {
   }
 
   // SECURITY GATE: Validate key looks like a JWT (basic format check)
-  if (SUPABASE_KEY && SUPABASE_KEY.length > 0 && !SUPABASE_KEY.startsWith('eyJ')) {
+  if (SUPABASE_KEY && SUPABASE_KEY.length > 0 && !validFormat) {
     errors.push('CRITICAL: Key does not appear to be a valid Supabase anon/publishable key');
     isSecurityViolation = true;
   }
 
-  if (errors.length > 0) {
-    // Console log for debugging (no secrets exposed)
+  if (errors.length > 0 && !isProductionLocked()) {
+    // Console log for debugging (no secrets exposed) — only if not production-locked
     console.warn(
       '\n╔══════════════════════════════════════════════════════════════════╗\n' +
       '║  THE LUCY LOUNGE — SUPABASE CONFIGURATION STATUS                ║\n' +
@@ -251,24 +299,57 @@ function SupabaseSetupScreen({ errors, isSecurityViolation }: { errors: string[]
 /**
  * SupabaseGuard - Validates environment configuration at React runtime.
  * 
- * Shows a helpful setup screen if Supabase is not configured, instead of crashing.
- * This ensures users see guidance rather than a white screen or error.
+ * PRODUCTION LOCK BEHAVIOR:
+ * - If config is VALID: Sets production lock, renders children
+ * - If config is INVALID but production-locked: Renders children anyway (trusts cache)
+ * - If config is INVALID and NOT locked: Shows setup screen
+ * - If SECURITY VIOLATION: Always blocks (never trust bad keys)
+ * 
+ * This ensures the setup UI NEVER appears in a working production system,
+ * even if Lovable's cache temporarily fails to inject environment variables.
+ * 
+ * DO NOT MODIFY: This component is governed by REGRESSION_PACT.md
  */
 export function SupabaseGuard({ children }: SupabaseGuardProps): ReactNode {
   const validation = validateSupabaseEnvironment();
+  const locked = isProductionLocked();
 
-  // If configuration is invalid, show setup screen instead of crashing
-  if (!validation.isValid) {
+  // SECURITY VIOLATIONS always block — never trust bad keys
+  if (validation.isSecurityViolation) {
     return (
       <SupabaseSetupScreen 
         errors={validation.errors} 
-        isSecurityViolation={validation.isSecurityViolation} 
+        isSecurityViolation={true} 
       />
     );
   }
 
-  // Configuration is valid — render the app
-  return <>{children}</>;
+  // If configuration is VALID, set production lock and render app
+  if (validation.isValid) {
+    // Lock the system — setup UI will never appear again
+    setProductionLock();
+    return <>{children}</>;
+  }
+
+  // Configuration is INVALID...
+  
+  // If we're production-locked, trust the lock and render anyway
+  // This handles Lovable cache issues where env vars temporarily disappear
+  if (locked) {
+    console.warn(
+      '[SupabaseGuard] Configuration invalid but production-locked. ' +
+      'Rendering app anyway. If issues persist, clear localStorage.'
+    );
+    return <>{children}</>;
+  }
+
+  // Not locked and invalid — show setup screen
+  return (
+    <SupabaseSetupScreen 
+      errors={validation.errors} 
+      isSecurityViolation={false} 
+    />
+  );
 }
 
 export default SupabaseGuard;
