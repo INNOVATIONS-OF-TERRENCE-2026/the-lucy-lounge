@@ -95,7 +95,7 @@ export const CinematicWrapper: React.FC<CinematicWrapperProps> = ({
   return (
     <motion.div
       ref={wrapperRef}
-      className={`cinematic-wrapper ${loungeClass} relative min-h-screen ${className}`}
+      className={`cinematic-wrapper ${loungeClass} relative min-h-screen overflow-hidden ${className}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

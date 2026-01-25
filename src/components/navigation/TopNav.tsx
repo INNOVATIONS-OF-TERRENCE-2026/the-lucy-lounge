@@ -26,7 +26,7 @@ export const TopNav = () => {
     cn("text-sm font-medium transition-colors hover:text-primary", isActive ? "text-primary" : "text-foreground/80");
 
   return (
-    <header className="sticky top-0 z-[100] w-full border-b border-border/30 bg-background/95 backdrop-blur-lg" style={{ position: 'sticky', top: 0 }}>
+    <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/80 backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold">
