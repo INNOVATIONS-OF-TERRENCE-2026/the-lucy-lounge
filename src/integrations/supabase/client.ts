@@ -5,7 +5,7 @@ import type { Database } from './types';
 // The Lucy Lounge Supabase Configuration
 // These are PUBLIC keys - safe to include in client-side code
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vabrcwdngngdbjmtpwxp.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhYnJjd2RuZ25nZGJqbXRwd3hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyOTIzNzgsImV4cCI6MjA4NDg2ODM3OH0.JsSNaVLvWG2CousQqw5VGeUqn15qoqJa1j4BjjKnc8c';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_2kKuXfNZWm6NdEdGM6k9pg_D5LL4Eui';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
