@@ -29,6 +29,8 @@ import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { SystemGuards } from "@/components/system/SystemGuards";
 import { GlobalCinematicLayer } from "@/components/cinematic/GlobalCinematicLayer";
+import { FeatureErrorBoundary } from "@/components/system/FeatureErrorBoundary";
+import { SafeMediaGateProvider } from "@/components/system/SafeMediaGate";
 
 /* ======================
    LAZY PAGES
@@ -126,21 +128,32 @@ const App = () => {
       <GlobalSpotifyProvider>
         <LucyDJProvider>
           <LucyWorldsProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
+            <SafeMediaGateProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
 
-              {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+                {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-              <IOSAudioUnlockProvider />
-              <GlobalSpotifyAudioHost />
-              <GlobalMiniPlayer />
-              <LucySuggestionDrawer />
-              <FloatingCalculator />
-              <LucyWorldsOverlay />
+                {/* Audio components wrapped in error boundary - these are high-risk on mobile */}
+                <FeatureErrorBoundary feature="audio-providers" silent>
+                  <IOSAudioUnlockProvider />
+                  <GlobalSpotifyAudioHost />
+                </FeatureErrorBoundary>
 
-              <InstallPrompt />
-              <OfflineBanner />
+                <FeatureErrorBoundary feature="mini-player" silent>
+                  <GlobalMiniPlayer />
+                </FeatureErrorBoundary>
+
+                <LucySuggestionDrawer />
+                <FloatingCalculator />
+                
+                <FeatureErrorBoundary feature="worlds-overlay" silent>
+                  <LucyWorldsOverlay />
+                </FeatureErrorBoundary>
+
+                <InstallPrompt />
+                <OfflineBanner />
 
               <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
                 <BrowserRouter>
@@ -223,11 +236,12 @@ const App = () => {
                 </BrowserRouter>
               </div>
             </TooltipProvider>
-          </LucyWorldsProvider>
-        </LucyDJProvider>
-      </GlobalSpotifyProvider>
-    </QueryClientProvider>
-  );
+          </SafeMediaGateProvider>
+        </LucyWorldsProvider>
+      </LucyDJProvider>
+    </GlobalSpotifyProvider>
+  </QueryClientProvider>
+);
 };
 
 export default App;

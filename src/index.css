@@ -542,21 +542,52 @@ body {
 
 /* =========================================================
    📱 MOBILE VIEWPORT STABILIZATION
-   Prevent overflow and ensure perfect fit
+   Prevent overflow and ensure perfect fit on ALL devices
    ========================================================= */
+
+/* Custom viewport unit fallback (set by JS) */
+:root {
+  --vh: 1vh;
+  --svh: 1vh;
+}
 
 /* Prevent any element from causing horizontal scroll */
 #root {
   overflow-x: hidden;
   max-width: 100vw;
+  /* Fallback chain: dvh → svh → vh → custom property */
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  min-height: 100svh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+/* Full height utility classes with mobile fallbacks */
+.h-screen-safe {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100svh;
+  height: 100dvh;
+}
+
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 /* Chat container full height on mobile */
 @supports (height: 100dvh) {
   .chat-full-height {
     height: 100dvh;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .chat-full-height {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
   }
 }
 
@@ -571,5 +602,27 @@ body {
 @media (max-width: 640px) {
   input, textarea, select, button {
     font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* =========================================================
+   🎬 REDUCED MOTION SUPPORT
+   Respect user preference for reduced animations
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Keep essential transitions but make them instant */
+  .transition-colors,
+  .transition-opacity {
+    transition-duration: 0.1s !important;
   }
 }

@@ -2,6 +2,7 @@ import { createContext, useContext, useCallback, useRef, useEffect, useState, Re
 import { WeatherMode, SeasonMode } from './useWeatherAmbient';
 import { useFocusMode } from './useFocusMode';
 import { getGlobalAudioContext, getIsAudioUnlocked } from './useIOSAudioUnlock';
+import { safeLocalStorage } from '@/lib/safeBrowser';
 import {
   AUDIO_TRACKS,
   WEATHER_GENRE_MAP,
@@ -61,28 +62,28 @@ const AudioManagerContext = createContext<AudioManagerContextType | null>(null);
 export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   const { focusMode } = useFocusMode();
   
-  // Initialize state from localStorage
+  // Initialize state from localStorage (with safe fallbacks)
   const [audioState, setAudioState] = useState<AudioState>('idle');
   const [currentWeather, setCurrentWeather] = useState<WeatherMode>('clear');
   const [currentSeason, setCurrentSeason] = useState<SeasonMode>('none');
   const [currentMusic, setCurrentMusic] = useState<MusicGenre>('none');
   const [currentTrackPath, setCurrentTrackPath] = useState<string>('');
   
-  // Persisted preferences - load from localStorage
+  // Persisted preferences - load from localStorage with safe access
   const [volume, setVolumeState] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.volume);
+    const saved = safeLocalStorage.getItem(STORAGE_KEYS.volume);
     return saved !== null ? parseFloat(saved) : 0.5;
   });
   const [soundEnabled, setSoundEnabledState] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.soundEnabled);
+    const saved = safeLocalStorage.getItem(STORAGE_KEYS.soundEnabled);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [musicEnabled, setMusicEnabledState] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.musicEnabled);
+    const saved = safeLocalStorage.getItem(STORAGE_KEYS.musicEnabled);
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [shuffleEnabled, setShuffleEnabledState] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.shuffleEnabled);
+    const saved = safeLocalStorage.getItem(STORAGE_KEYS.shuffleEnabled);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [isPlaying, setIsPlaying] = useState(false);
@@ -129,22 +130,22 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   
   const setVolume = useCallback((v: number) => {
     setVolumeState(v);
-    localStorage.setItem(STORAGE_KEYS.volume, v.toString());
+    safeLocalStorage.setItem(STORAGE_KEYS.volume, v.toString());
   }, []);
 
   const setSoundEnabled = useCallback((e: boolean) => {
     setSoundEnabledState(e);
-    localStorage.setItem(STORAGE_KEYS.soundEnabled, JSON.stringify(e));
+    safeLocalStorage.setItem(STORAGE_KEYS.soundEnabled, JSON.stringify(e));
   }, []);
 
   const setMusicEnabled = useCallback((e: boolean) => {
     setMusicEnabledState(e);
-    localStorage.setItem(STORAGE_KEYS.musicEnabled, JSON.stringify(e));
+    safeLocalStorage.setItem(STORAGE_KEYS.musicEnabled, JSON.stringify(e));
   }, []);
 
   const setShuffleEnabled = useCallback((e: boolean) => {
     setShuffleEnabledState(e);
-    localStorage.setItem(STORAGE_KEYS.shuffleEnabled, JSON.stringify(e));
+    safeLocalStorage.setItem(STORAGE_KEYS.shuffleEnabled, JSON.stringify(e));
   }, []);
 
   // ============= DECK SHUFFLE LOGIC =============
