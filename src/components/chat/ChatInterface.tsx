@@ -3,7 +3,7 @@ import type { KeyboardEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Search, Download, Settings2, Shield } from "lucide-react";
+import { Send, Loader2, Search, Download, Settings2, Shield, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -21,6 +21,7 @@ import { ChatSettings } from "./ChatSettings";
 import { ReadingProgressBar } from "./ReadingProgressBar";
 import { TimestampDivider } from "./TimestampDivider";
 import { HeaderMusicPlayer } from "./HeaderMusicPlayer";
+import { AIGenerationModal } from "./AIGenerationModal";
 import { LoungeSwitcher } from "@/components/lounge/LoungeSwitcher"; // ✅ NEW (file provided below)
 import { useSmartSceneSuggestion } from "@/hooks/useSmartSceneSuggestion";
 import { useMemoryManager } from "@/hooks/useMemoryManager";
@@ -71,6 +72,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [toolResults, setToolResults] = useState<any>(null);
   const [lastReadMessageIndex, setLastReadMessageIndex] = useState(-1);
+  const [showAIGeneration, setShowAIGeneration] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -636,6 +638,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               onRemoveFile={(idx) => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx))}
             />
 
+            {/* AI Generation Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAIGeneration(true)}
+              className="h-10 w-10 rounded-xl glass-card border-primary/30 hover:shadow-glow-violet flex-shrink-0"
+              title="AI Generation Studio"
+            >
+              <Sparkles className="w-4 h-4 text-primary" />
+            </Button>
+
             <div className="flex-1 relative">
               <Textarea
                 ref={inputRef}
@@ -683,6 +696,38 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           conversationTitle={conversationTitle}
         />
       )}
+
+      {/* AI Generation Modal */}
+      <AIGenerationModal
+        open={showAIGeneration}
+        onOpenChange={setShowAIGeneration}
+        onGenerated={async (result) => {
+          // Create a message with the generated content
+          if (!conversationId) return;
+          
+          const messageContent = `🎨 **AI Generated ${result.type.charAt(0).toUpperCase() + result.type.slice(1)}**\n\n*Prompt:* ${result.prompt}${result.model ? `\n*Model:* ${result.model}` : ''}${result.style ? `\n*Style:* ${result.style}` : ''}`;
+          
+          // Add to messages with multimodal data
+          const newMessage = {
+            role: 'assistant',
+            content: messageContent,
+            created_at: new Date().toISOString(),
+            multimodal: {
+              type: result.type,
+              url: result.url,
+              prompt: result.prompt,
+              model: result.model,
+              style: result.style,
+              duration: result.duration
+            }
+          };
+          
+          setMessages(prev => [...prev, newMessage]);
+          
+          // Save to database
+          await saveMessage(conversationId, 'assistant', messageContent);
+        }}
+      />
     </main>
   );
 }

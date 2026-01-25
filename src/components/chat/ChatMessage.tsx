@@ -5,8 +5,18 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { FilePreview } from "./FilePreview";
 import { MessageReactions } from "./MessageReactions";
+import { MultimodalOutput } from "./MultimodalOutput";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+interface MultimodalData {
+  type: 'image' | 'video' | 'audio' | 'voice' | 'document';
+  url: string;
+  prompt?: string;
+  model?: string;
+  duration?: number;
+  style?: string;
+}
 
 interface ChatMessageProps {
   message: {
@@ -14,6 +24,7 @@ interface ChatMessageProps {
     role: string;
     content: string;
     created_at: string;
+    multimodal?: MultimodalData;
   };
   isStreaming?: boolean;
 }
@@ -113,6 +124,23 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
 
           {attachments.length > 0 && (
             <FilePreview attachments={attachments} />
+          )}
+
+          {/* Multimodal AI-generated content */}
+          {message.multimodal && (
+            <div className="mt-4">
+              <MultimodalOutput
+                type={message.multimodal.type}
+                content={message.multimodal.url}
+                isLoading={false}
+                metadata={{
+                  prompt: message.multimodal.prompt,
+                  model: message.multimodal.model,
+                  duration: message.multimodal.duration,
+                  style: message.multimodal.style
+                }}
+              />
+            </div>
           )}
         </div>
 
