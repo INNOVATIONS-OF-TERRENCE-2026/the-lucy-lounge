@@ -57,8 +57,13 @@ function validateSupabaseEnvironment(): ValidationResult {
     isSecurityViolation = true;
   }
 
-  // SECURITY GATE: Validate key looks like a JWT (basic format check)
-  if (SUPABASE_KEY && SUPABASE_KEY.length > 0 && !SUPABASE_KEY.startsWith('eyJ')) {
+  // SECURITY GATE: Validate key looks like a valid format
+  // Accept: JWT format (eyJ...) OR Lovable Cloud format (sb_publishable_...)
+  const isValidKeyFormat = SUPABASE_KEY && (
+    SUPABASE_KEY.startsWith('eyJ') || 
+    SUPABASE_KEY.startsWith('sb_publishable_')
+  );
+  if (SUPABASE_KEY && SUPABASE_KEY.length > 0 && !isValidKeyFormat) {
     errors.push('CRITICAL: Key does not appear to be a valid Supabase anon/publishable key');
     isSecurityViolation = true;
   }
