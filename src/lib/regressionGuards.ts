@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 export const VALID_ROUTES = [
   '/',
   '/auth',
+  '/auth/callback',
   '/chat',
   '/media',
   '/features',

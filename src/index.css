@@ -553,6 +553,150 @@ body {
   min-height: 100dvh; /* Dynamic viewport height for mobile */
 }
 
+/* =========================================================
+   🌞 LIGHT MODE TEXT VISIBILITY FIXES
+   Ensures all text is readable in light mode
+   ========================================================= */
+
+/* Force dark text on light backgrounds in light mode */
+:root:not(.dark) {
+  /* Hero sections with cosmic/gradient backgrounds need light text */
+  .cosmic-section,
+  .hero-gradient,
+  [class*="bg-gradient"] {
+    color: white;
+  }
+  
+  /* Standard content areas need dark text */
+  .prose,
+  .content-area,
+  article,
+  main p,
+  main li {
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Fix text-white that's invisible in light mode - add dark mode conditional */
+.text-white {
+  color: white;
+}
+
+:root:not(.dark) .light-mode-dark-text {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure cards have proper contrast */
+:root:not(.dark) .card,
+:root:not(.dark) [class*="bg-card"] {
+  color: hsl(var(--card-foreground));
+}
+
+/* Fix muted text visibility */
+:root:not(.dark) .text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Ensure headings are visible */
+:root:not(.dark) h1,
+:root:not(.dark) h2,
+:root:not(.dark) h3,
+:root:not(.dark) h4,
+:root:not(.dark) h5,
+:root:not(.dark) h6 {
+  color: hsl(var(--foreground));
+}
+
+/* Fix white text on white background - critical pages */
+:root:not(.dark) .bg-background .text-white,
+:root:not(.dark) .bg-card .text-white,
+:root:not(.dark) .bg-white .text-white {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Preserve white text on dark/gradient backgrounds */
+:root:not(.dark) .bg-primary .text-white,
+:root:not(.dark) .bg-destructive .text-white,
+:root:not(.dark) [class*="bg-gradient-to"] .text-white,
+:root:not(.dark) .bg-black .text-white,
+:root:not(.dark) .bg-slate-900 .text-white,
+:root:not(.dark) .bg-gray-900 .text-white,
+:root:not(.dark) .bg-zinc-900 .text-white {
+  color: white !important;
+}
+
+/* Studios and special pages - ensure contrast */
+:root:not(.dark) [class*="studio"] {
+  --tw-text-opacity: 1;
+}
+
+/* Blog and article text */
+:root:not(.dark) .blog-content,
+:root:not(.dark) .article-content,
+:root:not(.dark) .prose {
+  color: hsl(var(--foreground));
+}
+
+:root:not(.dark) .prose h1,
+:root:not(.dark) .prose h2,
+:root:not(.dark) .prose h3 {
+  color: hsl(var(--foreground));
+}
+
+/* Navigation text */
+:root:not(.dark) nav a,
+:root:not(.dark) .nav-link {
+  color: hsl(var(--foreground));
+}
+
+:root:not(.dark) nav a:hover,
+:root:not(.dark) .nav-link:hover {
+  color: hsl(var(--primary));
+}
+
+/* Button text visibility */
+:root:not(.dark) .btn-outline,
+:root:not(.dark) [class*="variant-outline"] {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+/* Table text */
+:root:not(.dark) table,
+:root:not(.dark) th,
+:root:not(.dark) td {
+  color: hsl(var(--foreground));
+}
+
+/* Form elements */
+:root:not(.dark) input,
+:root:not(.dark) textarea,
+:root:not(.dark) select {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--input));
+}
+
+:root:not(.dark) label {
+  color: hsl(var(--foreground));
+}
+
+:root:not(.dark) ::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Sidebar in light mode */
+:root:not(.dark) [class*="sidebar"] {
+  color: hsl(var(--sidebar-foreground));
+  background-color: hsl(var(--sidebar-background));
+}
+
+/* Fix gray text that might be too light */
+:root:not(.dark) .text-gray-100,
+:root:not(.dark) .text-gray-200,
+:root:not(.dark) .text-gray-300 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
 /* Chat container full height on mobile */
 @supports (height: 100dvh) {
   .chat-full-height {

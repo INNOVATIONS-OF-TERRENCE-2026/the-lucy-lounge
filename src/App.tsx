@@ -9,26 +9,28 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
-import { IntroScreen } from "@/components/branding/IntroScreen";
-import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvider";
-import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
-import { LucyDJProvider } from "@/contexts/LucyDJContext";
-import { LucyWorldsProvider } from "@/contexts/LucyWorldsContext";
-import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
-import { GlobalMiniPlayer } from "@/components/audio/GlobalMiniPlayer";
-import { LucySuggestionDrawer } from "@/components/chat/LucySuggestionDrawer";
-import { LucyWorldsOverlay } from "@/components/worlds/LucyWorldsOverlay";
 import { PageSkeleton } from "@/components/skeleton/PageSkeleton";
-
-import { InstallPrompt } from "@/components/pwa/InstallPrompt";
-import { OfflineBanner } from "@/components/pwa/OfflineBanner";
-import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
-
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
-import { AdminRoute } from "@/components/auth/AdminRoute";
 import { SystemGuards } from "@/components/system/SystemGuards";
-import { GlobalCinematicLayer } from "@/components/cinematic/GlobalCinematicLayer";
+
+/* ======================
+   LAZY LOADED HEAVY COMPONENTS (Performance Optimization)
+   ====================== */
+const IntroScreen = lazy(() => import("@/components/branding/IntroScreen").then(m => ({ default: m.IntroScreen })));
+const IOSAudioUnlockProvider = lazy(() => import("@/components/audio/IOSAudioUnlockProvider").then(m => ({ default: m.IOSAudioUnlockProvider })));
+const GlobalSpotifyProvider = lazy(() => import("@/contexts/GlobalSpotifyContext").then(m => ({ default: m.GlobalSpotifyProvider })));
+const LucyDJProvider = lazy(() => import("@/contexts/LucyDJContext").then(m => ({ default: m.LucyDJProvider })));
+const LucyWorldsProvider = lazy(() => import("@/contexts/LucyWorldsContext").then(m => ({ default: m.LucyWorldsProvider })));
+const GlobalSpotifyAudioHost = lazy(() => import("@/components/audio/GlobalSpotifyAudioHost").then(m => ({ default: m.GlobalSpotifyAudioHost })));
+const GlobalMiniPlayer = lazy(() => import("@/components/audio/GlobalMiniPlayer").then(m => ({ default: m.GlobalMiniPlayer })));
+const LucySuggestionDrawer = lazy(() => import("@/components/chat/LucySuggestionDrawer").then(m => ({ default: m.LucySuggestionDrawer })));
+const LucyWorldsOverlay = lazy(() => import("@/components/worlds/LucyWorldsOverlay").then(m => ({ default: m.LucyWorldsOverlay })));
+const InstallPrompt = lazy(() => import("@/components/pwa/InstallPrompt").then(m => ({ default: m.InstallPrompt })));
+const OfflineBanner = lazy(() => import("@/components/pwa/OfflineBanner").then(m => ({ default: m.OfflineBanner })));
+const AnalyticsTracker = lazy(() => import("@/components/analytics/AnalyticsTracker").then(m => ({ default: m.AnalyticsTracker })));
+const FloatingCalculator = lazy(() => import("@/components/tools/FloatingCalculator").then(m => ({ default: m.FloatingCalculator })));
+const AdminRoute = lazy(() => import("@/components/auth/AdminRoute").then(m => ({ default: m.AdminRoute })));
+const GlobalCinematicLayer = lazy(() => import("@/components/cinematic/GlobalCinematicLayer").then(m => ({ default: m.GlobalCinematicLayer })));
 
 /* ======================
    LAZY PAGES
@@ -37,6 +39,7 @@ import { GlobalCinematicLayer } from "@/components/cinematic/GlobalCinematicLaye
 const Landing = lazy(() => import("@/pages/Landing"));
 const Chat = lazy(() => import("@/pages/Chat"));
 const Auth = lazy(() => import("@/pages/Auth"));
+const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
 const Features = lazy(() => import("@/pages/Features"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
 const About = lazy(() => import("@/pages/About"));
@@ -123,47 +126,57 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GlobalSpotifyProvider>
-        <LucyDJProvider>
-          <LucyWorldsProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
+      <Suspense fallback={null}>
+        <GlobalSpotifyProvider>
+          <LucyDJProvider>
+            <LucyWorldsProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
 
-              {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+                {showIntro && (
+                  <Suspense fallback={<PageSkeleton variant="default" />}>
+                    <IntroScreen onComplete={handleIntroComplete} />
+                  </Suspense>
+                )}
 
-              <IOSAudioUnlockProvider />
-              <GlobalSpotifyAudioHost />
-              <GlobalMiniPlayer />
-              <LucySuggestionDrawer />
-              <FloatingCalculator />
-              <LucyWorldsOverlay />
+                <Suspense fallback={null}>
+                  <IOSAudioUnlockProvider />
+                  <GlobalSpotifyAudioHost />
+                  <GlobalMiniPlayer />
+                  <LucySuggestionDrawer />
+                  <FloatingCalculator />
+                  <LucyWorldsOverlay />
+                  <InstallPrompt />
+                  <OfflineBanner />
+                </Suspense>
 
-              <InstallPrompt />
-              <OfflineBanner />
+                <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
+                  <BrowserRouter>
+                    <SystemGuards />
+                    <ScrollToTop />
+                    <Suspense fallback={null}>
+                      <AnalyticsTracker />
+                    </Suspense>
 
-              <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
-                <BrowserRouter>
-                  <SystemGuards />
-                  <ScrollToTop />
-                  <AnalyticsTracker />
+                    <Suspense fallback={null}>
+                      <GlobalCinematicLayer>
+                        <Suspense fallback={<PageSkeleton variant="default" />}>
+                          <Routes>
+                            <Route path="/" element={<Landing />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/auth/callback" element={<AuthCallback />} />
+                            <Route path="/chat" element={<Chat />} />
+                            <Route path="/media" element={<Media />} />
+                            <Route path="/features" element={<Features />} />
+                            <Route path="/pricing" element={<Pricing />} />
+                            <Route path="/tools" element={<Tools />} />
+                            <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
+                            <Route path="/creator-studio" element={<CreatorStudio />} />
+                            <Route path="/launch" element={<Launch />} />
 
-                  <GlobalCinematicLayer>
-                    <Suspense fallback={<PageSkeleton variant="default" />}>
-                      <Routes>
-                        <Route path="/" element={<Landing />} />
-                        <Route path="/auth" element={<Auth />} />
-                        <Route path="/chat" element={<Chat />} />
-                        <Route path="/media" element={<Media />} />
-                        <Route path="/features" element={<Features />} />
-                        <Route path="/pricing" element={<Pricing />} />
-                        <Route path="/tools" element={<Tools />} />
-                        <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
-                        <Route path="/creator-studio" element={<CreatorStudio />} />
-                        <Route path="/launch" element={<Launch />} />
-
-                        <Route path="/listening-mode" element={<ListeningMode />} />
-                        <Route path="/listening/explore" element={<ExploreMode />} />
+                            <Route path="/listening-mode" element={<ListeningMode />} />
+                            <Route path="/listening/explore" element={<ExploreMode />} />
 
                       <Route path="/studios" element={<Studios />} />
                       <Route path="/studios/ai" element={<StudiosAI />} />
@@ -194,38 +207,44 @@ const App = () => {
                       <Route path="/timeline" element={<MemoryTimeline />} />
                       <Route
                         path="/command"
-                        element={
-                          <AdminRoute>
-                            <CommandCenter />
-                          </AdminRoute>
-                        }
-                      />
-                      <Route path="/quantum" element={<QuantumMode />} />
-                      <Route path="/presence" element={<PresenceMode />} />
-                      <Route path="/events" element={<WorldEvents />} />
+                            element={
+                              <Suspense fallback={<PageSkeleton variant="default" />}>
+                                <AdminRoute>
+                                  <CommandCenter />
+                                </AdminRoute>
+                              </Suspense>
+                            }
+                          />
+                          <Route path="/quantum" element={<QuantumMode />} />
+                          <Route path="/presence" element={<PresenceMode />} />
+                          <Route path="/events" element={<WorldEvents />} />
 
-                      {/* ARCADE */}
-                      <Route path="/arcade" element={<ArcadeHub />} />
-                      <Route path="/arcade/:gameId" element={<GamePage />} />
+                          {/* ARCADE */}
+                          <Route path="/arcade" element={<ArcadeHub />} />
+                          <Route path="/arcade/:gameId" element={<GamePage />} />
 
-                      <Route path="/admin" element={<Admin />} />
-                      <Route
-                        path="/analytics"
-                        element={
-                          <AdminRoute>
-                            <Analytics />
-                          </AdminRoute>
-                        }
-                      />
-                      </Routes>
+                          <Route path="/admin" element={<Admin />} />
+                          <Route
+                            path="/analytics"
+                            element={
+                              <Suspense fallback={<PageSkeleton variant="default" />}>
+                                <AdminRoute>
+                                  <Analytics />
+                                </AdminRoute>
+                              </Suspense>
+                            }
+                          />
+                          </Routes>
+                        </Suspense>
+                      </GlobalCinematicLayer>
                     </Suspense>
-                  </GlobalCinematicLayer>
-                </BrowserRouter>
-              </div>
-            </TooltipProvider>
-          </LucyWorldsProvider>
-        </LucyDJProvider>
-      </GlobalSpotifyProvider>
+                  </BrowserRouter>
+                </div>
+              </TooltipProvider>
+            </LucyWorldsProvider>
+          </LucyDJProvider>
+        </GlobalSpotifyProvider>
+      </Suspense>
     </QueryClientProvider>
   );
 };
