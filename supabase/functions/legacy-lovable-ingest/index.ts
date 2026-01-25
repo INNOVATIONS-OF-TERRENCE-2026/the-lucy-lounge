@@ -132,9 +132,10 @@ serve(async (req) => {
               p_genre: item.genre || null,
             });
             result.recently_played_count++;
-          } catch (err) {
+          } catch (e) {
+            const err = e as Error;
             // Continue on individual failures
-            result.errors.push(`Recently played ${item.content_id}: ${err.message}`);
+            result.errors.push(`Recently played ${item.content_id}: ${err?.message || 'Unknown error'}`);
           }
         }
       }
@@ -167,9 +168,10 @@ serve(async (req) => {
           });
         }
       }
-    } catch (cloudErr) {
+    } catch (e) {
+      const cloudErr = e as Error;
       // Expected to fail - Lovable Cloud is legacy
-      console.log('Lovable Cloud not reachable (expected):', cloudErr.message);
+      console.log('Lovable Cloud not reachable (expected):', cloudErr?.message || 'Unknown error');
     }
 
     result.success = result.profile_created || result.preferences_created;
@@ -179,9 +181,10 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Legacy ingest error:', error);
-    result.errors.push(error.message);
+    result.errors.push(error?.message || 'Unknown error');
     
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

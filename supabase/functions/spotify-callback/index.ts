@@ -211,14 +211,15 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Spotify callback error:', error);
     
     // Graceful failure - don't break the UI
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message.replace(/client_secret|access_token|refresh_token/gi, '[REDACTED]'),
+        error: (error?.message || 'Unknown error').replace(/client_secret|access_token|refresh_token/gi, '[REDACTED]'),
         message: 'Spotify connection failed. Listening Mode will use embed-only mode.'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }

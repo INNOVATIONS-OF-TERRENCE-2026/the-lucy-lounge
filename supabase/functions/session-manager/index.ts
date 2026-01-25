@@ -132,12 +132,13 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Session function error:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message.replace(/key|token|password/gi, '[REDACTED]') 
+        error: (error?.message || 'Unknown error').replace(/key|token|password/gi, '[REDACTED]') 
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
