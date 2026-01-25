@@ -30,7 +30,7 @@ const KEY = 'eyJhbGci...';
 const KEY = import.meta.env.VAR || 'hardcoded-fallback';
 
 ✅ REQUIRED:
-const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // With fail-fast validation (see Law 4)
 ```
 
@@ -42,7 +42,8 @@ const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 The frontend (React/Vite bundle) may ONLY use:
 - `VITE_SUPABASE_URL` (public project URL)
-- `VITE_SUPABASE_ANON_KEY` (publishable/anon key)
+- `VITE_SUPABASE_PUBLISHABLE_KEY` (Lovable convention, preferred)
+- `VITE_SUPABASE_ANON_KEY` (standard Supabase naming, alternative)
 
 The following are **SERVER-ONLY** (Edge Functions):
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -55,16 +56,16 @@ The following are **SERVER-ONLY** (Edge Functions):
 
 ---
 
-### LAW 3: NO FALLBACK KEYS
+### LAW 3: NO FALLBACK VALUES (Hardcoded defaults are forbidden)
 
 ```
 ❌ FORBIDDEN:
 const URL = import.meta.env.VITE_URL || 'https://default.supabase.co';
-const KEY = import.meta.env.VITE_KEY || '';
+const KEY = import.meta.env.VITE_KEY || 'eyJhbGci...';
 
 ✅ REQUIRED:
 const URL = import.meta.env.VITE_SUPABASE_URL;
-const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Validate and fail-fast if missing
 ```
 
