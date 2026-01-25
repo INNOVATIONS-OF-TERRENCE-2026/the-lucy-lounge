@@ -1,24 +1,38 @@
+/**
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │ THE LUCY LOUNGE — INSTALL PROMPT                                           │
+ * │                                                                             │
+ * │ PWA install prompt (for Chrome/Edge - iOS uses IOSInstallPrompt).          │
+ * │ Uses safe storage access for iOS compatibility.                            │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ */
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Download, X } from 'lucide-react';
+import { getStorageItem, setStorageItem, isBrowser } from '@/lib/safeBrowser';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const STORAGE_KEY = 'pwa-install-dismissed';
+
 export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
+    if (!isBrowser()) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
       // Don't show if already dismissed
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      const dismissed = getStorageItem(STORAGE_KEY);
       if (!dismissed) {
         setShowPrompt(true);
       }
@@ -42,7 +56,7 @@ export const InstallPrompt = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    setStorageItem(STORAGE_KEY, 'true');
   };
 
   if (!showPrompt) return null;

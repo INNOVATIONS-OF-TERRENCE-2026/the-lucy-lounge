@@ -21,6 +21,7 @@ import { LucyWorldsOverlay } from "@/components/worlds/LucyWorldsOverlay";
 import { PageSkeleton } from "@/components/skeleton/PageSkeleton";
 
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { IOSInstallPrompt } from "@/components/pwa/IOSInstallPrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 
@@ -31,6 +32,8 @@ import { SystemGuards } from "@/components/system/SystemGuards";
 import { GlobalCinematicLayer } from "@/components/cinematic/GlobalCinematicLayer";
 import { FeatureErrorBoundary } from "@/components/system/FeatureErrorBoundary";
 import { SafeMediaGateProvider } from "@/components/system/SafeMediaGate";
+import { UserGestureGateProvider } from "@/hooks/useUserGestureGate";
+import { OfflineGateProvider } from "@/components/system/OfflineGate";
 
 /* ======================
    LAZY PAGES
@@ -125,35 +128,38 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GlobalSpotifyProvider>
-        <LucyDJProvider>
-          <LucyWorldsProvider>
-            <SafeMediaGateProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
+      <OfflineGateProvider>
+        <UserGestureGateProvider>
+          <GlobalSpotifyProvider>
+            <LucyDJProvider>
+              <LucyWorldsProvider>
+                <SafeMediaGateProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
 
-                {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+                    {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-                {/* Audio components wrapped in error boundary - these are high-risk on mobile */}
-                <FeatureErrorBoundary feature="audio-providers" silent>
-                  <IOSAudioUnlockProvider />
-                  <GlobalSpotifyAudioHost />
-                </FeatureErrorBoundary>
+                    {/* Audio components wrapped in error boundary - these are high-risk on mobile */}
+                    <FeatureErrorBoundary feature="audio-providers" silent>
+                      <IOSAudioUnlockProvider />
+                      <GlobalSpotifyAudioHost />
+                    </FeatureErrorBoundary>
 
-                <FeatureErrorBoundary feature="mini-player" silent>
-                  <GlobalMiniPlayer />
-                </FeatureErrorBoundary>
+                    <FeatureErrorBoundary feature="mini-player" silent>
+                      <GlobalMiniPlayer />
+                    </FeatureErrorBoundary>
 
-                <LucySuggestionDrawer />
-                <FloatingCalculator />
-                
-                <FeatureErrorBoundary feature="worlds-overlay" silent>
-                  <LucyWorldsOverlay />
-                </FeatureErrorBoundary>
+                    <LucySuggestionDrawer />
+                    <FloatingCalculator />
+                    
+                    <FeatureErrorBoundary feature="worlds-overlay" silent>
+                      <LucyWorldsOverlay />
+                    </FeatureErrorBoundary>
 
-                <InstallPrompt />
-                <OfflineBanner />
+                    <InstallPrompt />
+                    <IOSInstallPrompt />
+                    <OfflineBanner />
 
               <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
                 <BrowserRouter>
@@ -235,13 +241,15 @@ const App = () => {
                   </GlobalCinematicLayer>
                 </BrowserRouter>
               </div>
-            </TooltipProvider>
-          </SafeMediaGateProvider>
-        </LucyWorldsProvider>
-      </LucyDJProvider>
-    </GlobalSpotifyProvider>
-  </QueryClientProvider>
-);
+                  </TooltipProvider>
+                </SafeMediaGateProvider>
+              </LucyWorldsProvider>
+            </LucyDJProvider>
+          </GlobalSpotifyProvider>
+        </UserGestureGateProvider>
+      </OfflineGateProvider>
+    </QueryClientProvider>
+  );
 };
 
 export default App;
