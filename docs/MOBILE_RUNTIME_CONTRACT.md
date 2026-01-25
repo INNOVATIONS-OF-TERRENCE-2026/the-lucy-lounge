@@ -166,20 +166,48 @@ All risky features must be wrapped:
 - requestIdleCallback and cancelIdleCallback are polyfilled for iOS/legacy WebKit.
 - Polyfill is loaded BEFORE React and all app code.
 
+## Auth Resolution Guarantee
+
+**CRITICAL: Auth MUST resolve within 3 seconds. NEVER hang indefinitely.**
+
+The `useAuthResolver()` hook provides:
+- Hard timeout of 3 seconds maximum wait
+- If Supabase doesn't respond, forces resolution as unauthenticated
+- `resolved` flag ALWAYS becomes `true` (guaranteed)
+- `session` is either valid OR null (never undefined after resolution)
+
+```typescript
+// ✅ CORRECT - Use useAuthResolver for auth-gated pages
+const { user, resolved, timedOut } = useAuthResolver();
+if (!resolved) return <LoadingScreen />;
+if (!user) return <LoggedOutView />;
+
+// ❌ FORBIDDEN - Can hang forever if Supabase doesn't respond
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setLoading(false); // May never be called!
+  });
+}, []);
+```
+
 ## Defensive Practices
 
 - All mobile APIs must be guarded.
 - All scheduler logic must use safeRequestIdleCallback.
+- All auth-gated pages must use useAuthResolver.
 - No silent fallbacks or error suppression.
 
 ## Enforcement
 
 - DEV-ONLY runtime assertion logs polyfill activation on iOS.
+- DEV-ONLY warning if auth times out.
 - Static code comments and assertions are present at all call sites.
 
 ## Non-Negotiable Rules
 
 - DO NOT use requestIdleCallback directly. Use safeRequestIdleCallback ONLY.
+- DO NOT use raw supabase.auth.getSession() for gating. Use useAuthResolver ONLY.
 - DO NOT initialize media APIs before user interaction.
 - DO NOT bypass RootErrorBoundary or SupabaseGuard.
 - DO NOT add fallback secrets or silent error handling.
@@ -208,6 +236,7 @@ Before any merge, verify:
 - [ ] Android Chrome first load
 - [ ] Desktop Chrome first load
 - [ ] Auth flow works on all platforms
+- [ ] Auth resolves within 3 seconds (never hangs)
 - [ ] No white screens anywhere
 - [ ] RootErrorBoundary only shows for real errors
 

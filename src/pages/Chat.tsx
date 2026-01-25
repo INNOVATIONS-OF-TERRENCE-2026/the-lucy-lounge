@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuthResolver } from "@/hooks/useAuthResolver";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatInterface } from "@/components/chat/ChatInterface";
@@ -54,9 +54,7 @@ const LoggedOutView = () => {
 /* Core chat content */
 const ChatContent = () => {
   const { toast } = useToast();
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
+  const { user, resolved, timedOut } = useAuthResolver();
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
   /* Weather context (safe guarded) */
@@ -75,40 +73,19 @@ const ChatContent = () => {
    */
   const showEffects = enabled && !focusMode && !safeMode;
 
+  // Show timeout warning in dev
   useEffect(() => {
-    let mounted = true;
+    if (timedOut && import.meta.env.DEV) {
+      toast({
+        title: "Auth Timeout",
+        description: "Auth check timed out. Please check your connection.",
+        variant: "destructive",
+      });
+    }
+  }, [timedOut, toast]);
 
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-        setUser(data.session?.user ?? null);
-      } catch (e) {
-        console.error("[CHAT_AUTH]", e);
-      } finally {
-        if (mounted) {
-          setAuthChecked(true);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    checkAuth();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!mounted) return;
-      setUser(session?.user ?? null);
-      setAuthChecked(true);
-      setIsLoading(false);
-    });
-
-    return () => {
-      mounted = false;
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  if (isLoading || !authChecked) {
+  // ✅ GUARANTEED: resolved becomes true within 3 seconds (NEVER hangs)
+  if (!resolved) {
     return <LoadingScreen message="Entering the Cosmic AI Temple..." />;
   }
 
