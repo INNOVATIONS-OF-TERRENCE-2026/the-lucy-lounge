@@ -2,24 +2,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Support both naming conventions for the anon key
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-
-// Validate configuration
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('[Supabase] Missing configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
-}
+// The Lucy Lounge Supabase Configuration
+// These are PUBLIC keys - safe to include in client-side code
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vabrcwdngngdbjmtpwxp.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhYnJjd2RuZ25nZGJqbXRwd3hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4MTMyMDYsImV4cCI6MjA1MDM4OTIwNn0.LMD78riCk9xU4LLYmPAqPwDl5C4u9DlBftzHv62HFmg';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = SUPABASE_URL && SUPABASE_ANON_KEY 
-  ? createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        storage: typeof window !== 'undefined' ? localStorage : undefined,
-        persistSession: true,
-        autoRefreshToken: true,
-      }
-    })
-  : null as unknown as ReturnType<typeof createClient<Database>>;
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
+    persistSession: true,
+    autoRefreshToken: true,
+  }
+});
