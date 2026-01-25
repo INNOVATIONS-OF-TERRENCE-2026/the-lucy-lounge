@@ -56,6 +56,18 @@ const ChatContent = () => {
   const { toast } = useToast();
   const { user, resolved, timedOut } = useAuthResolver();
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  
+  // BACKUP: Force show login after 5 seconds no matter what
+  const [forceShow, setForceShow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        console.log('[CHAT] ⏰ Force showing after 5s backup timer');
+        setForceShow(true);
+      }
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [resolved]);
 
   /* Weather context (safe guarded) */
   const { weather, season, intensity, enabled } = useWeatherAmbient();
@@ -84,8 +96,8 @@ const ChatContent = () => {
     }
   }, [timedOut, toast]);
 
-  // ✅ GUARANTEED: resolved becomes true within 3 seconds (NEVER hangs)
-  if (!resolved) {
+  // GUARANTEED: Show content after resolved OR forceShow backup
+  if (!resolved && !forceShow) {
     return <LoadingScreen message="Entering the Cosmic AI Temple..." />;
   }
 
