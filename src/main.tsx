@@ -1,32 +1,8 @@
-/**
- * ┌─────────────────────────────────────────────────────────────────────────────┐
- * │ THE LUCY LOUNGE — APPLICATION ENTRY POINT                                  │
- * │                                                                             │
- * │ DO NOT MODIFY: Governed by /docs/REGRESSION_PACT.md                        │
- * │ DO NOT MODIFY: Governed by /docs/PRODUCTION_SPEC_v1.md                     │
- * └─────────────────────────────────────────────────────────────────────────────┘
- * 
- * CRITICAL STRUCTURE (DO NOT CHANGE ORDER):
- * 
- *   <React.StrictMode>
- *     <RootErrorBoundary>     ← Catches ALL errors, prevents white screens
- *       <SupabaseGuard>       ← Validates env at runtime, shows setup if needed
- *         <App />             ← The application
- *       </SupabaseGuard>
- *     </RootErrorBoundary>
- *   </React.StrictMode>
- * 
- * REQUIREMENTS:
- * - RootErrorBoundary MUST wrap SupabaseGuard
- * - SupabaseGuard MUST wrap App
- * - This order ensures errors are caught before white screen
- */
+// src/main.tsx
 
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { RootErrorBoundary } from "./components/system/RootErrorBoundary";
-import { SupabaseGuard } from "./components/system/SupabaseGuard";
 
 // 🔥 This line is REQUIRED so all your Tailwind + CSS variables + theme styles load
 import "./index.css";
@@ -72,11 +48,7 @@ try {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RootErrorBoundary>
-      <SupabaseGuard>
-        <App />
-      </SupabaseGuard>
-    </RootErrorBoundary>
+    <App />
   </React.StrictMode>,
 );
 
