@@ -79,7 +79,10 @@ export function useAuthResolver(): UseAuthResolverReturn {
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     mountedRef.current = true;
+    resolvedRef.current = false; // RESET on each effect run (fixes Strict Mode double-mount)
     let localResolved = false; // Local flag to prevent race conditions
+
+    console.log(LOG_PREFIX, '🚀 Effect starting - mounting auth resolver');
 
     /**
      * Mark auth as resolved with given session.
@@ -91,10 +94,23 @@ export function useAuthResolver(): UseAuthResolverReturn {
       error: Error | null = null,
       timedOut = false
     ) => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        console.log(LOG_PREFIX, '⚠️ resolveAuth called but component unmounted');
+        return;
+      }
+
+      console.log(LOG_PREFIX, `📝 resolveAuth called:`, {
+        event,
+        hasSession: !!session,
+        userId: session?.user?.id?.slice(0, 8),
+        localResolved,
+        resolvedRef: resolvedRef.current,
+        timedOut,
+      });
 
       // If already resolved, just update session/user (for subsequent auth changes)
       if (localResolved && resolvedRef.current && !timedOut) {
+        console.log(LOG_PREFIX, '🔄 Already resolved, updating session/user');
         setState(prev => ({
           ...prev,
           session,
@@ -115,14 +131,12 @@ export function useAuthResolver(): UseAuthResolverReturn {
       localResolved = true;
       resolvedRef.current = true;
 
-      if (import.meta.env.DEV) {
-        console.info(LOG_PREFIX, timedOut ? 'TIMEOUT - forcing resolution' : 'Resolved', {
-          hasSession: !!session,
-          event,
-          timedOut,
-          error: error?.message,
-        });
-      }
+      console.log(LOG_PREFIX, '✅ RESOLVING AUTH:', {
+        hasSession: !!session,
+        userId: session?.user?.id?.slice(0, 8),
+        event,
+        timedOut,
+      });
 
       setState({
         session,
@@ -150,10 +164,21 @@ export function useAuthResolver(): UseAuthResolverReturn {
      * Check current session.
      */
     const checkSession = async () => {
+      console.log(LOG_PREFIX, '🔍 checkSession starting...');
       try {
         const { data, error } = await supabase.auth.getSession();
 
-        if (!mountedRef.current) return;
+        console.log(LOG_PREFIX, '🔍 getSession returned:', {
+          hasSession: !!data.session,
+          userId: data.session?.user?.id?.slice(0, 8),
+          error: error?.message,
+          mounted: mountedRef.current,
+        });
+
+        if (!mountedRef.current) {
+          console.log(LOG_PREFIX, '⚠️ checkSession - component unmounted before resolution');
+          return;
+        }
 
         if (error) {
           console.error(LOG_PREFIX, 'getSession error:', error);
@@ -178,10 +203,16 @@ export function useAuthResolver(): UseAuthResolverReturn {
     // Subscribe to auth changes - the callback has fresh references to resolveAuth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        if (!mountedRef.current) return;
+        console.log(LOG_PREFIX, '🔔 onAuthStateChange fired:', {
+          event,
+          hasSession: !!session,
+          userId: session?.user?.id?.slice(0, 8),
+          mounted: mountedRef.current,
+        });
 
-        if (import.meta.env.DEV) {
-          console.info(LOG_PREFIX, 'Auth state change:', event, { hasSession: !!session });
+        if (!mountedRef.current) {
+          console.log(LOG_PREFIX, '⚠️ onAuthStateChange - component unmounted, ignoring');
+          return;
         }
 
         // This resolveAuth is the FRESH one from this effect closure
@@ -190,6 +221,7 @@ export function useAuthResolver(): UseAuthResolverReturn {
     );
 
     return () => {
+      console.log(LOG_PREFIX, '🧹 Effect cleanup - unmounting');
       mountedRef.current = false;
 
       if (timeoutRef.current) {

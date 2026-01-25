@@ -24,13 +24,17 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[AUTH_PAGE] Initial getSession:', { hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
       if (session) {
+        console.log('[AUTH_PAGE] Already logged in, navigating to /chat');
         navigate("/chat");
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[AUTH_PAGE] onAuthStateChange:', { event, hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
       if (session) {
+        console.log('[AUTH_PAGE] Session detected, navigating to /chat');
         navigate("/chat");
       }
     });
@@ -84,11 +88,18 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('[AUTH_PAGE] handleSignIn called with email:', email);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+      });
+
+      console.log('[AUTH_PAGE] signInWithPassword result:', { 
+        hasSession: !!data?.session, 
+        userId: data?.session?.user?.id?.slice(0, 8),
+        error: error?.message 
       });
 
       if (error) {
@@ -102,12 +113,14 @@ const Auth = () => {
           throw error;
         }
       } else {
+        console.log('[AUTH_PAGE] Sign in successful! Waiting for onAuthStateChange to navigate...');
         toast({
           title: "Welcome back!",
           description: "Successfully signed in.",
         });
       }
     } catch (error: any) {
+      console.error('[AUTH_PAGE] Sign in error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to sign in",
