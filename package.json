@@ -8,7 +8,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo:audit": "npx ts-node --esm scripts/seo-audit.ts",
+    "seo:generate-sitemap": "npx ts-node --esm scripts/generate-sitemap.ts",
+    "seo:validate-schemas": "npx ts-node --esm scripts/validate-schemas.ts",
+    "prebuild": "npm run seo:audit || echo 'SEO audit warnings detected'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
 import { CANONICAL_DOMAIN, getImageUrl, SITE_NAME, SITE_AUTHOR, SITE_TWITTER, SITE_THEME_COLOR } from '@/lib/seoConfig';
+import type { Schema } from '@/seo/types';
+import { LUCY_BRAND } from '@/seo/types';
+import { serializeSchemas, generateGlobalSchemas } from '@/seo/schemas';
 
 interface SEOHeadProps {
   title?: string;
@@ -9,6 +12,12 @@ interface SEOHeadProps {
   url?: string;
   type?: string;
   canonical?: string;
+  /** JSON-LD schemas to inject (overrides default) */
+  schemas?: Schema[];
+  /** Include global Lucy schemas (SoftwareApplication, Organization, WebSite) */
+  includeGlobalSchemas?: boolean;
+  /** Prevent indexing */
+  noIndex?: boolean;
 }
 
 export const SEOHead = ({
@@ -18,7 +27,10 @@ export const SEOHead = ({
   image = '/lucy-og-image.png',
   url = CANONICAL_DOMAIN,
   type = 'website',
-  canonical
+  canonical,
+  schemas,
+  includeGlobalSchemas = false,
+  noIndex = false,
 }: SEOHeadProps) => {
   useEffect(() => {
     // Update document title
@@ -37,12 +49,17 @@ export const SEOHead = ({
       element.content = content;
     };
 
+    // Robots directive - respect noIndex flag
+    const robotsContent = noIndex 
+      ? 'noindex, nofollow'
+      : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+
     // Standard meta tags
     updateMetaTag('description', description);
     updateMetaTag('keywords', keywords);
     updateMetaTag('author', SITE_AUTHOR);
-    updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
-    updateMetaTag('googlebot', 'index, follow');
+    updateMetaTag('robots', robotsContent);
+    updateMetaTag('googlebot', noIndex ? 'noindex, nofollow' : 'index, follow');
     updateMetaTag('theme-color', SITE_THEME_COLOR);
     updateMetaTag('format-detection', 'telephone=no');
 
@@ -75,7 +92,7 @@ export const SEOHead = ({
     }
     linkElement.href = canonicalUrl;
 
-    // Schema.org structured data for AI application
+    // Schema.org structured data
     const scriptId = 'lucy-ai-schema';
     let schemaScript = document.getElementById(scriptId) as HTMLScriptElement | null;
     
@@ -86,29 +103,41 @@ export const SEOHead = ({
       document.head.appendChild(schemaScript);
     }
 
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": SITE_NAME,
-      "applicationCategory": "AI Assistant",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "operatingSystem": "Web Browser",
-      "description": description,
-      "image": getImageUrl(image),
-      "url": url,
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "1250"
-      }
-    };
-
-    schemaScript.textContent = JSON.stringify(schemaData);
-  }, [title, description, keywords, image, url, type, canonical]);
+    // Use provided schemas or generate default
+    if (schemas && schemas.length > 0) {
+      // Use custom schemas
+      const allSchemas = includeGlobalSchemas 
+        ? [...generateGlobalSchemas(), ...schemas]
+        : schemas;
+      schemaScript.textContent = serializeSchemas(allSchemas);
+    } else if (includeGlobalSchemas) {
+      // Use global schemas only
+      schemaScript.textContent = serializeSchemas(generateGlobalSchemas());
+    } else {
+      // Default legacy schema
+      const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": SITE_NAME,
+        "applicationCategory": "AI Assistant",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "operatingSystem": "Web Browser",
+        "description": description,
+        "image": getImageUrl(image),
+        "url": url,
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "1250"
+        }
+      };
+      schemaScript.textContent = JSON.stringify(schemaData);
+    }
+  }, [title, description, keywords, image, url, type, canonical, schemas, includeGlobalSchemas, noIndex]);
 
   return null;
 };

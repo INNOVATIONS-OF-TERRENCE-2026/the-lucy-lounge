@@ -1,22 +1,149 @@
-# Allow all search engines to crawl public pages
+# robots.txt for The Lucy Lounge
+# Domain: https://thelucylounge.com
+# Updated: 2025-01-01
+#
+# Lucy is a Media Intelligence Platform that helps users discover 
+# movies, music, podcasts, and audiobooks through AI-powered recommendations.
+
+# ============================================================================
+# CRAWL DIRECTIVES
+# ============================================================================
+
+# Allow all major search engines
 User-agent: *
 Allow: /
+
+# Explicitly allow important paths
+Allow: /explore/
+Allow: /listening/
+Allow: /media/
+Allow: /discover/
 Allow: /about
+Allow: /blog/
+Allow: /studios
 Allow: /features
 Allow: /pricing
 Allow: /tools
-Allow: /blog
 Allow: /launch
 
-# Disallow private/authenticated routes
+# Disallow non-content paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /internal/
 Disallow: /chat
-Disallow: /admin
-Disallow: /auth
 Disallow: /shared/
 Disallow: /rooms/
+Disallow: /_next/
+Disallow: /*.json$
+Disallow: /*?*sessionId=
+Disallow: /*?*token=
 
-# Sitemap location
-Sitemap: https://thelucylounge.com/sitemap.xml
+# ============================================================================
+# GOOGLE-SPECIFIC
+# ============================================================================
 
-# Crawl delay (be respectful)
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /assets/
+
+User-agent: Googlebot-Video
+Allow: /
+
+# ============================================================================
+# BING / COPILOT
+# ============================================================================
+
+User-agent: Bingbot
+Allow: /
 Crawl-delay: 1
+
+User-agent: BingPreview
+Allow: /
+
+# ============================================================================
+# AI SEARCH CRAWLERS
+# ============================================================================
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic (Claude)
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Meta AI
+User-agent: FacebookBot
+Allow: /
+
+# ============================================================================
+# SOCIAL MEDIA CRAWLERS
+# ============================================================================
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterest
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discord
+Allow: /
+
+# ============================================================================
+# SEO TOOLS
+# ============================================================================
+
+User-agent: Screaming Frog SEO Spider
+Allow: /
+
+User-agent: AhrefsBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: SemrushBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: MJ12bot
+Allow: /
+Crawl-delay: 5
+
+# ============================================================================
+# SITEMAP LOCATIONS
+# ============================================================================
+
+Sitemap: https://thelucylounge.com/sitemap.xml
+Sitemap: https://thelucylounge.com/sitemap-pages.xml
+Sitemap: https://thelucylounge.com/sitemap-moods.xml
+Sitemap: https://thelucylounge.com/sitemap-genres.xml
+Sitemap: https://thelucylounge.com/sitemap-journeys.xml
+Sitemap: https://thelucylounge.com/sitemap-discover.xml
+
+# ============================================================================
+# HOST DIRECTIVE
+# ============================================================================
+
+Host: https://thelucylounge.com
