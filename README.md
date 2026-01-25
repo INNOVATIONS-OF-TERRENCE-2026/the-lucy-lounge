@@ -1,73 +1,62 @@
-# Lucy AI - Beyond Intelligence 🚀
+# The Lucy Lounge 🌙✨
 
-**Your advanced AI assistant with reasoning, vision, memory, and creativity.**
+> **Your AI-powered immersive listening sanctuary**
 
-Lucy AI is a fully-featured AI SaaS platform powered entirely by Lovable Cloud, offering cutting-edge capabilities without external API dependencies.
+[![CI](https://github.com/INNOVATIONS-OF-TERRENCE-2026/the-lucy-lounge/actions/workflows/ci.yml/badge.svg)](https://github.com/INNOVATIONS-OF-TERRENCE-2026/the-lucy-lounge/actions)
+[![Live Site](https://img.shields.io/badge/Live-thelucylounge.com-purple)](https://thelucylounge.com)
+
+The Lucy Lounge is a cinematic, AI-powered listening experience featuring Lucy — your intelligent companion who curates moods, remembers your preferences, and creates personalized ambient soundscapes.
 
 ---
 
 ## 🌟 Features
 
-### Core AI Capabilities
-- **Advanced Reasoning Engine** - Multi-step chain-of-thought analysis
-- **Vision & Multimodal** - Analyze images, videos, PDFs, and documents
-- **Long-term Memory** - Remembers preferences across all sessions
-- **Real-time Streaming** - Token-by-token generation
-- **Code Execution** - Run Python, JavaScript in secure sandbox
-- **Web Search** - Real-time information with source citations
-- **Image Generation** - Create AI images using Lovable AI
-- **Voice Capabilities** - Browser-based speech-to-text/text-to-speech
+### 🎭 Cinematic Experience
+- **Immersive Transitions** - Smooth page animations with Framer Motion
+- **Dream Mode** - Ethereal visual effects for deep relaxation
+- **Presence System** - Lucy adapts her energy to your activity
+- **Ambient Soundscapes** - Layered audio environments
+- **Dynamic Backgrounds** - 4K nature scenes that respond to time of day
 
-### User Experience
-- **Animated Lucy Avatar** - 2D avatar with emotional states
+### 🤖 Lucy AI Companion
+- **Conversational AI** - Natural dialogue powered by advanced LLMs
+- **Memory & Context** - Lucy remembers your preferences across sessions
+- **Mood Detection** - Analyzes your activity to suggest content
 - **Proactive Suggestions** - Context-aware recommendations
-- **Smart Scene Backgrounds** - Dynamic 4K HDR nature videos
-- **Faux-3D Environment** - Parallax layers, floating particles
-- **Dark/Light Modes** - Beautiful themes
+- **Streaming Responses** - Real-time token-by-token generation
 
-### Social & Growth
-- **Referral System** - Unique invite links with rewards
-- **Shareable Conversations** - Public/private share links
-- **Social Cards** - Auto-generated OG preview images
+### 🎵 Music & Audio
+- **Spotify Integration** - Connect your account for personalized playback
+- **Lucy DJ Mode** - AI-curated playlists based on your mood
+- **Ambient Audio Library** - Curated collection of relaxation sounds
+- **Smart Scene Backgrounds** - Audio-visual harmony
 
-### PWA Features
-- **Installable** - Add to home screen
-- **Offline Mode** - View past conversations
-- **Push Notifications** - Browser-based alerts
-- **Background Sync** - Queue messages when offline
+### 🌐 Social & Community
+- **Referral System** - Invite friends with unique links
+- **Shareable Sessions** - Public/private share links
+- **Blog & Content** - Lucy's thoughts and guides
 
----
-
-## 🚀 What's New
-
-All missing pages and features have been added:
-
-### New Pages
-- `/pricing` - Dedicated pricing page with plan comparison
-- `/features` - Detailed features showcase  
-- `/launch` - Product Hunt launch page with social sharing
-- `/tools` - Lucy Tools marketplace with 8+ internal tools
-- `/blog` - Blog index with posts
-- `/blog/:slug` - Individual blog post pages with reading progress
-
-### New Brand Assets
-- OG preview images for all pages (pricing, features, launch, tools)
-- App icons (512x512) for PWA installation
-- Updated manifest.json with proper icons
-
-### Enhanced Features
-- Full navigation in footer to all new pages
-- SEO optimization for all new pages
-- Analytics tracking integrated
-- Push notification system (browser-based)
-- Reading progress bar for blog posts
-- Social sharing integration
+### 📱 PWA Features
+- **Installable** - Add to home screen on any device
+- **Offline Mode** - Access past sessions offline
+- **Push Notifications** - Stay connected with Lucy
+- **Background Audio** - Music continues when minimized
 
 ---
+
+## 🚀 Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/INNOVATIONS-OF-TERRENCE-2026/the-lucy-lounge.git
+cd the-lucy-lounge
+
 # Install dependencies
 npm install
+
+# Copy environment template
+cp .env.example .env
+# Fill in your Supabase and API credentials
 
 # Start development server
 npm run dev
@@ -78,21 +67,69 @@ npm run build
 
 ---
 
-## 📱 PWA Installation
+## 🔧 Environment Setup
 
-**iOS**: Safari → Share → Add to Home Screen
-**Android**: Chrome → Menu → Install App
-**Desktop**: Click install icon in address bar
+Create a `.env` file with the following variables:
+
+```env
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_SUPABASE_PROJECT_ID=your-project-id
+VITE_SPOTIFY_CLIENT_ID=your-spotify-client-id
+VITE_SITE_URL=https://thelucylounge.com
+```
+
+See [.env.example](.env.example) for all available options.
 
 ---
 
-## 🎨 Architecture
+## 📱 PWA Installation
 
-Built with:
-- **Lovable Cloud** - Full backend (DB, Auth, Storage, AI)
-- **React + TypeScript** - Frontend framework
-- **Tailwind CSS** - Styling system
-- **Vite** - Build tool
+| Platform | Instructions |
+|----------|-------------|
+| **iOS** | Safari → Share → Add to Home Screen |
+| **Android** | Chrome → Menu → Install App |
+| **Desktop** | Click install icon in address bar |
+
+---
+
+## 🎨 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18 + TypeScript + Vite |
+| **Styling** | Tailwind CSS + Framer Motion |
+| **Backend** | Supabase (PostgreSQL, Auth, Edge Functions) |
+| **AI** | OpenRouter + Lovable AI |
+| **Music** | Spotify Web API |
+| **Hosting** | Vercel / Lovable Cloud |
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── arcade/          # Lucy Arcade games
+├── automation/      # Background task runners
+├── chat/            # Chat system & renderers
+├── cinematic/       # Cinematic UX components
+├── components/      # Reusable UI components
+├── config/          # App configuration
+├── contexts/        # React contexts
+├── data/            # Static data & content
+├── features/        # Feature modules
+├── hooks/           # Custom React hooks
+├── integrations/    # Third-party integrations
+├── lib/             # Utility libraries
+├── navigation/      # Routing configuration
+├── pages/           # Page components
+└── theme/           # Theme configuration
+
+supabase/
+├── functions/       # Edge Functions
+└── migrations/      # Database migrations
+```
 
 ---
 

@@ -20,7 +20,7 @@ async function fetchAndParsePage(url: string) {
   const res = await fetch(url, {
     method: "GET",
     headers: {
-      "User-Agent": "LucyLoungeBot/1.0 (https://lucylounge.org)",
+      "User-Agent": "LucyLoungeBot/1.0 (https://thelucylounge.com)",
       "Accept": "text/html,application/xhtml+xml",
     },
     signal: AbortSignal.timeout(10000),

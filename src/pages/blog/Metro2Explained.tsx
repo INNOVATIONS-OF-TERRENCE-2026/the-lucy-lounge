@@ -8,10 +8,11 @@ import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Metro2Explained = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/metro-2-credit-reporting-explained';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/metro-2-credit-reporting-explained`;
 
   const relatedLinks = [
     { title: 'Business Credit Repair Guide', url: '/guides/business-credit-repair', type: 'pillar' as const },
@@ -39,8 +40,8 @@ const Metro2Explained = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'Metro 2 Explained', url: articleUrl }
         ]}
       />

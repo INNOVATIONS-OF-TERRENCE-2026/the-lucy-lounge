@@ -23,8 +23,8 @@ const Launch = () => {
         description="Lucy AI is live on Product Hunt! Experience advanced AI with reasoning, vision, memory, and creativity. Join 10,000+ users already using Lucy AI."
         keywords="Lucy AI launch, Product Hunt, AI assistant launch, new AI tool, AI revolution"
         image="/og-product-hunt.png"
-        url="https://lucylounge.org/launch"
-        canonical="https://lucylounge.org/launch"
+        url="https://thelucylounge.com/launch"
+        canonical="https://thelucylounge.com/launch"
       />
       
       <div className="min-h-screen bg-gradient-primary relative overflow-hidden">

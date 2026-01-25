@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const DisputeLetters = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/dispute-letters-that-work';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/dispute-letters-that-work`;
 
   const relatedLinks = [
     { title: 'Business Credit Repair Guide', url: '/guides/business-credit-repair', type: 'pillar' as const },
@@ -40,8 +41,8 @@ const DisputeLetters = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'Dispute Letters', url: articleUrl }
         ]}
       />

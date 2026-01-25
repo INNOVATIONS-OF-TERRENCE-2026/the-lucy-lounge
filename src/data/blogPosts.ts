@@ -645,7 +645,7 @@ Unlike general-purpose chatbots, Lucy is built with business owners in mind:
 
 ## Try Lucy Free
 
-Experience the difference at [lucylounge.org](/auth).
+Experience the difference at [thelucylounge.com](/auth).
 `
   }
 ];

@@ -10,10 +10,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, DollarSign, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const BlackWomenGrants = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/black-women-entrepreneur-grants';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/black-women-entrepreneur-grants`;
 
   const relatedLinks = [
     { title: 'Women Entrepreneur Funding Guide', url: '/guides/funding-for-women-entrepreneurs', type: 'pillar' as const },
@@ -100,8 +101,8 @@ const BlackWomenGrants = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'Black Women Grants', url: articleUrl }
         ]}
       />

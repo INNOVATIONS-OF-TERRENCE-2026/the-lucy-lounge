@@ -21,8 +21,8 @@ const Landing = () => {
         description="Lucy AI: Advanced AI chat platform with reasoning, vision, memory & creativity. ChatGPT alternative for entrepreneurs, creators & businesses. Free AI assistant online. Mobile PWA app."
         keywords="AI companion, AI chat platform, AI assistant online, best AI chat 2025, AI mobile app, ChatGPT alternative, AI for entrepreneurs, AI girlfriend app, Lucy AI, AI SaaS companion, conversational AI, smart AI assistant, AI PWA app"
         image="/og-default.png"
-        url="https://lucylounge.org"
-        canonical="https://lucylounge.org"
+        url="https://thelucylounge.com"
+        canonical="https://thelucylounge.com"
       />
 
       <StructuredData type="WebSite" />

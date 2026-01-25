@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    name: Build & Verify
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+        continue-on-error: false
+
+      - name: ESLint check
+        run: npm run lint || true
+        # Non-blocking: warnings allowed, errors logged
+
+      - name: Build verification
+        run: npm run build
+        env:
+          # Dummy env vars for build verification
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: dummy-key-for-build
+          VITE_SUPABASE_PROJECT_ID: example-project
+
+      - name: Build artifact check
+        run: |
+          if [ -d "dist" ]; then
+            echo "✅ Build output exists"
+            ls -la dist/
+          else
+            echo "❌ Build output missing!"
+            exit 1
+          fi
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for secrets in code
+        run: |
+          # Check for common secret patterns
+          if grep -rE "(SUPABASE_ANON_KEY|LOVABLE_API_KEY|SPOTIFY_CLIENT_SECRET)=.{10,}" --include="*.ts" --include="*.tsx" --include="*.js" . ; then
+            echo "❌ Potential secrets found in code!"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets detected"
+
+      - name: Verify .env not committed
+        run: |
+          if [ -f ".env" ]; then
+            echo "❌ .env file should not be in repository!"
+            exit 1
+          fi
+          echo "✅ .env not in repository"

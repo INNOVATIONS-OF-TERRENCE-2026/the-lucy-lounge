@@ -9,7 +9,7 @@ interface ShareButtonsProps {
 }
 
 export const ShareButtons = ({ 
-  url = 'https://lucylounge.org',
+  url = 'https://thelucylounge.com',
   title = 'Lucy AI - Beyond Intelligence',
   description = 'Experience the future of AI conversation'
 }: ShareButtonsProps) => {

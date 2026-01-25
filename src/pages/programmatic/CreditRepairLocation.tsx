@@ -5,6 +5,7 @@ import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { creditByState, getRelatedPages } from '@/data/programmaticSEO';
 import { Link } from 'react-router-dom';
 import { MapPin, Sparkles, ArrowRight, Shield, Scale, Building, Phone } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const CreditRepairLocation = () => {
   const { state } = useParams<{ state: string }>();
@@ -16,7 +17,7 @@ const CreditRepairLocation = () => {
   }
   
   const relatedStates = getRelatedPages('location', state || '') as typeof creditByState;
-  const baseUrl = 'https://lucylounge.org';
+  const baseUrl = CANONICAL_DOMAIN;
   
   return (
     <div className="min-h-screen bg-background">

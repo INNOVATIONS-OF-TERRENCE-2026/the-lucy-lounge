@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const SBA7aVs504 = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/sba-7a-vs-504-loans';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/sba-7a-vs-504-loans`;
 
   const relatedLinks = [
     { title: 'SBA Loan Complete Guide', url: '/guides/sba-loan-complete-guide', type: 'pillar' as const },
@@ -40,8 +41,8 @@ const SBA7aVs504 = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'SBA 7a vs 504', url: articleUrl }
         ]}
       />

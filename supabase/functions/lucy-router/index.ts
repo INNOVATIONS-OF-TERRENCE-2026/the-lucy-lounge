@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const ROUTER_SYSTEM_PROMPT = `You are Lucy's routing brain for LucyLounge.org.
+const ROUTER_SYSTEM_PROMPT = `You are Lucy's routing brain for TheLucyLounge.com.
 
 Your job: Decide which tools to call (if any) to best answer the user's request.
 
@@ -172,7 +172,7 @@ serve(async (req) => {
     const finalMessages = [
       {
         role: "system",
-        content: `You are Lucy AI for LucyLounge.org with 2025-level modern intelligence.
+        content: `You are Lucy AI for TheLucyLounge.com with 2025-level modern intelligence.
 
 CURRENT CONTEXT: ${currentDateTime}, Year ${currentYear}
 

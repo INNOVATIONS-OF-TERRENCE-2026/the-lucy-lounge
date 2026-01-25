@@ -1850,6 +1850,204 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          user_id: string
+          theme: string
+          reading_mode: string
+          focus_mode: boolean
+          music_enabled: boolean
+          music_volume: number
+          sound_enabled: boolean
+          shuffle_enabled: boolean
+          streaming_speed: string
+          voice_enabled: boolean
+          active_world: string
+          world_enabled: boolean
+          spotify_content_id: string | null
+          spotify_content_type: string
+          spotify_genre: string | null
+          weather_season: string | null
+          weather_enabled: boolean
+          arcade_difficulty: string
+          arcade_muted: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          theme?: string
+          reading_mode?: string
+          focus_mode?: boolean
+          music_enabled?: boolean
+          music_volume?: number
+          sound_enabled?: boolean
+          shuffle_enabled?: boolean
+          streaming_speed?: string
+          voice_enabled?: boolean
+          active_world?: string
+          world_enabled?: boolean
+          spotify_content_id?: string | null
+          spotify_content_type?: string
+          spotify_genre?: string | null
+          weather_season?: string | null
+          weather_enabled?: boolean
+          arcade_difficulty?: string
+          arcade_muted?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          theme?: string
+          reading_mode?: string
+          focus_mode?: boolean
+          music_enabled?: boolean
+          music_volume?: number
+          sound_enabled?: boolean
+          shuffle_enabled?: boolean
+          streaming_speed?: string
+          voice_enabled?: boolean
+          active_world?: string
+          world_enabled?: boolean
+          spotify_content_id?: string | null
+          spotify_content_type?: string
+          spotify_genre?: string | null
+          weather_season?: string | null
+          weather_enabled?: boolean
+          arcade_difficulty?: string
+          arcade_muted?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          id: string
+          user_id: string | null
+          session_token: string
+          device_info: Json
+          ip_address: string | null
+          user_agent: string | null
+          started_at: string
+          last_active_at: string
+          ended_at: string | null
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          session_token: string
+          device_info?: Json
+          ip_address?: string | null
+          user_agent?: string | null
+          started_at?: string
+          last_active_at?: string
+          ended_at?: string | null
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          session_token?: string
+          device_info?: Json
+          ip_address?: string | null
+          user_agent?: string | null
+          started_at?: string
+          last_active_at?: string
+          ended_at?: string | null
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      recently_played: {
+        Row: {
+          id: string
+          user_id: string
+          content_type: string
+          content_id: string
+          title: string | null
+          artist: string | null
+          genre: string | null
+          thumbnail_url: string | null
+          duration_seconds: number | null
+          played_at: string
+          play_count: number
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content_type: string
+          content_id: string
+          title?: string | null
+          artist?: string | null
+          genre?: string | null
+          thumbnail_url?: string | null
+          duration_seconds?: number | null
+          played_at?: string
+          play_count?: number
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content_type?: string
+          content_id?: string
+          title?: string | null
+          artist?: string | null
+          genre?: string | null
+          thumbnail_url?: string | null
+          duration_seconds?: number | null
+          played_at?: string
+          play_count?: number
+        }
+        Relationships: []
+      }
+      spotify_connections: {
+        Row: {
+          id: string
+          user_id: string
+          spotify_user_id: string | null
+          display_name: string | null
+          email: string | null
+          access_token: string | null
+          refresh_token: string | null
+          token_expires_at: string | null
+          scopes: string[] | null
+          connected_at: string
+          last_sync_at: string | null
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          spotify_user_id?: string | null
+          display_name?: string | null
+          email?: string | null
+          access_token?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          scopes?: string[] | null
+          connected_at?: string
+          last_sync_at?: string | null
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          spotify_user_id?: string | null
+          display_name?: string | null
+          email?: string | null
+          access_token?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          scopes?: string[] | null
+          connected_at?: string
+          last_sync_at?: string | null
+          is_active?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1861,6 +2059,31 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      get_user_preferences: {
+        Args: { p_user_id: string }
+        Returns: Database["public"]["Tables"]["user_preferences"]["Row"]
+      }
+      update_user_preference: {
+        Args: { p_user_id: string; p_key: string; p_value: string }
+        Returns: Database["public"]["Tables"]["user_preferences"]["Row"]
+      }
+      upsert_recently_played: {
+        Args: {
+          p_user_id: string
+          p_content_type: string
+          p_content_id: string
+          p_title?: string | null
+          p_artist?: string | null
+          p_genre?: string | null
+          p_thumbnail_url?: string | null
+          p_duration_seconds?: number | null
+        }
+        Returns: Database["public"]["Tables"]["recently_played"]["Row"]
+      }
+      grant_admin_role: {
+        Args: { p_email: string }
+        Returns: void
       }
       promote_admin_by_email: { Args: { user_email: string }; Returns: Json }
       search_messages: {

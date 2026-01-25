@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const SBABadCredit = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/sba-loan-with-bad-credit';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/sba-loan-with-bad-credit`;
 
   const relatedLinks = [
     { title: 'SBA Loan Complete Guide', url: '/guides/sba-loan-complete-guide', type: 'pillar' as const },
@@ -40,8 +41,8 @@ const SBABadCredit = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'SBA Loan Bad Credit', url: articleUrl }
         ]}
       />

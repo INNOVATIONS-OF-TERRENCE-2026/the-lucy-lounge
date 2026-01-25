@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, Check, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Build90DayCredit = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/build-business-credit-90-days';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/build-business-credit-90-days`;
 
   const relatedLinks = [
     { title: 'Business Credit Repair Guide', url: '/guides/business-credit-repair', type: 'pillar' as const },
@@ -55,8 +56,8 @@ const Build90DayCredit = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'Build Credit 90 Days', url: articleUrl }
         ]}
       />

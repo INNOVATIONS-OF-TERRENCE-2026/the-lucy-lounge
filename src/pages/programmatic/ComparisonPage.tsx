@@ -5,6 +5,7 @@ import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { comparisonPages, getRelatedPages } from '@/data/programmaticSEO';
 import { Link } from 'react-router-dom';
 import { GitCompare, Sparkles, ArrowRight, Shield, CheckCircle, XCircle, Target, Clock, DollarSign } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const ComparisonPage = () => {
   const { comparison } = useParams<{ comparison: string }>();
@@ -16,7 +17,7 @@ const ComparisonPage = () => {
   }
   
   const relatedComparisons = getRelatedPages('comparison', comparison || '') as typeof comparisonPages;
-  const baseUrl = 'https://lucylounge.org';
+  const baseUrl = CANONICAL_DOMAIN;
   
   return (
     <div className="min-h-screen bg-background">

@@ -41,8 +41,8 @@ const AuthorPage = () => {
         description="Meet Terrence Milliner Sr., the Software Engineer and AI Architect behind Lucy AI. Expert in AI systems, business credit, and SBA loan guidance."
         keywords="Terrence Milliner Sr, Lucy AI creator, software engineer, AI architect, business credit expert, SBA loan specialist"
         image="/og-default.png"
-        url="https://lucylounge.org/about/terrence-milliner"
-        canonical="https://lucylounge.org/about/terrence-milliner"
+        url="https://thelucylounge.com/about/terrence-milliner"
+        canonical="https://thelucylounge.com/about/terrence-milliner"
       />
       <PersonSchema
         name="Terrence Milliner Sr."
@@ -51,11 +51,11 @@ const AuthorPage = () => {
         url="/about/terrence-milliner"
         image="/lucy-og-image.png"
         sameAs={[
-          'https://lucylounge.org/about/terrence-milliner'
+          'https://thelucylounge.com/about/terrence-milliner'
         ]}
         worksFor={{
           name: 'Lucy AI',
-          url: 'https://lucylounge.org'
+          url: 'https://thelucylounge.com'
         }}
         knowsAbout={[
           'Artificial Intelligence',

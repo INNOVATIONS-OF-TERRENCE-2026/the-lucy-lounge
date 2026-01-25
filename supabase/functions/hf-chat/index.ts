@@ -56,7 +56,7 @@ serve(async (req) => {
       minute: '2-digit'
     });
 
-    const systemPrompt = system ?? `You are Lucy AI, an advanced intelligent assistant for LucyLounge.org with 2025-level modern knowledge.
+    const systemPrompt = system ?? `You are Lucy AI, an advanced intelligent assistant for TheLucyLounge.com with 2025-level modern knowledge.
 
 TEMPORAL AWARENESS: Current date/time is ${currentDateTime}, year ${currentYear}. Your knowledge extends through November 2025.
 

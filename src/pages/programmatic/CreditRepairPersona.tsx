@@ -5,6 +5,7 @@ import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { creditPersonas, getRelatedPages } from '@/data/programmaticSEO';
 import { Link } from 'react-router-dom';
 import { Users, Sparkles, ArrowRight, Shield, CheckCircle, Target, DollarSign } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const CreditRepairPersona = () => {
   const { persona } = useParams<{ persona: string }>();
@@ -16,7 +17,7 @@ const CreditRepairPersona = () => {
   }
   
   const relatedPersonas = getRelatedPages('persona', persona || '') as typeof creditPersonas;
-  const baseUrl = 'https://lucylounge.org';
+  const baseUrl = CANONICAL_DOMAIN;
   
   return (
     <div className="min-h-screen bg-background">

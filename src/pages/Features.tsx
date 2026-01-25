@@ -90,14 +90,14 @@ const Features = () => {
         description="Explore Lucy AI's powerful features: advanced reasoning engine, multimodal vision, code execution, web search, long-term memory, and creative tools. Best AI chat platform 2025."
         keywords="AI features, multimodal AI, AI vision, AI reasoning, code execution AI, AI memory system, AI web search, best AI tools 2025"
         image="/og-features.png"
-        url="https://lucylounge.org/features"
-        canonical="https://lucylounge.org/features"
+        url="https://thelucylounge.com/features"
+        canonical="https://thelucylounge.com/features"
       />
       <FAQSchema faqs={featuresFAQs} />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Features', url: 'https://lucylounge.org/features' }
+          { name: 'Home', url: 'https://thelucylounge.com' },
+          { name: 'Features', url: 'https://thelucylounge.com/features' }
         ]}
       />
       

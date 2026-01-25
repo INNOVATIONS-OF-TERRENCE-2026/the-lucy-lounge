@@ -56,8 +56,8 @@ const EditorialStandards = () => {
         description="Learn about Lucy AI's commitment to accuracy, transparency, and quality. Our editorial standards ensure reliable, well-researched content for business owners."
         keywords="editorial standards, content guidelines, fact-checking, accuracy standards, Lucy AI quality"
         image="/og-default.png"
-        url="https://lucylounge.org/editorial-standards"
-        canonical="https://lucylounge.org/editorial-standards"
+        url="https://thelucylounge.com/editorial-standards"
+        canonical="https://thelucylounge.com/editorial-standards"
       />
       <BreadcrumbSchema
         items={[

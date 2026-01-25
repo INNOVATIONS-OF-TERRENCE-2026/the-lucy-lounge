@@ -5,6 +5,7 @@ import { YMYLDisclaimer } from '@/components/blog/YMYLDisclaimer';
 import { sbaScenarios, getRelatedPages } from '@/data/programmaticSEO';
 import { Link } from 'react-router-dom';
 import { Briefcase, Sparkles, ArrowRight, Shield, Target, CheckCircle, CreditCard } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const SBAFundingScenario = () => {
   const { scenario } = useParams<{ scenario: string }>();
@@ -16,7 +17,7 @@ const SBAFundingScenario = () => {
   }
   
   const relatedScenarios = getRelatedPages('sba', scenario || '') as typeof sbaScenarios;
-  const baseUrl = 'https://lucylounge.org';
+  const baseUrl = CANONICAL_DOMAIN;
   
   return (
     <div className="min-h-screen bg-background">

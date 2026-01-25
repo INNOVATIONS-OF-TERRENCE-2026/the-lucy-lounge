@@ -73,8 +73,8 @@ const CreatorStudio = () => {
         title="Creator Studio - Lucy AI | AI Social Media Content Generator"
         description="Generate viral social media content with Lucy AI. Create Instagram captions, Twitter threads, TikTok scripts, YouTube shorts, and trending hashtags in seconds."
         keywords="AI content generator, social media AI, Instagram caption generator, Twitter thread generator, TikTok script, YouTube shorts, hashtag generator, viral content AI"
-        url="https://lucylounge.org/creator-studio"
-        canonical="https://lucylounge.org/creator-studio"
+        url="https://thelucylounge.com/creator-studio"
+        canonical="https://thelucylounge.com/creator-studio"
       />
       
       <div className="min-h-screen relative overflow-hidden">

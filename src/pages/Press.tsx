@@ -294,8 +294,8 @@ const Press = () => {
               <div className="mt-8 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   <strong>Booking:</strong> To schedule an interview or podcast appearance, please email{' '}
-                  <a href="mailto:press@lucylounge.org" className="text-primary hover:underline">
-                    press@lucylounge.org
+                  <a href="mailto:press@thelucylounge.com" className="text-primary hover:underline">
+                    press@thelucylounge.com
                   </a>{' '}
                   with your show name, audience size, and preferred topics.
                 </p>
@@ -375,9 +375,9 @@ const Press = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild size="lg" className="gap-2">
-              <a href="mailto:press@lucylounge.org">
+              <a href="mailto:press@thelucylounge.com">
                 <Mail className="w-4 h-4" />
-                press@lucylounge.org
+                press@thelucylounge.com
               </a>
             </Button>
             <Button asChild variant="outline" size="lg">

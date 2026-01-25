@@ -17,8 +17,8 @@ const Pricing = () => {
         description="Flexible AI pricing plans for Lucy AI. Start free or upgrade to Pro for unlimited access. Best value AI assistant 2025. No credit card required to start."
         keywords="AI pricing, Lucy AI plans, AI subscription, affordable AI, AI assistant pricing, free AI chat, AI pro plans"
         image="/og-pricing.png"
-        url="https://lucylounge.org/pricing"
-        canonical="https://lucylounge.org/pricing"
+        url="https://thelucylounge.com/pricing"
+        canonical="https://thelucylounge.com/pricing"
       />
       
       <div className="min-h-screen relative overflow-hidden">

@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, Check, FileCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const WOSBCertification = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/wosb-certification-guide';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/wosb-certification-guide`;
 
   const relatedLinks = [
     { title: 'Women Entrepreneur Funding Guide', url: '/guides/funding-for-women-entrepreneurs', type: 'pillar' as const },
@@ -40,8 +41,8 @@ const WOSBCertification = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'WOSB Certification', url: articleUrl }
         ]}
       />

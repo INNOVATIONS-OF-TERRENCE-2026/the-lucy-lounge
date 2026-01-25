@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { RelatedGuides } from '@/components/blog/RelatedGuides';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Bot, DollarSign, Headphones, Settings, CheckCircle2, Star, Zap } from 'lucide-react';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const BestAIToolsSmallBusiness = () => {
   const faqs = [
@@ -35,9 +36,9 @@ const BestAIToolsSmallBusiness = () => {
   ];
 
   const breadcrumbs = [
-    { name: 'Home', url: 'https://lucylounge.org/' },
-    { name: 'Blog', url: 'https://lucylounge.org/blog' },
-    { name: 'Best AI Tools for Small Business 2025', url: 'https://lucylounge.org/blog/best-ai-tools-small-business-2025' }
+    { name: 'Home', url: CANONICAL_DOMAIN },
+    { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
+    { name: 'Best AI Tools for Small Business 2025', url: `${CANONICAL_DOMAIN}/blog/best-ai-tools-small-business-2025` }
   ];
 
   const relatedLinks = [
@@ -52,8 +53,8 @@ const BestAIToolsSmallBusiness = () => {
         title="Best AI Tools for Small Business Owners in 2025 | Lucy AI"
         description="Discover the top AI tools for small businesses in 2025. Compare AI solutions for marketing, finance, customer service, and operations with honest reviews and pricing."
         keywords="best AI tools for small business, AI software for entrepreneurs, small business automation tools, AI productivity apps 2025, AI business assistant"
-        canonical="https://lucylounge.org/blog/best-ai-tools-small-business-2025"
-        url="https://lucylounge.org/blog/best-ai-tools-small-business-2025"
+        canonical={`${CANONICAL_DOMAIN}/blog/best-ai-tools-small-business-2025`}
+        url={`${CANONICAL_DOMAIN}/blog/best-ai-tools-small-business-2025`}
         type="article"
       />
       <ArticleSchema
@@ -62,8 +63,8 @@ const BestAIToolsSmallBusiness = () => {
         authorName="Terrence Milliner Sr."
         datePublished="2024-12-14"
         dateModified="2025-01-14"
-        image="https://lucylounge.org/og-tools.png"
-        url="https://lucylounge.org/blog/best-ai-tools-small-business-2025"
+        image={`${CANONICAL_DOMAIN}/og-tools.png`}
+        url={`${CANONICAL_DOMAIN}/blog/best-ai-tools-small-business-2025`}
       />
       <BreadcrumbSchema items={breadcrumbs} />
       <FAQSchema faqs={faqs} />

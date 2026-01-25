@@ -14,7 +14,7 @@ export async function fetchAndParsePage(url: string): Promise<BrowserFetchResult
     const res = await fetch(url, {
       method: "GET",
       headers: {
-        "User-Agent": "LucyLoungeBot/1.0 (https://lucylounge.org)",
+        "User-Agent": "LucyLoungeBot/1.0 (https://thelucylounge.com)",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       signal: AbortSignal.timeout(10000), // 10 second timeout

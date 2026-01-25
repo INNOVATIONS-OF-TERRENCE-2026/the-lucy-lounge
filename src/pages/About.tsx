@@ -23,8 +23,8 @@ const About = () => {
         description="Learn about Lucy AI – the next-generation AI assistant created by Software Engineer Terrence Milliner Sr."
         keywords="about Lucy AI, AI creator, Terrence Milliner Sr, AI engineer, Lucy Lounge, intelligent AI"
         image="/og-default.png"
-        url="https://lucylounge.org/about"
-        canonical="https://lucylounge.org/about"
+        url="https://thelucylounge.com/about"
+        canonical="https://thelucylounge.com/about"
       />
 
       <StructuredData

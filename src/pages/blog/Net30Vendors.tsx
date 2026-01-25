@@ -10,10 +10,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Check, Building } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CANONICAL_DOMAIN } from '@/lib/seoConfig';
 
 const Net30Vendors = () => {
   const navigate = useNavigate();
-  const articleUrl = 'https://lucylounge.org/blog/net-30-vendors-for-new-business';
+  const articleUrl = `${CANONICAL_DOMAIN}/blog/net-30-vendors-for-new-business`;
 
   const relatedLinks = [
     { title: 'Business Credit Repair Guide', url: '/guides/business-credit-repair', type: 'pillar' as const },
@@ -108,8 +109,8 @@ const Net30Vendors = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' },
+          { name: 'Home', url: CANONICAL_DOMAIN },
+          { name: 'Blog', url: `${CANONICAL_DOMAIN}/blog` },
           { name: 'Net 30 Vendors', url: articleUrl }
         ]}
       />

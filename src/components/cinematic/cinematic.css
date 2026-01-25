@@ -1,4 +1,7 @@
-/* Cinematic Lounge Animations */
+/* THE LUCY LOUNGE - Enhanced Cinematic Animations */
+/* GPU-optimized, respects prefers-reduced-motion */
+
+/* ===== BASE ANIMATIONS ===== */
 
 @keyframes breathe {
   0%, 100% { opacity: 0.3; transform: scale(1); }
@@ -35,7 +38,105 @@
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* Lounge-specific color identities */
+/* ===== NEW: Film Grain ===== */
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-1%, 0); }
+  60% { transform: translate(1%, 0); }
+  70% { transform: translate(0, 1%); }
+  80% { transform: translate(0, -1%); }
+  90% { transform: translate(1%, 1%); }
+}
+
+/* ===== NEW: Lucy Presence Animations ===== */
+@keyframes lucy-breathing {
+  0%, 100% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.02);
+    filter: brightness(1.05);
+  }
+}
+
+@keyframes lucy-processing {
+  0% { 
+    box-shadow: 0 0 20px rgba(var(--lounge-glow, 147, 112, 219), 0.3);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(var(--lounge-glow, 147, 112, 219), 0.6);
+    transform: scale(1.03);
+  }
+  100% { 
+    box-shadow: 0 0 20px rgba(var(--lounge-glow, 147, 112, 219), 0.3);
+    transform: scale(1);
+  }
+}
+
+@keyframes subtle-glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* ===== NEW: Page Transition Animations ===== */
+@keyframes page-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes page-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+}
+
+@keyframes fade-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* ===== NEW: Audio-Reactive ===== */
+@keyframes audio-pulse-subtle {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+@keyframes audio-wave {
+  0% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.3); }
+}
+
+/* ===== Lounge-specific color identities ===== */
 .lounge-neural {
   --lounge-primary: 220 70% 50%;
   --lounge-secondary: 230 60% 30%;
@@ -90,15 +191,28 @@
   --lounge-glow: 239, 68, 68;
 }
 
-/* Particle styles */
+.lounge-listening {
+  --lounge-primary: 142 76% 36%;
+  --lounge-secondary: 142 70% 25%;
+  --lounge-glow: 29, 185, 84;
+}
+
+.lounge-default {
+  --lounge-primary: 260 60% 50%;
+  --lounge-secondary: 260 50% 30%;
+  --lounge-glow: 147, 112, 219;
+}
+
+/* ===== Particle styles ===== */
 .cinematic-particle {
   position: absolute;
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: hsl(var(--lounge-primary) / 0.6);
+  background: hsl(var(--lounge-primary, 260 60% 50%) / 0.6);
   animation: float 8s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform;
 }
 
 .cinematic-particle:nth-child(odd) {
@@ -111,24 +225,38 @@
   animation-delay: -4s;
 }
 
-/* Ambient glow overlay */
+/* ===== Ambient glow overlay ===== */
 .cinematic-glow {
   position: absolute;
   inset: 0;
   background: radial-gradient(
     ellipse at center,
-    hsl(var(--lounge-primary) / 0.1) 0%,
+    hsl(var(--lounge-primary, 260 60% 50%) / 0.1) 0%,
     transparent 70%
   );
   animation: breathe 6s ease-in-out infinite;
   pointer-events: none;
+  will-change: opacity, transform;
 }
 
-/* Premium scroll enhancement */
+/* ===== Film grain overlay ===== */
+.cinematic-film-grain {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  animation: grain 0.5s steps(10) infinite;
+  pointer-events: none;
+}
+
+/* ===== Premium scroll enhancement ===== */
 .cinematic-scroll {
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--lounge-primary) / 0.3) transparent;
+  scrollbar-color: hsl(var(--lounge-primary, 260 60% 50%) / 0.3) transparent;
 }
 
 .cinematic-scroll::-webkit-scrollbar {
@@ -140,10 +268,81 @@
 }
 
 .cinematic-scroll::-webkit-scrollbar-thumb {
-  background: hsl(var(--lounge-primary) / 0.3);
+  background: hsl(var(--lounge-primary, 260 60% 50%) / 0.3);
   border-radius: 3px;
 }
 
 .cinematic-scroll::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--lounge-primary) / 0.5);
+  background: hsl(var(--lounge-primary, 260 60% 50%) / 0.5);
+}
+
+/* ===== Lucy Presence Styles ===== */
+.lucy-presence-avatar {
+  animation: lucy-breathing 4s ease-in-out infinite;
+}
+
+.lucy-presence-avatar.processing {
+  animation: lucy-processing 1.5s ease-in-out infinite;
+}
+
+.lucy-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--lounge-glow, 147, 112, 219), 0.4) 0%,
+    transparent 70%
+  );
+  animation: subtle-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ===== Audio Visualizer Styles ===== */
+.audio-reactive-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.audio-reactive-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(var(--audio-color, 29, 185, 84), var(--audio-intensity, 0.2)) 0%,
+    transparent 60%
+  );
+  transition: all 0.3s ease-out;
+}
+
+/* ===== Dream Mode Styles ===== */
+.dream-mode {
+  --transition-duration: 0.8s;
+}
+
+.dream-mode * {
+  transition-duration: var(--transition-duration) !important;
+}
+
+.dream-mode .floating-text {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ===== Reduced Motion Support ===== */
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-particle,
+  .cinematic-glow,
+  .cinematic-film-grain,
+  .lucy-presence-avatar,
+  .lucy-glow-ring,
+  .audio-reactive-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .cinematic-wrapper {
+    transition-duration: 0.01ms !important;
+  }
 }

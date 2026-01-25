@@ -136,7 +136,7 @@ const Testimonials = () => {
       <SEOHead 
         title="Customer Testimonials & Case Studies | Lucy AI"
         description="Real success stories from entrepreneurs who used Lucy AI to repair credit, secure SBA loans, and access business funding. See verified results and case studies."
-        url="https://lucylounge.org/testimonials"
+        url="https://thelucylounge.com/testimonials"
       />
       <ReviewSchema 
         itemName="Lucy AI"

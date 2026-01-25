@@ -27,6 +27,8 @@ import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingCalculator } from "@/components/tools/FloatingCalculator";
 import { AdminRoute } from "@/components/auth/AdminRoute";
+import { SystemGuards } from "@/components/system/SystemGuards";
+import { GlobalCinematicLayer } from "@/components/cinematic/GlobalCinematicLayer";
 
 /* ======================
    LAZY PAGES
@@ -142,24 +144,26 @@ const App = () => {
 
               <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
                 <BrowserRouter>
+                  <SystemGuards />
                   <ScrollToTop />
                   <AnalyticsTracker />
 
-                  <Suspense fallback={<PageSkeleton variant="default" />}>
-                    <Routes>
-                      <Route path="/" element={<Landing />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/chat" element={<Chat />} />
-                      <Route path="/media" element={<Media />} />
-                      <Route path="/features" element={<Features />} />
-                      <Route path="/pricing" element={<Pricing />} />
-                      <Route path="/tools" element={<Tools />} />
-                      <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
-                      <Route path="/creator-studio" element={<CreatorStudio />} />
-                      <Route path="/launch" element={<Launch />} />
+                  <GlobalCinematicLayer>
+                    <Suspense fallback={<PageSkeleton variant="default" />}>
+                      <Routes>
+                        <Route path="/" element={<Landing />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/chat" element={<Chat />} />
+                        <Route path="/media" element={<Media />} />
+                        <Route path="/features" element={<Features />} />
+                        <Route path="/pricing" element={<Pricing />} />
+                        <Route path="/tools" element={<Tools />} />
+                        <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
+                        <Route path="/creator-studio" element={<CreatorStudio />} />
+                        <Route path="/launch" element={<Launch />} />
 
-                      <Route path="/listening-mode" element={<ListeningMode />} />
-                      <Route path="/listening/explore" element={<ExploreMode />} />
+                        <Route path="/listening-mode" element={<ListeningMode />} />
+                        <Route path="/listening/explore" element={<ExploreMode />} />
 
                       <Route path="/studios" element={<Studios />} />
                       <Route path="/studios/ai" element={<StudiosAI />} />
@@ -213,8 +217,9 @@ const App = () => {
                           </AdminRoute>
                         }
                       />
-                    </Routes>
-                  </Suspense>
+                      </Routes>
+                    </Suspense>
+                  </GlobalCinematicLayer>
                 </BrowserRouter>
               </div>
             </TooltipProvider>

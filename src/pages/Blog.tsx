@@ -20,8 +20,8 @@ const Blog = () => {
         title="Blog - Lucy AI | AI Insights, Tutorials, and Updates"
         description="Stay updated with Lucy AI's latest features, AI technology insights, tutorials, and product updates. Learn how to get the most out of your AI assistant."
         keywords="Lucy AI blog, AI insights, AI tutorials, AI technology, product updates, AI news"
-        url="https://lucylounge.org/blog"
-        canonical="https://lucylounge.org/blog"
+        url="https://thelucylounge.com/blog"
+        canonical="https://thelucylounge.com/blog"
       />
       <StructuredData 
         type="Blog"
@@ -30,8 +30,8 @@ const Blog = () => {
       />
       <BreadcrumbSchema 
         items={[
-          { name: 'Home', url: 'https://lucylounge.org' },
-          { name: 'Blog', url: 'https://lucylounge.org/blog' }
+          { name: 'Home', url: 'https://thelucylounge.com' },
+          { name: 'Blog', url: 'https://thelucylounge.com/blog' }
         ]}
       />
       
