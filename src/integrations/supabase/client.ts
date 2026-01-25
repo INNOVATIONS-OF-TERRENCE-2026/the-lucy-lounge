@@ -68,11 +68,12 @@ export function getSupabaseUrl(): string {
 }
 
 /**
- * Returns true if the configured key appears to be a valid JWT.
+ * Returns true if the configured key appears to be a valid format.
+ * Accepts: JWT format (eyJ...) OR Lovable Cloud format (sb_publishable_...)
  * This does NOT validate the key — just checks format.
  */
 export function hasValidKeyFormat(): boolean {
-  return SUPABASE_KEY.startsWith('eyJ');
+  return SUPABASE_KEY.startsWith('eyJ') || SUPABASE_KEY.startsWith('sb_publishable_');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
