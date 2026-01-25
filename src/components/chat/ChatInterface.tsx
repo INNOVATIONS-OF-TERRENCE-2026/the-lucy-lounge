@@ -3,7 +3,7 @@ import type { KeyboardEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Search, Download, Settings2, Shield, Sparkles } from "lucide-react";
+import { Send, Loader2, Search, Download, Settings2, Shield, Sparkles, Music } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -647,6 +647,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               title="AI Generation Studio"
             >
               <Sparkles className="w-4 h-4 text-primary" />
+            </Button>
+
+            {/* Audio Studio Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/studios/audio")}
+              className="h-10 w-10 rounded-xl glass-card border-cyan-500/30 hover:border-cyan-500/60 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] flex-shrink-0 transition-all"
+              title="Audio Studio - Create Music & Voice"
+            >
+              <Music className="w-4 h-4 text-cyan-500" />
             </Button>
 
             <div className="flex-1 relative">
