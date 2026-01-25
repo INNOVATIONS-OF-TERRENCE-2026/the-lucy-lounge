@@ -27,15 +27,15 @@ const Auth = () => {
       console.log('[AUTH_PAGE] Initial getSession:', { hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
       if (session) {
         console.log('[AUTH_PAGE] Already logged in, navigating to /chat');
-        navigate("/chat");
+        navigate("/chat", { replace: true });
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[AUTH_PAGE] onAuthStateChange:', { event, hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
-      if (session) {
-        console.log('[AUTH_PAGE] Session detected, navigating to /chat');
-        navigate("/chat");
+      if (event === 'SIGNED_IN' && session) {
+        console.log('[AUTH_PAGE] SIGNED_IN event, navigating to /chat');
+        navigate("/chat", { replace: true });
       }
     });
 

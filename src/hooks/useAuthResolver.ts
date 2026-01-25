@@ -9,57 +9,39 @@
  * GUARANTEES:
  * 1. `resolved` will ALWAYS become true (never hang forever)
  * 2. `session` will be either valid OR null (never undefined after resolution)
- * 3. Maximum wait time: 3 seconds, then force-resolves as unauthenticated
+ * 3. Maximum wait time: 3 seconds, then force-resolves
  * 
- * USAGE:
- * ```tsx
- * const { session, user, resolved, error } = useAuthResolver();
- * if (!resolved) return <LoadingScreen />;
- * if (!user) return <LoginPrompt />;
- * return <AuthenticatedContent />;
- * ```
+ * CRITICAL FIX: This version waits 500ms before declaring "logged out"
+ * to handle the race condition where navigation happens before session persists.
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Session, User, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-/** Maximum time to wait for auth resolution before forcing fallback */
+/** Maximum time to wait for auth resolution */
 const AUTH_TIMEOUT_MS = 3000;
+
+/** Delay before confirming logged out state - handles session persistence race */
+const LOGGED_OUT_DELAY_MS = 500;
 
 /** DEV-ONLY logging prefix */
 const LOG_PREFIX = '[AUTH_RESOLVER]';
 
 interface AuthResolverState {
-  /** Current session (null if not authenticated) */
   session: Session | null;
-  /** Current user (null if not authenticated) */
   user: User | null;
-  /** Whether auth check has completed (GUARANTEED to become true) */
   resolved: boolean;
-  /** Whether auth timed out (forced to null state) */
   timedOut: boolean;
-  /** Any error that occurred during auth check */
   error: Error | null;
-  /** The auth event that triggered the last state change */
   lastEvent: AuthChangeEvent | null;
 }
 
 interface UseAuthResolverReturn extends AuthResolverState {
-  /** Force re-check auth state */
   refresh: () => Promise<void>;
-  /** Sign out and clear session */
   signOut: () => Promise<void>;
 }
 
-/**
- * Single source of truth for Supabase auth resolution.
- * 
- * NEVER hangs forever. Guaranteed to resolve within AUTH_TIMEOUT_MS.
- * 
- * CRITICAL: All auth logic is INSIDE the useEffect to avoid stale closures.
- * The onAuthStateChange callback will always have fresh references.
- */
 export function useAuthResolver(): UseAuthResolverReturn {
   const [state, setState] = useState<AuthResolverState>({
     session: null,
@@ -71,67 +53,28 @@ export function useAuthResolver(): UseAuthResolverReturn {
   });
 
   const mountedRef = useRef(true);
-  const resolvedRef = useRef(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MAIN AUTH EFFECT - ALL LOGIC INSIDE TO PREVENT STALE CLOSURES
-  // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     mountedRef.current = true;
-    resolvedRef.current = false; // RESET on each effect run (fixes Strict Mode double-mount)
-    let localResolved = false; // Local flag to prevent race conditions
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let delayedCheckId: ReturnType<typeof setTimeout> | null = null;
+    let hasResolved = false;
 
-    console.log(LOG_PREFIX, '🚀 Effect starting - mounting auth resolver');
+    console.log(LOG_PREFIX, '🚀 Mounting');
 
-    /**
-     * Mark auth as resolved with given session.
-     * This function is INSIDE the effect to avoid stale closures.
-     */
-    const resolveAuth = (
+    const resolve = (
       session: Session | null,
-      event: AuthChangeEvent | null = null,
-      error: Error | null = null,
-      timedOut = false
+      event: string,
+      timedOut = false,
+      error: Error | null = null
     ) => {
-      if (!mountedRef.current) {
-        console.log(LOG_PREFIX, '⚠️ resolveAuth called but component unmounted');
-        return;
-      }
+      if (!mountedRef.current || hasResolved) return;
+      
+      hasResolved = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (delayedCheckId) clearTimeout(delayedCheckId);
 
-      console.log(LOG_PREFIX, `📝 resolveAuth called:`, {
-        event,
-        hasSession: !!session,
-        userId: session?.user?.id?.slice(0, 8),
-        localResolved,
-        resolvedRef: resolvedRef.current,
-        timedOut,
-      });
-
-      // If already resolved, just update session/user (for subsequent auth changes)
-      if (localResolved && resolvedRef.current && !timedOut) {
-        console.log(LOG_PREFIX, '🔄 Already resolved, updating session/user');
-        setState(prev => ({
-          ...prev,
-          session,
-          user: session?.user ?? null,
-          lastEvent: event ?? prev.lastEvent,
-          error: error ?? prev.error,
-        }));
-        return;
-      }
-
-      // Clear timeout if pending
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-
-      // Mark as resolved
-      localResolved = true;
-      resolvedRef.current = true;
-
-      console.log(LOG_PREFIX, '✅ RESOLVING AUTH:', {
+      console.log(LOG_PREFIX, '✅ RESOLVED:', {
         hasSession: !!session,
         userId: session?.user?.id?.slice(0, 8),
         event,
@@ -144,102 +87,113 @@ export function useAuthResolver(): UseAuthResolverReturn {
         resolved: true,
         timedOut,
         error,
-        lastEvent: event,
+        lastEvent: event as AuthChangeEvent,
       });
     };
 
-    /**
-     * Force timeout - resolve as unauthenticated.
-     * This is the ESCAPE HATCH that prevents infinite loading.
-     */
-    const forceTimeout = () => {
-      if (localResolved || resolvedRef.current) return;
+    const updateSession = (session: Session | null, event: string) => {
+      if (!mountedRef.current) return;
 
-      console.warn(LOG_PREFIX, `Auth did not resolve within ${AUTH_TIMEOUT_MS}ms. Forcing fallback state.`);
+      console.log(LOG_PREFIX, '🔄 Update:', event, { hasSession: !!session });
 
-      resolveAuth(null, null, new Error('Auth timeout'), true);
+      setState(prev => ({
+        ...prev,
+        session,
+        user: session?.user ?? null,
+        lastEvent: event as AuthChangeEvent,
+      }));
     };
 
-    /**
-     * Check current session.
-     */
-    const checkSession = async () => {
-      console.log(LOG_PREFIX, '🔍 checkSession starting...');
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        console.log(LOG_PREFIX, '🔍 getSession returned:', {
-          hasSession: !!data.session,
-          userId: data.session?.user?.id?.slice(0, 8),
-          error: error?.message,
-          mounted: mountedRef.current,
-        });
-
-        if (!mountedRef.current) {
-          console.log(LOG_PREFIX, '⚠️ checkSession - component unmounted before resolution');
-          return;
-        }
-
-        if (error) {
-          console.error(LOG_PREFIX, 'getSession error:', error);
-          resolveAuth(null, 'INITIAL_SESSION' as AuthChangeEvent, error as Error);
-          return;
-        }
-
-        resolveAuth(data.session, 'INITIAL_SESSION' as AuthChangeEvent);
-      } catch (err) {
-        if (!mountedRef.current) return;
-        console.error(LOG_PREFIX, 'Session check failed:', err);
-        resolveAuth(null, null, err instanceof Error ? err : new Error(String(err)));
-      }
-    };
-
-    // Start the hard timeout (ESCAPE HATCH - guarantees we never hang)
-    timeoutRef.current = setTimeout(forceTimeout, AUTH_TIMEOUT_MS);
-
-    // Check session immediately
-    checkSession();
-
-    // Subscribe to auth changes - the callback has fresh references to resolveAuth
+    // Subscribe to auth changes FIRST (before checking session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        console.log(LOG_PREFIX, '🔔 onAuthStateChange fired:', {
-          event,
-          hasSession: !!session,
-          userId: session?.user?.id?.slice(0, 8),
-          mounted: mountedRef.current,
-        });
+        if (!mountedRef.current) return;
 
-        if (!mountedRef.current) {
-          console.log(LOG_PREFIX, '⚠️ onAuthStateChange - component unmounted, ignoring');
-          return;
+        console.log(LOG_PREFIX, '🔔 Event:', event, { hasSession: !!session, hasResolved });
+
+        if (!hasResolved) {
+          if (session) {
+            // Got a session - resolve immediately
+            resolve(session, event);
+          } else if (event === 'SIGNED_OUT') {
+            // Explicit sign out
+            resolve(null, event);
+          }
+        } else {
+          // Already resolved - just update
+          updateSession(session, event);
         }
-
-        // This resolveAuth is the FRESH one from this effect closure
-        resolveAuth(session, event);
       }
     );
 
-    return () => {
-      console.log(LOG_PREFIX, '🧹 Effect cleanup - unmounting');
-      mountedRef.current = false;
+    // Check current session
+    const checkSession = async () => {
+      try {
+        console.log(LOG_PREFIX, '🔍 Checking session...');
+        const { data, error } = await supabase.auth.getSession();
 
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+        if (!mountedRef.current || hasResolved) return;
+
+        console.log(LOG_PREFIX, '🔍 Result:', {
+          hasSession: !!data.session,
+          userId: data.session?.user?.id?.slice(0, 8),
+          error: error?.message,
+        });
+
+        if (error) {
+          resolve(null, 'ERROR', false, error as Error);
+          return;
+        }
+
+        if (data.session) {
+          resolve(data.session, 'INITIAL_SESSION');
+        } else {
+          // NO SESSION - but wait before confirming logged out
+          // This handles the race where user just signed in but session hasn't persisted yet
+          console.log(LOG_PREFIX, `⏳ No session, waiting ${LOGGED_OUT_DELAY_MS}ms...`);
+          
+          delayedCheckId = setTimeout(async () => {
+            if (!mountedRef.current || hasResolved) return;
+            
+            // Final check
+            const { data: finalData } = await supabase.auth.getSession();
+            
+            if (!mountedRef.current || hasResolved) return;
+            
+            console.log(LOG_PREFIX, '🔍 Final check:', { hasSession: !!finalData.session });
+            resolve(finalData.session, 'FINAL_CHECK');
+          }, LOGGED_OUT_DELAY_MS);
+        }
+      } catch (err) {
+        if (!mountedRef.current || hasResolved) return;
+        console.error(LOG_PREFIX, 'Error:', err);
+        resolve(null, 'ERROR', false, err instanceof Error ? err : new Error(String(err)));
       }
+    };
 
+    checkSession();
+
+    // Hard timeout - escape hatch
+    timeoutId = setTimeout(async () => {
+      if (hasResolved || !mountedRef.current) return;
+      
+      console.warn(LOG_PREFIX, '⏰ Timeout');
+      
+      // One final check
+      const { data } = await supabase.auth.getSession();
+      if (!mountedRef.current || hasResolved) return;
+      resolve(data.session, 'TIMEOUT', true);
+    }, AUTH_TIMEOUT_MS);
+
+    return () => {
+      console.log(LOG_PREFIX, '🧹 Unmounting');
+      mountedRef.current = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (delayedCheckId) clearTimeout(delayedCheckId);
       subscription.unsubscribe();
     };
-  }, []); // Empty deps is correct - all functions are INSIDE the effect
+  }, []);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EXTERNAL API METHODS (safe to use useCallback since they don't affect effect)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /**
-   * Refresh auth state manually.
-   */
   const refresh = useCallback(async () => {
     try {
       const { data, error } = await supabase.auth.getSession();
@@ -265,9 +219,6 @@ export function useAuthResolver(): UseAuthResolverReturn {
     }
   }, []);
 
-  /**
-   * Sign out and clear session.
-   */
   const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
@@ -282,7 +233,6 @@ export function useAuthResolver(): UseAuthResolverReturn {
       }));
     } catch (err) {
       console.error(LOG_PREFIX, 'Sign out error:', err);
-      // Still clear local state even if server call fails
       if (mountedRef.current) {
         setState(prev => ({
           ...prev,
