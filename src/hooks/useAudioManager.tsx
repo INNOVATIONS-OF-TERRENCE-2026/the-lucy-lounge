@@ -71,20 +71,24 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   
   // Persisted preferences - load from localStorage with safe access
   const [volume, setVolumeState] = useState(() => {
-    const saved = safeLocalStorage.getItem(STORAGE_KEYS.volume);
-    return saved !== null ? parseFloat(saved) : 0.5;
+    const storage = safeLocalStorage();
+    const saved = storage?.getItem(STORAGE_KEYS.volume);
+    return saved !== null && saved !== undefined ? parseFloat(saved) : 0.5;
   });
   const [soundEnabled, setSoundEnabledState] = useState(() => {
-    const saved = safeLocalStorage.getItem(STORAGE_KEYS.soundEnabled);
-    return saved !== null ? JSON.parse(saved) : true;
+    const storage = safeLocalStorage();
+    const saved = storage?.getItem(STORAGE_KEYS.soundEnabled);
+    return saved !== null && saved !== undefined ? JSON.parse(saved) : true;
   });
   const [musicEnabled, setMusicEnabledState] = useState(() => {
-    const saved = safeLocalStorage.getItem(STORAGE_KEYS.musicEnabled);
-    return saved !== null ? JSON.parse(saved) : false;
+    const storage = safeLocalStorage();
+    const saved = storage?.getItem(STORAGE_KEYS.musicEnabled);
+    return saved !== null && saved !== undefined ? JSON.parse(saved) : false;
   });
   const [shuffleEnabled, setShuffleEnabledState] = useState(() => {
-    const saved = safeLocalStorage.getItem(STORAGE_KEYS.shuffleEnabled);
-    return saved !== null ? JSON.parse(saved) : true;
+    const storage = safeLocalStorage();
+    const saved = storage?.getItem(STORAGE_KEYS.shuffleEnabled);
+    return saved !== null && saved !== undefined ? JSON.parse(saved) : true;
   });
   const [isPlaying, setIsPlaying] = useState(false);
   
@@ -130,22 +134,22 @@ export const AudioManagerProvider = ({ children }: { children: ReactNode }) => {
   
   const setVolume = useCallback((v: number) => {
     setVolumeState(v);
-    safeLocalStorage.setItem(STORAGE_KEYS.volume, v.toString());
+    safeLocalStorage()?.setItem(STORAGE_KEYS.volume, v.toString());
   }, []);
 
   const setSoundEnabled = useCallback((e: boolean) => {
     setSoundEnabledState(e);
-    safeLocalStorage.setItem(STORAGE_KEYS.soundEnabled, JSON.stringify(e));
+    safeLocalStorage()?.setItem(STORAGE_KEYS.soundEnabled, JSON.stringify(e));
   }, []);
 
   const setMusicEnabled = useCallback((e: boolean) => {
     setMusicEnabledState(e);
-    safeLocalStorage.setItem(STORAGE_KEYS.musicEnabled, JSON.stringify(e));
+    safeLocalStorage()?.setItem(STORAGE_KEYS.musicEnabled, JSON.stringify(e));
   }, []);
 
   const setShuffleEnabled = useCallback((e: boolean) => {
     setShuffleEnabledState(e);
-    safeLocalStorage.setItem(STORAGE_KEYS.shuffleEnabled, JSON.stringify(e));
+    safeLocalStorage()?.setItem(STORAGE_KEYS.shuffleEnabled, JSON.stringify(e));
   }, []);
 
   // ============= DECK SHUFFLE LOGIC =============
