@@ -38,25 +38,42 @@ const modeSettings: Record<CognitiveMode, { timeDilation: number; contrast: numb
   focus: { timeDilation: 0.8, contrast: 0.9, showNonEssentials: false },
 };
 
+/**
+ * iOS-SAFE storage helper - never throws
+ */
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable - silent fail
+  }
+}
+
 export function CognitiveModeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<CognitiveMode>('normal');
 
   const setMode = useCallback((newMode: CognitiveMode) => {
     setModeState(newMode);
-    // Persist to localStorage
-    try {
-      localStorage.setItem('lucy-cognitive-mode', newMode);
-    } catch {}
+    // Persist to localStorage (iOS-safe)
+    safeSetItem('lucy-cognitive-mode', newMode);
   }, []);
 
-  // Load from localStorage
+  // Load from localStorage (iOS-safe)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('lucy-cognitive-mode') as CognitiveMode;
-      if (stored && modeSettings[stored]) {
-        setModeState(stored);
-      }
-    } catch {}
+    const stored = safeGetItem('lucy-cognitive-mode') as CognitiveMode;
+    if (stored && modeSettings[stored]) {
+      setModeState(stored);
+    }
   }, []);
 
   const settings = modeSettings[mode];

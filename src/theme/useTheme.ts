@@ -17,16 +17,33 @@ import { supabase } from "@/integrations/supabase/client";
 export type { ThemeName };
 
 /**
- * Get current theme from localStorage
+ * iOS-SAFE storage helper - never throws
+ */
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable - silent fail
+  }
+}
+
+/**
+ * Get current theme from localStorage (iOS-safe)
  */
 export function getCurrentTheme(): ThemeName {
-  try {
-    const stored = localStorage.getItem("lucy-theme") as ThemeName | null;
-    if (stored && THEMES[stored]) {
-      return stored;
-    }
-  } catch (e) {
-    console.warn("Unable to read theme from localStorage", e);
+  const stored = safeGetItem("lucy-theme") as ThemeName | null;
+  if (stored && THEMES[stored]) {
+    return stored;
   }
   return "purple";
 }
@@ -36,6 +53,9 @@ export function getCurrentTheme(): ThemeName {
  * Supports glow effects and gradients for premium themes
  */
 export function applyTheme(theme: ThemeName) {
+  // Guard: Ensure we're in browser
+  if (typeof document === 'undefined') return;
+  
   const config = THEMES[theme];
   if (!config) return;
 
@@ -69,21 +89,19 @@ export function applyTheme(theme: ThemeName) {
     chatArea.setAttribute("data-theme", theme);
   });
 
-  // Persist locally
-  try {
-    localStorage.setItem("lucy-theme", theme);
-  } catch (e) {
-    console.warn("Unable to store theme in localStorage", e);
-  }
+  // Persist locally (iOS-safe)
+  safeSetItem("lucy-theme", theme);
 
   // Mark theme attribute on root for reference
   root.setAttribute("data-theme", theme);
 
   // Smooth UI transition
   root.classList.add("theme-transition");
-  window.setTimeout(() => {
-    root.classList.remove("theme-transition");
-  }, 350);
+  if (typeof window !== 'undefined') {
+    window.setTimeout(() => {
+      root.classList.remove("theme-transition");
+    }, 350);
+  }
 }
 
 /**

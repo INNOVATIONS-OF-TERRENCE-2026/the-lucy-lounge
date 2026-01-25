@@ -84,7 +84,11 @@ export const WeatherEffectsOverlay = ({
 
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch {
+      return false;
+    }
   }, []);
 
   // Season tint colors (very subtle)

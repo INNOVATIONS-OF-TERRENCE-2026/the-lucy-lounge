@@ -8,12 +8,52 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://guqljelishrthxiftedq.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1cWxqZWxpc2hydGh4aWZ0ZWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5ODY1OTEsImV4cCI6MjA3ODU2MjU5MX0.eWFoSl6lgwgO9Hp1OMlP6rnSS1x_8W0jvoiSPvoD3Rs';
 
+/**
+ * iOS-SAFE storage adapter for Supabase Auth
+ * 
+ * iOS Safari has strict localStorage restrictions that can throw errors:
+ * - Private browsing mode
+ * - Storage quota exceeded
+ * - Sandboxed iframes
+ * 
+ * This adapter NEVER throws - it falls back to in-memory storage.
+ */
+const createSafeStorage = (): Storage | undefined => {
+  // Not in browser - return undefined
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  // In-memory fallback for when localStorage fails
+  const memoryStorage: Record<string, string> = {};
+
+  // Test if localStorage is available and writable
+  try {
+    const testKey = '__lucy_storage_test__';
+    window.localStorage.setItem(testKey, 'test');
+    window.localStorage.removeItem(testKey);
+    // localStorage works - use it
+    return window.localStorage;
+  } catch {
+    // localStorage unavailable - return safe wrapper with memory fallback
+    console.warn('[Supabase] localStorage unavailable, using memory storage');
+    return {
+      getItem: (key: string) => memoryStorage[key] ?? null,
+      setItem: (key: string, value: string) => { memoryStorage[key] = value; },
+      removeItem: (key: string) => { delete memoryStorage[key]; },
+      clear: () => { Object.keys(memoryStorage).forEach(k => delete memoryStorage[k]); },
+      get length() { return Object.keys(memoryStorage).length; },
+      key: (index: number) => Object.keys(memoryStorage)[index] ?? null,
+    };
+  }
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
+    storage: createSafeStorage(),
     persistSession: true,
     autoRefreshToken: true,
   }

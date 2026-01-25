@@ -36,43 +36,94 @@ const DEFAULT_SETTINGS: CinematicSettings = {
 
 const STORAGE_KEY = 'lucy-cinematic-settings';
 
-// Detect low-power/reduced-motion preference
-function shouldReduceMotion(): boolean {
+/**
+ * iOS-SAFE storage helper - never throws
+ */
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable - silent fail
+  }
+}
+
+/**
+ * iOS-SAFE matchMedia helper - never throws
+ */
+function safeMatchMedia(query: string): boolean {
   if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try {
+    return window.matchMedia(query).matches;
+  } catch {
+    return false;
+  }
+}
+
+// Detect low-power/reduced-motion preference (iOS-safe)
+function shouldReduceMotion(): boolean {
+  return safeMatchMedia('(prefers-reduced-motion: reduce)');
 }
 
 function isLowPowerDevice(): boolean {
   if (typeof navigator === 'undefined') return false;
-  // Check for low memory devices
-  const memory = (navigator as any).deviceMemory;
-  if (memory && memory < 4) return true;
-  // Check for hardware concurrency (CPU cores)
-  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return true;
+  try {
+    // Check for low memory devices
+    const memory = (navigator as any).deviceMemory;
+    if (memory && memory < 4) return true;
+    // Check for hardware concurrency (CPU cores)
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return true;
+  } catch {
+    // Some browsers don't support these APIs
+  }
   return false;
 }
 
 export function useCinematicMode() {
-  const [settings, setSettings] = useState<CinematicSettings>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-      }
-    } catch {}
-    return DEFAULT_SETTINGS;
-  });
-
-  const [reducedMotion, setReducedMotion] = useState(shouldReduceMotion);
-  const [lowPower, setLowPower] = useState(isLowPowerDevice);
+  // Initialize with defaults, hydrate in effect
+  const [settings, setSettings] = useState<CinematicSettings>(DEFAULT_SETTINGS);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [lowPower, setLowPower] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Listen for reduced motion changes
+  // HYDRATION: Load settings and detect preferences AFTER mount (iOS-safe)
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    // Load stored settings
+    const stored = safeGetItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setSettings(prev => ({ ...prev, ...JSON.parse(stored) }));
+      } catch {
+        // Corrupt data - use defaults
+      }
+    }
+    
+    // Detect system preferences
+    setReducedMotion(shouldReduceMotion());
+    setLowPower(isLowPowerDevice());
+  }, []);
+
+  // Listen for reduced motion changes (iOS-safe)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    } catch {
+      // matchMedia not supported
+    }
   }, []);
 
   // Get user ID for future Supabase sync (when column is added)
@@ -86,15 +137,13 @@ export function useCinematicMode() {
     });
   }, []);
 
-  // Persist settings
+  // Persist settings (iOS-safe)
   const updateSettings = useCallback((updates: Partial<CinematicSettings>) => {
     setSettings(prev => {
       const next = { ...prev, ...updates };
       
-      // Save to localStorage
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {}
+      // Save to localStorage (iOS-safe)
+      safeSetItem(STORAGE_KEY, JSON.stringify(next));
 
       // Note: Supabase sync can be added when cinematic_settings column exists
       // For now, localStorage provides offline-first persistence

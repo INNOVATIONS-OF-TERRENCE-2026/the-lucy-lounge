@@ -140,26 +140,47 @@ const LucyWorldsContext = createContext<LucyWorldsContextType | null>(null);
 
 const STORAGE_KEY = 'lucy-active-world';
 
+/**
+ * iOS-SAFE storage helper - never throws
+ */
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable - silent fail
+  }
+}
+
 export function LucyWorldsProvider({ children }: { children: React.ReactNode }) {
   const [activeWorld, setActiveWorldState] = useState<LucyWorld>('none');
   const [transitionState, setTransitionState] = useState<'idle' | 'transitioning'>('idle');
 
-  // Load saved world preference
+  // Load saved world preference (iOS-safe)
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = safeGetItem(STORAGE_KEY);
     if (saved && LUCY_WORLDS.some(w => w.id === saved)) {
       setActiveWorldState(saved as LucyWorld);
     }
   }, []);
 
-  // Save world preference
+  // Save world preference (iOS-safe)
   const setActiveWorld = useCallback((world: LucyWorld) => {
     setTransitionState('transitioning');
     
     // Smooth transition
     setTimeout(() => {
       setActiveWorldState(world);
-      localStorage.setItem(STORAGE_KEY, world);
+      safeSetItem(STORAGE_KEY, world);
       
       setTimeout(() => {
         setTransitionState('idle');
