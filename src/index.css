@@ -55,6 +55,34 @@ body {
 }
 
 /* =========================================================
+   🎯 HEADER ACCESSIBILITY FIX - HIGHEST PRIORITY
+   Ensures headers are ALWAYS visible and clickable
+   ========================================================= */
+header,
+nav,
+.top-nav,
+[class*="sticky"][class*="top-0"] {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure header content is clickable */
+header *,
+nav *,
+.top-nav * {
+  pointer-events: auto;
+}
+
+/* Override any overflow-hidden that might clip headers */
+.cinematic-wrapper,
+.page-wrapper {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+}
+
+/* =========================================================
    iOS SAFE AREA SUPPORT (notch/home indicator)
    ========================================================= */
 @supports (padding: env(safe-area-inset-top)) {

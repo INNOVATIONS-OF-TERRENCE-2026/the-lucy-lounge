@@ -405,7 +405,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen relative overflow-hidden" data-theme-area="chat">
+    <main className="flex-1 flex flex-col h-screen relative" data-theme-area="chat">
       <ReadingProgressBar isStreaming={!!streamingMessage || isLocalStreaming} />
 
       <ScrollToBottom
@@ -415,7 +415,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       />
 
       {/* HEADER - with integrated music player */}
-      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 border-b border-border/20 flex-shrink-0">
+      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/95 border-b border-border/20 flex-shrink-0 sticky top-0 z-[100]">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />

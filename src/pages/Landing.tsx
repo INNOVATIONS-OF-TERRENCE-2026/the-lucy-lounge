@@ -29,9 +29,11 @@ const Landing = () => {
       <StructuredData type="Organization" />
       <StructuredData type="SoftwareApplication" />
 
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="min-h-screen relative">
         <CosmicBackground />
-        <TopNav />
+        <div className="relative z-[100]">
+          <TopNav />
+        </div>
 
         <div className="relative z-10">
           <Hero />
