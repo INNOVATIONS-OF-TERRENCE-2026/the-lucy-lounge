@@ -9,6 +9,8 @@ import { MultimodalOutput } from "./MultimodalOutput";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+import type { AIIntent } from '@/lib/aiRouter';
+
 interface MultimodalData {
   type: 'image' | 'video' | 'audio' | 'voice' | 'document';
   url: string;
@@ -17,6 +19,12 @@ interface MultimodalData {
   duration?: number;
   style?: string;
 }
+
+// Map multimodal types to AIIntent (audio maps to music)
+const mapTypeToIntent = (type: MultimodalData['type']): AIIntent => {
+  if (type === 'audio') return 'music';
+  return type;
+};
 
 interface ChatMessageProps {
   message: {
@@ -130,15 +138,18 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
           {message.multimodal && (
             <div className="mt-4">
               <MultimodalOutput
-                type={message.multimodal.type}
-                content={message.multimodal.url}
-                isLoading={false}
-                metadata={{
-                  prompt: message.multimodal.prompt,
+                type={mapTypeToIntent(message.multimodal.type)}
+                result={{
+                  success: true,
+                  url: message.multimodal.url,
                   model: message.multimodal.model,
-                  duration: message.multimodal.duration,
-                  style: message.multimodal.style
+                  metadata: {
+                    prompt: message.multimodal.prompt,
+                    duration: message.multimodal.duration,
+                    style: message.multimodal.style
+                  }
                 }}
+                prompt={message.multimodal.prompt}
               />
             </div>
           )}

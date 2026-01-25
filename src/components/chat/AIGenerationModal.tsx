@@ -117,7 +117,7 @@ export function AIGenerationModal({ open, onOpenChange, onGenerated }: AIGenerat
             return;
           }
           result = await aiRouter.generateImage(imagePrompt, {
-            model: imageModel,
+            model: imageModel as 'sdxl' | 'sdxlTurbo' | 'realistic' | 'anime' | 'flux',
             negativePrompt,
             width: imageWidth,
             height: imageHeight
@@ -136,7 +136,7 @@ export function AIGenerationModal({ open, onOpenChange, onGenerated }: AIGenerat
             return;
           }
           result = await aiRouter.generateVideo(videoPrompt, {
-            model: videoModel,
+            model: videoModel as 'modelscope' | 'zeroscope' | 'animatediff',
             duration: videoDuration
           });
           onGenerated({
@@ -154,7 +154,7 @@ export function AIGenerationModal({ open, onOpenChange, onGenerated }: AIGenerat
             return;
           }
           result = await aiRouter.generateMusic(musicPrompt, {
-            style: musicStyle,
+            style: musicStyle as 'lofi' | 'ambient' | 'hiphop' | 'cinematic' | 'electronic' | 'jazz' | 'classical' | 'rock',
             duration: musicDuration
           });
           onGenerated({
@@ -187,7 +187,7 @@ export function AIGenerationModal({ open, onOpenChange, onGenerated }: AIGenerat
             toast({ title: "Error", description: "Please enter title and content", variant: "destructive" });
             return;
           }
-          result = await aiRouter.generatePDF(pdfTitle, pdfContent);
+          result = await aiRouter.generatePDF(pdfContent, { title: pdfTitle });
           onGenerated({
             type: 'document',
             url: result.url,
