@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { loadStoredTheme, loadThemeFromRemote } from "@/theme/useTheme";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { UIDensityProvider } from "@/hooks/useUIDensity";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
@@ -159,25 +160,26 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <OfflineGateProvider>
-        <UserGestureGateProvider>
-          <GlobalSpotifyProvider>
-            <LucyDJProvider>
-              <LucyWorldsProvider>
-                <SafeMediaGateProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
+      <UIDensityProvider>
+        <OfflineGateProvider>
+          <UserGestureGateProvider>
+            <GlobalSpotifyProvider>
+              <LucyDJProvider>
+                <LucyWorldsProvider>
+                  <SafeMediaGateProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
 
-                    {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+                      {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
 
-                    {/* Audio components wrapped in error boundary - these are high-risk on mobile */}
-                    <FeatureErrorBoundary feature="audio-providers" silent>
-                      <IOSAudioUnlockProvider />
-                      <GlobalSpotifyAudioHost />
-                    </FeatureErrorBoundary>
+                      {/* Audio components wrapped in error boundary - these are high-risk on mobile */}
+                      <FeatureErrorBoundary feature="audio-providers" silent>
+                        <IOSAudioUnlockProvider />
+                        <GlobalSpotifyAudioHost />
+                      </FeatureErrorBoundary>
 
-                    <FeatureErrorBoundary feature="mini-player" silent>
+                      <FeatureErrorBoundary feature="mini-player" silent>
                       <GlobalMiniPlayer />
                     </FeatureErrorBoundary>
 
@@ -272,13 +274,14 @@ const App = () => {
                   </GlobalCinematicLayer>
                 </BrowserRouter>
               </div>
-                  </TooltipProvider>
-                </SafeMediaGateProvider>
-              </LucyWorldsProvider>
-            </LucyDJProvider>
-          </GlobalSpotifyProvider>
-        </UserGestureGateProvider>
-      </OfflineGateProvider>
+                    </TooltipProvider>
+                  </SafeMediaGateProvider>
+                </LucyWorldsProvider>
+              </LucyDJProvider>
+            </GlobalSpotifyProvider>
+          </UserGestureGateProvider>
+        </OfflineGateProvider>
+      </UIDensityProvider>
     </QueryClientProvider>
   );
 };
