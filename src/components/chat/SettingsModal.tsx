@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { UIDensityControl } from "@/components/settings/UIDensityControl";
 
 interface SettingsModalProps {
   open: boolean;
@@ -163,6 +164,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <SelectItem value="academic">Academic - Formal and precise</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* UI Density Controls */}
+          <div className="border-t pt-6">
+            <UIDensityControl />
           </div>
 
           <div className="flex gap-3 pt-4">
