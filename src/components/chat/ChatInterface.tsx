@@ -3,7 +3,7 @@ import type { KeyboardEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Search, Download, Settings2, Shield, Sparkles, Music } from "lucide-react";
+import { Send, Loader2, Search, Download, Settings2, Shield, Sparkles, Music, Wrench } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage } from "./ChatMessage";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -698,6 +698,17 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
               title="Audio Studio - Create Music & Voice"
             >
               <Music className="w-4 h-4 text-cyan-500" />
+            </Button>
+
+            {/* Tools Quick-Access Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/tools")}
+              className="h-10 w-10 rounded-xl glass-card border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] flex-shrink-0 transition-all"
+              title="AI Tools - PDF, Calculator, Code & More"
+            >
+              <Wrench className="w-4 h-4 text-amber-500" />
             </Button>
 
             <div className="flex-1 relative">

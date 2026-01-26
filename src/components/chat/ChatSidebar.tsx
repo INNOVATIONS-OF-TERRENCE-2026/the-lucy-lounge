@@ -24,6 +24,12 @@ import {
   Atom,
   Sparkles,
   Globe,
+  Wrench,
+  FileText,
+  Calculator,
+  Code,
+  Database,
+  Image,
 } from "lucide-react";
 import { LucyLogo } from "@/components/branding/LucyLogo";
 import { SettingsModal } from "./SettingsModal";
@@ -53,6 +59,16 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   }, [userId]);
 
   const filtered = conversations.filter((c) => c.title?.toLowerCase().includes(search.toLowerCase()));
+
+  const tools = [
+    { label: "All Tools", icon: Wrench, path: "/tools" },
+    { label: "PDF Extractor", icon: FileText, path: "/tools/pdf-extractor" },
+    { label: "Web Summarizer", icon: Globe, path: "/tools/website-summarizer" },
+    { label: "Calculator", icon: Calculator, path: "/tools/calculator" },
+    { label: "Code Executor", icon: Code, path: "/tools/code-executor" },
+    { label: "Data Analyzer", icon: Database, path: "/tools/data-analyzer" },
+    { label: "Image Caption", icon: Image, path: "/tools/image-captioning" },
+  ];
 
   const lounges = [
     { label: "Listening Mode", icon: Headphones, path: "/listening-mode" },
@@ -102,6 +118,20 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
             ))}
           </div>
 
+          {/* Tools Section */}
+          <div className="mt-6 px-2">
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">AI Tools</p>
+            <div className="space-y-1">
+              {tools.map((t) => (
+                <Button key={t.path} variant="ghost" className="w-full justify-start" onClick={() => navigate(t.path)}>
+                  <t.icon className="mr-2 h-4 w-4" />
+                  {t.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lounges Section */}
           <div className="mt-6 px-2">
             <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Lounges</p>
             <div className="space-y-1">

@@ -102,6 +102,16 @@ const QuantumMode = lazyWithReload(() => import("@/pages/lounges/QuantumMode"));
 const PresenceMode = lazyWithReload(() => import("@/pages/lounges/PresenceMode"));
 const WorldEvents = lazyWithReload(() => import("@/pages/lounges/WorldEvents"));
 
+/* TOOLS (Individual Tool Pages) */
+const PdfExtractor = lazyWithReload(() => import("@/pages/tools/PdfExtractor"));
+const WebsiteSummarizer = lazyWithReload(() => import("@/pages/tools/WebsiteSummarizer"));
+const ImageCaptioning = lazyWithReload(() => import("@/pages/tools/ImageCaptioning"));
+const MathCalculator = lazyWithReload(() => import("@/pages/tools/MathCalculator"));
+const HtmlToText = lazyWithReload(() => import("@/pages/tools/HtmlToText"));
+const DataTableAnalyzer = lazyWithReload(() => import("@/pages/tools/DataTableAnalyzer"));
+const CodeExecutorPage = lazyWithReload(() => import("@/pages/tools/CodeExecutor"));
+const WebFetcher = lazyWithReload(() => import("@/pages/tools/WebFetcher"));
+
 /* ARCADE */
 const ArcadeHub = lazyWithReload(() => import("@/arcade/pages/ArcadeHub"));
 const GamePage = lazyWithReload(() => import("@/arcade/pages/GamePage"));
@@ -211,6 +221,14 @@ const App = () => {
                         <Route path="/pricing" element={<Pricing />} />
                         <Route path="/tools" element={<Tools />} />
                         <Route path="/tools/marketplace" element={<ToolsMarketplace />} />
+                        <Route path="/tools/pdf-extractor" element={<PdfExtractor />} />
+                        <Route path="/tools/website-summarizer" element={<WebsiteSummarizer />} />
+                        <Route path="/tools/image-captioning" element={<ImageCaptioning />} />
+                        <Route path="/tools/calculator" element={<MathCalculator />} />
+                        <Route path="/tools/html-to-text" element={<HtmlToText />} />
+                        <Route path="/tools/data-analyzer" element={<DataTableAnalyzer />} />
+                        <Route path="/tools/code-executor" element={<CodeExecutorPage />} />
+                        <Route path="/tools/web-fetcher" element={<WebFetcher />} />
                         <Route path="/creator-studio" element={<CreatorStudio />} />
                         <Route path="/launch" element={<Launch />} />
 

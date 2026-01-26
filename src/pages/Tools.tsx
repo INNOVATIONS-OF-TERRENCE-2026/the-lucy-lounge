@@ -14,35 +14,39 @@ import {
   Globe,
   Headphones,
   Film,
+  FileText,
+  Calculator,
+  Image,
+  Code,
+  Database,
 } from "lucide-react";
 
 const Tools = () => {
   const navigate = useNavigate();
 
   const LOUNGES = [
-    { title: "Listening Mode", icon: Headphones, path: "/listening-mode" },
-    { title: "Media Mode", icon: Film, path: "/media" },
-
-    { title: "Neural Mode", icon: Brain, path: "/neural" },
-    { title: "Dream Mode", icon: MoonStar, path: "/dream" },
-    { title: "Vision Mode", icon: Eye, path: "/vision" },
-    { title: "Silent Room", icon: Users, path: "/silent-room" },
-    { title: "Memory Timeline", icon: History, path: "/timeline" },
-    { title: "Quantum Mode", icon: Atom, path: "/quantum" },
-    { title: "Presence Mode", icon: Sparkles, path: "/presence" },
-    { title: "World Events", icon: Globe, path: "/events" },
-    { title: "Command Center", icon: Command, path: "/command" },
+    { title: "Listening Mode", icon: Headphones, path: "/listening-mode", description: "AI-powered music discovery" },
+    { title: "Media Mode", icon: Film, path: "/media", description: "Free movies & TV shows" },
+    { title: "Neural Mode", icon: Brain, path: "/neural", description: "Deep thinking & analysis" },
+    { title: "Dream Mode", icon: MoonStar, path: "/dream", description: "Creative visualization" },
+    { title: "Vision Mode", icon: Eye, path: "/vision", description: "Visual intelligence" },
+    { title: "Silent Room", icon: Users, path: "/silent-room", description: "Focused work space" },
+    { title: "Memory Timeline", icon: History, path: "/timeline", description: "Your conversation history" },
+    { title: "Quantum Mode", icon: Atom, path: "/quantum", description: "Advanced reasoning" },
+    { title: "Presence Mode", icon: Sparkles, path: "/presence", description: "Mindful AI companion" },
+    { title: "World Events", icon: Globe, path: "/events", description: "Global news & insights" },
+    { title: "Command Center", icon: Command, path: "/command", description: "Admin dashboard" },
   ];
 
-  const COMING_SOON_TOOLS = [
-    "PDF Text Extractor",
-    "Website Summarizer",
-    "Image Captioning",
-    "Math Calculator",
-    "HTML to Text",
-    "Data Table Analyzer",
-    "Code Executor",
-    "Safe Web Fetcher",
+  const AI_TOOLS = [
+    { title: "PDF Text Extractor", icon: FileText, path: "/tools/pdf-extractor", description: "Extract text from PDF files" },
+    { title: "Website Summarizer", icon: Globe, path: "/tools/website-summarizer", description: "AI-powered webpage summaries" },
+    { title: "Image Captioning", icon: Image, path: "/tools/image-captioning", description: "Generate image descriptions" },
+    { title: "Math Calculator", icon: Calculator, path: "/tools/calculator", description: "Scientific calculator with AI" },
+    { title: "HTML to Text", icon: Code, path: "/tools/html-to-text", description: "Clean text from HTML" },
+    { title: "Data Table Analyzer", icon: Database, path: "/tools/data-analyzer", description: "Analyze CSV data with AI" },
+    { title: "Code Executor", icon: Code, path: "/tools/code-executor", description: "Safe code analysis & simulation" },
+    { title: "Web Fetcher", icon: Globe, path: "/tools/web-fetcher", description: "Fetch content from websites" },
   ];
 
   return (
@@ -59,35 +63,48 @@ const Tools = () => {
       </header>
 
       <main className="container mx-auto px-4 py-10 space-y-12">
-        {/* LOUNGES */}
+        {/* AI TOOLS */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6">🌌 Lucy Lounges</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {LOUNGES.map((l) => (
-              <Card key={l.path} className="cursor-pointer hover:shadow-lg transition" onClick={() => navigate(l.path)}>
-                <CardHeader className="flex flex-row items-center gap-3">
-                  <l.icon className="h-5 w-5" />
-                  <CardTitle>{l.title}</CardTitle>
+          <h2 className="text-2xl font-semibold mb-6">🚀 AI Tools</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {AI_TOOLS.map((tool) => (
+              <Card 
+                key={tool.path} 
+                className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition group"
+                onClick={() => navigate(tool.path)}
+              >
+                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                  <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
+                    <tool.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">{tool.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">Enter this cinematic Lucy Lounge experience.</p>
+                  <p className="text-sm text-muted-foreground">{tool.description}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        {/* COMING SOON TOOLS */}
+        {/* LOUNGES */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6">🚀 AI Tools (Coming January 2026)</h2>
+          <h2 className="text-2xl font-semibold mb-6">🌌 Lucy Lounges</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {COMING_SOON_TOOLS.map((tool) => (
-              <Card key={tool} className="opacity-50 pointer-events-none border-dashed">
-                <CardHeader>
-                  <CardTitle>{tool}</CardTitle>
+            {LOUNGES.map((l) => (
+              <Card 
+                key={l.path} 
+                className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition group" 
+                onClick={() => navigate(l.path)}
+              >
+                <CardHeader className="flex flex-row items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
+                    <l.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle>{l.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">Coming soon…</p>
+                  <p className="text-sm text-muted-foreground">{l.description}</p>
                 </CardContent>
               </Card>
             ))}
