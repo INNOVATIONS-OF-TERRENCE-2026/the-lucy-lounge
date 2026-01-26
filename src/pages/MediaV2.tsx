@@ -172,7 +172,7 @@ function GraphContent({
   favoriteIds: Set<string>;
   setFavoriteIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   watchlistIds: Set<string>;
-  setWatchlistIds: React.Dispatch<React.SetStateAction<"graph" | "legacy">>;
+  setWatchlistIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   setActiveTab: React.Dispatch<React.SetStateAction<"graph" | "legacy">>;
 }) {
   // Progress tracking for continue watching
@@ -187,14 +187,18 @@ function GraphContent({
 
   // Handle play - records event for taste profile
   const handlePlay = useCallback(async (node: MediaNode) => {
-    // Record watch event for taste profile
-    if (userId) {
-      userState.recordWatch(node.id, 0, false);
-    }
-    
-    // Open in YouTube (mobile-safe)
-    if (node.youtube_id) {
-      window.open(`https://www.youtube.com/watch?v=${node.youtube_id}`, "_blank");
+    try {
+      // Record watch event for taste profile
+      if (userId) {
+        await userState.recordWatch(node.id, 0, false);
+      }
+      
+      // Open in YouTube (mobile-safe)
+      if (node.youtube_id) {
+        window.open(`https://www.youtube.com/watch?v=${node.youtube_id}`, "_blank");
+      }
+    } catch (err) {
+      console.error('[MediaV2] handlePlay error:', err);
     }
   }, [userId, userState]);
 
@@ -202,39 +206,47 @@ function GraphContent({
   const handleToggleFavorite = useCallback(async (node: MediaNode) => {
     if (!userId) return;
     
-    const isFav = favoriteIds.has(node.id);
-    if (isFav) {
-      await userState.removeFromFavorites(node.id);
-      setFavoriteIds(prev => {
-        const next = new Set(prev);
-        next.delete(node.id);
-        return next;
-      });
-    } else {
-      await userState.addToFavorites(node.id);
-      setFavoriteIds(prev => new Set(prev).add(node.id));
+    try {
+      const isFav = favoriteIds.has(node.id);
+      if (isFav) {
+        await userState.removeFromFavorites(node.id);
+        setFavoriteIds(prev => {
+          const next = new Set(prev);
+          next.delete(node.id);
+          return next;
+        });
+      } else {
+        await userState.addToFavorites(node.id);
+        setFavoriteIds(prev => new Set(prev).add(node.id));
+      }
+      
+      graphActions.markStale();
+    } catch (err) {
+      console.error('[MediaV2] handleToggleFavorite error:', err);
     }
-    
-    graphActions.markStale();
-  }, [userId, userState, favoriteIds, graphActions, setFavoriteIds]);
+  }, [userId, userState, graphActions, setFavoriteIds]);
 
   // Handle watchlist toggle
   const handleToggleWatchlist = useCallback(async (node: MediaNode) => {
     if (!userId) return;
     
-    const inList = watchlistIds.has(node.id);
-    if (inList) {
-      await userState.removeFromWatchlist(node.id);
-      setWatchlistIds(prev => {
-        const next = new Set(prev);
-        next.delete(node.id);
-        return next;
-      });
-    } else {
-      await userState.addToWatchlist(node.id);
-      setWatchlistIds(prev => new Set(prev).add(node.id));
+    try {
+      const inList = watchlistIds.has(node.id);
+      if (inList) {
+        await userState.removeFromWatchlist(node.id);
+        setWatchlistIds(prev => {
+          const next = new Set(prev);
+          next.delete(node.id);
+          return next;
+        });
+      } else {
+        await userState.addToWatchlist(node.id);
+        setWatchlistIds(prev => new Set(prev).add(node.id));
+      }
+    } catch (err) {
+      console.error('[MediaV2] handleToggleWatchlist error:', err);
     }
-  }, [userId, userState, watchlistIds, setWatchlistIds]);
+  }, [userId, userState, setWatchlistIds]);
 
   return (
     <motion.div
@@ -360,11 +372,16 @@ function MediaPage() {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<"graph" | "legacy">("graph");
   
-  // Get user session on mount
+  // Get user session on mount - with error handling per MOBILE_RUNTIME_CONTRACT
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUserId(data.session?.user?.id);
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        setUserId(data.session?.user?.id);
+      })
+      .catch((err) => {
+        console.warn('[MediaV2] Auth session fetch failed:', err);
+        setUserId(undefined);
+      });
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUserId(session?.user?.id);

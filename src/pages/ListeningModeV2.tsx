@@ -172,15 +172,19 @@ function GraphListeningContent({
 
   // Handle play
   const handlePlay = useCallback(async (node: MediaNode) => {
-    if (userId) {
-      userState.recordListen(node.id, 0, false);
-    }
-    
-    // Open in appropriate player
-    if (node.spotify_id) {
-      window.open(`https://open.spotify.com/track/${node.spotify_id}`, "_blank");
-    } else if (node.youtube_id) {
-      window.open(`https://www.youtube.com/watch?v=${node.youtube_id}`, "_blank");
+    try {
+      if (userId) {
+        await userState.recordListen(node.id, 0, false);
+      }
+      
+      // Open in appropriate player
+      if (node.spotify_id) {
+        window.open(`https://open.spotify.com/track/${node.spotify_id}`, "_blank");
+      } else if (node.youtube_id) {
+        window.open(`https://www.youtube.com/watch?v=${node.youtube_id}`, "_blank");
+      }
+    } catch (err) {
+      console.error('[ListeningModeV2] handlePlay error:', err);
     }
   }, [userId, userState]);
 
@@ -188,21 +192,25 @@ function GraphListeningContent({
   const handleToggleFavorite = useCallback(async (node: MediaNode) => {
     if (!userId) return;
     
-    const isFav = favoriteIds.has(node.id);
-    if (isFav) {
-      await userState.removeFromFavorites(node.id);
-      setFavoriteIds(prev => {
-        const next = new Set(prev);
-        next.delete(node.id);
-        return next;
-      });
-    } else {
-      await userState.addToFavorites(node.id);
-      setFavoriteIds(prev => new Set(prev).add(node.id));
+    try {
+      const isFav = favoriteIds.has(node.id);
+      if (isFav) {
+        await userState.removeFromFavorites(node.id);
+        setFavoriteIds(prev => {
+          const next = new Set(prev);
+          next.delete(node.id);
+          return next;
+        });
+      } else {
+        await userState.addToFavorites(node.id);
+        setFavoriteIds(prev => new Set(prev).add(node.id));
+      }
+      
+      graphActions.markStale();
+    } catch (err) {
+      console.error('[ListeningModeV2] handleToggleFavorite error:', err);
     }
-    
-    graphActions.markStale();
-  }, [userId, userState, favoriteIds, graphActions]);
+  }, [userId, userState, graphActions]);
 
   return (
     <motion.div
@@ -311,11 +319,16 @@ const ListeningMode = () => {
   const [activeMood] = useState<MoodType>("all");
   const [activeTab, setActiveTab] = useState<"graph" | "legacy">("graph");
   
-  // Get user session on mount
+  // Get user session on mount - with error handling per MOBILE_RUNTIME_CONTRACT
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUserId(data.session?.user?.id);
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        setUserId(data.session?.user?.id);
+      })
+      .catch((err) => {
+        console.warn('[ListeningModeV2] Auth session fetch failed:', err);
+        setUserId(undefined);
+      });
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUserId(session?.user?.id);
