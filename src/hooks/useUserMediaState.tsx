@@ -8,7 +8,7 @@
  * └─────────────────────────────────────────────────────────────────────────────┘
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   getUserMediaState,
@@ -134,16 +134,13 @@ export function useUserMediaState(): UserMediaStateHook {
   const updateProgress = useCallback(async (
     mediaNodeId: string,
     position: number,
-    duration: number
+    _duration: number // Duration tracked for future use
   ): Promise<void> => {
     if (!userId) return;
     
     try {
-      await upsertUserMediaState(userId, mediaNodeId, {
-        last_position_seconds: position,
-        total_duration_seconds: duration,
-        last_played_at: new Date().toISOString(),
-      });
+      // upsertUserMediaState expects (userId, nodeId, progressSeconds)
+      await upsertUserMediaState(userId, mediaNodeId, position);
     } catch (err) {
       console.error('[useUserMediaState] updateProgress error:', err);
       setError('Failed to save progress');
