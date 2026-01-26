@@ -61,14 +61,15 @@ const BREAKPOINTS = {
 };
 
 // Density preset configurations
+// ENHANCED: More generous multipliers for cinematic mobile experience
 const DENSITY_CONFIGS: Record<DensityPreset, Omit<DensityConfig, 'sidebarWidth' | 'drawerWidth'>> = {
   comfort: {
-    spacingMultiplier: 1.15,
-    fontSizeMultiplier: 1.1,
-    lineHeightMultiplier: 1.1,
-    baseFontSize: 17,
-    baseSpacing: 18,
-    containerPadding: 24,
+    spacingMultiplier: 1.2,        // ↑ from 1.15 - more spacious
+    fontSizeMultiplier: 1.12,      // ↑ from 1.1 - slightly larger text
+    lineHeightMultiplier: 1.15,    // ↑ from 1.1 - more readable line spacing
+    baseFontSize: 17,              // Maintained - good mobile base
+    baseSpacing: 20,               // ↑ from 18 - more breathing room
+    containerPadding: 26,          // ↑ from 24 - generous padding
   },
   standard: {
     spacingMultiplier: 1.0,
@@ -79,24 +80,25 @@ const DENSITY_CONFIGS: Record<DensityPreset, Omit<DensityConfig, 'sidebarWidth' 
     containerPadding: 20,
   },
   compact: {
-    spacingMultiplier: 0.85,
+    spacingMultiplier: 0.9,        // ↑ from 0.85 - not too cramped
     fontSizeMultiplier: 0.95,
     lineHeightMultiplier: 0.95,
     baseFontSize: 15,
     baseSpacing: 14,
-    containerPadding: 16,
+    containerPadding: 18,          // ↑ from 16 - maintain some padding
   },
 };
 
 // Device-specific sidebar/drawer widths
+// ENHANCED: Cinematic full-width mobile panels
 const DEVICE_DIMENSIONS: Record<DeviceClass, { sidebarWidth: string; drawerWidth: string }> = {
   phone: {
-    sidebarWidth: '100vw',
-    drawerWidth: '92vw',
+    sidebarWidth: '92vw',          // ↓ from 100vw - leaves visual edge hint
+    drawerWidth: '94vw',           // ↑ from 92vw - nearly full width
   },
   tablet: {
-    sidebarWidth: '320px',
-    drawerWidth: '85vw',
+    sidebarWidth: '380px',         // ↑ from 320px - more content space
+    drawerWidth: '88vw',           // ↑ from 85vw - generous drawer
   },
   desktop: {
     sidebarWidth: '280px',

@@ -651,210 +651,315 @@ body {
 
 /* ------------------------------------
    MOBILE TYPOGRAPHY UPGRADES
-   Prevent aggressive text collapse
+   Cinematic scale - desktop-like presence on mobile
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Base font size bump for mobile readability */
+  /* Base font size - generous for readability */
   html {
     font-size: var(--ui-density-font-size, 17px);
   }
   
-  /* Headings maintain hierarchy, not collapse */
+  /* Headings maintain visual hierarchy with cinematic scale */
   h1, .text-4xl, .text-3xl {
-    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    font-size: clamp(1.875rem, 7vw, 2.75rem);
     line-height: 1.2;
+    letter-spacing: -0.01em;
   }
   
   h2, .text-2xl {
-    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-size: clamp(1.625rem, 5.5vw, 2.125rem);
     line-height: 1.25;
   }
   
   h3, .text-xl {
-    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    font-size: clamp(1.375rem, 4.5vw, 1.625rem);
     line-height: 1.3;
   }
   
-  /* Body text stays readable */
+  /* Body text - slightly larger for comfort */
   p, .text-base {
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: 1.0625rem;
+    line-height: 1.7;
   }
   
-  /* Small text doesn't get too small */
+  /* Small text - don't collapse too much */
   .text-sm {
     font-size: 0.9375rem;
-    line-height: 1.5;
+    line-height: 1.55;
   }
   
   .text-xs {
-    font-size: 0.8125rem;
-    line-height: 1.4;
+    font-size: 0.875rem;
+    line-height: 1.45;
   }
   
-  /* Muted text stays visible */
+  /* Muted text stays clearly visible */
   .text-muted-foreground {
-    opacity: 0.85;
+    opacity: 0.9;
   }
 }
 
 /* ------------------------------------
    MOBILE SPACING UPGRADES
-   Breathable, not cramped
+   Cinematic breathing room - 85-95% of desktop values
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Container padding - cinematic margins */
+  /* Container padding - maintain generous margins */
   .container {
-    padding-left: calc(var(--ui-density-padding, 20px) * 0.9);
-    padding-right: calc(var(--ui-density-padding, 20px) * 0.9);
+    padding-left: calc(var(--ui-density-padding, 20px) * 1.0);
+    padding-right: calc(var(--ui-density-padding, 20px) * 1.0);
   }
   
-  /* Card padding maintains presence */
+  /* Card padding maintains cinematic presence */
   .card, [data-slot="card"] {
-    padding: calc(var(--ui-density-spacing, 16px) * 1.1);
+    padding: calc(var(--ui-density-spacing, 16px) * 1.15);
   }
   
-  /* Section spacing - vertical rhythm */
+  /* Section spacing - generous vertical rhythm */
   .space-y-8 > * + * {
-    margin-top: 1.75rem;
+    margin-top: 1.875rem;
   }
   
   .space-y-6 > * + * {
-    margin-top: 1.35rem;
+    margin-top: 1.5rem;
   }
   
   .space-y-4 > * + * {
-    margin-top: 1rem;
+    margin-top: 1.125rem;
   }
   
-  /* Gap utilities - prevent squeezing */
+  /* Gap utilities - maintain desktop proportions */
+  .gap-8 {
+    gap: 1.75rem;
+  }
+  
   .gap-6 {
-    gap: 1.25rem;
+    gap: 1.375rem;
   }
   
   .gap-4 {
-    gap: 1rem;
+    gap: 1.0625rem;
   }
   
   .gap-3 {
-    gap: 0.875rem;
+    gap: 0.9375rem;
   }
   
-  /* Padding utilities - maintain breathing room */
+  .gap-2 {
+    gap: 0.625rem;
+  }
+  
+  /* Padding utilities - cinematic breathing room */
+  .p-8 {
+    padding: 1.75rem;
+  }
+  
   .p-6 {
-    padding: 1.25rem;
+    padding: 1.375rem;
   }
   
   .p-4 {
-    padding: 1rem;
+    padding: 1.0625rem;
+  }
+  
+  .px-8 {
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
   }
   
   .px-6 {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
+  }
+  
+  .py-8 {
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
   }
   
   .py-6 {
-    padding-top: 1.35rem;
-    padding-bottom: 1.35rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  /* Margin utilities */
+  .m-6 {
+    margin: 1.375rem;
+  }
+  
+  .mx-6 {
+    margin-left: 1.375rem;
+    margin-right: 1.375rem;
+  }
+  
+  .my-6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 }
 
 /* ------------------------------------
    MOBILE SIDEBAR & DRAWER SYSTEM
-   Full-width cinematic panels
+   Cinematic full-width panels with rich UI
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Sidebar sheet overlay */
+  /* Sidebar sheet overlay - nearly full width for immersive experience */
   [data-sidebar="sidebar"] {
-    width: var(--ui-density-sidebar-width, 100vw) !important;
-    max-width: 100vw;
+    width: var(--ui-density-sidebar-width, 92vw) !important;
+    max-width: 96vw;
   }
   
-  /* Drawer panels */
+  /* Drawer panels - generous width */
   [role="dialog"][data-state="open"],
   .sheet-content,
   [data-radix-popper-content-wrapper] {
-    max-width: var(--ui-density-drawer-width, 92vw);
+    max-width: var(--ui-density-drawer-width, 94vw);
   }
   
-  /* Sidebar content */
-  .sidebar-content {
-    padding: var(--ui-density-padding, 20px);
+  /* Sidebar content - spacious padding */
+  .sidebar-content,
+  [data-sidebar="content"] {
+    padding: var(--ui-density-padding, 22px);
   }
   
-  /* Navigation items - touch-friendly */
+  /* Sidebar header/footer - matching padding */
+  [data-sidebar="header"],
+  [data-sidebar="footer"] {
+    padding: calc(var(--ui-density-padding, 22px) * 0.75);
+  }
+  
+  /* Navigation items - generous touch targets */
   .sidebar-menu-item,
-  [data-sidebar-menu-item] {
-    min-height: 48px;
-    padding: 12px 16px;
+  [data-sidebar="menu-item"],
+  [data-sidebar="menu-button"] {
+    min-height: 52px;
+    padding: 14px 18px;
+    font-size: 0.9375rem;
   }
   
-  /* Icons AND labels visible */
+  /* Menu groups - more spacing */
+  [data-sidebar="group"] {
+    padding: 0.75rem;
+  }
+  
+  /* Icons AND labels always visible with good spacing */
   .sidebar-menu-item .sidebar-menu-item-icon,
-  [data-sidebar-menu-item] svg {
+  [data-sidebar="menu-button"] svg {
     flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.75rem;
   }
   
   .sidebar-menu-item span,
-  [data-sidebar-menu-item] span {
+  [data-sidebar="menu-button"] span {
     display: inline !important;
     opacity: 1 !important;
+    font-weight: 500;
+  }
+  
+  /* Sidebar group labels - more prominent */
+  [data-sidebar="group-label"] {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.625rem 0.75rem;
+    opacity: 0.75;
   }
 }
 
 /* ------------------------------------
    MOBILE GLASSMORPHISM
-   Preserve visual effects
+   Preserve visual effects at full quality
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Glass cards maintain blur */
+  /* Glass cards maintain full blur quality */
   .glass-card,
   .glass-card-enhanced,
   .backdrop-blur-xl,
   .backdrop-blur-lg {
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
   
-  /* Glows remain visible */
+  /* Enhanced glass card gets extra richness */
+  .glass-card-enhanced {
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+  }
+  
+  /* Glows remain vivid and visible */
   .shadow-glow-violet,
   .glow-effect {
-    box-shadow: 0 0 20px var(--theme-glow-soft, rgba(168, 85, 247, 0.25));
+    box-shadow: 0 0 24px var(--theme-glow-soft, rgba(168, 85, 247, 0.3));
   }
   
-  /* Gradients stay rich */
+  /* Divine glow maintains cinematic quality */
+  .shadow-glow-divine,
+  .glow-divine {
+    box-shadow: 0 0 35px var(--theme-glow-strong, rgba(168, 85, 247, 0.4));
+  }
+  
+  /* Gradients stay rich and animated */
   .gradient-animated {
     background-size: 200% 200%;
+    animation-duration: 5s;
+  }
+  
+  /* Primary gradient buttons - full visual impact */
+  .bg-gradient-button,
+  .bg-gradient-primary {
+    background-size: 150% 150%;
   }
 }
 
 /* ------------------------------------
    MOBILE VIEWPORT HANDLING
-   iOS Safari safe
+   iOS Safari safe - progressive enhancement
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Use dynamic viewport units */
+  /* Use dynamic viewport units with fallback chain */
   .h-screen {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     height: 100svh;
     height: 100dvh;
   }
   
   .min-h-screen {
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
     min-height: 100svh;
     min-height: 100dvh;
   }
   
-  /* Chat interface full height */
+  /* Chat interface full height - critical path */
   .chat-container,
-  [data-chat-container] {
+  [data-chat-container],
+  [data-theme-area="chat"] {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     height: 100svh;
     height: 100dvh;
+  }
+  
+  /* Main content areas */
+  main {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+  
+  /* Dialogs/sheets should not exceed viewport */
+  [role="dialog"] {
+    max-height: 95dvh;
+    overflow-y: auto;
   }
 }
 
 /* ------------------------------------
    TABLET OPTIMIZATIONS (640px - 1024px)
+   Standard density - balanced between phone comfort and desktop efficiency
    ------------------------------------ */
 @media (min-width: 640px) and (max-width: 1024px) {
   html {
@@ -862,91 +967,209 @@ body {
   }
   
   .container {
-    padding-left: var(--ui-density-padding, 24px);
-    padding-right: var(--ui-density-padding, 24px);
+    padding-left: var(--ui-density-padding, 28px);
+    padding-right: var(--ui-density-padding, 28px);
   }
   
-  /* Sidebar width for tablet */
+  /* Sidebar width for tablet - spacious */
   [data-sidebar="sidebar"] {
-    width: var(--ui-density-sidebar-width, 320px);
+    width: var(--ui-density-sidebar-width, 380px);
+  }
+  
+  /* Typography - slightly larger than strict desktop */
+  p, .text-base {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+  
+  .text-sm {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  
+  /* Touch targets still generous on tablet */
+  button, [role="button"] {
+    min-height: 42px;
+  }
+  
+  /* Cards and dialogs - comfortable padding */
+  .card, [data-slot="card"] {
+    padding: calc(var(--ui-density-spacing, 16px) * 1.1);
+  }
+  
+  /* Drawer/sheet width on tablet */
+  [role="dialog"][data-state="open"] {
+    max-width: var(--ui-density-drawer-width, 88vw);
   }
 }
 
 /* ------------------------------------
    UI DENSITY DATA ATTRIBUTES
-   For CSS-only density switching
+   CSS-only density switching system
    ------------------------------------ */
 [data-ui-density="comfort"] {
-  --density-scale: 1.15;
+  --density-scale: 1.2;
+  --density-font-scale: 1.12;
+  --density-line-height: 1.15;
 }
 
 [data-ui-density="standard"] {
   --density-scale: 1;
+  --density-font-scale: 1;
+  --density-line-height: 1;
 }
 
 [data-ui-density="compact"] {
-  --density-scale: 0.85;
+  --density-scale: 0.9;
+  --density-font-scale: 0.95;
+  --density-line-height: 0.95;
 }
 
-/* Apply density scale to spacing utilities */
+/* Apply density scale to spacing utilities - Comfort */
 [data-ui-density="comfort"] .p-4 {
-  padding: calc(1rem * 1.15);
+  padding: calc(1rem * 1.2);
+}
+
+[data-ui-density="comfort"] .p-6 {
+  padding: calc(1.5rem * 1.15);
 }
 
 [data-ui-density="comfort"] .gap-4 {
-  gap: calc(1rem * 1.15);
+  gap: calc(1rem * 1.2);
 }
 
+[data-ui-density="comfort"] .gap-6 {
+  gap: calc(1.5rem * 1.15);
+}
+
+[data-ui-density="comfort"] .text-base {
+  line-height: calc(1.5 * 1.15);
+}
+
+[data-ui-density="comfort"] .text-sm {
+  font-size: calc(0.875rem * 1.05);
+  line-height: calc(1.25 * 1.1);
+}
+
+/* Apply density scale to spacing utilities - Compact */
 [data-ui-density="compact"] .p-4 {
-  padding: calc(1rem * 0.85);
+  padding: calc(1rem * 0.9);
+}
+
+[data-ui-density="compact"] .p-6 {
+  padding: calc(1.5rem * 0.9);
 }
 
 [data-ui-density="compact"] .gap-4 {
-  gap: calc(1rem * 0.85);
+  gap: calc(1rem * 0.9);
+}
+
+[data-ui-density="compact"] .gap-6 {
+  gap: calc(1.5rem * 0.9);
 }
 
 /* ------------------------------------
    TOUCH-FRIENDLY INTERACTIONS
+   Generous touch targets for mobile
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Larger touch targets */
+  /* Larger touch targets - Apple HIG recommends 44pt minimum */
   button, 
   [role="button"],
-  a,
   input[type="checkbox"],
   input[type="radio"] {
     min-height: 44px;
     min-width: 44px;
   }
   
-  /* Button padding */
-  .btn, button:not(.icon-btn) {
-    padding: 12px 20px;
+  /* Links need touch padding but not min-width */
+  a {
+    min-height: 44px;
   }
   
-  /* Input fields */
+  /* Button padding - generous and comfortable */
+  .btn, button:not(.icon-btn):not([data-sidebar]) {
+    padding: 14px 22px;
+    font-size: 0.9375rem;
+  }
+  
+  /* Icon buttons - adequate touch target */
+  button.icon-btn,
+  [data-sidebar="trigger"],
+  button[size="icon"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+  
+  /* Input fields - comfortable for typing */
   input, textarea, select {
-    padding: 14px 16px;
+    padding: 16px 18px;
     font-size: 16px; /* Prevent iOS zoom */
+    border-radius: 0.75rem;
+  }
+  
+  /* Textarea specific */
+  textarea {
+    line-height: 1.6;
   }
 }
 
 /* ------------------------------------
-   CINEMATIC ANIMATIONS (Mobile-safe)
+   CINEMATIC ANIMATIONS (Mobile-optimized)
+   Preserve visual richness, optimize performance
    ------------------------------------ */
 @media (max-width: 640px) {
-  /* Reduce animation intensity on mobile for performance */
+  /* Glow pulse - full visual impact */
   @keyframes glow-pulse {
     0%, 100% {
-      box-shadow: 0 0 10px var(--theme-glow-soft);
+      box-shadow: 0 0 12px var(--theme-glow-soft);
     }
     50% {
-      box-shadow: 0 0 18px var(--theme-glow-strong);
+      box-shadow: 0 0 22px var(--theme-glow-strong);
     }
   }
   
-  /* Simpler ambient glow */
+  /* Ambient glow - slightly slower for battery */
   .glow-ambient::before {
-    animation-duration: 4s;
+    animation-duration: 5s;
+  }
+  
+  /* Maintain cinematic transitions */
+  .transition-all,
+  .transition-transform,
+  .transition-colors {
+    transition-duration: 200ms;
+  }
+  
+  /* GPU-accelerated transforms for smooth interactions */
+  button:active,
+  [role="button"]:active,
+  a:active {
+    transform: scale(0.98);
+    transition: transform 100ms ease-out;
+  }
+  
+  /* Ensure smooth scrolling */
+  .overflow-y-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ------------------------------------
+   DESKTOP PRESERVATION
+   Ensure no changes to desktop experience
+   ------------------------------------ */
+@media (min-width: 1025px) {
+  /* Desktop maintains original values - no overrides needed */
+  html {
+    font-size: 16px;
+  }
+  
+  /* Standard Tailwind spacing preserved */
+  .container {
+    /* Uses default Tailwind container */
   }
 }

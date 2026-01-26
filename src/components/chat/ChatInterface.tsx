@@ -448,7 +448,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
       />
 
       {/* HEADER - with integrated music player */}
-      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-md bg-background/60 border-b border-border/20 flex-shrink-0">
+      <header className="h-16 md:h-16 flex items-center justify-between px-5 md:px-6 backdrop-blur-md bg-background/60 border-b border-border/20 flex-shrink-0">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <LucyLogo size="sm" showGlow />
@@ -530,8 +530,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      {/* ✅ REAL SCROLL CONTAINER */}
-      <div ref={chatContainerRef} className="flex-1 px-2 md:px-4 py-2 overflow-y-auto overscroll-contain">
+      {/* ✅ REAL SCROLL CONTAINER - cinematic padding */}
+      <div ref={chatContainerRef} className="flex-1 px-4 md:px-4 py-3 overflow-y-auto overscroll-contain">
         {messages.length === 0 && !streamingMessage && !isLocalStreaming && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 max-w-2xl mx-auto py-8">
             <LucyLogo size="xl" showGlow />
@@ -626,9 +626,9 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </div>
 
-      {/* INPUT AREA */}
-      <div className="p-3 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
-        <div className="max-w-full md:max-w-5xl mx-auto space-y-2">
+      {/* INPUT AREA - cinematic spacing */}
+      <div className="p-4 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
+        <div className="max-w-full md:max-w-5xl mx-auto space-y-3">
           {/* Intent Detection Indicator */}
           {detectedIntent && (
             <IntentIndicator
