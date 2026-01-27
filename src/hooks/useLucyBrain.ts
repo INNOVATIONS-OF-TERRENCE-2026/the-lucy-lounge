@@ -60,6 +60,12 @@ export interface LucyBrainOptions {
     attachments?: string[];
     previousTopics?: string[];
   };
+  /**
+   * GENIUS MODE: Forces 70B+ class models for maximum intelligence.
+   * When enabled, Lucy uses frontier models for deeper, more thoughtful responses.
+   * UI shows "Lucy is thinking deeply..." - NEVER shows model names.
+   */
+  geniusMode?: boolean;
 }
 
 export interface LucyBrainResponse {
@@ -188,6 +194,7 @@ export function useLucyBrain(): UseLucyBrainReturn {
       latencyBudget = isMobile ? 'low' : 'medium', // Force low latency on mobile
       stream = true,
       context = {},
+      geniusMode = false, // GENIUS MODE: Forces 70B+ models
     } = options;
 
     // Generate request ID for deduplication
@@ -214,6 +221,7 @@ export function useLucyBrain(): UseLucyBrainReturn {
           latencyBudget,
           context,
           isMobile,
+          geniusMode, // GENIUS MODE: Forces 70B+ models for maximum intelligence
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -316,6 +324,7 @@ export async function callLucyBrain(
         stream: false, // Non-streaming for simple calls
         latencyBudget: options.latencyBudget || 'medium',
         context: options.context || {},
+        geniusMode: options.geniusMode || false, // GENIUS MODE support
       }),
     });
 

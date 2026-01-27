@@ -91,13 +91,55 @@ const EMBEDDING_CACHE_MAX = 50;
 
 interface ModelSlot {
   id: string;
-  provider: 'huggingface' | 'lovable' | 'local';
+  provider: 'huggingface' | 'openrouter' | 'local';
   model: string;
   maxTokens: number;
   temperature: number;
   supportsStreaming: boolean;
   priority: number;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GENIUS MODE CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+// 
+// Genius Mode State Handling Strategy:
+// We use a REQUEST-LEVEL FLAG for maximum flexibility:
+// - Can be toggled per-request without requiring session changes
+// - Can be combined with session-level preference for persistence
+// - Allows A/B testing and gradual rollout
+// - Mobile-safe: no additional state management required
+//
+// The flag flows: Frontend → Request Body → lucy-brain → model selection
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface GeniusModeConfig {
+  enabled: boolean;
+  preferredProvider: 'qwen' | 'anthropic' | 'openai' | 'meta' | 'auto';
+}
+
+// OpenRouter models for Genius Mode (70B+ class)
+const OPENROUTER_GENIUS_MODELS = {
+  primary: [
+    { id: 'qwen-72b', model: 'qwen/qwen-2.5-72b-instruct', maxTokens: 8192, temperature: 0.7 },
+    { id: 'claude-sonnet', model: 'anthropic/claude-3.5-sonnet', maxTokens: 8192, temperature: 0.7 },
+    { id: 'gpt-4o', model: 'openai/gpt-4o', maxTokens: 8192, temperature: 0.7 },
+    { id: 'llama-70b', model: 'meta-llama/llama-3.1-70b-instruct', maxTokens: 8192, temperature: 0.7 },
+  ],
+  // Task-specific genius routing
+  reasoning: [
+    { id: 'qwen-72b', model: 'qwen/qwen-2.5-72b-instruct', maxTokens: 8192, temperature: 0.6 },
+    { id: 'claude-sonnet', model: 'anthropic/claude-3.5-sonnet', maxTokens: 8192, temperature: 0.6 },
+  ],
+  emotional: [
+    { id: 'claude-sonnet', model: 'anthropic/claude-3.5-sonnet', maxTokens: 4096, temperature: 0.8 },
+    { id: 'gpt-4o', model: 'openai/gpt-4o', maxTokens: 4096, temperature: 0.8 },
+  ],
+  code: [
+    { id: 'qwen-coder-32b', model: 'qwen/qwen-2.5-coder-32b-instruct', maxTokens: 8192, temperature: 0.2 },
+    { id: 'claude-sonnet', model: 'anthropic/claude-3.5-sonnet', maxTokens: 8192, temperature: 0.2 },
+  ],
+};
 
 // HuggingFace FREE TIER models (most powerful available without paid plans)
 // Desktop models - full context windows
@@ -399,6 +441,92 @@ async function executeWithFallback(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// OPENROUTER INTEGRATION (FOR GENIUS MODE)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_HEADERS = {
+  'HTTP-Referer': 'https://thelucylounge.com',
+  'X-Title': 'Lucy AI',
+};
+
+interface OpenRouterModel {
+  id: string;
+  model: string;
+  maxTokens: number;
+  temperature: number;
+}
+
+async function callOpenRouter(
+  model: OpenRouterModel,
+  messages: HFMessage[],
+  stream: boolean,
+  apiKey: string
+): Promise<Response> {
+  const endpoint = OPENROUTER_API_URL;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${apiKey}`,
+    ...OPENROUTER_HEADERS,
+  };
+
+  const body = {
+    model: model.model,
+    messages,
+    max_tokens: model.maxTokens,
+    temperature: model.temperature,
+    stream,
+  };
+
+  console.log(`[lucy-brain] Calling OpenRouter model: ${model.id}`);
+  
+  return await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+}
+
+async function executeWithOpenRouter(
+  models: OpenRouterModel[],
+  messages: HFMessage[],
+  stream: boolean,
+  apiKey: string
+): Promise<{ response: Response; modelUsed: string }> {
+  let lastError: Error | null = null;
+  
+  for (const model of models) {
+    try {
+      console.log(`[lucy-brain] Trying OpenRouter ${model.id}`);
+      
+      const response = await callOpenRouter(model, messages, stream, apiKey);
+      
+      if (response.ok) {
+        console.log(`[lucy-brain] Success with OpenRouter ${model.id}`);
+        return { response, modelUsed: model.id };
+      }
+      
+      const status = response.status;
+      if (status === 429 || status === 503 || status === 502) {
+        console.log(`[lucy-brain] OpenRouter ${model.id} unavailable (${status}), trying next...`);
+        continue;
+      }
+      
+      const errorText = await response.text();
+      console.log(`[lucy-brain] OpenRouter error from ${model.id}: ${status} - ${errorText.slice(0, 200)}`);
+      lastError = new Error(`${model.id} failed: ${status}`);
+      
+    } catch (err) {
+      console.error(`[lucy-brain] OpenRouter exception with ${model.id}:`, err);
+      lastError = err as Error;
+    }
+  }
+  
+  throw lastError || new Error('All OpenRouter models failed');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MEMORY INTEGRATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -635,7 +763,12 @@ serve(async (req) => {
       latencyBudget = 'medium',
       context = {},
       isMobile = false,
+      // GENIUS MODE: Forces 70B+ class models for maximum intelligence
+      geniusMode = false,
     } = await req.json();
+    
+    // Get OpenRouter API key for Genius Mode
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     
     // Detect mobile from header as fallback
     const deviceType = req.headers.get('x-device-type') || (isMobile ? 'mobile' : 'desktop');
@@ -691,7 +824,7 @@ serve(async (req) => {
     const effectiveLatencyBudget = isDeviceMobile ? 'low' : (latencyBudget as 'low' | 'medium' | 'high');
     const slotName = selectModelSlot(taskType, effectiveLatencyBudget);
     
-    console.log(`[lucy-brain] Task: ${taskType}, Slot: ${slotName}, Mobile: ${isDeviceMobile}, Streaming: ${stream}`);
+    console.log(`[lucy-brain] Task: ${taskType}, Slot: ${slotName}, Mobile: ${isDeviceMobile}, Streaming: ${stream}, GeniusMode: ${geniusMode}`);
 
     // Build system prompt with Lucy identity (compact for mobile)
     let systemPrompt = isDeviceMobile ? buildCompactSystemPrompt() : buildSystemPrompt();
@@ -721,7 +854,59 @@ serve(async (req) => {
     ];
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // Execute with fallback chain using appropriate model slots
+    // GENIUS MODE: Use OpenRouter 70B+ models
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    if (geniusMode && OPENROUTER_API_KEY) {
+      console.log('[lucy-brain] GENIUS MODE ACTIVE - Using frontier models via OpenRouter');
+      
+      // Select Genius models based on task type
+      let geniusModels = OPENROUTER_GENIUS_MODELS.primary;
+      if (taskType === 'reasoning') geniusModels = OPENROUTER_GENIUS_MODELS.reasoning;
+      else if (taskType === 'creative') geniusModels = OPENROUTER_GENIUS_MODELS.emotional;
+      else if (taskType === 'code') geniusModels = OPENROUTER_GENIUS_MODELS.code;
+      
+      const { response: geniusResponse, modelUsed: geniusModelUsed } = await executeWithOpenRouter(
+        geniusModels,
+        finalMessages,
+        stream,
+        OPENROUTER_API_KEY
+      );
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`[lucy-brain] GENIUS response ready in ${elapsed}ms using ${geniusModelUsed}`);
+      
+      // Handle streaming response
+      if (stream && geniusResponse.body) {
+        return new Response(createOptimizedStreamingResponse(geniusResponse), {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+            'X-Lucy-Mode': 'genius',
+            'X-Lucy-Time': elapsed.toString(),
+          },
+        });
+      }
+      
+      // Non-streaming response
+      const geniusData = await geniusResponse.json();
+      const geniusContent = geniusData.choices?.[0]?.message?.content || '';
+      
+      return new Response(JSON.stringify({
+        ok: true,
+        text: geniusContent,
+        mode: 'genius',
+        timing: { totalMs: elapsed },
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // STANDARD MODE: Execute with HuggingFace fallback chain
     // ═══════════════════════════════════════════════════════════════════════════
     
     const { response: hfResponse, modelUsed } = await executeWithFallbackOptimized(

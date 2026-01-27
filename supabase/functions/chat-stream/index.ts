@@ -478,7 +478,12 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, conversationId } = await req.json();
+    const { 
+      messages, 
+      conversationId,
+      geniusMode = false,  // GENIUS MODE: Forces 70B+ models
+      isMobile = false,
+    } = await req.json();
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -487,7 +492,7 @@ serve(async (req) => {
       throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
-    console.log('Starting chat stream with', messages.length, 'messages');
+    console.log(`Starting chat stream with ${messages.length} messages, geniusMode: ${geniusMode}`);
 
     // Get last user message for tool orchestration
     const lastUserMessage = messages.filter((m: any) => m.role === 'user').pop();
@@ -538,21 +543,52 @@ serve(async (req) => {
     // Generate fresh system prompt with current time for each request
     const currentSystemPrompt = buildSystemPrompt();
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // GENIUS MODE: Select 70B+ models for maximum intelligence
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Genius Mode models (70B+ class) - prioritize Qwen-72B, Claude, GPT-4o
+    const GENIUS_MODELS = [
+      'qwen/qwen-2.5-72b-instruct',
+      'anthropic/claude-3.5-sonnet',
+      'openai/gpt-4o',
+      'meta-llama/llama-3.1-70b-instruct',
+    ];
+    
+    // Standard models (fast, balanced)
+    const STANDARD_MODELS = [
+      'google/gemini-2.0-flash-001',
+      'openai/gpt-4o-mini',
+    ];
+    
+    // Select model based on Genius Mode
+    let selectedModel = STANDARD_MODELS[0]; // Default
+    
+    if (geniusMode) {
+      // In Genius Mode, use the most powerful model
+      selectedModel = GENIUS_MODELS[0];
+      console.log('[chat-stream] GENIUS MODE ACTIVE - Using frontier model:', selectedModel);
+    } else if (isMobile) {
+      // On mobile, use faster model
+      selectedModel = STANDARD_MODELS[1];
+    }
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://thelucylounge.com',
-        'X-Title': 'The Lucy Lounge',
+        'X-Title': 'Lucy AI',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
+        model: selectedModel,
         messages: [
           { role: 'system', content: currentSystemPrompt },
           ...enhancedMessages
         ],
         stream: true,
+        ...(geniusMode && { max_tokens: 8192 }), // More tokens for Genius Mode
       }),
     });
 
