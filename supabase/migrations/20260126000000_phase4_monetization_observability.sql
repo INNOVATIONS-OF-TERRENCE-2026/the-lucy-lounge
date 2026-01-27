@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS usage_events (
 CREATE INDEX IF NOT EXISTS idx_usage_events_user_time ON usage_events(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_tool_time ON usage_events(tool_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_type ON usage_events(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, (created_at::date));
+CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, date_trunc('day', created_at));
 
 -- ============================================================================
 -- PLATFORM TELEMETRY (Observability)
