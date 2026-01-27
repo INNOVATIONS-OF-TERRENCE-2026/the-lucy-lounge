@@ -386,6 +386,187 @@ export const RAIL_CONFIGS: RailConfig[] = [
     limit: 20,
     priority: 'low',
     icon: '⭐'
+  },
+  
+  // =============================================================================
+  // OSCAR MICHEAUX & RACE FILMS
+  // =============================================================================
+  
+  // Oscar Micheaux Films
+  {
+    id: 'race-films',
+    title: 'Race Films (1910s-1950s)',
+    subtitle: 'Independent Black cinema pioneers',
+    queryType: 'tag',
+    tags: ['race-films', 'black-cinema'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 5,
+    limit: 20,
+    priority: 'high',
+    icon: '🎬'
+  },
+  
+  // Black Westerns
+  {
+    id: 'black-westerns',
+    title: 'Black Westerns',
+    subtitle: 'Herb Jeffries & the Bronze Buckaroo',
+    queryType: 'tag',
+    tags: ['western', 'black-cinema'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 10,
+    priority: 'normal',
+    icon: '🤠'
+  },
+  
+  // Black Musicals
+  {
+    id: 'black-musicals',
+    title: 'Classic Black Musicals',
+    subtitle: 'Lena Horne, Cab Calloway & more',
+    queryType: 'tag',
+    tags: ['musical', 'black-cinema'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 15,
+    priority: 'normal',
+    icon: '🎵'
+  },
+  
+  // Paul Robeson Collection
+  {
+    id: 'paul-robeson',
+    title: 'Paul Robeson Collection',
+    subtitle: 'Legendary performer and activist',
+    queryType: 'custom',
+    tags: ['paul-robeson', 'black-cinema'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 10,
+    priority: 'normal',
+    icon: '🎭'
+  },
+  
+  // =============================================================================
+  // ANIMATION & SERIALS
+  // =============================================================================
+  
+  // Classic Animation
+  {
+    id: 'classic-animation',
+    title: 'Classic Animation',
+    subtitle: 'Fleischer Studios & more',
+    queryType: 'tag',
+    tags: ['animation', 'shorts', 'public-domain'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 5,
+    limit: 15,
+    priority: 'normal',
+    icon: '🎨'
+  },
+  
+  // Serials & Cliffhangers
+  {
+    id: 'serials',
+    title: 'Serials & Cliffhangers',
+    subtitle: 'Flash Gordon, Buck Rogers & more',
+    queryType: 'tag',
+    tags: ['series', 'adventure', 'public-domain'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 10,
+    priority: 'low',
+    icon: '📺'
+  },
+  
+  // Comedy Shorts
+  {
+    id: 'comedy-shorts',
+    title: 'Classic Comedy Shorts',
+    subtitle: 'Chaplin, Keaton, Laurel & Hardy',
+    queryType: 'tag',
+    tags: ['comedy', 'shorts', 'silent-era'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 15,
+    priority: 'normal',
+    icon: '🎩'
+  },
+  
+  // =============================================================================
+  // INTERNATIONAL CINEMA
+  // =============================================================================
+  
+  // Japanese Classics
+  {
+    id: 'japanese-classics',
+    title: 'Japanese Cinema',
+    subtitle: 'Kurosawa & beyond',
+    queryType: 'tag',
+    tags: ['international', 'drama', 'classic'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 2,
+    limit: 10,
+    priority: 'normal',
+    icon: '🇯🇵'
+  },
+  
+  // Martial Arts
+  {
+    id: 'martial-arts',
+    title: 'Martial Arts',
+    subtitle: 'Kung fu classics',
+    queryType: 'tag',
+    tags: ['martial-arts', 'action'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 2,
+    limit: 15,
+    priority: 'low',
+    icon: '🥋'
+  },
+  
+  // =============================================================================
+  // PRE-CODE & EARLY HOLLYWOOD
+  // =============================================================================
+  
+  // Pre-Code Hollywood
+  {
+    id: 'pre-code',
+    title: 'Pre-Code Hollywood',
+    subtitle: 'Scandalous classics (1929-1934)',
+    queryType: 'tag',
+    tags: ['pre-code'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 3,
+    limit: 15,
+    priority: 'normal',
+    icon: '💋'
+  },
+  
+  // German Expressionism
+  {
+    id: 'german-expressionism',
+    title: 'German Expressionism',
+    subtitle: 'Shadows and nightmares',
+    queryType: 'tag',
+    tags: ['silent-film', 'horror', 'international'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 2,
+    limit: 10,
+    priority: 'low',
+    icon: '🖤'
   }
 ];
 

@@ -61,6 +61,74 @@ export {
 export { ArchiveOrgFASTAdapter, archiveOrgAdapter, ARCHIVE_COLLECTIONS } from './archiveFASTAdapter';
 export { YouTubeFASTAdapter, youtubeFASTAdapter, YOUTUBE_COLLECTIONS } from './youtubeFASTAdapter';
 
+// Additional FAST Provider Adapters
+export { TubiAdapter, TUBI_CATEGORIES, TUBI_CONFIG } from './tubiAdapter';
+export { PlutoAdapter, PLUTO_FEATURED_CHANNELS, PLUTO_CONFIG } from './plutoAdapter';
+export { PlexAdapter, PLEX_CATEGORIES, PLEX_CONFIG } from './plexAdapter';
+export { RokuAdapter, ROKU_CATEGORIES, ROKU_CONFIG } from './rokuAdapter';
+export { FreeveeAdapter, FREEVEE_CATEGORIES, FREEVEE_CONFIG } from './freeveeAdapter';
+
+// =============================================================================
+// FAST ADAPTER REGISTRY
+// =============================================================================
+
+import { TubiAdapter } from './tubiAdapter';
+import { PlutoAdapter } from './plutoAdapter';
+import { PlexAdapter } from './plexAdapter';
+import { RokuAdapter } from './rokuAdapter';
+import { FreeveeAdapter } from './freeveeAdapter';
+import { archiveOrgAdapter } from './archiveFASTAdapter';
+import { youtubeFASTAdapter } from './youtubeFASTAdapter';
+
+/**
+ * Complete registry of all FAST provider adapters
+ */
+export const FAST_ADAPTERS = {
+  archive_org: archiveOrgAdapter,
+  youtube: youtubeFASTAdapter,
+  tubi: TubiAdapter,
+  pluto_tv: PlutoAdapter,
+  plex_free: PlexAdapter,
+  roku_channel: RokuAdapter,
+  freevee: FreeveeAdapter,
+} as const;
+
+export type FASTAdapterId = keyof typeof FAST_ADAPTERS;
+
+/**
+ * Get a FAST adapter by provider ID
+ */
+export function getFASTAdapterById(providerId: FASTAdapterId) {
+  return FAST_ADAPTERS[providerId];
+}
+
+/**
+ * Get all FAST adapters that support inline embedding
+ */
+export function getEmbeddableFASTAdapters() {
+  return [
+    FAST_ADAPTERS.archive_org,
+    FAST_ADAPTERS.youtube,
+  ];
+}
+
+/**
+ * Get all FAST adapters (includes deep-link only providers)
+ */
+export function getAllFASTAdapters() {
+  return Object.values(FAST_ADAPTERS);
+}
+
+/**
+ * Check health of all FAST providers
+ */
+export async function checkFASTProvidersHealth() {
+  const results = await Promise.all(
+    getAllFASTAdapters().map(adapter => adapter.healthCheck())
+  );
+  return results;
+}
+
 // =============================================================================
 // PROVIDER REGISTRY
 // =============================================================================
