@@ -157,7 +157,7 @@ END $$;
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_providers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   provider_type provider_type NOT NULL,
   logo_url TEXT,
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS public.media_providers (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_series (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   canonical_id TEXT NOT NULL UNIQUE,
   media_type media_type NOT NULL,
   category media_category NOT NULL,
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS public.media_series (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_nodes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   canonical_id TEXT NOT NULL UNIQUE,
   media_type media_type NOT NULL,
   category media_category NOT NULL,
@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS public.media_nodes (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_availability (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   provider_id UUID NOT NULL REFERENCES public.media_providers(id) ON DELETE CASCADE,
   
@@ -343,7 +343,7 @@ CREATE TABLE IF NOT EXISTS public.media_availability (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_relationships (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   source_id UUID NOT NULL,
   source_type TEXT NOT NULL CHECK (source_type IN ('node', 'series')),
   target_id UUID NOT NULL,
@@ -367,7 +367,7 @@ CREATE TABLE IF NOT EXISTS public.media_relationships (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS public.media_tags (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_node_tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   tag_id UUID NOT NULL REFERENCES public.media_tags(id) ON DELETE CASCADE,
   relevance NUMERIC(3,2) DEFAULT 1.0 CHECK (relevance >= 0 AND relevance <= 1),
@@ -403,7 +403,7 @@ CREATE TABLE IF NOT EXISTS public.media_node_tags (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_people (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   canonical_id TEXT NOT NULL UNIQUE,
   
   name TEXT NOT NULL,
@@ -438,7 +438,7 @@ CREATE TABLE IF NOT EXISTS public.media_people (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.media_credits (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   person_id UUID NOT NULL REFERENCES public.media_people(id) ON DELETE CASCADE,
   media_node_id UUID REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   media_series_id UUID REFERENCES public.media_series(id) ON DELETE CASCADE,
@@ -467,7 +467,7 @@ CREATE TABLE IF NOT EXISTS public.media_credits (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_media_state (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   
@@ -500,7 +500,7 @@ CREATE TABLE IF NOT EXISTS public.user_media_state (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_watch_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   
@@ -536,7 +536,7 @@ CREATE TABLE IF NOT EXISTS public.user_watch_events (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_listen_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   
@@ -569,7 +569,7 @@ CREATE TABLE IF NOT EXISTS public.user_listen_events (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_collections (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   
   name TEXT NOT NULL,
@@ -601,7 +601,7 @@ CREATE TABLE IF NOT EXISTS public.user_collections (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_collection_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   collection_id UUID NOT NULL REFERENCES public.user_collections(id) ON DELETE CASCADE,
   media_node_id UUID NOT NULL REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   
@@ -622,7 +622,7 @@ CREATE TABLE IF NOT EXISTS public.user_collection_items (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_ratings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   media_node_id UUID REFERENCES public.media_nodes(id) ON DELETE CASCADE,
   media_series_id UUID REFERENCES public.media_series(id) ON DELETE CASCADE,
@@ -654,7 +654,7 @@ CREATE TABLE IF NOT EXISTS public.user_ratings (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_taste_profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   
   -- Affinities (JSONB for flexibility)
@@ -696,7 +696,7 @@ CREATE TABLE IF NOT EXISTS public.user_taste_profiles (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.lucy_journeys (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   
   title TEXT NOT NULL,
   description TEXT,
@@ -736,7 +736,7 @@ CREATE TABLE IF NOT EXISTS public.lucy_journeys (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.mood_discovery_config (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   mood_slug TEXT NOT NULL UNIQUE,
   
   display_name TEXT NOT NULL,
@@ -764,7 +764,7 @@ CREATE TABLE IF NOT EXISTS public.mood_discovery_config (
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS public.provider_sync_jobs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   provider_id UUID NOT NULL REFERENCES public.media_providers(id) ON DELETE CASCADE,
   
   job_type TEXT NOT NULL CHECK (job_type IN ('full', 'incremental', 'specific_ids')),
