@@ -35,9 +35,13 @@ import App from "./App";
 import { RootErrorBoundary } from "./components/system/RootErrorBoundary";
 import { SupabaseGuard } from "./components/system/SupabaseGuard";
 import { initViewportFix } from "./lib/viewportFix";
+import { initPWAMode } from "./lib/pwaUtils";
 
 // 🔥 Initialize viewport fix BEFORE React (critical for mobile)
 initViewportFix();
+
+// 🔥 Initialize PWA standalone mode detection
+initPWAMode();
 
 // 🔥 This line is REQUIRED so all your Tailwind + CSS variables + theme styles load
 import "./index.css";

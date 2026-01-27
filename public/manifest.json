@@ -1,50 +1,83 @@
 {
-  "name": "Lucy AI - Beyond Intelligence",
-  "short_name": "Lucy AI",
+  "name": "Lucy AI",
+  "short_name": "Lucy",
   "description": "Your advanced AI assistant with reasoning, vision, memory, and creativity",
-  "start_url": "/",
+  "start_url": "/chat",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#1a0f2e",
-  "theme_color": "#8b5cf6",
-  "orientation": "portrait-primary",
+  "background_color": "#0b0118",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "lang": "en-US",
+  "dir": "ltr",
   "categories": ["productivity", "utilities", "education"],
-  "screenshots": [
-    {
-      "src": "/lucy-og-image.png",
-      "sizes": "1200x630",
-      "type": "image/png"
-    }
-  ],
+  "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
     {
       "src": "/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/lucy-og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Lucy AI Chat Interface"
     }
   ],
   "shortcuts": [
     {
       "name": "New Chat",
+      "short_name": "Chat",
       "url": "/chat",
-      "description": "Start a new conversation with Lucy"
+      "description": "Start a new conversation with Lucy",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Rooms",
-      "url": "/rooms",
-      "description": "Join a collaborative chat room"
+      "name": "Audio Studio",
+      "short_name": "Audio",
+      "url": "/studios/audio",
+      "description": "Create music and audio with Lucy"
+    },
+    {
+      "name": "AI Tools",
+      "short_name": "Tools",
+      "url": "/tools",
+      "description": "Access AI-powered tools"
     }
   ],
   "share_target": {

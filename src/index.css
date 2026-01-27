@@ -83,6 +83,45 @@ body {
 }
 
 /* =========================================================
+   PWA STANDALONE MODE ENHANCEMENTS
+   Applied when running as installed PWA (Add to Home Screen)
+   Classes set by pwaUtils.ts initPWAMode()
+   ========================================================= */
+
+/* iOS standalone mode - extra safe area handling */
+html.pwa-standalone.is-ios {
+  /* Ensure full height in standalone */
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+html.pwa-standalone.is-ios body {
+  /* iOS standalone has no browser chrome */
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+}
+
+/* Status bar area - ensure content doesn't overlap */
+html.pwa-standalone {
+  /* Prevent any white bars */
+  background: var(--theme-bg-1, #0b0118);
+}
+
+/* Android standalone mode tweaks */
+html.pwa-standalone.is-android {
+  /* Android has different safe area behavior */
+  height: 100dvh;
+}
+
+/* Standalone mode indicator (dev only - hidden in prod) */
+@media (display-mode: standalone) {
+  /* PWA is running in standalone mode */
+  html {
+    --pwa-mode: standalone;
+  }
+}
+
+/* =========================================================
    WEBKIT RENDERING HARDENING (Fix LCD artifacts)
    Eliminates sub-pixel rendering issues causing thin black lines
    ========================================================= */
