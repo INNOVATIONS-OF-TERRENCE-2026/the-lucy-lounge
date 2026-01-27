@@ -523,7 +523,7 @@ INSERT INTO media_nodes (
 -- MODERN TV SERIES (BINGE-WORTHY)
 -- ═══════════════════════════════════════════════════════════════════════════
 
-('lucy:series:fast:power', 'series', 'video',
+('lucy:series:fast:power', 'tv_show', 'video',
  'Power',
  'James Ghost St. Patrick juggles two lives: nightclub owner and drug kingpin. Omari Hardwick stars in this Starz crime drama.',
  2014, NULL,
@@ -531,7 +531,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/rGvKdMWsKfRiISxlBqgkCbLZB2x.jpg',
  8.2, 92, 'TV-MA'),
 
-('lucy:series:fast:snowfall', 'series', 'video',
+('lucy:series:fast:snowfall', 'tv_show', 'video',
  'Snowfall',
  'A crime drama set in Los Angeles in 1983 centered around the first crack cocaine epidemic and its devastating effects on the culture.',
  2017, NULL,
@@ -539,7 +539,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/bqRBNBOyJgH7C08dLzDFVK3J7JO.jpg',
  8.5, 90, 'TV-MA'),
 
-('lucy:series:fast:the_wire', 'series', 'video',
+('lucy:series:fast:the_wire', 'tv_show', 'video',
  'The Wire',
  'The Baltimore drug scene, as seen through the eyes of drug dealers and law enforcement. Often cited as the greatest TV series ever made.',
  2002, NULL,
@@ -547,7 +547,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/4lbclFySvugI51fwsyxBTOm4DqK.jpg',
  9.3, 98, 'TV-MA'),
 
-('lucy:series:fast:atlanta', 'series', 'video',
+('lucy:series:fast:atlanta', 'tv_show', 'video',
  'Atlanta',
  'Two cousins navigate the Atlanta rap scene in order to improve their lives. Donald Glover created and stars.',
  2016, NULL,
@@ -555,7 +555,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/27RioVpFE8xPPvKnSvEj8JMJksn.jpg',
  8.8, 92, 'TV-MA'),
 
-('lucy:series:fast:insecure', 'series', 'video',
+('lucy:series:fast:insecure', 'tv_show', 'video',
  'Insecure',
  'Follow Issa and Molly as they navigate love and life in Los Angeles. Issa Rae created and stars.',
  2016, NULL,
@@ -563,7 +563,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/8FYPaGNKSKBjxsqvqJhcFBMHEm9.jpg',
  8.0, 85, 'TV-MA'),
 
-('lucy:series:fast:queens', 'series', 'video',
+('lucy:series:fast:queens', 'tv_show', 'video',
  'Queens',
  'Four women reunite for a chance to recapture their fame as the Nasty Bitches—their legendary 90s hip hop group.',
  2021, NULL,
@@ -571,7 +571,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/mLO3oJEt58sGEuxKkVhPUdqNQf8.jpg',
  7.2, 75, 'TV-14'),
 
-('lucy:series:fast:bmf', 'series', 'video',
+('lucy:series:fast:bmf', 'tv_show', 'video',
  'BMF (Black Mafia Family)',
  'Two brothers rise from the streets of Southwest Detroit in the late 80s and give birth to one of the most influential crime families in the country.',
  2021, NULL,
@@ -579,7 +579,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/q2rSAB6SMYbQKxvgVJLYdNp4qYU.jpg',
  8.0, 85, 'TV-MA'),
 
-('lucy:series:fast:empire', 'series', 'video',
+('lucy:series:fast:empire', 'tv_show', 'video',
  'Empire',
  'A hip hop mogul must choose a successor among his three sons who are battling for control of his empire. Terrence Howard stars.',
  2015, NULL,
@@ -587,7 +587,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/kaPNTTlHRLNFfZMGDgT6HyKSPFr.jpg',
  7.8, 82, 'TV-14'),
 
-('lucy:series:fast:wu_tang_saga', 'series', 'video',
+('lucy:series:fast:wu_tang_saga', 'tv_show', 'video',
  'Wu-Tang: An American Saga',
  'The Wu-Tang Clans formation in early-90s New York. Street life meets hip hop history.',
  2019, NULL,
@@ -595,7 +595,7 @@ INSERT INTO media_nodes (
  'https://image.tmdb.org/t/p/w780/sHMXf5mLvDqHwYzfqnSUZhxk8Y4.jpg',
  8.2, 85, 'TV-MA'),
 
-('lucy:series:fast:breaking_bad', 'series', 'video',
+('lucy:series:fast:breaking_bad', 'tv_show', 'video',
  'Breaking Bad',
  'A high school chemistry teacher diagnosed with terminal lung cancer turns to manufacturing methamphetamine to secure his familys future.',
  2008, NULL,
@@ -756,4 +756,4 @@ ON CONFLICT DO NOTHING;
 -- SELECT 'Modern catalog count' as metric, COUNT(*) as value FROM media_nodes WHERE canonical_id LIKE 'lucy:%:fast:%';
 -- SELECT 'Modern Black Cinema' as metric, COUNT(DISTINCT mnt.media_node_id) as value 
 -- FROM media_node_tags mnt JOIN media_tags t ON mnt.tag_id = t.id WHERE t.name = 'modern-black-cinema';
--- SELECT 'TV Series' as metric, COUNT(*) as value FROM media_nodes WHERE media_type = 'series' AND canonical_id LIKE 'lucy:series:fast:%';
+-- SELECT 'TV Series' as metric, COUNT(*) as value FROM media_nodes WHERE media_type = 'tv_show' AND canonical_id LIKE 'lucy:series:fast:%';
