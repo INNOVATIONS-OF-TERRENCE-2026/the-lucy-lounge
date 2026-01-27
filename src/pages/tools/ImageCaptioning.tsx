@@ -1,270 +1,365 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Image as ImageIcon, Upload, Copy, Loader2, AlertCircle, Sparkles } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
-import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
+/**
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │ THE LUCY LOUNGE — IMAGE CAPTIONING TOOL                                    │
+ * │                                                                             │
+ * │ AI-powered image analysis with captions, tags, and object detection        │
+ * │                                                                             │
+ * │ Lucy sees what you see.                                                    │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ */
 
-const ImageCaptioningContent = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { executeWithAccessCheck } = useToolAccess({ toolId: 'image' });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [caption, setCaption] = useState("");
-  const [detailedDescription, setDetailedDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Image as ImageIcon, 
+  Loader2, 
+  Copy, 
+  Upload,
+  Link,
+  Tag,
+  Eye,
+  Palette,
+  Sparkles,
+  X
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToolLayout } from '@/components/tools/ToolLayout';
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) {
-      if (!selected.type.startsWith("image/")) {
-        setError("Please select an image file");
-        return;
-      }
-      if (selected.size > 5 * 1024 * 1024) {
-        setError("File size must be under 5MB");
-        return;
-      }
-      
-      setFile(selected);
-      setError(null);
-      setCaption("");
-      setDetailedDescription("");
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target?.result as string);
-      reader.readAsDataURL(selected);
-    }
-  };
-
-  const analyzeImage = async () => {
-    if (!file || !preview) return;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await executeWithAccessCheck(
-        async () => {
-          // Use HuggingFace vision model for image analysis
-          const { data, error: apiError } = await supabase.functions.invoke("hf-vision", {
-            body: {
-              imageBase64: preview.split(",")[1],
-              prompt: "Describe this image in detail. Include: 1) A brief one-line caption, 2) Detailed description of what's shown, 3) Any notable elements, colors, composition, or context."
-            }
-          });
-
-          if (apiError) throw apiError;
-          return data;
-        },
-        (reason) => {
-          setError(reason);
-        }
-      );
-
-      if (!result) {
-        setLoading(false);
-        return;
-      }
-
-      if (result?.description) {
-        // Parse the response
-        const text = result.description;
-        
-        // Try to extract caption and description
-        const lines = text.split("\n").filter((l: string) => l.trim());
-        if (lines.length > 0) {
-          setCaption(lines[0]);
-          setDetailedDescription(lines.slice(1).join("\n") || text);
-        } else {
-          setCaption(text.slice(0, 100));
-          setDetailedDescription(text);
-        }
-        
-        toast({ title: "Success", description: "Image analyzed successfully" });
-      } else {
-        // Fallback to lucy-router with text description
-        const { data: fallbackData } = await supabase.functions.invoke("lucy-router", {
-          body: {
-            userId: "anonymous",
-            messages: [
-              {
-                role: "user",
-                content: `Generate a detailed caption for this image. The image is a ${file.type} file named "${file.name}".`
-              }
-            ]
-          }
-        });
-
-        const fallbackText = fallbackData?.plan?.finalAnswer || "Unable to analyze image";
-        setCaption(fallbackText.slice(0, 100));
-        setDetailedDescription(fallbackText);
-      }
-    } catch (err: any) {
-      console.error("[ImageCaptioning] Error:", err);
-      setError(err.message || "Failed to analyze image");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    toast({ title: "Copied", description: "Text copied to clipboard" });
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <ImageIcon className="h-6 w-6 text-primary" />
-              Image Captioning
-            </h1>
-            <p className="text-sm text-muted-foreground">Generate AI descriptions for images</p>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload Image</CardTitle>
-            <CardDescription>
-              Select an image to generate an AI-powered caption and description
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-            >
-              {preview ? (
-                <img 
-                  src={preview} 
-                  alt="Preview" 
-                  className="max-h-64 mx-auto rounded-lg object-contain"
-                />
-              ) : (
-                <>
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-lg font-medium">Click to upload image</p>
-                  <p className="text-sm text-muted-foreground">PNG, JPG, GIF up to 5MB</p>
-                </>
-              )}
-            </div>
-
-            {file && (
-              <p className="text-sm text-muted-foreground text-center">
-                {file.name} ({(file.size / 1024).toFixed(1)} KB)
-              </p>
-            )}
-
-            {error && (
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
-
-            <Button 
-              onClick={analyzeImage} 
-              disabled={!file || loading}
-              className="w-full"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Caption
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {caption && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Caption</CardTitle>
-                <CardDescription>Short description of the image</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(caption)}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-medium">{caption}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {detailedDescription && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Detailed Description</CardTitle>
-                <CardDescription>Complete analysis of the image</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(detailedDescription)}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={detailedDescription}
-                readOnly
-                rows={8}
-                className="text-sm"
-              />
-            </CardContent>
-          </Card>
-        )}
-      </main>
-    </div>
-  );
-};
+// =============================================================================
+// COMPONENT
+// =============================================================================
 
 const ImageCaptioning = () => {
   return (
-    <ToolErrorBoundary toolName="Image Captioning">
-      <ToolAccessGuard
-        toolId="image"
-        toolName="Image Captioning"
-        toolDescription="Generate AI descriptions for images"
-      >
-        <ImageCaptioningContent />
-      </ToolAccessGuard>
-    </ToolErrorBoundary>
+    <ToolLayout
+      toolId="captioning"
+      toolName="Image Captioning"
+      toolDescription="Generate AI descriptions and tags for any image"
+      toolIcon={<ImageIcon className="w-5 h-5 text-primary" />}
+      defaultModel="gpt-4o-mini"
+      showModelSelector={true}
+      showHistory={true}
+      enableStreaming={false}
+    >
+      {(props) => <CaptioningContent {...props} />}
+    </ToolLayout>
   );
 };
+
+interface CaptioningContentProps {
+  execute: <T>(input: Record<string, unknown>, processor?: (data: unknown) => T) => Promise<T | null>;
+  isExecuting: boolean;
+  result: any;
+  error: string | null;
+  copyToClipboard: (text: string) => void;
+}
+
+function CaptioningContent({ 
+  execute, 
+  isExecuting, 
+  result, 
+  error,
+  copyToClipboard 
+}: CaptioningContentProps) {
+  const [inputMode, setInputMode] = useState<'url' | 'upload'>('url');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleUrlSubmit = async () => {
+    if (!imageUrl.trim()) return;
+    setImagePreview(imageUrl);
+    await execute({ imageUrl });
+  };
+
+  const handleFileUpload = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      setImagePreview(base64);
+      await execute({ imageBase64: base64.split(',')[1] });
+    };
+    reader.readAsDataURL(file);
+  }, [execute]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(file);
+  }, [handleFileUpload]);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragActive(false);
+  };
+
+  const clearImage = () => {
+    setImageUrl('');
+    setImagePreview(null);
+  };
+
+  const caption = result?.outputJson?.caption || result?.output;
+  const tags = result?.outputJson?.tags || [];
+  const objects = result?.outputJson?.objects || [];
+  const colors = result?.outputJson?.colors || [];
+  const confidence = result?.outputJson?.confidence || 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Input Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload or Link an Image</CardTitle>
+          <CardDescription>
+            Provide an image URL or upload a file to analyze
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as 'url' | 'upload')}>
+            <TabsList>
+              <TabsTrigger value="url">
+                <Link className="w-4 h-4 mr-2" />
+                URL
+              </TabsTrigger>
+              <TabsTrigger value="upload">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="url" className="mt-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com/image.jpg"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  disabled={isExecuting}
+                  onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                />
+                <Button 
+                  onClick={handleUrlSubmit} 
+                  disabled={isExecuting || !imageUrl.trim()}
+                >
+                  {isExecuting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Analyze
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="upload" className="mt-4">
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+                }`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
+                <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-4" />
+                <p className="text-sm text-muted-foreground mb-2">
+                  Drag and drop an image here, or
+                </p>
+                <label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                    disabled={isExecuting}
+                  />
+                  <Button variant="outline" disabled={isExecuting} asChild>
+                    <span>Browse Files</span>
+                  </Button>
+                </label>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Preview & Results */}
+      {imagePreview && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Image Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Image Preview</CardTitle>
+                  <Button variant="ghost" size="icon" onClick={clearImage}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-contain"
+                  />
+                  {isExecuting && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Results */}
+          {caption && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-primary" />
+                      Analysis Results
+                    </CardTitle>
+                    {confidence > 0 && (
+                      <Badge variant="secondary">
+                        {Math.round(confidence * 100)}% confidence
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Caption */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Caption</h4>
+                    <p className="text-muted-foreground">{caption}</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => copyToClipboard(caption)}
+                    >
+                      <Copy className="w-3 h-3 mr-2" />
+                      Copy
+                    </Button>
+                  </div>
+
+                  {/* Tags */}
+                  {tags.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <Tag className="w-4 h-4" />
+                        Tags
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag: string, i: number) => (
+                          <Badge key={i} variant="outline">{tag}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Objects */}
+                  {objects.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <Eye className="w-4 h-4" />
+                        Detected Objects
+                      </h4>
+                      <div className="space-y-1">
+                        {objects.map((obj: { name: string; confidence: number }, i: number) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span>{obj.name}</span>
+                            <span className="text-muted-foreground">
+                              {Math.round(obj.confidence * 100)}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Colors */}
+                  {colors.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Dominant Colors
+                      </h4>
+                      <div className="flex gap-2">
+                        {colors.map((color: string, i: number) => (
+                          <div
+                            key={i}
+                            className="w-8 h-8 rounded-full border"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </div>
+      )}
+
+      {/* Features */}
+      {!imagePreview && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <Eye className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">Smart Captions</h3>
+              <p className="text-sm text-muted-foreground">
+                Generate detailed descriptions of any image
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <Tag className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">Auto Tagging</h3>
+              <p className="text-sm text-muted-foreground">
+                Automatically extract relevant tags and keywords
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <Palette className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">Color Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                Identify dominant colors in the image
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default ImageCaptioning;

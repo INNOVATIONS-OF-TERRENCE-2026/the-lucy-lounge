@@ -1,284 +1,364 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Code, Play, Copy, Loader2, AlertTriangle, Terminal } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
-import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
+/**
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │ THE LUCY LOUNGE — CODE EXECUTOR TOOL                                       │
+ * │                                                                             │
+ * │ Secure JavaScript/TypeScript execution in isolated sandbox                 │
+ * │                                                                             │
+ * │ Lucy runs your code safely.                                                │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ */
 
-type Language = "javascript" | "python";
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Code, 
+  Play, 
+  Loader2, 
+  Copy, 
+  Terminal,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Trash2,
+  FileCode
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ToolLayout } from '@/components/tools/ToolLayout';
 
-const CodeExecutorContent = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { executeWithAccessCheck, dailyRemaining } = useToolAccess({ toolId: 'code' });
-  
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState<Language>("javascript");
-  const [output, setOutput] = useState("");
-  const [analysis, setAnalysis] = useState("");
-  const [loading, setLoading] = useState(false);
+// =============================================================================
+// COMPONENT
+// =============================================================================
 
-  const executeCode = async () => {
-    if (!code.trim()) {
-      toast({ title: "Error", description: "Please enter some code", variant: "destructive" });
-      return;
-    }
-
-    setLoading(true);
-    setOutput("");
-    setAnalysis("");
-
-    try {
-      const result = await executeWithAccessCheck(
-        async () => {
-          const { data, error } = await supabase.functions.invoke("code-executor", {
-            body: {
-              code: code.trim(),
-              language
-            }
-          });
-
-          if (error) throw error;
-          return data;
-        },
-        (reason) => {
-          toast({ 
-            title: "Access Denied", 
-            description: reason, 
-            variant: "destructive" 
-          });
-        }
-      );
-
-      if (!result) {
-        setLoading(false);
-        return;
-      }
-
-      if (result?.output) {
-        setOutput(result.output);
-      }
-      if (result?.analysis) {
-        setAnalysis(result.analysis);
-      }
-      if (result?.error) {
-        setOutput(`Error: ${result.error}`);
-      }
-
-      toast({ title: "Success", description: "Code analyzed successfully" });
-    } catch (err: any) {
-      console.error("[CodeExecutor] Error:", err);
-      setOutput(`Error: ${err.message || "Failed to execute code"}`);
-      toast({ title: "Error", description: "Code execution failed", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    toast({ title: "Copied", description: "Content copied to clipboard" });
-  };
-
-  const loadExample = (lang: Language) => {
-    if (lang === "javascript") {
-      setCode(`// Calculate factorial
-function factorial(n) {
-  if (n <= 1) return 1;
-  return n * factorial(n - 1);
-}
-
-// Test the function
-const result = factorial(5);
-console.log("Factorial of 5:", result);
-
-// Fibonacci sequence
-function fibonacci(n) {
-  const seq = [0, 1];
-  for (let i = 2; i < n; i++) {
-    seq.push(seq[i-1] + seq[i-2]);
-  }
-  return seq;
-}
-
-console.log("First 10 Fibonacci:", fibonacci(10));`);
-    } else {
-      setCode(`# Calculate factorial
-def factorial(n):
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
-
-# Test the function
-result = factorial(5)
-print(f"Factorial of 5: {result}")
-
-# Fibonacci sequence
-def fibonacci(n):
-    seq = [0, 1]
-    for i in range(2, n):
-        seq.append(seq[i-1] + seq[i-2])
-    return seq
-
-print(f"First 10 Fibonacci: {fibonacci(10)}")`);
-    }
-    setLanguage(lang);
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Code className="h-6 w-6 text-primary" />
-              Code Executor
-            </h1>
-            <p className="text-sm text-muted-foreground">AI-powered code analysis and execution simulation</p>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 space-y-6">
-        <Card className="border-amber-500/20 bg-amber-500/5">
-          <CardContent className="pt-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-amber-500">Sandboxed Environment</p>
-                <p className="text-muted-foreground">
-                  Code is analyzed by AI and simulated, not executed in a real runtime. 
-                  This is safe for learning and testing logic without security risks.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Code Editor</CardTitle>
-            <CardDescription>Write or paste your code below</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Button
-                variant={language === "javascript" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setLanguage("javascript")}
-              >
-                JavaScript
-              </Button>
-              <Button
-                variant={language === "python" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setLanguage("python")}
-              >
-                Python
-              </Button>
-              <div className="flex-1" />
-              <Button variant="outline" size="sm" onClick={() => loadExample(language)}>
-                Load Example
-              </Button>
-            </div>
-
-            <Textarea
-              placeholder={language === "javascript" 
-                ? "// Enter your JavaScript code here\nconsole.log('Hello, World!');" 
-                : "# Enter your Python code here\nprint('Hello, World!')"
-              }
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              rows={15}
-              className="font-mono text-sm"
-            />
-
-            <div className="flex gap-2">
-              <Button onClick={executeCode} disabled={loading} className="flex-1">
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Run Code
-                  </>
-                )}
-              </Button>
-              <Button variant="outline" onClick={() => setCode("")}>
-                Clear
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {output && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Terminal className="h-4 w-4" />
-                  Output
-                </CardTitle>
-                <CardDescription>Simulated execution result</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(output)}>
-                <Copy className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <pre className="p-4 bg-muted rounded-lg overflow-auto max-h-64 font-mono text-sm whitespace-pre-wrap">
-                {output}
-              </pre>
-            </CardContent>
-          </Card>
-        )}
-
-        {analysis && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Code Analysis</CardTitle>
-                <CardDescription>AI explanation of what the code does</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(analysis)}>
-                <Copy className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p className="whitespace-pre-wrap">{analysis}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </main>
-    </div>
-  );
-};
-
-// Wrap with access guard and error boundary
 const CodeExecutor = () => {
   return (
-    <ToolErrorBoundary toolName="Code Executor">
-      <ToolAccessGuard
-        toolId="code"
-        toolName="Code Executor"
-        toolDescription="AI-powered code analysis and execution simulation"
-      >
-        <CodeExecutorContent />
-      </ToolAccessGuard>
-    </ToolErrorBoundary>
+    <ToolLayout
+      toolId="code-executor"
+      toolName="Code Executor"
+      toolDescription="Run JavaScript/TypeScript in a secure sandbox"
+      toolIcon={<Code className="w-5 h-5 text-primary" />}
+      defaultModel="gpt-4o-mini"
+      showModelSelector={false}
+      showHistory={true}
+      enableStreaming={false}
+    >
+      {(props) => <ExecutorContent {...props} />}
+    </ToolLayout>
   );
 };
+
+interface ExecutorContentProps {
+  execute: <T>(input: Record<string, unknown>, processor?: (data: unknown) => T) => Promise<T | null>;
+  isExecuting: boolean;
+  result: any;
+  error: string | null;
+  copyToClipboard: (text: string) => void;
+}
+
+const CODE_EXAMPLES = [
+  {
+    name: 'Hello World',
+    code: `console.log("Hello, Lucy!");
+return "Hello from the sandbox!";`,
+  },
+  {
+    name: 'Fibonacci',
+    code: `function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+const results = [];
+for (let i = 0; i < 10; i++) {
+  results.push(fibonacci(i));
+}
+console.log("Fibonacci sequence:", results);
+return results;`,
+  },
+  {
+    name: 'Array Operations',
+    code: `const numbers = [1, 2, 3, 4, 5];
+
+const doubled = numbers.map(n => n * 2);
+console.log("Doubled:", doubled);
+
+const sum = numbers.reduce((a, b) => a + b, 0);
+console.log("Sum:", sum);
+
+const filtered = numbers.filter(n => n > 2);
+console.log("Filtered (>2):", filtered);
+
+return { doubled, sum, filtered };`,
+  },
+  {
+    name: 'Object Manipulation',
+    code: `const user = {
+  name: "Lucy",
+  age: 25,
+  skills: ["AI", "Chat", "Music"]
+};
+
+const enhanced = {
+  ...user,
+  level: "Expert",
+  greeting: \`Hello, I'm \${user.name}!\`
+};
+
+console.log("Enhanced user:", enhanced);
+return enhanced;`,
+  },
+];
+
+function ExecutorContent({ 
+  execute, 
+  isExecuting, 
+  result, 
+  error,
+  copyToClipboard 
+}: ExecutorContentProps) {
+  const [code, setCode] = useState('');
+  const [language, setLanguage] = useState<'javascript' | 'typescript'>('javascript');
+  const [timeout, setTimeout] = useState(5000);
+
+  const handleExecute = async () => {
+    if (!code.trim()) return;
+    await execute({ code, language, timeout });
+  };
+
+  const loadExample = (example: typeof CODE_EXAMPLES[0]) => {
+    setCode(example.code);
+  };
+
+  const output = result?.outputJson?.output || result?.output;
+  const logs = result?.outputJson?.logs || [];
+  const execError = result?.outputJson?.error;
+  const executionTime = result?.outputJson?.executionTime;
+
+  return (
+    <div className="space-y-6">
+      {/* Security Notice */}
+      <Alert>
+        <AlertTriangle className="w-4 h-4" />
+        <AlertDescription>
+          Code runs in an isolated sandbox with no access to DOM, network, or storage.
+          Maximum execution time: {timeout / 1000} seconds.
+        </AlertDescription>
+      </Alert>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Editor */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Code Editor</CardTitle>
+              <div className="flex items-center gap-2">
+                <Select value={language} onValueChange={(v) => setLanguage(v as 'javascript' | 'typescript')}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="javascript">JavaScript</SelectItem>
+                    <SelectItem value="typescript">TypeScript</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <CardDescription>
+              Write your code below and click Run to execute
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="// Write your code here..."
+              className="font-mono text-sm min-h-[300px] resize-none"
+              spellCheck={false}
+            />
+
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleExecute} 
+                  disabled={isExecuting || !code.trim()}
+                >
+                  {isExecuting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  Run
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCode('')}
+                  disabled={isExecuting}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              </div>
+              {executionTime !== undefined && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {Math.round(executionTime)}ms
+                </Badge>
+              )}
+            </div>
+
+            {/* Examples */}
+            <div className="pt-4 border-t">
+              <h4 className="text-sm font-medium mb-2">Examples</h4>
+              <div className="flex flex-wrap gap-2">
+                {CODE_EXAMPLES.map((example, i) => (
+                  <Button
+                    key={i}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadExample(example)}
+                    disabled={isExecuting}
+                  >
+                    {example.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Output */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Terminal className="w-5 h-5" />
+              Output
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="console">
+              <TabsList>
+                <TabsTrigger value="console">Console</TabsTrigger>
+                <TabsTrigger value="result">Return Value</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="console" className="mt-4">
+                <div className="bg-[#1e1e1e] rounded-lg p-4 min-h-[300px] font-mono text-sm">
+                  {logs.length === 0 && !execError ? (
+                    <span className="text-gray-500">// Console output will appear here...</span>
+                  ) : (
+                    <div className="space-y-1">
+                      {logs.map((log: string, i: number) => (
+                        <div 
+                          key={i} 
+                          className={`${
+                            log.startsWith('[ERROR]') ? 'text-red-400' :
+                            log.startsWith('[WARN]') ? 'text-yellow-400' :
+                            log.startsWith('[INFO]') ? 'text-blue-400' :
+                            'text-gray-300'
+                          }`}
+                        >
+                          {log}
+                        </div>
+                      ))}
+                      {execError && (
+                        <div className="text-red-400 mt-2">
+                          Error: {execError}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="result" className="mt-4">
+                <div className="bg-[#1e1e1e] rounded-lg p-4 min-h-[300px] font-mono text-sm">
+                  {output ? (
+                    <div className="text-green-400">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-gray-400">Return value:</span>
+                      </div>
+                      <pre className="whitespace-pre-wrap text-gray-300">
+                        {typeof output === 'object' ? JSON.stringify(output, null, 2) : output}
+                      </pre>
+                    </div>
+                  ) : execError ? (
+                    <div className="text-red-400">
+                      <AlertTriangle className="w-4 h-4 inline mr-2" />
+                      {execError}
+                    </div>
+                  ) : (
+                    <span className="text-gray-500">// Return value will appear here...</span>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            {(output || logs.length > 0) && (
+              <div className="flex gap-2 mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => copyToClipboard(logs.join('\n'))}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy Logs
+                </Button>
+                {output && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(typeof output === 'object' ? JSON.stringify(output, null, 2) : output)}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Result
+                  </Button>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Features */}
+      {!output && logs.length === 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <Code className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">JS/TS Support</h3>
+              <p className="text-sm text-muted-foreground">
+                Run JavaScript or TypeScript code
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <AlertTriangle className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">Sandboxed</h3>
+              <p className="text-sm text-muted-foreground">
+                Isolated execution with no external access
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="bg-card/50">
+            <CardContent className="pt-6">
+              <Terminal className="w-8 h-8 text-primary mb-3" />
+              <h3 className="font-medium mb-1">Console Output</h3>
+              <p className="text-sm text-muted-foreground">
+                See logs and return values in real-time
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default CodeExecutor;

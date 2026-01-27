@@ -284,6 +284,32 @@ const App = () => {
                       <Route path="/arcade" element={<ArcadeHub />} />
                       <Route path="/arcade/:gameId" element={<GamePage />} />
 
+                      {/* LOUNGES - Additional aliases */}
+                      <Route path="/lounges" element={<Studios />} />
+                      <Route path="/lounges/neural" element={<NeuralMode />} />
+                      <Route path="/lounges/dream" element={<DreamMode />} />
+                      <Route path="/lounges/vision" element={<VisionMode />} />
+                      <Route path="/lounges/silent" element={<SilentRoom />} />
+                      <Route path="/lounges/memory" element={<MemoryTimeline />} />
+                      <Route path="/lounges/quantum" element={<QuantumMode />} />
+                      <Route path="/lounges/presence" element={<PresenceMode />} />
+                      <Route path="/lounges/world" element={<WorldEvents />} />
+                      <Route
+                        path="/lounges/command"
+                        element={
+                          <AdminRoute>
+                            <CommandCenter />
+                          </AdminRoute>
+                        }
+                      />
+
+                      {/* TOOLS - Additional aliases */}
+                      <Route path="/tools/summarizer" element={<WebsiteSummarizer />} />
+                      <Route path="/tools/captioning" element={<ImageCaptioning />} />
+
+                      {/* LISTENING - Alias */}
+                      <Route path="/listening" element={<ListeningMode />} />
+
                       <Route path="/admin" element={<Admin />} />
                       <Route
                         path="/analytics"
