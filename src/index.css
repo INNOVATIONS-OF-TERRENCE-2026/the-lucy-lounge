@@ -656,10 +656,20 @@ select {
     /* Use visual viewport when available */
     min-height: -webkit-fill-available;
   }
-  
-  /* Prevent layout jump when keyboard appears */
-  .keyboard-open [data-theme-area="chat"] {
-    height: calc(100% - env(keyboard-inset-height, 0px));
+}
+
+/* Dynamic keyboard offset (set by viewportFix.ts) */
+:root {
+  --keyboard-inset-height: 0px;
+}
+
+/* Chat container adapts to keyboard */
+@media (max-width: 768px) {
+  [data-theme-area="chat"] {
+    /* Subtract keyboard height when open */
+    height: calc(var(--vh, 1vh) * 100 - var(--keyboard-inset-height, 0px));
+    max-height: calc(var(--vh, 1vh) * 100 - var(--keyboard-inset-height, 0px));
+    transition: height 0.15s ease-out;
   }
 }
 

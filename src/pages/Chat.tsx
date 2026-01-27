@@ -117,14 +117,14 @@ const ChatContent = () => {
       )}
 
       <SidebarProvider>
-        <div className="flex w-full h-screen-safe overflow-hidden max-w-full min-w-0 bg-[var(--theme-bg-1)]">
+        <div className="flex w-full h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]">
           <ChatSidebar
             userId={user.id}
             currentConversationId={currentConversationId}
             onConversationSelect={setCurrentConversationId}
           />
 
-          <div className="relative flex flex-col flex-1 h-full w-full bg-[var(--theme-bg-2)]">
+          <div className="relative flex flex-col flex-1 h-full min-h-0 w-full bg-[var(--theme-bg-2)]">
             <ChatInterface
               userId={user.id}
               conversationId={currentConversationId}

@@ -24,8 +24,9 @@ export function initViewportFix(): void {
 
   const setViewportHeight = (): void => {
     try {
-      // Get the actual viewport height
-      const vh = window.innerHeight * 0.01;
+      // Use visualViewport for most accurate height (especially with iOS keyboard)
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const vh = viewportHeight * 0.01;
       
       // Set --vh CSS custom property
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -34,6 +35,12 @@ export function initViewportFix(): void {
       // On mobile, this is the height with address bar visible
       const svh = Math.min(window.innerHeight, window.screen.height) * 0.01;
       document.documentElement.style.setProperty('--svh', `${svh}px`);
+      
+      // Set --keyboard-inset for iOS keyboard offset
+      if (window.visualViewport) {
+        const keyboardHeight = window.innerHeight - window.visualViewport.height;
+        document.documentElement.style.setProperty('--keyboard-inset-height', `${Math.max(0, keyboardHeight)}px`);
+      }
     } catch {
       // Silent fail - CSS will use fallback vh units
     }
@@ -53,6 +60,12 @@ export function initViewportFix(): void {
   };
 
   window.addEventListener('resize', handleResize, { passive: true });
+  
+  // Use visualViewport resize event (critical for iOS keyboard)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', setViewportHeight, { passive: true });
+    window.visualViewport.addEventListener('scroll', setViewportHeight, { passive: true });
+  }
   
   // Also update on orientation change (critical for mobile)
   window.addEventListener('orientationchange', () => {
