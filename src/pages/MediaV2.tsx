@@ -7,6 +7,8 @@
  * MOBILE-FIRST: canEmbedInline check PRESERVED
  * PRESERVATION > OPTIMIZATION
  * ALL LEGACY CONTENT PRESERVED
+ * 
+ * V3.1: Dynamic Supabase Rails with YouTube Catalog
  */
 
 import { useState, useCallback, useMemo, useEffect } from "react";
@@ -16,6 +18,7 @@ import { ErrorBoundary } from "@/components/system/ErrorBoundary";
 import { useMediaGraph } from "@/hooks/useMediaGraph";
 import { useUserMediaState } from "@/hooks/useUserMediaState";
 import type { MediaNode } from "@/media/types";
+import { RAIL_CONFIGS, fetchAllRails, filterViableRails, type RailConfig } from "@/media/rails";
 
 // Browse Components
 import {
@@ -215,6 +218,46 @@ function BrowseContent({
   }>({ isOpen: false, title: "", items: [] });
   
   const [quickCategory, setQuickCategory] = useState<string>("");
+  
+  // ===== DYNAMIC RAILS FROM SUPABASE =====
+  const [dynamicRails, setDynamicRails] = useState<Map<string, MediaNode[]>>(new Map());
+  const [railsLoading, setRailsLoading] = useState(true);
+  const [railsError, setRailsError] = useState<string | null>(null);
+  
+  // Load dynamic rails from Supabase on mount
+  useEffect(() => {
+    let mounted = true;
+    
+    async function loadDynamicRails() {
+      try {
+        setRailsLoading(true);
+        const railData = await fetchAllRails(RAIL_CONFIGS);
+        
+        if (mounted) {
+          setDynamicRails(railData);
+          setRailsError(null);
+        }
+      } catch (err) {
+        console.error('[MediaV3] Error loading dynamic rails:', err);
+        if (mounted) {
+          setRailsError('Failed to load content');
+        }
+      } finally {
+        if (mounted) {
+          setRailsLoading(false);
+        }
+      }
+    }
+    
+    loadDynamicRails();
+    
+    return () => { mounted = false; };
+  }, []);
+  
+  // Get viable rails (those with enough content)
+  const viableRails = useMemo(() => {
+    return filterViableRails(RAIL_CONFIGS, dynamicRails);
+  }, [dynamicRails]);
 
   // Convert legacy content to MediaNode format
   const legacyMovieNodes = useMemo(() => convertLegacyToMediaNodes(), []);
@@ -230,29 +273,87 @@ function BrowseContent({
   }, [graphState.continueWatching]);
 
   // Combine graph data with legacy content for rich rails
+  // PRIORITY: Dynamic Supabase > Graph State > Legacy
   const trendingItems = useMemo(() => {
-    if (graphState.trending.length > 0) {
-      return graphState.trending;
-    }
+    const dynamicTrending = dynamicRails.get('trending-movies') || [];
+    if (dynamicTrending.length >= 8) return dynamicTrending;
+    if (graphState.trending.length > 0) return graphState.trending;
     return [...legacyMovieNodes].sort(() => Math.random() - 0.5).slice(0, 10);
-  }, [graphState.trending, legacyMovieNodes]);
+  }, [dynamicRails, graphState.trending, legacyMovieNodes]);
 
   const forYouItems = useMemo(() => {
-    if (graphState.forYou.length > 0) {
-      return graphState.forYou;
+    // Mix from various dynamic rails for personalization feel
+    const blackCinema = dynamicRails.get('black-cinema') || [];
+    const comedies = dynamicRails.get('comedy') || [];
+    const ninetiesItems = dynamicRails.get('best-90s') || [];
+    
+    if (blackCinema.length > 0 || comedies.length > 0) {
+      const mixed = [...blackCinema.slice(0, 4), ...comedies.slice(0, 3), ...ninetiesItems.slice(0, 3)];
+      if (mixed.length >= 6) return mixed;
     }
+    if (graphState.forYou.length > 0) return graphState.forYou;
     return [...legacyMovieNodes].sort(() => Math.random() - 0.5).slice(0, 10);
-  }, [graphState.forYou, legacyMovieNodes]);
+  }, [dynamicRails, graphState.forYou, legacyMovieNodes]);
 
   const newReleasesItems = useMemo(() => {
-    if (graphState.newReleases.length > 0) {
-      return graphState.newReleases;
-    }
+    // Use animation or other dynamic content as "new" since they're freshly ingested
+    const animation = dynamicRails.get('animation') || [];
+    if (animation.length >= 6) return animation.slice(0, 10);
+    if (graphState.newReleases.length > 0) return graphState.newReleases;
     return legacyMovieNodes.slice(0, 10);
-  }, [graphState.newReleases, legacyMovieNodes]);
+  }, [dynamicRails, graphState.newReleases, legacyMovieNodes]);
 
-  // Hero items (for the banner)
+  // Black Cinema rail (NEW - from Supabase)
+  const blackCinemaItems = useMemo(() => {
+    return dynamicRails.get('black-cinema') || [];
+  }, [dynamicRails]);
+  
+  // 90s Movies rail (NEW - from Supabase)
+  const ninetiesItems = useMemo(() => {
+    return dynamicRails.get('best-90s') || [];
+  }, [dynamicRails]);
+  
+  // Action Movies rail (NEW - from Supabase)
+  const actionMoviesItems = useMemo(() => {
+    return dynamicRails.get('top-action') || [];
+  }, [dynamicRails]);
+  
+  // Sci-Fi Movies rail (NEW - from Supabase)
+  const sciFiItems = useMemo(() => {
+    return dynamicRails.get('top-sci-fi') || [];
+  }, [dynamicRails]);
+  
+  // Animation Movies rail (NEW - from Supabase)
+  const animationMoviesItems = useMemo(() => {
+    return dynamicRails.get('animation') || [];
+  }, [dynamicRails]);
+  
+  // Black TV Shows rail (NEW - from Supabase)
+  const blackTVItems = useMemo(() => {
+    return dynamicRails.get('black-tv-shows') || [];
+  }, [dynamicRails]);
+
+  // Hero items (for the banner) - use best dynamic content
   const heroItems = useMemo(() => {
+    // Prioritize Black Cinema and Trending for hero
+    const blackCinema = dynamicRails.get('black-cinema') || [];
+    const trending = dynamicRails.get('trending-movies') || [];
+    const action = dynamicRails.get('top-action') || [];
+    
+    // Pick highest popularity items with good backdrops
+    const candidates = [
+      ...blackCinema.slice(0, 3),
+      ...trending.slice(0, 2),
+      ...action.slice(0, 2),
+    ].filter(item => item.backdrop_url || item.poster_url);
+    
+    if (candidates.length >= 3) {
+      return candidates
+        .sort((a, b) => (b.popularity_score || 0) - (a.popularity_score || 0))
+        .slice(0, 5);
+    }
+    
+    // Fallback to graph data
     const items = [
       ...(graphState.trending.length > 0 ? graphState.trending.slice(0, 3) : []),
       ...(graphState.forYou.length > 0 ? graphState.forYou.slice(0, 2) : []),
@@ -263,7 +364,7 @@ function BrowseContent({
     }
     
     return items.slice(0, 5);
-  }, [graphState.trending, graphState.forYou, legacyMovieNodes]);
+  }, [dynamicRails, graphState.trending, graphState.forYou, legacyMovieNodes]);
 
   // Genre-filtered items
   const filteredByGenre = useMemo(() => {
@@ -395,8 +496,8 @@ function BrowseContent({
     handlePlay(node);
   }, [handlePlay]);
 
-  // Loading state
-  if (graphState.isLoading) {
+  // Loading state (combine graph + rails loading)
+  if (graphState.isLoading || railsLoading) {
     return (
       <motion.div
         key="loading"
@@ -406,7 +507,7 @@ function BrowseContent({
       >
         <div className="aspect-[21/9] md:aspect-[2.5/1] bg-muted animate-pulse rounded-xl mx-4 md:mx-0" />
         
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="space-y-4 px-4 md:px-0">
             <div className="h-8 w-48 bg-muted animate-pulse rounded" />
             <div className="flex gap-3 overflow-hidden">
@@ -416,6 +517,25 @@ function BrowseContent({
             </div>
           </div>
         ))}
+      </motion.div>
+    );
+  }
+  
+  // Error state
+  if (railsError && trendingItems.length === 0) {
+    return (
+      <motion.div
+        key="error"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-20 px-4 text-center"
+      >
+        <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-semibold mb-2">Failed to load content</h3>
+        <p className="text-muted-foreground mb-4">We couldn't load the media catalog. Please try again.</p>
+        <Button onClick={() => window.location.reload()}>
+          Refresh Page
+        </Button>
       </motion.div>
     );
   }
@@ -549,6 +669,118 @@ function BrowseContent({
         watchlistIds={watchlistIds}
         totalItems={newReleasesItems.length}
       />
+
+      {/* ===== DYNAMIC SUPABASE RAILS (YouTube Catalog) ===== */}
+      
+      {blackCinemaItems.length >= 8 && (
+        <BrowseRail
+          id="black-cinema"
+          title="Black Cinema"
+          subtitle="Culturally significant films"
+          items={blackCinemaItems}
+          itemSize="large"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll('Black Cinema', blackCinemaItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={blackCinemaItems.length}
+          priority="high"
+        />
+      )}
+      
+      {ninetiesItems.length >= 8 && (
+        <BrowseRail
+          id="best-90s"
+          title="Best 1990's Movies"
+          subtitle="Decade-defining classics"
+          items={ninetiesItems}
+          itemSize="medium"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll("Best 1990's Movies", ninetiesItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={ninetiesItems.length}
+          priority="high"
+        />
+      )}
+      
+      {actionMoviesItems.length >= 8 && (
+        <BrowseRail
+          id="top-action"
+          title="Top Action Movies"
+          subtitle="Adrenaline-pumping classics"
+          items={actionMoviesItems}
+          itemSize="medium"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll('Top Action Movies', actionMoviesItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={actionMoviesItems.length}
+          priority="high"
+        />
+      )}
+      
+      {sciFiItems.length >= 8 && (
+        <BrowseRail
+          id="top-sci-fi"
+          title="Complete Top Sci-Fi Movies"
+          subtitle="Mind-bending journeys"
+          items={sciFiItems}
+          itemSize="medium"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll('Complete Top Sci-Fi Movies', sciFiItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={sciFiItems.length}
+          priority="high"
+        />
+      )}
+      
+      {animationMoviesItems.length >= 8 && (
+        <BrowseRail
+          id="animation-movies"
+          title="Top Cartoon / Animated Movies"
+          subtitle="Animated classics & anime"
+          items={animationMoviesItems}
+          itemSize="medium"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll('Top Cartoon / Animated Movies', animationMoviesItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={animationMoviesItems.length}
+          priority="high"
+        />
+      )}
+      
+      {blackTVItems.length >= 6 && (
+        <BrowseRail
+          id="black-tv-shows"
+          title="Black TV Shows"
+          subtitle="Full seasons available"
+          items={blackTVItems}
+          itemSize="large"
+          onItemPlay={handlePlay}
+          onItemFavorite={handleToggleFavorite}
+          onItemWatchlist={handleToggleWatchlist}
+          onSeeAll={() => handleSeeAll('Black TV Shows', blackTVItems)}
+          favoriteIds={favoriteIds}
+          watchlistIds={watchlistIds}
+          totalItems={blackTVItems.length}
+          priority="high"
+        />
+      )}
+
+      {/* ===== LEGACY RAILS (Fallback Content) ===== */}
 
       <BrowseRail
         id="tv-shows"
