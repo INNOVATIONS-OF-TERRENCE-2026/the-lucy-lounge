@@ -10,44 +10,44 @@
 -- PART 1: MODERN ERA TAGS
 -- =============================================================================
 
-INSERT INTO media_tags (name, type, description) VALUES
+INSERT INTO media_tags (name, slug, tag_type) VALUES
 -- Modern Era Tags
-('modern', 'era', 'Modern era content (2000s-2020s)'),
-('2000s', 'era', '2000-2009 content'),
-('2010s', 'era', '2010-2019 content'),
-('2020s', 'era', '2020-present content'),
-('streaming-era', 'era', 'Streaming platform original content'),
+('modern', 'modern', 'era'),
+('2000s', '2000s', 'era'),
+('2010s', '2010s', 'era'),
+('2020s', '2020s', 'era'),
+('streaming-era', 'streaming-era', 'era'),
 
 -- Modern Genre Tags
-('crime', 'genre', 'Crime and gangster films'),
-('street', 'genre', 'Street and urban culture films'),
-('heist', 'genre', 'Heist and caper films'),
-('superhero', 'genre', 'Superhero and comic book films'),
-('urban', 'theme', 'Urban settings and culture'),
-('hood-classic', 'style', 'Hood classics and urban drama'),
-('coming-of-age', 'theme', 'Coming of age stories'),
-('biographical', 'genre', 'Biographical and true story films'),
-('sports-drama', 'genre', 'Sports drama films'),
+('crime', 'crime', 'genre'),
+('street', 'street', 'genre'),
+('heist', 'heist', 'genre'),
+('superhero', 'superhero', 'genre'),
+('urban', 'urban', 'theme'),
+('hood-classic', 'hood-classic', 'style'),
+('coming-of-age', 'coming-of-age', 'theme'),
+('biographical', 'biographical', 'genre'),
+('sports-drama', 'sports-drama', 'genre'),
 
 -- Modern Black Cinema Tags
-('modern-black-cinema', 'theme', 'Modern Black cinema (2000s+)'),
-('afrofuturism', 'style', 'Afrofuturist themes and aesthetics'),
-('black-excellence', 'theme', 'Black excellence and achievement'),
-('hbcu', 'theme', 'HBCU culture and settings'),
+('modern-black-cinema', 'modern-black-cinema', 'theme'),
+('afrofuturism', 'afrofuturism', 'style'),
+('black-excellence', 'black-excellence', 'theme'),
+('hbcu', 'hbcu', 'theme'),
 
 -- TV Tags
-('limited-series', 'style', 'Limited series / miniseries'),
-('binge-worthy', 'style', 'Binge-worthy TV series'),
-('prestige-tv', 'style', 'Prestige television'),
-('streaming-original', 'style', 'Streaming platform originals'),
+('limited-series', 'limited-series', 'style'),
+('binge-worthy', 'binge-worthy', 'style'),
+('prestige-tv', 'prestige-tv', 'style'),
+('streaming-original', 'streaming-original', 'style'),
 
 -- Provider Tags
-('fast-tubi', 'style', 'Available on Tubi'),
-('fast-pluto', 'style', 'Available on Pluto TV'),
-('fast-plex', 'style', 'Available on Plex'),
-('fast-roku', 'style', 'Available on Roku Channel'),
-('fast-freevee', 'style', 'Available on Freevee')
-ON CONFLICT (name) DO NOTHING;
+('fast-tubi', 'fast-tubi', 'style'),
+('fast-pluto', 'fast-pluto', 'style'),
+('fast-plex', 'fast-plex', 'style'),
+('fast-roku', 'fast-roku', 'style'),
+('fast-freevee', 'fast-freevee', 'style')
+ON CONFLICT (slug) DO NOTHING;
 
 -- =============================================================================
 -- PART 2: MODERN BLACK CINEMA (2000s-2020s) - METADATA ONLY
