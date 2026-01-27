@@ -30,6 +30,7 @@ import { useContextAnalyzer } from "@/hooks/useContextAnalyzer";
 import { useReadingMode } from "@/hooks/useReadingMode";
 import { useStreamingSpeed } from "@/hooks/useStreamingSpeed";
 import { useLucyStreaming } from "@/hooks/useLucyStreaming";
+import { useLucyBrain } from "@/hooks/useLucyBrain";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
@@ -38,6 +39,8 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { NewMessageDivider } from "./NewMessageDivider";
+import { ThinkingIndicator, ChatHistorySkeleton } from "./ChatMessageSkeleton";
+import { recordChatInteraction } from "@/lib/lucyBrainSync";
 
 interface ChatInterfaceProps {
   userId: string;
@@ -89,6 +92,14 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   const { showScrollButton } = useScrollDetection(chatContainerRef);
   const { displayText, isStreaming: isLocalStreaming, startStreaming, skipToEnd } = useLucyStreaming();
   const { shouldSuggestMode, getRoutePath } = useLucyIntentRouter();
+  
+  // Lucy Brain - Provider-agnostic AI brain
+  const { 
+    sendMessage: sendToLucyBrain, 
+    streamingText: lucyStreamingText, 
+    isStreaming: isLucyStreaming,
+    cancelStream: cancelLucyStream,
+  } = useLucyBrain();
 
   // Detect intent from current input (debounced via useMemo)
   const detectedIntent = useMemo(() => {
@@ -262,6 +273,72 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     }
   };
 
+  /**
+   * Process Lucy Brain streaming response
+   * Uses the new provider-agnostic Lucy Brain Router
+   */
+  const processLucyBrainResponse = async (
+    convId: string, 
+    userContentForContext: string,
+    lucyMessages: Array<{ role: string; content: string }>,
+    toolContext?: unknown
+  ) => {
+    // Determine brain mode based on content
+    let brainMode: 'auto' | 'code' | 'reasoning' | 'creative' = 'auto';
+    const lowerContent = userContentForContext.toLowerCase();
+    if (/\b(code|function|class|debug|programming|typescript|javascript)\b|```/.test(lowerContent)) {
+      brainMode = 'code';
+    } else if (/\b(analyze|explain|compare|strategy|plan|research)\b/.test(lowerContent)) {
+      brainMode = 'reasoning';
+    } else if (/\b(write|story|poem|creative|imagine)\b/.test(lowerContent)) {
+      brainMode = 'creative';
+    }
+
+    // Call Lucy Brain with streaming
+    const result = await sendToLucyBrain(
+      lucyMessages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      userId,
+      convId,
+      {
+        mode: brainMode,
+        stream: true,
+        context: toolContext ? { toolResults: toolContext } : undefined,
+      }
+    );
+
+    if (result.success && result.content) {
+      await saveMessage(convId, "assistant", result.content);
+      setStreamingMessage("");
+      await loadMessages();
+      
+      // Record to Lucy Brain for cross-studio intelligence (fire and forget)
+      recordChatInteraction(userContentForContext, result.content, {
+        conversationId: convId,
+      }).catch(() => {}); // Silent fail - don't block chat
+
+      // Analyze context after response
+      setTimeout(() => {
+        const allMessages = [
+          ...messages,
+          { role: "user", content: userContentForContext },
+          { role: "assistant", content: result.content },
+        ];
+        analyzeContext(allMessages.map((m) => ({ role: m.role, content: m.content })));
+      }, 600);
+
+      // Store important memories
+      if (
+        result.content.length > 100 &&
+        (lowerContent.includes("remember") || result.content.toLowerCase().includes("important"))
+      ) {
+        storeMemory(result.content.slice(0, 200), "conversation", 0.7);
+      }
+    } else if (result.error) {
+      throw new Error(result.error);
+    }
+  };
+
+  // Legacy streaming processor (fallback for edge cases)
   const processStreamingResponse = async (response: Response, convId: string, userContentForContext: string) => {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
@@ -335,6 +412,18 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
     setError(null);
     setLastReadMessageIndex(messages.length);
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // OPTIMISTIC UI: Show user message immediately before DB write
+    // ═══════════════════════════════════════════════════════════════════════════
+    const optimisticUserMessage = {
+      id: `optimistic-${Date.now()}`,
+      role: 'user',
+      content: userMessage || "(File attachment)",
+      created_at: new Date().toISOString(),
+      optimistic: true,
+    };
+    setMessages(prev => [...prev, optimisticUserMessage]);
+
     try {
       let convId = conversationId;
       if (!convId) {
@@ -352,6 +441,19 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         .select()
         .single();
 
+      // Replace optimistic message with real one (same content, real ID)
+      if (userMsgData) {
+        setMessages(prev => prev.map(m => 
+          m.id === optimisticUserMessage.id ? { ...userMsgData, optimistic: false } : m
+        ));
+      }
+
+      // Build message history for Lucy Brain
+      const lucyMessages = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user", content: userMessage || "(File attachment)" },
+      ];
+
       // handle attachments
       let attachments: any[] = [];
       if (selectedFiles.length > 0 && userMsgData) {
@@ -362,60 +464,34 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
           const analysis = await analyzeMultimodal(attachmentIds);
 
           if (analysis) {
-            const enhancedMessage = `[Lucy's Multimodal Analysis]\n${analysis}\n\n[User Message]\n${
+            const enhancedMessage = `[Lucy's Analysis]\n${analysis}\n\n[User Message]\n${
               userMessage || "Please analyze the uploaded files."
             }`;
 
-            const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
-            const { data: { session: currentSession } } = await supabase.auth.getSession();
-            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${currentSession?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-              },
-              body: JSON.stringify({
-                messages: [
-                  ...messages.map((m) => ({ role: m.role, content: m.content })),
-                  { role: "user", content: enhancedMessage },
-                ],
-                preferredModel: selectedModel,
-                enableFusion: fusionEnabled,
-              }),
-            });
+            // Update the last message with enhanced content
+            const enhancedLucyMessages = [
+              ...messages.map((m) => ({ role: m.role, content: m.content })),
+              { role: "user", content: enhancedMessage },
+            ];
 
-            if (!response.ok) throw new Error("Failed to get AI response");
-            await processStreamingResponse(response, convId, enhancedMessage);
+            // Use Lucy Brain for multimodal response
+            await processLucyBrainResponse(convId, enhancedMessage, enhancedLucyMessages);
             return;
           }
         }
       }
 
-      // normal send
-      const endpoint = selectedModel || fusionEnabled ? "model-router" : "chat-stream";
-      const { data: { session: sendSession } } = await supabase.auth.getSession();
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sendSession?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          messages: [
-            ...messages.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: userMessage },
-          ],
-          preferredModel: selectedModel,
-          enableFusion: fusionEnabled,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to get AI response");
-      await processStreamingResponse(response, convId, userMessage);
+      // Normal send via Lucy Brain (provider-agnostic)
+      await processLucyBrainResponse(convId, userMessage, lucyMessages);
+      
     } catch (err: any) {
       console.error("Error sending message:", err);
-      setError(err?.message || "Failed to send message");
-      toast({ title: "Error", description: err?.message || "Failed to send message", variant: "destructive" });
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m.id !== optimisticUserMessage.id));
+      // User-friendly error message - never expose technical details
+      const userFriendlyError = "Lucy encountered a brief interruption. Please try again.";
+      setError(userFriendlyError);
+      toast({ title: "Notice", description: userFriendlyError, variant: "destructive" });
     } finally {
       setIsLoading(false);
       setSelectedFiles([]);
@@ -439,7 +515,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
 
   return (
     <main className="flex-1 flex flex-col h-screen relative overflow-hidden" data-theme-area="chat">
-      <ReadingProgressBar isStreaming={!!streamingMessage || isLocalStreaming} />
+      <ReadingProgressBar isStreaming={!!streamingMessage || !!lucyStreamingText || isLucyStreaming || isLocalStreaming} />
 
       <ScrollToBottom
         visible={showScrollButton && messages.length > 3}
@@ -572,22 +648,19 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
             />
           )}
 
-          {(streamingMessage || displayText) && (
+          {(streamingMessage || lucyStreamingText || displayText) && (
             <ChatMessage
               message={{
                 role: "assistant",
-                content: streamingMessage || displayText,
+                content: streamingMessage || lucyStreamingText || displayText,
                 created_at: new Date().toISOString(),
               }}
               isStreaming
             />
           )}
 
-          {isLoading && !streamingMessage && !displayText && (
-            <div className="flex items-center gap-3 text-muted-foreground bg-card/60 backdrop-blur-sm px-5 py-3 rounded-xl w-fit shadow-[0_0_10px_rgba(168,85,247,0.1)]">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span className="text-sm">Lucy is thinking...</span>
-            </div>
+          {isLoading && !streamingMessage && !lucyStreamingText && !displayText && (
+            <ThinkingIndicator />
           )}
 
           {error && (
