@@ -1,16 +1,25 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { 
+  withAccessControl, 
+  jsonResponse, 
+  errorResponse,
+  AccessCheckResult 
+} from '../_shared/accessControl.ts';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+// Main handler wrapped with access control
+const handler = async (
+  req: Request, 
+  supabase: SupabaseClient, 
+  userId: string | null,
+  accessResult: AccessCheckResult | null
+): Promise<Response> => {
   try {
     const { code, language = 'javascript' } = await req.json();
     
@@ -122,11 +131,13 @@ EXPLANATION:
       ? error.message.replace(/LOVABLE_API_KEY|key|token|internal/gi, '[REDACTED]')
       : 'Code execution failed. Please try again.';
     
-    return new Response(JSON.stringify({ 
-      error: sanitizedMessage
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return errorResponse(sanitizedMessage, 500);
   }
-});
+};
+
+// Export with access control wrapper
+serve(withAccessControl({
+  toolId: 'code',
+  requireAuth: false, // Allow anonymous for now, but track usage
+  functionName: 'code-executor',
+}, handler));

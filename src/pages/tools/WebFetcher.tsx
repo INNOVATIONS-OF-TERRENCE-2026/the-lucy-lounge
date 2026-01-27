@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Globe, Loader2, Copy, Download, ExternalLink, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
+import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
 
 interface FetchResult {
   url: string;
@@ -16,9 +18,10 @@ interface FetchResult {
   fetchedAt: Date;
 }
 
-const WebFetcher = () => {
+const WebFetcherContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { executeWithAccessCheck } = useToolAccess({ toolId: 'web_fetch' });
   
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<FetchResult | null>(null);
@@ -57,14 +60,22 @@ const WebFetcher = () => {
     setResult(null);
 
     try {
-      const { data, error: fetchError } = await supabase.functions.invoke("browser-fetch", {
-        body: { url: targetUrl }
-      });
-
-      if (fetchError) throw fetchError;
+      const data = await executeWithAccessCheck(
+        async () => {
+          const { data, error: fetchError } = await supabase.functions.invoke("browser-fetch", {
+            body: { url: targetUrl }
+          });
+          if (fetchError) throw fetchError;
+          return data;
+        },
+        (reason) => {
+          setError(reason);
+        }
+      );
 
       if (!data) {
-        throw new Error("No response from server");
+        setLoading(false);
+        return;
       }
 
       const fetchResult: FetchResult = {
@@ -253,6 +264,20 @@ const WebFetcher = () => {
         </div>
       </main>
     </div>
+  );
+};
+
+const WebFetcher = () => {
+  return (
+    <ToolErrorBoundary toolName="Web Fetcher">
+      <ToolAccessGuard
+        toolId="web_fetch"
+        toolName="Web Fetcher"
+        toolDescription="Extract content from any webpage safely"
+      >
+        <WebFetcherContent />
+      </ToolAccessGuard>
+    </ToolErrorBoundary>
   );
 };
 

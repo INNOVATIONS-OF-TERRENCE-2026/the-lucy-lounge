@@ -13,7 +13,20 @@
 // SUBSCRIPTION TIERS
 // =============================================================================
 
+// Backend-aligned tiers (used for tool access and AI routing)
+export type UserTier = 'free' | 'pro' | 'power' | 'enterprise';
+
+// Legacy frontend tiers (kept for backward compatibility with plans UI)
 export type SubscriptionTier = 'free' | 'plus' | 'pro' | 'family' | 'creator';
+
+// Mapping from legacy tiers to backend tiers
+export const TIER_MAPPING: Record<SubscriptionTier, UserTier> = {
+  free: 'free',
+  plus: 'pro',      // Plus maps to Pro tier
+  pro: 'power',     // Pro maps to Power tier
+  family: 'power',  // Family maps to Power tier
+  creator: 'enterprise', // Creator maps to Enterprise tier
+};
 
 export interface SubscriptionPlan {
   id: string;

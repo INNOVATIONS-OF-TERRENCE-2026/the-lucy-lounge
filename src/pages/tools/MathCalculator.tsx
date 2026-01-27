@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Calculator, Copy, History, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
+import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
 
 // Safe math evaluation without eval
 const safeEvaluate = (expression: string): { result: string; steps?: string } => {
@@ -59,9 +61,10 @@ interface HistoryItem {
   timestamp: Date;
 }
 
-const MathCalculator = () => {
+const MathCalculatorContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { executeWithAccessCheck } = useToolAccess({ toolId: 'calculator' });
   
   const [expression, setExpression] = useState("");
   const [result, setResult] = useState<string | null>(null);
@@ -90,26 +93,39 @@ const MathCalculator = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke("lucy-router", {
-        body: {
-          userId: "anonymous",
-          messages: [
-            {
-              role: "user",
-              content: `Solve this math problem step by step and explain each step clearly:\n\n${expression}\n\nProvide the final answer and show your work.`
+      const explanation = await executeWithAccessCheck(
+        async () => {
+          const { data, error } = await supabase.functions.invoke("lucy-router", {
+            body: {
+              userId: "anonymous",
+              messages: [
+                {
+                  role: "user",
+                  content: `Solve this math problem step by step and explain each step clearly:\n\n${expression}\n\nProvide the final answer and show your work.`
+                }
+              ]
             }
-          ]
+          });
+
+          if (error) throw error;
+
+          return data?.plan?.finalAnswer || 
+            data?.plan?.steps?.[0]?.result || 
+            "Unable to generate explanation";
+        },
+        (reason) => {
+          toast({ 
+            title: "Access Denied", 
+            description: reason,
+            variant: "destructive"
+          });
         }
-      });
+      );
 
-      if (error) throw error;
-
-      const explanation = data?.plan?.finalAnswer || 
-        data?.plan?.steps?.[0]?.result || 
-        "Unable to generate explanation";
-
-      setAiExplanation(explanation);
-      toast({ title: "Success", description: "Explanation generated" });
+      if (explanation) {
+        setAiExplanation(explanation);
+        toast({ title: "Success", description: "Explanation generated" });
+      }
     } catch (err: any) {
       console.error("[MathCalculator] AI Error:", err);
       toast({ 
@@ -295,6 +311,20 @@ const MathCalculator = () => {
         </div>
       </main>
     </div>
+  );
+};
+
+const MathCalculator = () => {
+  return (
+    <ToolErrorBoundary toolName="Math Calculator">
+      <ToolAccessGuard
+        toolId="calculator"
+        toolName="Math Calculator"
+        toolDescription="Scientific calculator with AI step-by-step solutions"
+      >
+        <MathCalculatorContent />
+      </ToolAccessGuard>
+    </ToolErrorBoundary>
   );
 };
 

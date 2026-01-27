@@ -6,10 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Image as ImageIcon, Upload, Copy, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
+import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
 
-const ImageCaptioning = () => {
+const ImageCaptioningContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { executeWithAccessCheck } = useToolAccess({ toolId: 'image' });
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [file, setFile] = useState<File | null>(null);
@@ -50,19 +53,32 @@ const ImageCaptioning = () => {
     setError(null);
     
     try {
-      // Use HuggingFace vision model for image analysis
-      const { data, error: apiError } = await supabase.functions.invoke("hf-vision", {
-        body: {
-          imageBase64: preview.split(",")[1],
-          prompt: "Describe this image in detail. Include: 1) A brief one-line caption, 2) Detailed description of what's shown, 3) Any notable elements, colors, composition, or context."
+      const result = await executeWithAccessCheck(
+        async () => {
+          // Use HuggingFace vision model for image analysis
+          const { data, error: apiError } = await supabase.functions.invoke("hf-vision", {
+            body: {
+              imageBase64: preview.split(",")[1],
+              prompt: "Describe this image in detail. Include: 1) A brief one-line caption, 2) Detailed description of what's shown, 3) Any notable elements, colors, composition, or context."
+            }
+          });
+
+          if (apiError) throw apiError;
+          return data;
+        },
+        (reason) => {
+          setError(reason);
         }
-      });
+      );
 
-      if (apiError) throw apiError;
+      if (!result) {
+        setLoading(false);
+        return;
+      }
 
-      if (data?.description) {
+      if (result?.description) {
         // Parse the response
-        const text = data.description;
+        const text = result.description;
         
         // Try to extract caption and description
         const lines = text.split("\n").filter((l: string) => l.trim());
@@ -234,6 +250,20 @@ const ImageCaptioning = () => {
         )}
       </main>
     </div>
+  );
+};
+
+const ImageCaptioning = () => {
+  return (
+    <ToolErrorBoundary toolName="Image Captioning">
+      <ToolAccessGuard
+        toolId="image"
+        toolName="Image Captioning"
+        toolDescription="Generate AI descriptions for images"
+      >
+        <ImageCaptioningContent />
+      </ToolAccessGuard>
+    </ToolErrorBoundary>
   );
 };
 

@@ -6,12 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Code, Play, Copy, Loader2, AlertTriangle, Terminal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
+import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
 
 type Language = "javascript" | "python";
 
-const CodeExecutor = () => {
+const CodeExecutorContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { executeWithAccessCheck, dailyRemaining } = useToolAccess({ toolId: 'code' });
   
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<Language>("javascript");
@@ -30,23 +33,40 @@ const CodeExecutor = () => {
     setAnalysis("");
 
     try {
-      const { data, error } = await supabase.functions.invoke("code-executor", {
-        body: {
-          code: code.trim(),
-          language
+      const result = await executeWithAccessCheck(
+        async () => {
+          const { data, error } = await supabase.functions.invoke("code-executor", {
+            body: {
+              code: code.trim(),
+              language
+            }
+          });
+
+          if (error) throw error;
+          return data;
+        },
+        (reason) => {
+          toast({ 
+            title: "Access Denied", 
+            description: reason, 
+            variant: "destructive" 
+          });
         }
-      });
+      );
 
-      if (error) throw error;
+      if (!result) {
+        setLoading(false);
+        return;
+      }
 
-      if (data?.output) {
-        setOutput(data.output);
+      if (result?.output) {
+        setOutput(result.output);
       }
-      if (data?.analysis) {
-        setAnalysis(data.analysis);
+      if (result?.analysis) {
+        setAnalysis(result.analysis);
       }
-      if (data?.error) {
-        setOutput(`Error: ${data.error}`);
+      if (result?.error) {
+        setOutput(`Error: ${result.error}`);
       }
 
       toast({ title: "Success", description: "Code analyzed successfully" });
@@ -243,6 +263,21 @@ print(f"First 10 Fibonacci: {fibonacci(10)}")`);
         )}
       </main>
     </div>
+  );
+};
+
+// Wrap with access guard and error boundary
+const CodeExecutor = () => {
+  return (
+    <ToolErrorBoundary toolName="Code Executor">
+      <ToolAccessGuard
+        toolId="code"
+        toolName="Code Executor"
+        toolDescription="AI-powered code analysis and execution simulation"
+      >
+        <CodeExecutorContent />
+      </ToolAccessGuard>
+    </ToolErrorBoundary>
   );
 };
 

@@ -1,11 +1,11 @@
 /**
- * THE LUCY LOUNGE - SUPREME AI ROUTER
+ * THE LUCY LOUNGE - SUPREME AI ROUTER v2
  * 
- * Intelligent model routing that analyzes user intent and routes to:
- * - LLM (Lovable Gateway) for chat/reasoning
- * - HuggingFace for images/video/music
- * - ElevenLabs for voice
- * - PDF generation service
+ * Intelligent model routing with:
+ * - User tier-based access control
+ * - Quota enforcement
+ * - Cost-aware model selection
+ * - Full telemetry logging
  * 
  * Lucy decides the best model - smarter than the user.
  */
@@ -29,14 +29,29 @@ type Intent =
   | 'document' 
   | 'code' 
   | 'analysis' 
-  | 'creative';
+  | 'creative'
+  | 'web_fetch'
+  | 'calculator';
+
+type UserTier = 'free' | 'pro' | 'power' | 'enterprise';
 
 interface RouteDecision {
   intent: Intent;
   model: string;
+  originalModel: string;
   service: 'lovable' | 'huggingface' | 'elevenlabs' | 'internal';
   confidence: number;
   reasoning: string;
+  wasDowngraded: boolean;
+  downgradeReason?: string;
+}
+
+interface AccessCheck {
+  allowed: boolean;
+  reason: string;
+  daily_remaining: number;
+  tier: UserTier;
+  upgrade_available: boolean;
 }
 
 interface RouterRequest {
@@ -46,10 +61,22 @@ interface RouterRequest {
   outputType?: Intent;
   userId?: string;
   sessionId?: string;
+  toolId?: string; // Explicit tool override
+}
+
+interface RouterResponse {
+  route: RouteDecision;
+  access: AccessCheck;
+  endpoints: Record<string, string>;
+  quotas: {
+    tier: UserTier;
+    dailyRemaining: number;
+    upgradeAvailable: boolean;
+  };
 }
 
 // Intent detection patterns with confidence scores
-const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = {
+const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number; toolId: string }> = {
   image: {
     patterns: [
       /\b(generate|create|make|draw|design|render|visualize)\b.*(image|picture|photo|illustration|art|graphic|logo|icon)/i,
@@ -58,6 +85,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\bsdxl|stable diffusion|dall-e|midjourney style\b/i,
     ],
     weight: 0.95,
+    toolId: 'image',
   },
   video: {
     patterns: [
@@ -66,6 +94,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\banimate|motion|moving image\b/i,
     ],
     weight: 0.90,
+    toolId: 'video',
   },
   music: {
     patterns: [
@@ -74,6 +103,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\bsuno|musicgen|lo-?fi|hip-?hop beat|edm|ambient\b/i,
     ],
     weight: 0.92,
+    toolId: 'music',
   },
   voice: {
     patterns: [
@@ -82,6 +112,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\belevenlabs|voice clone|voice over\b/i,
     ],
     weight: 0.93,
+    toolId: 'voice',
   },
   document: {
     patterns: [
@@ -90,6 +121,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\bdownload as pdf|save as document\b/i,
     ],
     weight: 0.88,
+    toolId: 'pdf',
   },
   code: {
     patterns: [
@@ -98,6 +130,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /```|<code>|\bfunction\b|\bclass\b|\bconst\b|\blet\b|\bimport\b/i,
     ],
     weight: 0.94,
+    toolId: 'code',
   },
   analysis: {
     patterns: [
@@ -106,6 +139,7 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\bpros and cons|swot|comparison|benchmark\b/i,
     ],
     weight: 0.85,
+    toolId: 'chat',
   },
   creative: {
     patterns: [
@@ -114,6 +148,24 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\bonce upon|in a world|imagine if\b/i,
     ],
     weight: 0.82,
+    toolId: 'chat',
+  },
+  web_fetch: {
+    patterns: [
+      /\b(fetch|scrape|get|read)\b.*(website|webpage|url|page)/i,
+      /\b(summarize|extract).*(from|the)\b.*(url|website|page|article)/i,
+    ],
+    weight: 0.88,
+    toolId: 'web_fetch',
+  },
+  calculator: {
+    patterns: [
+      /\b(calculate|compute|solve|evaluate)\b/i,
+      /\b\d+\s*[\+\-\*\/\^]\s*\d+/,
+      /\bmath|equation|formula\b/i,
+    ],
+    weight: 0.80,
+    toolId: 'calculator',
   },
   chat: {
     patterns: [
@@ -121,20 +173,95 @@ const INTENT_PATTERNS: Record<Intent, { patterns: RegExp[]; weight: number }> = 
       /\?$/,
     ],
     weight: 0.60, // Default fallback
+    toolId: 'chat',
   },
 };
 
-// Model mapping per intent
-const INTENT_TO_MODEL: Record<Intent, { model: string; service: RouteDecision['service'] }> = {
-  image: { model: 'stabilityai/stable-diffusion-xl-base-1.0', service: 'huggingface' },
-  video: { model: 'ali-vilab/text-to-video-ms-1.7b', service: 'huggingface' },
-  music: { model: 'facebook/musicgen-small', service: 'huggingface' },
-  voice: { model: 'eleven_multilingual_v2', service: 'elevenlabs' },
-  document: { model: 'internal-pdf-generator', service: 'internal' },
-  code: { model: 'google/gemini-2.5-pro', service: 'lovable' },
-  analysis: { model: 'google/gemini-2.5-pro', service: 'lovable' },
-  creative: { model: 'openai/gpt-5-mini', service: 'lovable' },
-  chat: { model: 'google/gemini-2.5-flash', service: 'lovable' },
+// Model mapping per intent with tier-based variants
+const INTENT_TO_MODEL: Record<Intent, { 
+  model: string; 
+  service: RouteDecision['service'];
+  tierModels: Partial<Record<UserTier, string>>;
+}> = {
+  image: { 
+    model: 'stabilityai/stable-diffusion-xl-base-1.0', 
+    service: 'huggingface',
+    tierModels: {
+      pro: 'black-forest-labs/FLUX.1-schnell',
+      power: 'black-forest-labs/FLUX.1-dev',
+      enterprise: 'black-forest-labs/FLUX.1-dev',
+    }
+  },
+  video: { 
+    model: 'ali-vilab/text-to-video-ms-1.7b', 
+    service: 'huggingface',
+    tierModels: {}
+  },
+  music: { 
+    model: 'facebook/musicgen-small', 
+    service: 'huggingface',
+    tierModels: {
+      pro: 'facebook/musicgen-medium',
+      power: 'facebook/musicgen-large',
+      enterprise: 'facebook/musicgen-large',
+    }
+  },
+  voice: { 
+    model: 'eleven_multilingual_v2', 
+    service: 'elevenlabs',
+    tierModels: {}
+  },
+  document: { 
+    model: 'internal-pdf-generator', 
+    service: 'internal',
+    tierModels: {}
+  },
+  code: { 
+    model: 'google/gemini-2.5-flash', 
+    service: 'lovable',
+    tierModels: {
+      pro: 'google/gemini-2.5-pro',
+      power: 'google/gemini-2.5-pro',
+      enterprise: 'anthropic/claude-3.5-sonnet',
+    }
+  },
+  analysis: { 
+    model: 'google/gemini-2.5-flash', 
+    service: 'lovable',
+    tierModels: {
+      pro: 'google/gemini-2.5-pro',
+      power: 'google/gemini-2.5-pro',
+      enterprise: 'anthropic/claude-3.5-sonnet',
+    }
+  },
+  creative: { 
+    model: 'google/gemini-2.5-flash', 
+    service: 'lovable',
+    tierModels: {
+      pro: 'openai/gpt-5-mini',
+      power: 'openai/gpt-5-mini',
+      enterprise: 'openai/gpt-5-mini',
+    }
+  },
+  web_fetch: {
+    model: 'browser-fetch',
+    service: 'internal',
+    tierModels: {}
+  },
+  calculator: {
+    model: 'local',
+    service: 'internal',
+    tierModels: {}
+  },
+  chat: { 
+    model: 'google/gemini-2.5-flash', 
+    service: 'lovable',
+    tierModels: {
+      pro: 'google/gemini-2.5-flash',
+      power: 'google/gemini-2.5-pro',
+      enterprise: 'anthropic/claude-3.5-sonnet',
+    }
+  },
 };
 
 // LLM models for chat routing
@@ -145,49 +272,62 @@ const LLM_MODELS = {
   creative: 'openai/gpt-5-mini',
 };
 
-function classifyIntent(prompt: string): RouteDecision {
-  let bestMatch: { intent: Intent; confidence: number } = { intent: 'chat', confidence: 0.5 };
+// Model cost estimates (per 1K tokens)
+const MODEL_COSTS: Record<string, number> = {
+  'google/gemini-2.5-flash-lite': 0.0001,
+  'google/gemini-2.5-flash': 0.0003,
+  'google/gemini-2.5-pro': 0.001,
+  'openai/gpt-5-mini': 0.0015,
+  'anthropic/claude-3.5-sonnet': 0.003,
+  'stabilityai/stable-diffusion-xl-base-1.0': 0.002,
+  'black-forest-labs/FLUX.1-schnell': 0.003,
+  'black-forest-labs/FLUX.1-dev': 0.005,
+  'facebook/musicgen-small': 0.001,
+  'facebook/musicgen-medium': 0.002,
+  'facebook/musicgen-large': 0.003,
+  'eleven_multilingual_v2': 0.0004,
+};
+
+function classifyIntent(prompt: string, toolIdOverride?: string): { intent: Intent; toolId: string; confidence: number } {
+  // If explicit tool override, use that
+  if (toolIdOverride) {
+    const intent = Object.entries(INTENT_PATTERNS).find(([_, config]) => config.toolId === toolIdOverride);
+    if (intent) {
+      return { intent: intent[0] as Intent, toolId: toolIdOverride, confidence: 1.0 };
+    }
+  }
+
+  let bestMatch: { intent: Intent; toolId: string; confidence: number } = { 
+    intent: 'chat', 
+    toolId: 'chat',
+    confidence: 0.5 
+  };
 
   for (const [intent, config] of Object.entries(INTENT_PATTERNS) as [Intent, typeof INTENT_PATTERNS[Intent]][]) {
     for (const pattern of config.patterns) {
       if (pattern.test(prompt)) {
         const confidence = config.weight;
         if (confidence > bestMatch.confidence) {
-          bestMatch = { intent, confidence };
+          bestMatch = { intent, toolId: config.toolId, confidence };
         }
       }
     }
   }
 
-  const mapping = INTENT_TO_MODEL[bestMatch.intent];
-  
-  // For chat intent, do additional LLM routing
-  let model = mapping.model;
-  if (bestMatch.intent === 'chat') {
-    model = routeLLM(prompt);
-  }
-
-  return {
-    intent: bestMatch.intent,
-    model,
-    service: mapping.service,
-    confidence: bestMatch.confidence,
-    reasoning: `Detected ${bestMatch.intent} intent with ${(bestMatch.confidence * 100).toFixed(0)}% confidence`,
-  };
+  return bestMatch;
 }
 
-function routeLLM(prompt: string): string {
+function routeLLM(prompt: string, tier: UserTier): string {
   const length = prompt.length;
-  const lower = prompt.toLowerCase();
 
-  // Code patterns -> powerful model
+  // Code patterns -> powerful model (if tier allows)
   if (/\b(code|function|debug|typescript|python|react)\b/i.test(prompt) || /```/.test(prompt)) {
-    return LLM_MODELS.powerful;
+    return tier === 'free' ? LLM_MODELS.balanced : LLM_MODELS.powerful;
   }
 
   // Creative writing -> creative model
   if (/\b(write|story|poem|creative|imagine)\b/i.test(prompt) && !/\b(code|technical)\b/i.test(prompt)) {
-    return LLM_MODELS.creative;
+    return tier === 'free' ? LLM_MODELS.balanced : LLM_MODELS.creative;
   }
 
   // Short simple queries -> fast model
@@ -195,104 +335,121 @@ function routeLLM(prompt: string): string {
     return LLM_MODELS.fast;
   }
 
-  // Long or analytical -> powerful model
+  // Long or analytical -> powerful model (if tier allows)
   if (length > 500 || /\b(analyze|research|compare|detailed|comprehensive)\b/i.test(prompt)) {
-    return LLM_MODELS.powerful;
+    return tier === 'free' ? LLM_MODELS.balanced : LLM_MODELS.powerful;
   }
 
   // Default balanced
   return LLM_MODELS.balanced;
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+function selectModel(intent: Intent, tier: UserTier, preferredModel?: string): { model: string; wasDowngraded: boolean; downgradeReason?: string } {
+  const mapping = INTENT_TO_MODEL[intent];
+  
+  // If user has preferred model
+  if (preferredModel) {
+    // Check if tier allows this model (simplified check)
+    const tierOrder: UserTier[] = ['free', 'pro', 'power', 'enterprise'];
+    const userTierIndex = tierOrder.indexOf(tier);
+    
+    // Pro+ models require pro+ tier
+    const proModels = ['google/gemini-2.5-pro', 'openai/gpt-5-mini', 'black-forest-labs/FLUX.1-schnell'];
+    const powerModels = ['anthropic/claude-3.5-sonnet', 'black-forest-labs/FLUX.1-dev'];
+    
+    if (proModels.includes(preferredModel) && userTierIndex < 1) {
+      return { 
+        model: mapping.model, 
+        wasDowngraded: true, 
+        downgradeReason: 'Model requires Pro tier or higher' 
+      };
+    }
+    if (powerModels.includes(preferredModel) && userTierIndex < 2) {
+      return { 
+        model: mapping.tierModels.pro || mapping.model, 
+        wasDowngraded: true, 
+        downgradeReason: 'Model requires Power tier or higher' 
+      };
+    }
+    
+    return { model: preferredModel, wasDowngraded: false };
   }
+  
+  // Use tier-appropriate model
+  const tierModel = mapping.tierModels[tier];
+  return { 
+    model: tierModel || mapping.model, 
+    wasDowngraded: false 
+  };
+}
 
+async function checkAccess(supabase: any, userId: string, toolId: string, model?: string): Promise<AccessCheck> {
   try {
-    const authHeader = req.headers.get('Authorization');
-    const body: RouterRequest = await req.json();
-    const { prompt, mode = 'auto', preferredModel, outputType, userId, sessionId } = body;
+    const { data, error } = await supabase.rpc('check_tool_access', {
+      p_user_id: userId,
+      p_tool_id: toolId,
+      p_model: model || null
+    });
 
-    if (!prompt) {
-      return new Response(JSON.stringify({ error: 'Prompt is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (error) {
+      console.error('[ai-router] Access check error:', error);
+      // Log the failure to telemetry
+      await logTelemetry(supabase, 'error', 'access_check_failed', {
+        userId,
+        toolId,
+        error: error.message,
+      }, userId);
+      // FAIL CLOSED for security - deny access on error
+      return { 
+        allowed: false, 
+        reason: 'Access check temporarily unavailable. Please try again.', 
+        daily_remaining: 0, 
+        tier: 'free', 
+        upgrade_available: true 
+      };
+    }
+
+    if (data && data.length > 0) {
+      return {
+        allowed: data[0].allowed,
+        reason: data[0].reason,
+        daily_remaining: data[0].daily_remaining,
+        tier: data[0].tier as UserTier,
+        upgrade_available: data[0].upgrade_available
+      };
+    }
+
+    // No data returned - treat as free tier with default quotas
+    return { allowed: true, reason: 'Default access', daily_remaining: 10, tier: 'free', upgrade_available: true };
+  } catch (e) {
+    console.error('[ai-router] Access check exception:', e);
+    // Log the exception to telemetry
+    try {
+      await supabase.rpc('log_platform_event', {
+        p_category: 'error',
+        p_event_name: 'access_check_exception',
+        p_severity: 'error',
+        p_user_id: userId,
+        p_function_name: 'ai-router',
+        p_message: e instanceof Error ? e.message : 'Unknown error',
+        p_stack_trace: e instanceof Error ? e.stack : undefined,
       });
+    } catch (logError) {
+      console.error('[ai-router] Failed to log exception:', logError);
     }
-
-    let decision: RouteDecision;
-
-    // Manual mode - user specified output type
-    if (mode === 'manual' && outputType) {
-      const mapping = INTENT_TO_MODEL[outputType];
-      decision = {
-        intent: outputType,
-        model: preferredModel || mapping.model,
-        service: mapping.service,
-        confidence: 1.0,
-        reasoning: `User specified ${outputType} output`,
-      };
-    } 
-    // Preferred model override
-    else if (preferredModel) {
-      const intent = classifyIntent(prompt).intent;
-      decision = {
-        intent,
-        model: preferredModel,
-        service: 'lovable',
-        confidence: 1.0,
-        reasoning: `User preferred model: ${preferredModel}`,
-      };
-    }
-    // Auto mode - Lucy decides
-    else {
-      decision = classifyIntent(prompt);
-    }
-
-    console.log(`[ai-router] Intent: ${decision.intent}, Model: ${decision.model}, Confidence: ${decision.confidence}`);
-
-    // Log usage for analytics (non-blocking)
-    if (userId) {
-      logUsage(userId, sessionId, decision, prompt.length).catch(console.error);
-    }
-
-    // Return routing decision
-    return new Response(JSON.stringify({
-      route: decision,
-      endpoints: {
-        image: '/functions/v1/hf-image-gen',
-        video: '/functions/v1/hf-video-gen',
-        music: '/functions/v1/hf-music-gen',
-        voice: '/functions/v1/elevenlabs-voice',
-        document: '/functions/v1/pdf-generator',
-        chat: '/functions/v1/chat-stream',
-      },
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
-  } catch (error) {
-    console.error('[ai-router] Error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Routing failed. Lucy will use default chat model.',
-      fallback: { intent: 'chat', model: 'google/gemini-2.5-flash', service: 'lovable' }
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // FAIL CLOSED for security
+    return { 
+      allowed: false, 
+      reason: 'Access check temporarily unavailable. Please try again.', 
+      daily_remaining: 0, 
+      tier: 'free', 
+      upgrade_available: true 
+    };
   }
-});
+}
 
-async function logUsage(userId: string, sessionId: string | undefined, decision: RouteDecision, promptLength: number) {
+async function logUsage(supabase: any, userId: string, sessionId: string | undefined, decision: RouteDecision, access: AccessCheck, promptLength: number) {
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    
-    if (!supabaseUrl || !supabaseKey) return;
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
     await supabase.from('model_usage_logs').insert({
       user_id: userId,
       session_id: sessionId,
@@ -301,8 +458,189 @@ async function logUsage(userId: string, sessionId: string | undefined, decision:
       service: decision.service,
       confidence: decision.confidence,
       prompt_length: promptLength,
+      user_tier: access.tier,
+      quota_remaining: access.daily_remaining,
+      was_downgraded: decision.wasDowngraded,
+      downgrade_reason: decision.downgradeReason,
+      estimated_cost: MODEL_COSTS[decision.model] ? (promptLength / 1000) * MODEL_COSTS[decision.model] : 0,
     });
   } catch (e) {
     console.error('[ai-router] Failed to log usage:', e);
   }
 }
+
+async function logTelemetry(supabase: any, category: string, eventName: string, details: any, userId?: string) {
+  try {
+    await supabase.rpc('log_platform_event', {
+      p_category: category,
+      p_event_name: eventName,
+      p_severity: 'info',
+      p_user_id: userId || null,
+      p_function_name: 'ai-router',
+      p_details: details,
+    });
+  } catch (e) {
+    console.error('[ai-router] Failed to log telemetry:', e);
+  }
+}
+
+serve(async (req) => {
+  const startTime = Date.now();
+  
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+  try {
+    const body: RouterRequest = await req.json();
+    const { prompt, mode = 'auto', preferredModel, outputType, userId, sessionId, toolId } = body;
+
+    if (!prompt) {
+      return new Response(JSON.stringify({ error: 'Prompt is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Classify intent
+    const classification = classifyIntent(prompt, toolId || (outputType ? INTENT_PATTERNS[outputType]?.toolId : undefined));
+    
+    // Check access (if user provided)
+    let access: AccessCheck = { allowed: true, reason: 'Anonymous access', daily_remaining: -1, tier: 'free', upgrade_available: true };
+    if (userId && supabase) {
+      access = await checkAccess(supabase, userId, classification.toolId);
+    }
+
+    // If not allowed, return early
+    if (!access.allowed) {
+      const response: RouterResponse = {
+        route: {
+          intent: classification.intent,
+          model: '',
+          originalModel: '',
+          service: 'internal',
+          confidence: classification.confidence,
+          reasoning: access.reason,
+          wasDowngraded: false,
+        },
+        access,
+        endpoints: {},
+        quotas: {
+          tier: access.tier,
+          dailyRemaining: access.daily_remaining,
+          upgradeAvailable: access.upgrade_available,
+        }
+      };
+
+      // Log denial
+      if (supabase) {
+        await logTelemetry(supabase, 'ai_routing', 'access_denied', {
+          toolId: classification.toolId,
+          reason: access.reason,
+          tier: access.tier,
+        }, userId);
+      }
+
+      return new Response(JSON.stringify(response), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Select model based on tier
+    const { model, wasDowngraded, downgradeReason } = selectModel(
+      classification.intent, 
+      access.tier, 
+      mode === 'manual' ? preferredModel : undefined
+    );
+
+    // For chat intent, do additional LLM routing
+    let finalModel = model;
+    if (classification.intent === 'chat' && !preferredModel) {
+      finalModel = routeLLM(prompt, access.tier);
+    }
+
+    const mapping = INTENT_TO_MODEL[classification.intent];
+    const decision: RouteDecision = {
+      intent: classification.intent,
+      model: finalModel,
+      originalModel: preferredModel || mapping.model,
+      service: mapping.service,
+      confidence: classification.confidence,
+      reasoning: `Detected ${classification.intent} intent with ${(classification.confidence * 100).toFixed(0)}% confidence. Tier: ${access.tier}`,
+      wasDowngraded,
+      downgradeReason,
+    };
+
+    console.log(`[ai-router] Intent: ${decision.intent}, Model: ${decision.model}, Tier: ${access.tier}, Confidence: ${decision.confidence}`);
+
+    // Log usage (non-blocking)
+    if (userId && supabase) {
+      logUsage(supabase, userId, sessionId, decision, access, prompt.length).catch(console.error);
+      logTelemetry(supabase, 'ai_routing', 'route_decision', {
+        intent: decision.intent,
+        model: decision.model,
+        tier: access.tier,
+        wasDowngraded,
+        latencyMs: Date.now() - startTime,
+      }, userId).catch(console.error);
+    }
+
+    const response: RouterResponse = {
+      route: decision,
+      access,
+      endpoints: {
+        image: '/functions/v1/hf-image-gen',
+        video: '/functions/v1/hf-video-gen',
+        music: '/functions/v1/hf-music-gen',
+        voice: '/functions/v1/elevenlabs-voice',
+        document: '/functions/v1/pdf-generator',
+        chat: '/functions/v1/chat-stream',
+        web_fetch: '/functions/v1/browser-fetch',
+        code: '/functions/v1/code-executor',
+      },
+      quotas: {
+        tier: access.tier,
+        dailyRemaining: access.daily_remaining,
+        upgradeAvailable: access.upgrade_available,
+      }
+    };
+
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('[ai-router] Error:', error);
+    
+    // Log error telemetry
+    if (supabase) {
+      logTelemetry(supabase, 'error', 'ai_router_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      }).catch(console.error);
+    }
+
+    return new Response(JSON.stringify({ 
+      error: 'Routing failed. Lucy will use default chat model.',
+      route: { 
+        intent: 'chat', 
+        model: 'google/gemini-2.5-flash', 
+        originalModel: 'google/gemini-2.5-flash',
+        service: 'lovable',
+        confidence: 0.5,
+        reasoning: 'Fallback due to routing error',
+        wasDowngraded: false,
+      },
+      access: { allowed: true, reason: 'Fallback', daily_remaining: -1, tier: 'free', upgrade_available: true },
+      quotas: { tier: 'free', dailyRemaining: -1, upgradeAvailable: true },
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});

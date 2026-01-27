@@ -7,10 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Globe, Loader2, Copy, AlertCircle, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ToolAccessGuard, useToolAccess } from "@/components/monetization/ToolAccessGuard";
+import { ToolErrorBoundary } from "@/components/platform/ErrorBoundary";
 
-const WebsiteSummarizer = () => {
+const WebsiteSummarizerContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { executeWithAccessCheck } = useToolAccess({ toolId: 'web_fetch' });
   
   const [url, setUrl] = useState("");
   const [summary, setSummary] = useState("");
@@ -49,36 +52,50 @@ const WebsiteSummarizer = () => {
     setRawContent("");
 
     try {
-      // First, fetch the website content
-      const { data: fetchData, error: fetchError } = await supabase.functions.invoke("browser-fetch", {
-        body: { url: targetUrl }
-      });
+      const result = await executeWithAccessCheck(
+        async () => {
+          // First, fetch the website content
+          const { data: fetchData, error: fetchError } = await supabase.functions.invoke("browser-fetch", {
+            body: { url: targetUrl }
+          });
 
-      if (fetchError) throw fetchError;
+          if (fetchError) throw fetchError;
 
-      if (!fetchData?.text) {
-        throw new Error("Could not fetch website content");
+          if (!fetchData?.text) {
+            throw new Error("Could not fetch website content");
+          }
+
+          // Then, summarize using lucy-router
+          const { data: summaryData, error: summaryError } = await supabase.functions.invoke("lucy-router", {
+            body: {
+              userId: "anonymous",
+              messages: [
+                {
+                  role: "user",
+                  content: `Summarize this website content in a clear, concise way. Include the main topic, key points, and any important details:\n\nTitle: ${fetchData.title || "Unknown"}\n\nContent:\n${fetchData.text.slice(0, 8000)}`
+                }
+              ]
+            }
+          });
+
+          if (summaryError) throw summaryError;
+
+          return { fetchData, summaryData };
+        },
+        (reason) => {
+          setError(reason);
+        }
+      );
+
+      if (!result) {
+        setLoading(false);
+        return;
       }
 
-      setRawContent(fetchData.text);
+      setRawContent(result.fetchData.text);
 
-      // Then, summarize using lucy-router
-      const { data: summaryData, error: summaryError } = await supabase.functions.invoke("lucy-router", {
-        body: {
-          userId: "anonymous",
-          messages: [
-            {
-              role: "user",
-              content: `Summarize this website content in a clear, concise way. Include the main topic, key points, and any important details:\n\nTitle: ${fetchData.title || "Unknown"}\n\nContent:\n${fetchData.text.slice(0, 8000)}`
-            }
-          ]
-        }
-      });
-
-      if (summaryError) throw summaryError;
-
-      const summaryText = summaryData?.plan?.finalAnswer || 
-        summaryData?.plan?.steps?.[0]?.result || 
+      const summaryText = result.summaryData?.plan?.finalAnswer || 
+        result.summaryData?.plan?.steps?.[0]?.result || 
         "Summary could not be generated.";
 
       setSummary(summaryText);
@@ -201,6 +218,20 @@ const WebsiteSummarizer = () => {
         )}
       </main>
     </div>
+  );
+};
+
+const WebsiteSummarizer = () => {
+  return (
+    <ToolErrorBoundary toolName="Website Summarizer">
+      <ToolAccessGuard
+        toolId="web_fetch"
+        toolName="Website Summarizer"
+        toolDescription="Get AI-powered summaries of any webpage"
+      >
+        <WebsiteSummarizerContent />
+      </ToolAccessGuard>
+    </ToolErrorBoundary>
   );
 };
 
