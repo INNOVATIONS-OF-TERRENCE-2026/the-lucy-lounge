@@ -162,7 +162,7 @@ export const LucyControlDeck = memo(function LucyControlDeck({
   }, [navigate]);
 
   return (
-    <Sidebar className="flex flex-col h-screen overflow-hidden border-r border-border/50 bg-sidebar/95 backdrop-blur-xl">
+    <Sidebar className="flex flex-col h-screen-safe overflow-hidden border-r border-border/50 bg-sidebar/95 backdrop-blur-xl">
       {/* ═══════════════════════════════════════════════════════════
           ZONE 1: LUCY IDENTITY (FIXED TOP)
           ═══════════════════════════════════════════════════════════ */}

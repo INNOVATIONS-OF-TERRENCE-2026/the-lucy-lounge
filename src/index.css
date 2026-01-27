@@ -614,6 +614,55 @@ body {
   }
 }
 
+/* =========================================================
+   📱 iOS PWA TOUCH & SCROLL ENHANCEMENTS
+   Prevent pull-to-refresh, improve scroll behavior
+   ========================================================= */
+
+/* Prevent overscroll bounce on iOS (pull-to-refresh) */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+}
+
+/* Chat message container - smooth scroll with momentum */
+[data-theme-area="chat"] .overflow-y-auto,
+.chat-messages-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+}
+
+/* Prevent double-tap zoom on interactive elements */
+button, 
+a, 
+[role="button"],
+input,
+textarea,
+select {
+  touch-action: manipulation;
+}
+
+/* Chat input area - prevent page scroll when typing */
+.chat-input,
+[data-theme-area="chat"] textarea {
+  touch-action: pan-x pan-y;
+}
+
+/* Keyboard-aware spacing for iOS */
+@supports (-webkit-touch-callout: none) {
+  /* When keyboard opens, ensure input stays visible */
+  [data-theme-area="chat"] {
+    /* Use visual viewport when available */
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Prevent layout jump when keyboard appears */
+  .keyboard-open [data-theme-area="chat"] {
+    height: calc(100% - env(keyboard-inset-height, 0px));
+  }
+}
+
 /* Prevent text from being too small on mobile */
 @media (max-width: 640px) {
   input, textarea, select, button {
