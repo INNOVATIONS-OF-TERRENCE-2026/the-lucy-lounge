@@ -250,21 +250,116 @@ export const RAIL_CONFIGS: RailConfig[] = [
   },
   
   // =============================================================================
-  // PUBLIC DOMAIN / FAST PROVIDER RAILS
+  // MODERN ERA RAILS (2000s-2020s) — PRIMARY FOCUS
   // =============================================================================
   
-  // Public Domain Classics (Internet Archive)
+  // MODERN BLACK CINEMA (Priority Rail)
+  {
+    id: 'modern-black-cinema',
+    title: 'Modern Black Cinema',
+    subtitle: 'Contemporary Black excellence',
+    queryType: 'tag',
+    tags: ['modern-black-cinema'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 25,
+    priority: 'high',
+    icon: '✊🏿'
+  },
+  
+  // CRIME & STREET CLASSICS
+  {
+    id: 'crime-street-classics',
+    title: 'Crime & Street Classics',
+    subtitle: 'Hood classics and urban drama',
+    queryType: 'tag',
+    tags: ['crime', 'street', 'hood-classic'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 25,
+    priority: 'high',
+    icon: '🔫'
+  },
+  
+  // BINGE-WORTHY TV
+  {
+    id: 'binge-worthy-tv',
+    title: 'Binge-Worthy TV',
+    subtitle: 'Prestige series you cant stop watching',
+    queryType: 'tag',
+    tags: ['binge-worthy', 'prestige-tv'],
+    mediaTypes: ['series'],
+    category: 'video',
+    minItems: 6,
+    limit: 20,
+    priority: 'high',
+    icon: '📺'
+  },
+  
+  // 90s / 2000s THROWBACKS
+  {
+    id: 'throwback-90s-2000s',
+    title: '90s / 2000s Throwbacks',
+    subtitle: 'Nostalgia hits from the turn of the millennium',
+    queryType: 'era',
+    eraRange: [1990, 2009],
+    tags: ['nineties', '2000s'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 10,
+    limit: 30,
+    priority: 'high',
+    icon: '📀'
+  },
+  
+  // MODERN SCI-FI & FUTURISTIC
+  {
+    id: 'modern-scifi',
+    title: 'Sci-Fi & Futuristic',
+    subtitle: 'Mind-bending modern sci-fi',
+    queryType: 'tag',
+    tags: ['sci-fi', 'modern'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 25,
+    priority: 'high',
+    icon: '🛸'
+  },
+  
+  // MODERN ANIMATION
+  {
+    id: 'modern-animation',
+    title: 'Animated & Cartoons',
+    subtitle: 'Modern animated masterpieces',
+    queryType: 'tag',
+    tags: ['animation', 'modern'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 6,
+    limit: 20,
+    priority: 'high',
+    icon: '🎨'
+  },
+  
+  // =============================================================================
+  // PUBLIC DOMAIN / CLASSIC RAILS (SEPARATE OPTIONAL SECTION)
+  // =============================================================================
+  
+  // Public Domain Classics (Internet Archive) - OPTIONAL
   {
     id: 'public-domain-classics',
     title: 'Public Domain Classics',
-    subtitle: 'Free films from Internet Archive',
+    subtitle: 'Free classic films from Internet Archive',
     queryType: 'tag',
     tags: ['public-domain', 'archive-org'],
     mediaTypes: ['movie'],
     category: 'video',
     minItems: 10,
     limit: 25,
-    priority: 'high',
+    priority: 'low', // Changed to LOW priority
     icon: '🎬'
   },
   

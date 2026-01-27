@@ -12,3 +12,12 @@ export {
   type MediaThumbnailProps,
   type EmbedSource,
 } from './UniversalEmbedPlayer';
+
+export {
+  UnifiedFASTPlayer,
+  FASTPlayerCard,
+  PROVIDER_CONFIGS,
+  buildEmbedUrl,
+  buildDeepLink,
+  type FASTProviderType,
+} from './UnifiedFASTPlayer';
