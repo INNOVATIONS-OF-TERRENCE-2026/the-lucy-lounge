@@ -42,6 +42,16 @@ interface PlutoContent {
   channelId?: string;
 }
 
+interface PlutoCuratedCollection {
+  id: string;
+  title: string;
+  type: 'collection';
+  genres: string[];
+  provider_type: 'FAST';
+  provider_name: 'Pluto TV';
+  tags: string[];
+}
+
 // ============================================================================
 // PLUTO TV CHANNELS
 // ============================================================================
@@ -57,6 +67,7 @@ const PLUTO_FEATURED_CHANNELS: PlutoChannel[] = [
   { id: 'pluto-scifi', name: 'Sci-Fi', number: 107, category: 'sci-fi', logoUrl: '', isLive: true },
   { id: 'pluto-classic-movies', name: 'Classic Movies', number: 108, category: 'classic', logoUrl: '', isLive: true },
   { id: 'pluto-black-cinema', name: 'Black Cinema', number: 109, category: 'black-cinema', logoUrl: '', isLive: true },
+  { id: 'pluto-classic-tv', name: 'Classic TV Vault', number: 115, category: 'classic-tv', logoUrl: '', isLive: true },
   { id: 'crime-movies', name: 'Crime Movies', number: 110, category: 'crime', logoUrl: '', isLive: true },
   { id: 'cult-films', name: 'Cult Films', number: 111, category: 'cult', logoUrl: '', isLive: true },
   { id: 'docs', name: 'Pluto Documentaries', number: 200, category: 'documentary', logoUrl: '', isLive: true },
@@ -236,6 +247,22 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
 }
 
 // ============================================================================
+// CURATED COLLECTIONS
+// ============================================================================
+
+export const PLUTO_CURATED_COLLECTIONS: PlutoCuratedCollection[] = [
+  {
+    id: 'pluto_classic_tv',
+    title: 'Classic TV Vault',
+    type: 'collection',
+    genres: ['Drama', 'Comedy'],
+    provider_type: 'FAST',
+    provider_name: 'Pluto TV',
+    tags: ['tv', 'classics'],
+  },
+];
+
+// ============================================================================
 // EXPORT
 // ============================================================================
 
@@ -244,6 +271,8 @@ export const PlutoAdapter = new PlutoAdapterImpl();
 export { 
   PLUTO_FEATURED_CHANNELS,
   PLUTO_CONFIG,
+  PLUTO_CURATED_COLLECTIONS,
   type PlutoChannel,
   type PlutoContent,
+  type PlutoCuratedCollection,
 };

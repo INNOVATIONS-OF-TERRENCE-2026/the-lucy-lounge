@@ -62,8 +62,8 @@ export { ArchiveOrgFASTAdapter, archiveOrgAdapter, ARCHIVE_COLLECTIONS } from '.
 export { YouTubeFASTAdapter, youtubeFASTAdapter, YOUTUBE_COLLECTIONS } from './youtubeFASTAdapter';
 
 // Additional FAST Provider Adapters
-export { TubiAdapter, TUBI_CATEGORIES, TUBI_CONFIG } from './tubiAdapter';
-export { PlutoAdapter, PLUTO_FEATURED_CHANNELS, PLUTO_CONFIG } from './plutoAdapter';
+export { TubiAdapter, TUBI_CATEGORIES, TUBI_CONFIG, TUBI_CURATED_COLLECTIONS } from './tubiAdapter';
+export { PlutoAdapter, PLUTO_FEATURED_CHANNELS, PLUTO_CONFIG, PLUTO_CURATED_COLLECTIONS } from './plutoAdapter';
 export { PlexAdapter, PLEX_CATEGORIES, PLEX_CONFIG } from './plexAdapter';
 export { RokuAdapter, ROKU_CATEGORIES, ROKU_CONFIG } from './rokuAdapter';
 export { FreeveeAdapter, FREEVEE_CATEGORIES, FREEVEE_CONFIG } from './freeveeAdapter';

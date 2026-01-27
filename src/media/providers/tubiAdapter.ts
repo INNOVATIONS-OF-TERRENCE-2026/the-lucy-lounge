@@ -39,6 +39,16 @@ interface TubiSearchResult {
   rating?: string;
 }
 
+interface TubiCuratedCollection {
+  id: string;
+  title: string;
+  type: 'collection';
+  genres: string[];
+  provider_type: 'FAST';
+  provider_name: 'Tubi';
+  tags: string[];
+}
+
 // ============================================================================
 // TUBI CATEGORIES MAPPING
 // ============================================================================
@@ -51,6 +61,7 @@ const TUBI_CATEGORIES: TubiCategory[] = [
   { id: 'sci-fi', name: 'Sci-Fi & Fantasy', genres: ['sci-fi', 'fantasy'] },
   { id: 'documentaries', name: 'Documentaries', genres: ['documentary'] },
   { id: 'black-cinema', name: 'Black Cinema', genres: ['black-cinema', 'drama'] },
+  { id: 'black-action', name: 'Black Action Spotlight', genres: ['action', 'black-cinema'] },
   { id: 'classics', name: 'Classics', genres: ['classic', 'golden-age'] },
   { id: 'anime', name: 'Anime', genres: ['anime', 'animation'] },
   { id: 'foreign', name: 'Foreign Films', genres: ['international', 'foreign'] },
@@ -240,6 +251,22 @@ class TubiAdapterImpl implements FASTProviderAdapter {
 }
 
 // ============================================================================
+// CURATED COLLECTIONS
+// ============================================================================
+
+export const TUBI_CURATED_COLLECTIONS: TubiCuratedCollection[] = [
+  {
+    id: 'tubi_black_action_collection',
+    title: 'Black Action Spotlight',
+    type: 'collection',
+    genres: ['Action'],
+    provider_type: 'FAST',
+    provider_name: 'Tubi',
+    tags: ['black_cinema', 'action', 'fast'],
+  },
+];
+
+// ============================================================================
 // EXPORT
 // ============================================================================
 
@@ -248,6 +275,8 @@ export const TubiAdapter = new TubiAdapterImpl();
 export { 
   TUBI_CATEGORIES,
   TUBI_CONFIG,
+  TUBI_CURATED_COLLECTIONS,
   type TubiCategory,
   type TubiSearchResult,
+  type TubiCuratedCollection,
 };
