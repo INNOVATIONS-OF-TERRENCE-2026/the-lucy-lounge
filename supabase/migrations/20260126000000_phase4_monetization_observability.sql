@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS usage_events (
 CREATE INDEX IF NOT EXISTS idx_usage_events_user_time ON usage_events(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_tool_time ON usage_events(tool_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_type ON usage_events(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, DATE(created_at));
+CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, (created_at::date));
 
 -- ============================================================================
 -- PLATFORM TELEMETRY (Observability)
@@ -506,14 +506,14 @@ BEGIN
     RETURN QUERY
     SELECT
         (SELECT COUNT(*) FROM auth.users),
-        (SELECT COUNT(DISTINCT user_id) FROM usage_events WHERE DATE(created_at) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM usage_events WHERE DATE(created_at) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM model_usage_logs WHERE DATE(created_at) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM platform_telemetry WHERE severity IN ('error', 'critical') AND DATE(created_at) = CURRENT_DATE),
+        (SELECT COUNT(DISTINCT user_id) FROM usage_events WHERE (created_at::date) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM usage_events WHERE (created_at::date) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM model_usage_logs WHERE (created_at::date) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM platform_telemetry WHERE severity IN ('error', 'critical') AND (created_at::date) = CURRENT_DATE),
         (SELECT jsonb_agg(t) FROM (
             SELECT tool_id, COUNT(*) as count 
             FROM usage_events 
-            WHERE DATE(created_at) = CURRENT_DATE
+            WHERE (created_at::date) = CURRENT_DATE
             GROUP BY tool_id 
             ORDER BY count DESC 
             LIMIT 5
