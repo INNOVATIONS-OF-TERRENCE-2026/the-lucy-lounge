@@ -514,7 +514,7 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
   };
 
   return (
-    <main className="flex-1 flex flex-col h-screen relative overflow-hidden" data-theme-area="chat">
+    <main className="flex-1 flex flex-col h-screen-safe relative overflow-hidden" data-theme-area="chat">
       <ReadingProgressBar isStreaming={!!streamingMessage || !!lucyStreamingText || isLucyStreaming || isLocalStreaming} />
 
       <ScrollToBottom
@@ -699,8 +699,8 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         </div>
       </div>
 
-      {/* INPUT AREA - cinematic spacing */}
-      <div className="p-4 md:p-4 backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
+      {/* INPUT AREA - cinematic spacing with iOS safe-area support */}
+      <div className="p-4 md:p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-sm bg-transparent flex-shrink-0" data-theme-area="chat">
         <div className="max-w-full md:max-w-5xl mx-auto space-y-3">
           {/* Intent Detection Indicator */}
           {detectedIntent && (

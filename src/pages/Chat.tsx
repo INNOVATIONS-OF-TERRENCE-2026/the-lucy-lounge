@@ -19,7 +19,7 @@ import { LogIn } from "lucide-react";
 
 /* Loading skeleton */
 const ChatLoadingSkeleton = () => (
-  <div className="flex flex-row w-full h-screen max-h-screen overflow-hidden bg-background">
+  <div className="flex flex-row w-full h-screen-safe overflow-hidden bg-background">
     <div className="w-64 h-full bg-muted/20 animate-pulse hidden md:block" />
     <div className="flex-1 flex flex-col max-w-full min-w-0">
       <div className="h-16 bg-muted/10 animate-pulse" />
@@ -117,7 +117,7 @@ const ChatContent = () => {
       )}
 
       <SidebarProvider>
-        <div className="flex w-full h-screen max-h-screen overflow-hidden max-w-full min-w-0 bg-[var(--theme-bg-1)]">
+        <div className="flex w-full h-screen-safe overflow-hidden max-w-full min-w-0 bg-[var(--theme-bg-1)]">
           <ChatSidebar
             userId={user.id}
             currentConversationId={currentConversationId}
