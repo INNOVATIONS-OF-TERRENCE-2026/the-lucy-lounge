@@ -285,7 +285,7 @@ INSERT INTO media_nodes (
  2011, 4740,
  'https://image.tmdb.org/t/p/w500/8Rt3u3jqJC7j38Ygzv3MKqOgQH2.jpg',
  'https://image.tmdb.org/t/p/w780/8Rt3u3jqJC7j38Ygzv3MKqOgQH2.jpg',
- 6.5, 70, 'NR'),
+ 6.5, 70, 'UNRATED'),
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- MODERN ACTION BLOCKBUSTERS

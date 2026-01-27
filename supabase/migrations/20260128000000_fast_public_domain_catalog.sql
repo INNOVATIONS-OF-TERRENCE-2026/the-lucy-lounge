@@ -13,41 +13,41 @@
 -- PART 1: NEW TAGS FOR FAST/PUBLIC DOMAIN CONTENT
 -- =============================================================================
 
-INSERT INTO media_tags (name, type, description) VALUES
+INSERT INTO media_tags (name, slug, tag_type) VALUES
 -- Provider tags
-('archive-org', 'style', 'Content from Internet Archive'),
-('public-domain', 'style', 'Public domain content - free to use'),
-('fast-channel', 'style', 'Free Ad-Supported Streaming Television'),
+('archive-org', 'archive-org', 'style'),
+('public-domain', 'public-domain', 'style'),
+('fast-channel', 'fast-channel', 'style'),
 
 -- Classic film genres
-('film-noir', 'genre', 'Dark, atmospheric crime dramas'),
-('silent-film', 'genre', 'Silent era cinema (pre-1930)'),
-('golden-age', 'era', 'Hollywood Golden Age (1930-1960)'),
-('pre-code', 'era', 'Pre-code Hollywood (1929-1934)'),
-('b-movie', 'style', 'Low-budget genre films'),
+('film-noir', 'film-noir', 'genre'),
+('silent-film', 'silent-film', 'genre'),
+('golden-age', 'golden-age', 'era'),
+('pre-code', 'pre-code', 'era'),
+('b-movie', 'b-movie', 'style'),
 
 -- Additional genres
-('western', 'genre', 'Western films'),
-('mystery', 'genre', 'Mystery and detective films'),
-('romance', 'genre', 'Romance films'),
-('war', 'genre', 'War films'),
-('musical', 'genre', 'Musical films'),
-('adventure', 'genre', 'Adventure films'),
-('fantasy', 'genre', 'Fantasy films'),
-('martial-arts', 'genre', 'Martial arts films'),
-('exploitation', 'style', 'Exploitation cinema'),
-('cult-classic', 'style', 'Cult classic films'),
-('grindhouse', 'style', 'Grindhouse cinema'),
-('creature-feature', 'style', 'Monster and creature films'),
-('atomic-age', 'era', 'Atomic age sci-fi (1950s)'),
-('blaxploitation', 'style', 'Blaxploitation era films'),
+('western', 'western', 'genre'),
+('mystery', 'mystery', 'genre'),
+('romance', 'romance', 'genre'),
+('war', 'war', 'genre'),
+('musical', 'musical', 'genre'),
+('adventure', 'adventure', 'genre'),
+('fantasy', 'fantasy', 'genre'),
+('martial-arts', 'martial-arts', 'genre'),
+('exploitation', 'exploitation', 'style'),
+('cult-classic', 'cult-classic', 'style'),
+('grindhouse', 'grindhouse', 'style'),
+('creature-feature', 'creature-feature', 'style'),
+('atomic-age', 'atomic-age', 'era'),
+('blaxploitation', 'blaxploitation', 'style'),
 
 -- Thematic tags
-('social-commentary', 'theme', 'Films with social themes'),
-('historical', 'theme', 'Historical films'),
-('psychological', 'theme', 'Psychological themes'),
-('supernatural', 'theme', 'Supernatural themes')
-ON CONFLICT (name) DO NOTHING;
+('social-commentary', 'social-commentary', 'theme'),
+('historical', 'historical', 'theme'),
+('psychological', 'psychological', 'theme'),
+('supernatural', 'supernatural', 'theme')
+ON CONFLICT (slug) DO NOTHING;
 
 -- =============================================================================
 -- PART 2: INTERNET ARCHIVE PUBLIC DOMAIN FILMS
