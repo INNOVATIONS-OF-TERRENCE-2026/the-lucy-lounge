@@ -1276,7 +1276,7 @@ LEFT JOIN public.user_watch_events uwe ON mn.id = uwe.media_node_id
 LEFT JOIN public.user_listen_events ule ON mn.id = ule.media_node_id 
   AND ule.started_at > NOW() - INTERVAL '7 days'
 GROUP BY mn.id
-ORDER BY (COALESCE(recent_watch_count, 0) + COALESCE(recent_listen_count, 0)) DESC,
+ORDER BY (COALESCE(COUNT(DISTINCT uwe.user_id), 0) + COALESCE(COUNT(DISTINCT ule.user_id), 0)) DESC,
          mn.popularity_score DESC;
 
 -- =====================================================================
