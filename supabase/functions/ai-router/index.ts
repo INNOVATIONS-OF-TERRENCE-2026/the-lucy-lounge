@@ -39,7 +39,7 @@ interface RouteDecision {
   intent: Intent;
   model: string;
   originalModel: string;
-  service: 'lovable' | 'huggingface' | 'elevenlabs' | 'internal';
+  service: 'openrouter' | 'lovable' | 'huggingface' | 'elevenlabs' | 'internal';
   confidence: number;
   reasoning: string;
   wasDowngraded: boolean;
@@ -217,30 +217,30 @@ const INTENT_TO_MODEL: Record<Intent, {
     tierModels: {}
   },
   code: { 
-    model: 'google/gemini-2.5-flash', 
-    service: 'lovable',
+    model: 'google/gemini-2.0-flash-001', 
+    service: 'openrouter',
     tierModels: {
-      pro: 'google/gemini-2.5-pro',
-      power: 'google/gemini-2.5-pro',
+      pro: 'google/gemini-2.0-flash-thinking-exp:free',
+      power: 'google/gemini-2.0-flash-thinking-exp:free',
       enterprise: 'anthropic/claude-3.5-sonnet',
     }
   },
   analysis: { 
-    model: 'google/gemini-2.5-flash', 
-    service: 'lovable',
+    model: 'google/gemini-2.0-flash-001', 
+    service: 'openrouter',
     tierModels: {
-      pro: 'google/gemini-2.5-pro',
-      power: 'google/gemini-2.5-pro',
+      pro: 'google/gemini-2.0-flash-thinking-exp:free',
+      power: 'google/gemini-2.0-flash-thinking-exp:free',
       enterprise: 'anthropic/claude-3.5-sonnet',
     }
   },
   creative: { 
-    model: 'google/gemini-2.5-flash', 
-    service: 'lovable',
+    model: 'google/gemini-2.0-flash-001', 
+    service: 'openrouter',
     tierModels: {
-      pro: 'openai/gpt-5-mini',
-      power: 'openai/gpt-5-mini',
-      enterprise: 'openai/gpt-5-mini',
+      pro: 'openai/gpt-4o-mini',
+      power: 'openai/gpt-4o-mini',
+      enterprise: 'openai/gpt-4o-mini',
     }
   },
   web_fetch: {
@@ -254,30 +254,30 @@ const INTENT_TO_MODEL: Record<Intent, {
     tierModels: {}
   },
   chat: { 
-    model: 'google/gemini-2.5-flash', 
-    service: 'lovable',
+    model: 'google/gemini-2.0-flash-001', 
+    service: 'openrouter',
     tierModels: {
-      pro: 'google/gemini-2.5-flash',
-      power: 'google/gemini-2.5-pro',
+      pro: 'google/gemini-2.0-flash-001',
+      power: 'google/gemini-2.0-flash-thinking-exp:free',
       enterprise: 'anthropic/claude-3.5-sonnet',
     }
   },
 };
 
-// LLM models for chat routing
+// LLM models for chat routing (OpenRouter model IDs)
 const LLM_MODELS = {
-  fast: 'google/gemini-2.5-flash-lite',
-  balanced: 'google/gemini-2.5-flash',
-  powerful: 'google/gemini-2.5-pro',
-  creative: 'openai/gpt-5-mini',
+  fast: 'google/gemini-2.0-flash-lite-001',
+  balanced: 'google/gemini-2.0-flash-001',
+  powerful: 'google/gemini-2.0-flash-thinking-exp:free',
+  creative: 'openai/gpt-4o-mini',
 };
 
 // Model cost estimates (per 1K tokens)
 const MODEL_COSTS: Record<string, number> = {
-  'google/gemini-2.5-flash-lite': 0.0001,
-  'google/gemini-2.5-flash': 0.0003,
-  'google/gemini-2.5-pro': 0.001,
-  'openai/gpt-5-mini': 0.0015,
+  'google/gemini-2.0-flash-lite-001': 0.0001,
+  'google/gemini-2.0-flash-001': 0.0003,
+  'google/gemini-2.0-flash-thinking-exp:free': 0.001,
+  'openai/gpt-4o-mini': 0.0015,
   'anthropic/claude-3.5-sonnet': 0.003,
   'stabilityai/stable-diffusion-xl-base-1.0': 0.002,
   'black-forest-labs/FLUX.1-schnell': 0.003,
@@ -354,7 +354,7 @@ function selectModel(intent: Intent, tier: UserTier, preferredModel?: string): {
     const userTierIndex = tierOrder.indexOf(tier);
     
     // Pro+ models require pro+ tier
-    const proModels = ['google/gemini-2.5-pro', 'openai/gpt-5-mini', 'black-forest-labs/FLUX.1-schnell'];
+    const proModels = ['google/gemini-2.0-flash-thinking-exp:free', 'openai/gpt-4o-mini', 'black-forest-labs/FLUX.1-schnell'];
     const powerModels = ['anthropic/claude-3.5-sonnet', 'black-forest-labs/FLUX.1-dev'];
     
     if (proModels.includes(preferredModel) && userTierIndex < 1) {
@@ -629,9 +629,9 @@ serve(async (req) => {
       error: 'Routing failed. Lucy will use default chat model.',
       route: { 
         intent: 'chat', 
-        model: 'google/gemini-2.5-flash', 
-        originalModel: 'google/gemini-2.5-flash',
-        service: 'lovable',
+        model: 'google/gemini-2.0-flash-001', 
+        originalModel: 'google/gemini-2.0-flash-001',
+        service: 'openrouter',
         confidence: 0.5,
         reasoning: 'Fallback due to routing error',
         wasDowngraded: false,

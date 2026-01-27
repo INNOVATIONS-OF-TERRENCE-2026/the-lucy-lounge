@@ -47,9 +47,9 @@ serve(async (req) => {
       throw new Error('No audio data provided');
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
+      throw new Error('OPENROUTER_API_KEY not configured');
     }
 
     const binaryAudio = processBase64Chunks(audio);
@@ -59,10 +59,12 @@ serve(async (req) => {
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/audio/transcriptions', {
+    const response = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: formData,
     });
@@ -83,7 +85,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('[speech-to-text] error:', error);
     const sanitizedMessage = error instanceof Error 
-      ? error.message.replace(/LOVABLE_API_KEY|key|token|internal|supabase/gi, '[REDACTED]')
+      ? error.message.replace(/OPENROUTER_API_KEY|LOVABLE_API_KEY|key|token|internal|supabase/gi, '[REDACTED]')
       : 'Transcription failed. Please try again.';
     
     return new Response(

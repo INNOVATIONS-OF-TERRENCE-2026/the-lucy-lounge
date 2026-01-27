@@ -32,9 +32,9 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.log('[context-analyzer] LOVABLE_API_KEY not configured, skipping analysis');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
+      console.log('[context-analyzer] OPENROUTER_API_KEY not configured, skipping analysis');
       return new Response(JSON.stringify({ 
         topics: [],
         preferences: {},
@@ -78,14 +78,16 @@ Respond with JSON only:
   "suggestions": ["helpful follow-up suggestion"]
 }`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: 'google/gemini-2.0-flash-lite-001',
         messages: [
           {
             role: 'system',

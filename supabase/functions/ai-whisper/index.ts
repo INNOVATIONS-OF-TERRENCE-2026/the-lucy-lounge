@@ -91,9 +91,9 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     
-    if (!LOVABLE_API_KEY) {
+    if (!OPENROUTER_API_KEY) {
       return new Response(JSON.stringify({
         ok: false,
         error: 'Transcription service not configured',
@@ -144,11 +144,13 @@ serve(async (req) => {
       formData.append('prompt', prompt);
     }
 
-    // Call Whisper API via Lovable Gateway
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/audio/transcriptions', {
+    // Call Whisper API via OpenRouter
+    const response = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: formData,
     });

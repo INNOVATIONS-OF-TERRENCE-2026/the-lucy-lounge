@@ -64,16 +64,18 @@ Respond ONLY with JSON:
 
 User's last message: ${messages[messages.length - 1].content}`;
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     
-    const routerResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const routerResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-001',
         messages: [
           { role: 'system', content: routerPrompt },
           ...messages.slice(-3), // Last 3 messages for context
@@ -174,11 +176,13 @@ User's last message: ${messages[messages.length - 1].content}`;
       })),
     ];
 
-    const finalResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const finalResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',

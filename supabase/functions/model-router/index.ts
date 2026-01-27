@@ -6,13 +6,34 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// OpenRouter API configuration
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_HEADERS = {
+  'HTTP-Referer': 'https://thelucylounge.com',
+  'X-Title': 'The Lucy Lounge',
+};
+
+// Model mapping from internal names to OpenRouter model IDs
+const MODEL_MAP: Record<string, string> = {
+  'google/gemini-2.5-flash': 'google/gemini-2.0-flash-001',
+  'google/gemini-2.5-flash-lite': 'google/gemini-2.0-flash-lite-001',
+  'google/gemini-2.5-pro': 'google/gemini-2.0-flash-thinking-exp:free',
+  'openai/gpt-5-mini': 'openai/gpt-4o-mini',
+  'openai/gpt-4o': 'openai/gpt-4o',
+  'anthropic/claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
+};
+
+function mapModel(model: string): string {
+  return MODEL_MAP[model] || model;
+}
+
 // Privacy sanitizer
 function sanitizeError(error: unknown): string {
   console.error('[INTERNAL ERROR]', error);
   return "Lucy's response engine is temporarily busy. Please try again.";
 }
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -22,8 +43,8 @@ serve(async (req) => {
   try {
     const { messages, enableFusion = false, preferredModel = null } = await req.json();
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!OPENROUTER_API_KEY) {
+      throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
     // If user specified a model, use it
@@ -97,14 +118,16 @@ function isComplexQuery(query: string): boolean {
 }
 
 async function streamModelResponse(model: string, messages: any[]) {
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const mappedModel = mapModel(model);
+  const response = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
+      ...OPENROUTER_HEADERS,
     },
     body: JSON.stringify({
-      model,
+      model: mappedModel,
       messages,
       stream: true,
     }),
@@ -118,12 +141,12 @@ async function streamModelResponse(model: string, messages: any[]) {
       });
     }
     if (response.status === 402) {
-      return new Response(JSON.stringify({ error: "Payment required, please add funds to your Lovable AI workspace." }), {
+      return new Response(JSON.stringify({ error: "Payment required, please add funds to your OpenRouter account." }), {
         status: 402,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    throw new Error('AI gateway error');
+    throw new Error('OpenRouter API error');
   }
 
   return new Response(response.body, {
@@ -137,15 +160,16 @@ async function streamModelResponse(model: string, messages: any[]) {
 
 async function fusionResponse(messages: any[]) {
   // Call multiple models in parallel
-  const models = ['google/gemini-2.5-flash', 'openai/gpt-5-mini'];
+  const models = ['google/gemini-2.0-flash-001', 'openai/gpt-4o-mini'];
   
   const responses = await Promise.all(
     models.map(async (model) => {
-      const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const resp = await fetch(OPENROUTER_API_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
+          ...OPENROUTER_HEADERS,
         },
         body: JSON.stringify({
           model,

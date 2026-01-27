@@ -119,10 +119,12 @@ async function generateWithDALLE(
                     size === 'landscape' ? '1792x1024' :
                     size === 'portrait' ? '1024x1792' : '1024x1024';
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/images/generations', {
+  const response = await fetch('https://openrouter.ai/api/v1/images/generations', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://thelucylounge.com',
+      'X-Title': 'The Lucy Lounge',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -187,7 +189,7 @@ serve(async (req) => {
     console.log('[ai-image] Generating image:', enhancedPrompt.slice(0, 100));
 
     const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
 
     let imageData = '';
     let usedProvider = '';
@@ -213,10 +215,10 @@ serve(async (req) => {
       }
     }
 
-    // Fallback to DALL-E
-    if (!imageData && LOVABLE_API_KEY) {
+    // Fallback to DALL-E via OpenRouter
+    if (!imageData && OPENROUTER_API_KEY) {
       try {
-        imageData = await generateWithDALLE(LOVABLE_API_KEY, enhancedPrompt, size);
+        imageData = await generateWithDALLE(OPENROUTER_API_KEY, enhancedPrompt, size);
         usedProvider = 'dalle';
       } catch (dalleError) {
         console.error('[ai-image] DALL-E also failed:', dalleError);

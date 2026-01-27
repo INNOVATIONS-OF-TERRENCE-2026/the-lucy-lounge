@@ -96,10 +96,12 @@ async function generateWithOpenAI(
   // Map to OpenAI voices
   const openaiVoice = OPENAI_VOICES.includes(voice) ? voice : 'nova';
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/audio/speech', {
+  const response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://thelucylounge.com',
+      'X-Title': 'The Lucy Lounge',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -154,7 +156,7 @@ serve(async (req) => {
     console.log('[ai-tts] Generating speech for', truncatedText.length, 'characters, voice:', voice);
 
     const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
 
     let audioContent = '';
     let usedProvider = '';
@@ -172,10 +174,10 @@ serve(async (req) => {
       }
     }
 
-    // Fallback to OpenAI TTS
-    if (!audioContent && LOVABLE_API_KEY) {
+    // Fallback to OpenAI TTS via OpenRouter
+    if (!audioContent && OPENROUTER_API_KEY) {
       try {
-        audioContent = await generateWithOpenAI(LOVABLE_API_KEY, truncatedText, voice, speed);
+        audioContent = await generateWithOpenAI(OPENROUTER_API_KEY, truncatedText, voice, speed);
         usedProvider = 'openai';
       } catch (openaiError) {
         console.error('[ai-tts] OpenAI TTS also failed:', openaiError);

@@ -97,9 +97,9 @@ serve(async (req) => {
 
     console.log('[lucy-router] Processing request with', messages.length, 'messages');
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
+      throw new Error('OPENROUTER_API_KEY not configured');
     }
 
     // Get current date for temporal awareness
@@ -119,14 +119,16 @@ serve(async (req) => {
       ...messages.map((m: any) => ({ role: m.role, content: m.content }))
     ];
 
-    const routerResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const routerResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-001',
         messages: routerMessages,
         temperature: 0.2,
       }),
@@ -184,14 +186,16 @@ You have tool results available. Use them to compose a clear, accurate answer. C
       ...toolMessages,
     ];
 
-    const finalResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const finalResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-001',
         messages: finalMessages,
         temperature: 0.7,
       }),

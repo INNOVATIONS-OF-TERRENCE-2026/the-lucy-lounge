@@ -18,16 +18,18 @@ serve(async (req) => {
       throw new Error('Text is required');
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
+      throw new Error('OPENROUTER_API_KEY not configured');
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/audio/speech', {
+    const response = await fetch('https://openrouter.ai/api/v1/audio/speech', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
         model: 'tts-1',
@@ -58,7 +60,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('[text-to-speech] error:', error);
     const sanitizedMessage = error instanceof Error 
-      ? error.message.replace(/LOVABLE_API_KEY|key|token|internal|supabase/gi, '[REDACTED]')
+      ? error.message.replace(/OPENROUTER_API_KEY|LOVABLE_API_KEY|key|token|internal|supabase/gi, '[REDACTED]')
       : 'Speech generation failed. Please try again.';
     
     return new Response(

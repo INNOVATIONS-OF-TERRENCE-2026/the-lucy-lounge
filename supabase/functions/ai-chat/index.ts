@@ -34,16 +34,16 @@ const MODELS = {
     provider: 'huggingface',
   },
   'gemini-flash': {
-    lovableModel: 'google/gemini-2.5-flash',
-    provider: 'lovable',
+    openrouterModel: 'google/gemini-2.0-flash-001',
+    provider: 'openrouter',
   },
   'gemini-pro': {
-    lovableModel: 'google/gemini-2.5-pro',
-    provider: 'lovable',
+    openrouterModel: 'google/gemini-2.0-flash-thinking-exp:free',
+    provider: 'openrouter',
   },
-  'gpt-5-mini': {
-    lovableModel: 'openai/gpt-5-mini',
-    provider: 'lovable',
+  'gpt-4o-mini': {
+    openrouterModel: 'openai/gpt-4o-mini',
+    provider: 'openrouter',
   },
 };
 
@@ -110,8 +110,8 @@ async function chatWithHuggingFace(
   return result.choices?.[0]?.message?.content ?? '';
 }
 
-// Lovable Gateway chat completion
-async function chatWithLovable(
+// OpenRouter Gateway chat completion
+async function chatWithOpenRouter(
   apiKey: string,
   model: string,
   messages: ChatRequest['messages'],
@@ -119,19 +119,29 @@ async function chatWithLovable(
   maxTokens: number,
   temperature: number
 ): Promise<string> {
+  // Map internal model names to OpenRouter model IDs
+  const modelMap: Record<string, string> = {
+    'google/gemini-2.5-flash': 'google/gemini-2.0-flash-001',
+    'google/gemini-2.5-pro': 'google/gemini-2.0-flash-thinking-exp:free',
+    'openai/gpt-5-mini': 'openai/gpt-4o-mini',
+  };
+  const mappedModel = modelMap[model] || model;
+
   const finalMessages = [
     { role: 'system', content: system },
     ...messages,
   ];
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://thelucylounge.com',
+      'X-Title': 'The Lucy Lounge',
     },
     body: JSON.stringify({
-      model,
+      model: mappedModel,
       messages: finalMessages,
       max_tokens: maxTokens,
       temperature,
@@ -139,7 +149,7 @@ async function chatWithLovable(
   });
 
   if (!response.ok) {
-    throw new Error(`Lovable API error: ${response.status}`);
+    throw new Error(`OpenRouter API error: ${response.status}`);
   }
 
   const data = await response.json();
@@ -205,13 +215,13 @@ serve(async (req) => {
           maxTokens,
           temperature
         );
-      } else if (modelConfig.provider === 'lovable') {
-        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-        if (!LOVABLE_API_KEY) throw new Error('Lovable not configured');
+      } else if (modelConfig.provider === 'lovable' || modelConfig.provider === 'openrouter') {
+        const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+        if (!OPENROUTER_API_KEY) throw new Error('OpenRouter not configured');
         
-        text = await chatWithLovable(
-          LOVABLE_API_KEY,
-          (modelConfig as any).lovableModel,
+        text = await chatWithOpenRouter(
+          OPENROUTER_API_KEY,
+          (modelConfig as any).lovableModel || (modelConfig as any).openrouterModel,
           messages,
           finalSystem,
           maxTokens,
@@ -222,13 +232,13 @@ serve(async (req) => {
       console.warn('[ai-chat] Primary model failed, trying fallback:', primaryError);
       fallbackUsed = true;
 
-      // Fallback to Lovable Gemini Flash
+      // Fallback to OpenRouter Gemini Flash
       try {
-        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-        if (LOVABLE_API_KEY) {
-          text = await chatWithLovable(
-            LOVABLE_API_KEY,
-            'google/gemini-2.5-flash',
+        const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+        if (OPENROUTER_API_KEY) {
+          text = await chatWithOpenRouter(
+            OPENROUTER_API_KEY,
+            'google/gemini-2.0-flash-001',
             messages,
             finalSystem,
             maxTokens,

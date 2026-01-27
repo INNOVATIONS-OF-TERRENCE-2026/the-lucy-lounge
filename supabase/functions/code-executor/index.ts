@@ -63,20 +63,22 @@ const handler = async (
       });
     }
 
-    // Use Lovable AI for safe code analysis and execution simulation
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
+    // Use OpenRouter AI for safe code analysis and execution simulation
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
       throw new Error('Configuration error');
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-001',
         messages: [
           {
             role: 'system',
@@ -128,7 +130,7 @@ EXPLANATION:
   } catch (error) {
     console.error('[code-executor] error:', error);
     const sanitizedMessage = error instanceof Error 
-      ? error.message.replace(/LOVABLE_API_KEY|key|token|internal/gi, '[REDACTED]')
+      ? error.message.replace(/OPENROUTER_API_KEY|LOVABLE_API_KEY|key|token|internal/gi, '[REDACTED]')
       : 'Code execution failed. Please try again.';
     
     return errorResponse(sanitizedMessage, 500);

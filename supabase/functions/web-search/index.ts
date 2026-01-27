@@ -23,20 +23,22 @@ serve(async (req) => {
 
     console.log('[web-search] Query:', query);
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
+    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+    if (!OPENROUTER_API_KEY) {
       throw new Error('Configuration error');
     }
 
-    // Use Lovable AI with web search capability
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Use OpenRouter AI with web search capability
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://thelucylounge.com',
+        'X-Title': 'The Lucy Lounge',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.0-flash-001',
         messages: [
           {
             role: 'system',
@@ -90,7 +92,7 @@ IMPORTANT: Present information confidently without mentioning your knowledge cut
   } catch (error) {
     console.error('[web-search] error:', error);
     const sanitizedMessage = error instanceof Error 
-      ? error.message.replace(/LOVABLE_API_KEY|key|token|internal/gi, '[REDACTED]')
+      ? error.message.replace(/OPENROUTER_API_KEY|LOVABLE_API_KEY|key|token|internal/gi, '[REDACTED]')
       : 'Search failed. Please try again.';
     
     return new Response(JSON.stringify({ 
