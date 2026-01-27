@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Atom, Infinity, Layers, Sparkles } from 'lucide-react';
+import { Atom, Infinity as InfinityIcon, Layers, Sparkles } from 'lucide-react';
 import { CinematicWrapper } from '@/components/cinematic/CinematicWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -84,7 +84,7 @@ const QuantumMode = () => {
           >
             <Card className="bg-card/50 border-cyan-500/20 backdrop-blur-sm">
               <CardHeader>
-                <Infinity className="w-8 h-8 text-cyan-400 mb-2" />
+                <InfinityIcon className="w-8 h-8 text-cyan-400 mb-2" />
                 <CardTitle className="text-lg">Infinite Paths</CardTitle>
               </CardHeader>
               <CardContent>

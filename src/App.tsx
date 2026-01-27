@@ -105,6 +105,9 @@ const QuantumMode = lazyWithReload(() => import("@/pages/lounges/QuantumMode"));
 const PresenceMode = lazyWithReload(() => import("@/pages/lounges/PresenceMode"));
 const WorldEvents = lazyWithReload(() => import("@/pages/lounges/WorldEvents"));
 
+/* 404 PAGE */
+const NotFound = lazyWithReload(() => import("@/pages/NotFound"));
+
 /* TOOLS (Individual Tool Pages) */
 const PdfExtractor = lazyWithReload(() => import("@/pages/tools/PdfExtractor"));
 const WebsiteSummarizer = lazyWithReload(() => import("@/pages/tools/WebsiteSummarizer"));
@@ -319,6 +322,9 @@ const App = () => {
                           </AdminRoute>
                         }
                       />
+
+                      {/* 404 CATCH-ALL - Must be last */}
+                      <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
                   </GlobalCinematicLayer>

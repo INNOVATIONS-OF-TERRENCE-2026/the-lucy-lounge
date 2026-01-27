@@ -137,8 +137,10 @@ const NeuralMode = () => {
     try {
       const audio = new Audio('/sounds/notification.mp3');
       audio.volume = 0.5;
-      audio.play().catch(() => {});
-    } catch {}
+      audio.play().catch(() => { /* Ignore audio play errors - expected on some browsers */ });
+    } catch {
+      // Audio constructor may fail on unsupported browsers - safe to ignore
+    }
   }, [timerMode, completedPomodoros, toast]);
 
   const toggleTimer = () => {

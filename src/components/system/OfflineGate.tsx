@@ -36,14 +36,16 @@ const OfflineContext = createContext<OfflineContextType | null>(null);
 
 export function useOfflineGate(): OfflineContextType {
   const context = useContext(OfflineContext);
+  // Always call the hook unconditionally to follow Rules of Hooks
+  const networkStatus = useNetworkStatus();
+  
   if (!context) {
-    // Fallback if used outside provider
-    const { isOnline, isSlowConnection, connectionType, refresh } = useNetworkStatus();
+    // Fallback if used outside provider - use the unconditionally called hook
     return {
-      isOnline,
-      isSlowConnection,
-      connectionType,
-      retry: async () => { refresh(); },
+      isOnline: networkStatus.isOnline,
+      isSlowConnection: networkStatus.isSlowConnection,
+      connectionType: networkStatus.connectionType,
+      retry: async () => { networkStatus.refresh(); },
       queueAction: () => {},
     };
   }

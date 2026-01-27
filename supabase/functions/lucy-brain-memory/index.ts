@@ -306,7 +306,9 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const action = url.pathname.split('/').pop() || 'context';
+    // Handle trailing slashes and extract action from URL
+    const pathParts = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+    const action = pathParts.pop() || 'context';
     const body = await req.json().catch(() => ({}));
 
     console.log(`[lucy-brain-memory] Action: ${action}, User: ${userId?.slice(0, 8)}...`);

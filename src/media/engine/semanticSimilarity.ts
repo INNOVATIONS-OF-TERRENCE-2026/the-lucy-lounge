@@ -363,26 +363,26 @@ export class SemanticSearchEngine {
   // =========================================================================
   
   private async getOpenAIEmbedding(text: string): Promise<number[]> {
-    // Call OpenAI API via Edge Function
-    const { data, error } = await supabase.functions.invoke('generate-embedding', {
-      body: { text, model: this.config.model },
+    // Call HuggingFace embeddings via Edge Function (unified embedding endpoint)
+    const { data, error } = await supabase.functions.invoke('hf-embeddings', {
+      body: { texts: [text] },
     });
     
-    if (error || !data?.embedding) {
-      throw new Error(`Failed to generate embedding: ${error?.message || 'Unknown error'}`);
+    if (error || !data?.ok || !data?.embeddings?.[0]) {
+      throw new Error(`Failed to generate embedding: ${error?.message || data?.error || 'Unknown error'}`);
     }
     
-    return data.embedding;
+    return data.embeddings[0];
   }
   
   private async getOpenAIEmbeddingsBatch(texts: string[]): Promise<number[][]> {
-    // Call OpenAI API via Edge Function
-    const { data, error } = await supabase.functions.invoke('generate-embedding-batch', {
-      body: { texts, model: this.config.model },
+    // Call HuggingFace embeddings via Edge Function (supports batch)
+    const { data, error } = await supabase.functions.invoke('hf-embeddings', {
+      body: { texts },
     });
     
-    if (error || !data?.embeddings) {
-      throw new Error(`Failed to generate embeddings: ${error?.message || 'Unknown error'}`);
+    if (error || !data?.ok || !data?.embeddings) {
+      throw new Error(`Failed to generate embeddings: ${error?.message || data?.error || 'Unknown error'}`);
     }
     
     return data.embeddings;
