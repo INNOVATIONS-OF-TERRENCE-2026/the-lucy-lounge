@@ -15,6 +15,9 @@ import { IOSAudioUnlockProvider } from "@/components/audio/IOSAudioUnlockProvide
 import { GlobalSpotifyProvider } from "@/contexts/GlobalSpotifyContext";
 import { LucyDJProvider } from "@/contexts/LucyDJContext";
 import { LucyWorldsProvider } from "@/contexts/LucyWorldsContext";
+import { BrandingProvider } from "@/contexts/BrandingContext";
+import { OrganizationProvider } from "@/contexts/OrganizationContext";
+import { SubscriptionProvider } from "@/hooks/useSubscription";
 import { GlobalSpotifyAudioHost } from "@/components/audio/GlobalSpotifyAudioHost";
 import { GlobalMiniPlayer } from "@/components/audio/GlobalMiniPlayer";
 import { LucySuggestionDrawer } from "@/components/chat/LucySuggestionDrawer";
@@ -170,14 +173,17 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <UIDensityProvider>
-        <OfflineGateProvider>
-          <UserGestureGateProvider>
-            <GlobalSpotifyProvider>
-              <LucyDJProvider>
-                <LucyWorldsProvider>
-                  <SafeMediaGateProvider>
-                    <TooltipProvider>
+      <BrandingProvider>
+        <OrganizationProvider>
+          <SubscriptionProvider>
+            <UIDensityProvider>
+              <OfflineGateProvider>
+                <UserGestureGateProvider>
+                  <GlobalSpotifyProvider>
+                    <LucyDJProvider>
+                      <LucyWorldsProvider>
+                        <SafeMediaGateProvider>
+                          <TooltipProvider>
                       <Toaster />
                       <Sonner />
 
@@ -292,14 +298,17 @@ const App = () => {
                   </GlobalCinematicLayer>
                 </BrowserRouter>
               </div>
-                    </TooltipProvider>
-                  </SafeMediaGateProvider>
-                </LucyWorldsProvider>
-              </LucyDJProvider>
-            </GlobalSpotifyProvider>
-          </UserGestureGateProvider>
-        </OfflineGateProvider>
-      </UIDensityProvider>
+                          </TooltipProvider>
+                      </SafeMediaGateProvider>
+                    </LucyWorldsProvider>
+                  </LucyDJProvider>
+                </GlobalSpotifyProvider>
+              </UserGestureGateProvider>
+            </OfflineGateProvider>
+          </UIDensityProvider>
+        </SubscriptionProvider>
+      </OrganizationProvider>
+    </BrandingProvider>
     </QueryClientProvider>
   );
 };
