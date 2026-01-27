@@ -1,18 +1,14 @@
 /**
  * THE LUCY LOUNGE — LUCY AUDIO GENERATE
  * 
- * Unified audio generation endpoint for the Audio Studio.
+ * Unified audio generation with AUTOMATIC INTENT DETECTION.
  * 
- * Features:
- * - Music generation via HuggingFace MusicGen
- * - Voice generation via ElevenLabs TTS
- * - Full generation history tracking
- * - Secure storage with signed URLs
+ * TWO ENGINES:
+ * - MUSIC → HuggingFace MusicGen (FREE, open-source)
+ * - VOICE → ElevenLabs TTS (speech/narration only)
  * 
- * Provider Strategy:
- * - Primary (Music): HuggingFace MusicGen
- * - Primary (Voice): ElevenLabs TTS
- * - Users see only "Lucy AI" - no provider details exposed
+ * Lucy automatically routes based on prompt analysis.
+ * Users see only "Lucy AI" - no provider details exposed.
  * 
  * All generation happens SERVER-SIDE. No API keys exposed to frontend.
  */
@@ -29,13 +25,13 @@ const corsHeaders = {
 // TYPES
 // =============================================================================
 
-type GenerationType = 'music' | 'voice';
+type GenerationType = 'music' | 'voice' | 'auto';
 type MusicStyle = 'lofi' | 'ambient' | 'hiphop' | 'cinematic' | 'electronic' | 'jazz' | 'classical' | 'rock';
 type VoiceId = 'rachel' | 'domi' | 'bella' | 'antoni' | 'josh' | 'adam' | 'sam';
 type VoiceStyle = 'default' | 'stable' | 'expressive' | 'narrative';
 
 interface GenerateRequest {
-  type: GenerationType;
+  type?: GenerationType;  // Optional - Lucy will auto-detect if not provided
   prompt: string;
   // Music options
   style?: MusicStyle;
@@ -45,15 +41,119 @@ interface GenerateRequest {
   voiceStyle?: VoiceStyle;
 }
 
-interface GenerationResult {
-  success: boolean;
-  generationId: string;
-  audioUrl?: string;
-  error?: string;
+// =============================================================================
+// INTENT DETECTION - Lucy decides music vs voice
+// =============================================================================
+
+const MUSIC_KEYWORDS = [
+  // Genres
+  'music', 'song', 'beat', 'track', 'melody', 'tune', 'soundtrack', 'score',
+  'lofi', 'lo-fi', 'hip hop', 'hiphop', 'jazz', 'classical', 'rock', 'pop',
+  'electronic', 'edm', 'ambient', 'cinematic', 'orchestral', 'instrumental',
+  'drum', 'bass', 'guitar', 'piano', 'synth', 'synthesizer',
+  // Actions
+  'compose', 'create music', 'make a beat', 'generate music', 'produce',
+  // Moods for music
+  'chill beat', 'relaxing music', 'upbeat', 'energetic music', 'sad music',
+  'happy music', 'epic music', 'background music', 'study music',
+  // Music terms
+  'bpm', 'tempo', 'chord', 'riff', 'groove', 'vibe', 'loop',
+];
+
+const VOICE_KEYWORDS = [
+  // Speech indicators
+  'say', 'speak', 'read', 'narrate', 'announce', 'voice', 'speech',
+  'text to speech', 'tts', 'voiceover', 'voice over', 'narrator',
+  // Content types that need voice
+  'audiobook', 'podcast', 'announcement', 'message', 'greeting',
+  'introduction', 'script', 'dialogue', 'monologue',
+  // Explicit voice requests
+  'read this', 'say this', 'speak this', 'read aloud', 'read out loud',
+];
+
+function detectIntent(prompt: string): 'music' | 'voice' {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Count keyword matches
+  let musicScore = 0;
+  let voiceScore = 0;
+  
+  for (const keyword of MUSIC_KEYWORDS) {
+    if (lowerPrompt.includes(keyword)) {
+      musicScore += keyword.length > 5 ? 2 : 1; // Longer keywords = stronger signal
+    }
+  }
+  
+  for (const keyword of VOICE_KEYWORDS) {
+    if (lowerPrompt.includes(keyword)) {
+      voiceScore += keyword.length > 5 ? 2 : 1;
+    }
+  }
+  
+  // Check for quotes (usually indicates speech)
+  if (lowerPrompt.includes('"') || lowerPrompt.includes("'")) {
+    voiceScore += 3;
+  }
+  
+  // Check for complete sentences that look like speech content
+  const sentencePattern = /^[A-Z][^.!?]*[.!?]$/;
+  if (sentencePattern.test(prompt.trim())) {
+    voiceScore += 2;
+  }
+  
+  // If prompt is very short and looks like a command to say something
+  if (prompt.length < 200 && (lowerPrompt.startsWith('say ') || lowerPrompt.startsWith('read '))) {
+    voiceScore += 5;
+  }
+  
+  console.log(`[Intent Detection] Music: ${musicScore}, Voice: ${voiceScore}`);
+  
+  // Default to music if scores are tied or both zero
+  // (Music generation is more common use case)
+  return voiceScore > musicScore ? 'voice' : 'music';
+}
+
+function detectMusicStyle(prompt: string): MusicStyle {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  if (lowerPrompt.includes('lofi') || lowerPrompt.includes('lo-fi') || lowerPrompt.includes('chill') || lowerPrompt.includes('study')) {
+    return 'lofi';
+  }
+  if (lowerPrompt.includes('ambient') || lowerPrompt.includes('atmospheric') || lowerPrompt.includes('peaceful')) {
+    return 'ambient';
+  }
+  if (lowerPrompt.includes('hip hop') || lowerPrompt.includes('hiphop') || lowerPrompt.includes('rap') || lowerPrompt.includes('trap')) {
+    return 'hiphop';
+  }
+  if (lowerPrompt.includes('cinematic') || lowerPrompt.includes('epic') || lowerPrompt.includes('film') || lowerPrompt.includes('movie')) {
+    return 'cinematic';
+  }
+  if (lowerPrompt.includes('electronic') || lowerPrompt.includes('edm') || lowerPrompt.includes('dance') || lowerPrompt.includes('techno')) {
+    return 'electronic';
+  }
+  if (lowerPrompt.includes('jazz') || lowerPrompt.includes('saxophone') || lowerPrompt.includes('swing')) {
+    return 'jazz';
+  }
+  if (lowerPrompt.includes('classical') || lowerPrompt.includes('orchestral') || lowerPrompt.includes('symphony')) {
+    return 'classical';
+  }
+  if (lowerPrompt.includes('rock') || lowerPrompt.includes('guitar') || lowerPrompt.includes('metal')) {
+    return 'rock';
+  }
+  
+  // Default based on mood words
+  if (lowerPrompt.includes('relax') || lowerPrompt.includes('calm') || lowerPrompt.includes('sleep')) {
+    return 'ambient';
+  }
+  if (lowerPrompt.includes('energy') || lowerPrompt.includes('workout') || lowerPrompt.includes('pump')) {
+    return 'electronic';
+  }
+  
+  return 'lofi'; // Default
 }
 
 // =============================================================================
-// MUSIC GENERATION CONFIG
+// MUSIC GENERATION CONFIG (HuggingFace - FREE)
 // =============================================================================
 
 const MUSIC_MODELS = {
@@ -74,7 +174,7 @@ const STYLE_PROMPTS: Record<MusicStyle, string> = {
 };
 
 // =============================================================================
-// VOICE GENERATION CONFIG (ElevenLabs)
+// VOICE GENERATION CONFIG (ElevenLabs - VOICE ONLY)
 // =============================================================================
 
 const ELEVENLABS_VOICES: Record<VoiceId, string> = {
@@ -110,7 +210,7 @@ function errorResponse(message: string, status = 500): Response {
 }
 
 // =============================================================================
-// MUSIC GENERATION (HuggingFace MusicGen)
+// MUSIC GENERATION (HuggingFace MusicGen - FREE)
 // =============================================================================
 
 async function generateMusic(
@@ -125,7 +225,9 @@ async function generateMusic(
   // Enhance prompt with style
   const enhancedPrompt = `${STYLE_PROMPTS[style]}, ${prompt}`;
   
-  console.log(`[lucy-audio-generate] Music: ${modelId}, style: ${style}, duration: ${maxDuration}s`);
+  console.log(`[lucy-audio-generate] MUSIC ENGINE: ${modelId}`);
+  console.log(`[lucy-audio-generate] Style: ${style}, Duration: ${maxDuration}s`);
+  console.log(`[lucy-audio-generate] Prompt: ${enhancedPrompt.substring(0, 100)}...`);
 
   const response = await fetch(`https://api-inference.huggingface.co/models/${modelId}`, {
     method: 'POST',
@@ -143,10 +245,16 @@ async function generateMusic(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('[lucy-audio-generate] HF Error:', response.status, errorText);
+    console.error('[lucy-audio-generate] HuggingFace Error:', response.status, errorText);
     
     if (response.status === 503) {
-      throw new Error('Music model is loading. Please try again in 30-60 seconds.');
+      // Model is loading - this is common for free tier
+      const parsed = JSON.parse(errorText);
+      const waitTime = parsed.estimated_time || 60;
+      throw new Error(`Music model is loading. Please try again in ${Math.ceil(waitTime)} seconds.`);
+    }
+    if (response.status === 429) {
+      throw new Error('Music generation rate limit reached. Please wait a moment and try again.');
     }
     throw new Error(`Music generation failed (${response.status})`);
   }
@@ -161,7 +269,7 @@ async function generateMusic(
 }
 
 // =============================================================================
-// VOICE GENERATION (ElevenLabs)
+// VOICE GENERATION (ElevenLabs - SPEECH ONLY)
 // =============================================================================
 
 async function generateVoice(
@@ -173,7 +281,9 @@ async function generateVoice(
   const voiceId = ELEVENLABS_VOICES[voice] || ELEVENLABS_VOICES.rachel;
   const settings = VOICE_SETTINGS[style] || VOICE_SETTINGS.default;
   
-  console.log(`[lucy-audio-generate] Voice: ${voice}, style: ${style}, chars: ${text.length}`);
+  console.log(`[lucy-audio-generate] VOICE ENGINE: ElevenLabs`);
+  console.log(`[lucy-audio-generate] Voice: ${voice}, Style: ${style}`);
+  console.log(`[lucy-audio-generate] Text length: ${text.length} chars`);
 
   if (text.length > 5000) {
     throw new Error('Text too long. Maximum 5000 characters.');
@@ -260,14 +370,28 @@ serve(async (req) => {
 
     // Parse request
     const body: GenerateRequest = await req.json();
-    const { type, prompt, style, duration, voice, voiceStyle } = body;
+    let { type, prompt, style, duration, voice, voiceStyle } = body;
 
     if (!prompt || !prompt.trim()) {
       return errorResponse('Prompt is required', 400);
     }
 
-    if (!type || !['music', 'voice'].includes(type)) {
-      return errorResponse('Type must be "music" or "voice"', 400);
+    // AUTO-DETECT TYPE if not specified or set to 'auto'
+    let detectedType: 'music' | 'voice';
+    let autoDetected = false;
+    
+    if (!type || type === 'auto') {
+      detectedType = detectIntent(prompt);
+      autoDetected = true;
+      console.log(`[lucy-audio-generate] AUTO-DETECTED TYPE: ${detectedType}`);
+    } else {
+      detectedType = type as 'music' | 'voice';
+    }
+
+    // Auto-detect style for music if not provided
+    if (detectedType === 'music' && !style) {
+      style = detectMusicStyle(prompt);
+      console.log(`[lucy-audio-generate] AUTO-DETECTED STYLE: ${style}`);
     }
 
     // Create generation record (status = 'running')
@@ -278,12 +402,13 @@ serve(async (req) => {
         id: generationId,
         user_id: userId,
         prompt: prompt.trim(),
-        style: type === 'music' ? (style || 'lofi') : (voiceStyle || 'default'),
-        duration_seconds: type === 'music' ? (duration || 10) : null,
-        generation_type: type,
+        style: detectedType === 'music' ? (style || 'lofi') : (voiceStyle || 'default'),
+        duration_seconds: detectedType === 'music' ? (duration || 10) : null,
+        generation_type: detectedType,
         status: 'running',
         metadata: {
-          voice: type === 'voice' ? (voice || 'rachel') : null,
+          voice: detectedType === 'voice' ? (voice || 'rachel') : null,
+          autoDetected,
         },
       });
 
@@ -293,13 +418,14 @@ serve(async (req) => {
     }
 
     try {
-      // Generate audio based on type
+      // Generate audio based on detected type
       let result: { audioData: Uint8Array; contentType: string };
       let fileExtension: string;
 
-      if (type === 'music') {
+      if (detectedType === 'music') {
+        // MUSIC ENGINE: HuggingFace MusicGen (FREE)
         if (!HF_TOKEN) {
-          throw new Error('Music generation service not configured');
+          throw new Error('Music generation service not configured. Please add HUGGINGFACE_API_KEY.');
         }
         result = await generateMusic(
           prompt.trim(),
@@ -309,8 +435,9 @@ serve(async (req) => {
         );
         fileExtension = 'wav';
       } else {
+        // VOICE ENGINE: ElevenLabs (SPEECH ONLY)
         if (!ELEVENLABS_KEY) {
-          throw new Error('Voice generation service not configured');
+          throw new Error('Voice generation service not configured. Please add ELEVENLABS_API_KEY.');
         }
         result = await generateVoice(
           prompt.trim(),
@@ -356,14 +483,15 @@ serve(async (req) => {
         })
         .eq('id', generationId);
 
-      // Return success
+      // Return success with detected info
       return jsonResponse({
         success: true,
         generationId,
         audioUrl: signedData.signedUrl,
-        type,
-        style: type === 'music' ? (style || 'lofi') : undefined,
-        voice: type === 'voice' ? (voice || 'rachel') : undefined,
+        type: detectedType,
+        autoDetected,
+        style: detectedType === 'music' ? (style || 'lofi') : undefined,
+        voice: detectedType === 'voice' ? (voice || 'rachel') : undefined,
       });
 
     } catch (genError) {

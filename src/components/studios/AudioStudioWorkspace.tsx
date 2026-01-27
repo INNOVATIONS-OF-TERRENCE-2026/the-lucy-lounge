@@ -1,13 +1,11 @@
 /**
- * THE LUCY LOUNGE - Audio Studio Full Implementation
+ * THE LUCY LOUNGE - Audio Studio with Smart Generation
  * 
- * Complete audio production suite:
- * - Music AI Generation (via lucy-audio-generate Edge Function)
- * - Voice Studio (ElevenLabs via Edge Function)
- * - Audio Effects & Mastering
- * - Project Management with Persistent History
+ * UNIFIED AUDIO GENERATION:
+ * - Single prompt box - Lucy decides Music vs Voice
+ * - Music → HuggingFace MusicGen (FREE)
+ * - Voice → ElevenLabs TTS (speech only)
  * 
- * All generation happens SERVER-SIDE. No API keys exposed.
  * Users see "Lucy AI" - no provider details exposed.
  * iOS Safari compatible with proper gesture gating.
  */
@@ -43,6 +41,7 @@ import {
   Sparkles,
   RefreshCw,
   AlertCircle,
+  Zap,
 } from 'lucide-react';
 
 // =============================================================================
@@ -85,6 +84,7 @@ interface AudioGeneration {
   status: 'queued' | 'running' | 'success' | 'error';
   error?: string;
   createdAt: Date;
+  autoDetected?: boolean;
 }
 
 // =============================================================================
@@ -93,19 +93,24 @@ interface AudioGeneration {
 
 export function AudioStudioWorkspace() {
   const { toast } = useToast();
-  const { isUnlocked, unlockAudio, getAudioContext } = useIOSAudioUnlock();
+  const { isUnlocked, unlockAudio } = useIOSAudioUnlock();
   
   // Tab state
-  const [activeTab, setActiveTab] = useState('music');
+  const [activeTab, setActiveTab] = useState('smart');
   
-  // Music state
+  // Smart Generate state (unified prompt)
+  const [smartPrompt, setSmartPrompt] = useState('');
+  const [isGeneratingSmart, setIsGeneratingSmart] = useState(false);
+  const [smartProgress, setSmartProgress] = useState(0);
+  
+  // Music state (manual mode)
   const [musicPrompt, setMusicPrompt] = useState('');
   const [musicStyle, setMusicStyle] = useState<MusicStyle>('lofi');
   const [musicDuration, setMusicDuration] = useState(10);
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
   const [musicProgress, setMusicProgress] = useState(0);
   
-  // Voice state
+  // Voice state (manual mode)
   const [voiceText, setVoiceText] = useState('');
   const [selectedVoice, setSelectedVoice] = useState<VoiceId>('rachel');
   const [voiceStyle, setVoiceStyle] = useState('default');
@@ -164,6 +169,7 @@ export function AudioStudioWorkspace() {
           status: row.status,
           error: row.error,
           createdAt: new Date(row.created_at),
+          autoDetected: row.metadata?.autoDetected,
         }));
         setGenerations(mapped);
       }
@@ -181,7 +187,100 @@ export function AudioStudioWorkspace() {
   }, [loadGenerationHistory]);
 
   // =============================================================================
-  // AUDIO GENERATION
+  // SMART GENERATE (Lucy decides)
+  // =============================================================================
+
+  const handleSmartGenerate = async () => {
+    if (!smartPrompt.trim()) {
+      toast({
+        title: 'Enter a prompt',
+        description: 'Describe what you want Lucy to create',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Ensure audio is unlocked (iOS Safari)
+    if (!isUnlocked) {
+      await unlockAudio();
+    }
+
+    setIsGeneratingSmart(true);
+    setSmartProgress(0);
+
+    // Progress simulation
+    const progressInterval = setInterval(() => {
+      setSmartProgress(prev => Math.min(prev + 2, 85));
+    }, 500);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Please sign in to generate audio');
+      }
+
+      // Call Edge Function with type: 'auto' - Lucy decides
+      const { data, error } = await supabase.functions.invoke('lucy-audio-generate', {
+        body: {
+          type: 'auto',  // Lucy will auto-detect
+          prompt: smartPrompt.trim(),
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Generation failed');
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Generation failed');
+      }
+
+      clearInterval(progressInterval);
+      setSmartProgress(100);
+
+      // Add to local state
+      const newGeneration: AudioGeneration = {
+        id: data.generationId,
+        type: data.type,
+        prompt: smartPrompt.trim(),
+        style: data.type === 'music' ? data.style : undefined,
+        voice: data.type === 'voice' ? data.voice : undefined,
+        audioUrl: data.audioUrl,
+        status: 'success',
+        createdAt: new Date(),
+        autoDetected: data.autoDetected,
+      };
+      
+      setGenerations(prev => [newGeneration, ...prev]);
+      
+      const typeEmoji = data.type === 'music' ? '🎵' : '🎤';
+      const typeLabel = data.type === 'music' ? 'Music' : 'Voice';
+      
+      toast({
+        title: `${typeEmoji} ${typeLabel} Generated!`,
+        description: `Lucy created ${data.type === 'music' ? 'a ' + (data.style || 'custom') + ' track' : 'voice audio'} for you`,
+      });
+
+      setSmartPrompt('');
+
+    } catch (err) {
+      console.error('[AudioStudio] Smart generation error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Generation failed';
+      
+      toast({
+        title: 'Generation Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      clearInterval(progressInterval);
+      setIsGeneratingSmart(false);
+      setSmartProgress(0);
+    }
+  };
+
+  // =============================================================================
+  // MANUAL AUDIO GENERATION
   // =============================================================================
 
   const generateAudio = async (type: 'music' | 'voice') => {
@@ -210,7 +309,7 @@ export function AudioStudioWorkspace() {
     }
 
     // Progress simulation for music
-    let progressInterval: NodeJS.Timeout | null = null;
+    let progressInterval: ReturnType<typeof setInterval> | null = null;
     if (isMusic) {
       progressInterval = setInterval(() => {
         setMusicProgress(prev => Math.min(prev + 3, 85));
@@ -223,7 +322,7 @@ export function AudioStudioWorkspace() {
         throw new Error('Please sign in to generate audio');
       }
 
-      // Call the Edge Function
+      // Call the Edge Function with explicit type
       const { data, error } = await supabase.functions.invoke('lucy-audio-generate', {
         body: {
           type,
@@ -261,6 +360,7 @@ export function AudioStudioWorkspace() {
         audioUrl: data.audioUrl,
         status: 'success',
         createdAt: new Date(),
+        autoDetected: false,
       };
       
       setGenerations(prev => [newGeneration, ...prev]);
@@ -268,8 +368,8 @@ export function AudioStudioWorkspace() {
       toast({
         title: isMusic ? '🎵 Music Generated!' : '🎤 Voice Generated!',
         description: isMusic 
-          ? `${MUSIC_STYLES.find(s => s.id === musicStyle)?.label} track created by Lucy AI`
-          : `${VOICES.find(v => v.id === selectedVoice)?.label} voice created by Lucy AI`,
+          ? `${MUSIC_STYLES.find(s => s.id === musicStyle)?.label} track created by Lucy`
+          : `${VOICES.find(v => v.id === selectedVoice)?.label} voice created by Lucy`,
       });
 
       // Clear input
@@ -427,18 +527,22 @@ export function AudioStudioWorkspace() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
+        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8">
+          <TabsTrigger value="smart" className="gap-2">
+            <Zap className="w-4 h-4" />
+            Smart
+          </TabsTrigger>
           <TabsTrigger value="music" className="gap-2">
             <Music className="w-4 h-4" />
-            Music AI
+            Music
           </TabsTrigger>
           <TabsTrigger value="voice" className="gap-2">
             <Mic className="w-4 h-4" />
-            Voice Studio
+            Voice
           </TabsTrigger>
           <TabsTrigger value="fx" className="gap-2">
             <Settings2 className="w-4 h-4" />
-            Audio FX
+            FX
           </TabsTrigger>
           <TabsTrigger value="projects" className="gap-2">
             <FolderOpen className="w-4 h-4" />
@@ -447,7 +551,115 @@ export function AudioStudioWorkspace() {
         </TabsList>
 
         {/* ================================================================= */}
-        {/* MUSIC AI TAB */}
+        {/* SMART GENERATE TAB - Lucy decides */}
+        {/* ================================================================= */}
+        <TabsContent value="smart" className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto"
+          >
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-primary" />
+                  Lucy Audio Studio
+                </CardTitle>
+                <CardDescription>
+                  Just describe what you want. Lucy will automatically create music or voice.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Unified prompt */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">What would you like Lucy to create?</label>
+                  <Textarea
+                    placeholder="Examples:
+• &quot;Create a chill lo-fi beat for studying&quot;
+• &quot;Read this message in a warm voice: Hello, welcome to our app!&quot;
+• &quot;Epic cinematic music for a trailer&quot;
+• &quot;Say: The meeting starts at 3pm today&quot;"
+                    value={smartPrompt}
+                    onChange={(e) => setSmartPrompt(e.target.value)}
+                    className="min-h-[140px]"
+                    disabled={isGeneratingSmart}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Lucy will detect if you want music or voice and use the right engine.
+                  </p>
+                </div>
+
+                {/* Progress */}
+                {isGeneratingSmart && (
+                  <div className="space-y-2">
+                    <Progress value={smartProgress} className="h-2" />
+                    <p className="text-sm text-center text-muted-foreground">
+                      Lucy is creating your audio... {smartProgress}%
+                    </p>
+                  </div>
+                )}
+
+                {/* Generate button */}
+                <Button
+                  className="w-full gap-2 h-12 text-lg"
+                  size="lg"
+                  onClick={handleSmartGenerate}
+                  disabled={isGeneratingSmart || !smartPrompt.trim()}
+                >
+                  {isGeneratingSmart ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Generate with Lucy
+                    </>
+                  )}
+                </Button>
+
+                {/* Quick examples */}
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-medium mb-3">Quick prompts:</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => setSmartPrompt('Create a relaxing lo-fi hip hop beat for studying')}
+                    >
+                      🎧 Lo-fi study beat
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => setSmartPrompt('Epic cinematic orchestral music for a movie trailer')}
+                    >
+                      🎬 Cinematic trailer
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => setSmartPrompt('Say in a warm friendly voice: Welcome to The Lucy Lounge, your personal AI companion!')}
+                    >
+                      🎤 Welcome message
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => setSmartPrompt('Ambient peaceful music with floating synths for meditation')}
+                    >
+                      🌌 Ambient meditation
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+
+        {/* ================================================================= */}
+        {/* MUSIC TAB (Manual mode) */}
         {/* ================================================================= */}
         <TabsContent value="music" className="space-y-6">
           <motion.div
@@ -458,11 +670,11 @@ export function AudioStudioWorkspace() {
             <Card className="border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  AI Music Generator
+                  <Music className="w-5 h-5 text-primary" />
+                  Music Generator
                 </CardTitle>
                 <CardDescription>
-                  Create original music with Lucy AI. Describe your track and select a style.
+                  Create original music. Select a style and describe your track.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -515,7 +727,7 @@ export function AudioStudioWorkspace() {
                   <div className="space-y-2">
                     <Progress value={musicProgress} className="h-2" />
                     <p className="text-sm text-center text-muted-foreground">
-                      Lucy is composing your track... {musicProgress}%
+                      Generating music... {musicProgress}%
                     </p>
                   </div>
                 )}
@@ -545,7 +757,7 @@ export function AudioStudioWorkspace() {
         </TabsContent>
 
         {/* ================================================================= */}
-        {/* VOICE STUDIO TAB */}
+        {/* VOICE TAB (Manual mode) */}
         {/* ================================================================= */}
         <TabsContent value="voice" className="space-y-6">
           <motion.div
@@ -560,7 +772,7 @@ export function AudioStudioWorkspace() {
                   Voice Studio
                 </CardTitle>
                 <CardDescription>
-                  Professional text-to-speech powered by Lucy AI. Choose from premium voices.
+                  Convert text to natural speech. Choose a voice and style.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -652,10 +864,10 @@ export function AudioStudioWorkspace() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sliders className="w-5 h-5 text-cyan-500" />
-                  Audio Effects & Mastering
+                  Audio Effects
                 </CardTitle>
                 <CardDescription>
-                  Adjust EQ, add effects, and master your audio tracks.
+                  Adjust playback settings and effects.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
@@ -776,7 +988,7 @@ export function AudioStudioWorkspace() {
                       Your Audio Projects
                     </CardTitle>
                     <CardDescription>
-                      Manage your generated audio files
+                      Play, download, or delete your generated audio
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
@@ -821,7 +1033,7 @@ export function AudioStudioWorkspace() {
                     <FileAudio className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
                     <p className="text-muted-foreground">No audio generated yet</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Create music or voice in the other tabs
+                      Use the Smart tab to create music or voice
                     </p>
                   </div>
                 )}
@@ -879,8 +1091,14 @@ export function AudioStudioWorkspace() {
                               <Badge variant="secondary" className="text-xs">
                                 {generation.type === 'music' 
                                   ? MUSIC_STYLES.find(s => s.id === generation.style)?.label || generation.style
-                                  : VOICES.find(v => v.id === generation.voice)?.label || generation.voice}
+                                  : VOICES.find(v => v.id === generation.voice)?.label || generation.voice || 'Voice'}
                               </Badge>
+                              {generation.autoDetected && (
+                                <Badge variant="outline" className="text-xs">
+                                  <Zap className="w-3 h-3 mr-1" />
+                                  Auto
+                                </Badge>
+                              )}
                               {generation.status === 'error' && (
                                 <Badge variant="destructive" className="text-xs">
                                   Failed
