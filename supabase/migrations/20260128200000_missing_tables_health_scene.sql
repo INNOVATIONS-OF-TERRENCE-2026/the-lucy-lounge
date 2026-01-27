@@ -21,11 +21,12 @@ INSERT INTO public.health_check (status) VALUES ('healthy') ON CONFLICT DO NOTHI
 -- Enable RLS but allow public reads (for connectivity checks)
 ALTER TABLE public.health_check ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can read health_check"
-  ON public.health_check
-  FOR SELECT
-  TO public
-  USING (true);
+-- Create policy if not exists
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Anyone can read health_check' AND tablename = 'health_check') THEN
+    CREATE POLICY "Anyone can read health_check" ON public.health_check FOR SELECT TO public USING (true);
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- TABLE: scene_activity_log
@@ -54,38 +55,23 @@ CREATE INDEX IF NOT EXISTS idx_scene_activity_log_scene_type
 ALTER TABLE public.scene_activity_log ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies: Users can only access their own scene activity
-CREATE POLICY "Users can read own scene activity"
-  ON public.scene_activity_log
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own scene activity"
-  ON public.scene_activity_log
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own scene activity"
-  ON public.scene_activity_log
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own scene activity"
-  ON public.scene_activity_log
-  FOR DELETE
-  TO authenticated
-  USING (auth.uid() = user_id);
-
--- Service role full access for Edge Functions
-CREATE POLICY "Service role full access to scene_activity_log"
-  ON public.scene_activity_log
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can read own scene activity' AND tablename = 'scene_activity_log') THEN
+    CREATE POLICY "Users can read own scene activity" ON public.scene_activity_log FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can insert own scene activity' AND tablename = 'scene_activity_log') THEN
+    CREATE POLICY "Users can insert own scene activity" ON public.scene_activity_log FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own scene activity' AND tablename = 'scene_activity_log') THEN
+    CREATE POLICY "Users can update own scene activity" ON public.scene_activity_log FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can delete own scene activity' AND tablename = 'scene_activity_log') THEN
+    CREATE POLICY "Users can delete own scene activity" ON public.scene_activity_log FOR DELETE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role full access to scene_activity_log' AND tablename = 'scene_activity_log') THEN
+    CREATE POLICY "Service role full access to scene_activity_log" ON public.scene_activity_log FOR ALL TO service_role USING (true) WITH CHECK (true);
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- TABLE: scene_playlists (if not exists)
@@ -114,30 +100,20 @@ CREATE INDEX IF NOT EXISTS idx_scene_playlists_mood
 ALTER TABLE public.scene_playlists ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
-CREATE POLICY "Users can read own scene playlists"
-  ON public.scene_playlists
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own scene playlists"
-  ON public.scene_playlists
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own scene playlists"
-  ON public.scene_playlists
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own scene playlists"
-  ON public.scene_playlists
-  FOR DELETE
-  TO authenticated
-  USING (auth.uid() = user_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can read own scene playlists' AND tablename = 'scene_playlists') THEN
+    CREATE POLICY "Users can read own scene playlists" ON public.scene_playlists FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can insert own scene playlists' AND tablename = 'scene_playlists') THEN
+    CREATE POLICY "Users can insert own scene playlists" ON public.scene_playlists FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own scene playlists' AND tablename = 'scene_playlists') THEN
+    CREATE POLICY "Users can update own scene playlists" ON public.scene_playlists FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can delete own scene playlists' AND tablename = 'scene_playlists') THEN
+    CREATE POLICY "Users can delete own scene playlists" ON public.scene_playlists FOR DELETE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- TABLE: scene_preferences (if not exists)
@@ -167,24 +143,17 @@ CREATE INDEX IF NOT EXISTS idx_scene_preferences_user_id
 ALTER TABLE public.scene_preferences ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
-CREATE POLICY "Users can read own scene preferences"
-  ON public.scene_preferences
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own scene preferences"
-  ON public.scene_preferences
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own scene preferences"
-  ON public.scene_preferences
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can read own scene preferences' AND tablename = 'scene_preferences') THEN
+    CREATE POLICY "Users can read own scene preferences" ON public.scene_preferences FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can insert own scene preferences' AND tablename = 'scene_preferences') THEN
+    CREATE POLICY "Users can insert own scene preferences" ON public.scene_preferences FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own scene preferences' AND tablename = 'scene_preferences') THEN
+    CREATE POLICY "Users can update own scene preferences" ON public.scene_preferences FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- Trigger for updated_at
 CREATE OR REPLACE FUNCTION update_scene_preferences_updated_at()

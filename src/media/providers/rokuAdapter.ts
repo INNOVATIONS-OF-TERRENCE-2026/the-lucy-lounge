@@ -5,15 +5,57 @@
  * available on Roku devices and the web.
  */
 
-import type { 
-  FASTProviderAdapter, 
-  FASTContentItem, 
-  FASTProviderConfig,
-  FASTEmbedConfig,
-  FASTDiscoverOptions,
-  FASTHealthStatus 
-} from './FASTProviderAdapter';
-import type { MediaNode } from '../types';
+import type { MediaNode, MediaType, ContentRating } from '../types';
+
+// ============================================================================
+// LOCAL TYPES
+// ============================================================================
+
+interface RokuProviderConfig {
+  id: string;
+  name: string;
+  logoUrl: string;
+  baseUrl: string;
+  supportsEmbed: boolean;
+  supportsDeepLink: boolean;
+  supportedRegions: string[];
+  contentRatings: string[];
+  adFrequency: string;
+  maxQuality: string;
+  features: string[];
+}
+
+interface RokuEmbedConfig {
+  provider: string;
+  embedUrl: string | null;
+  deepLinkUrl: string;
+  mobileDeepLink: string;
+  allowFullscreen: boolean;
+  autoplay: boolean;
+  supportsInlinePlay: boolean;
+  fallbackBehavior: string;
+  playerOptions: {
+    showControls: boolean;
+    adSupported: boolean;
+  };
+}
+
+interface RokuHealthStatus {
+  provider: string;
+  isAvailable: boolean;
+  latencyMs: number;
+  lastChecked: string;
+  features?: string[];
+  error?: string;
+}
+
+interface RokuDiscoverOptions {
+  category?: string;
+  limit?: number;
+  page?: number;
+  genres?: string[];
+  sortBy?: string;
+}
 
 // ============================================================================
 // TYPES
@@ -66,7 +108,7 @@ const ROKU_CATEGORIES: RokuCategory[] = [
 // CONFIGURATION
 // ============================================================================
 
-const ROKU_CONFIG: FASTProviderConfig = {
+const ROKU_CONFIG: RokuProviderConfig = {
   id: 'roku_channel',
   name: 'The Roku Channel',
   logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Roku_Channel_logo.svg/200px-Roku_Channel_logo.svg.png',
@@ -84,7 +126,7 @@ const ROKU_CONFIG: FASTProviderConfig = {
 // ADAPTER IMPLEMENTATION
 // ============================================================================
 
-class RokuAdapterImpl implements FASTProviderAdapter {
+class RokuAdapterImpl {
   readonly providerId = 'roku_channel';
   readonly providerName = 'The Roku Channel';
   
@@ -93,13 +135,13 @@ class RokuAdapterImpl implements FASTProviderAdapter {
   /**
    * Discover content from The Roku Channel
    */
-  async discover(options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async discover(options: RokuDiscoverOptions = {}): Promise<Partial<MediaNode>[]> {
     const { 
       category = 'featured',
       limit = 20,
     } = options;
 
-    const items: FASTContentItem[] = [];
+    const items: Partial<MediaNode>[] = [];
 
     // Find matching category
     const rokuCategory = ROKU_CATEGORIES.find(c => c.id === category || c.slug === category);
@@ -115,7 +157,8 @@ class RokuAdapterImpl implements FASTProviderAdapter {
    * Normalize Roku content to MediaNode format
    */
   normalize(item: RokuContent): Partial<MediaNode> {
-    const mediaType = item.type === 'series' ? 'series' : item.type === 'episode' ? 'episode' : 'movie';
+    const mediaType: MediaType = item.type === 'series' ? 'tv_show' : item.type === 'episode' ? 'tv_episode' : 'movie';
+    const rating = item.rating as ContentRating | undefined;
     
     return {
       canonical_id: `lucy:${mediaType}:roku_channel:${item.id}`,
@@ -127,17 +170,14 @@ class RokuAdapterImpl implements FASTProviderAdapter {
       duration_seconds: item.runtime ? item.runtime * 60 : undefined,
       poster_url: item.posterArt,
       thumbnail_url: item.thumbnailArt,
-      content_rating: item.rating,
-      provider_source: 'roku_channel',
-      provider_content_id: item.id,
-      embed_allowed: false,
+      content_rating: rating,
     };
   }
 
   /**
    * Get embed configuration for Roku Channel
    */
-  getEmbedConfig(contentId: string, type: 'movie' | 'series' = 'movie'): FASTEmbedConfig {
+  getEmbedConfig(contentId: string, type: 'movie' | 'series' = 'movie'): RokuEmbedConfig {
     const deepLinkUrl = type === 'series'
       ? `https://therokuchannel.roku.com/details/${contentId}`
       : `https://therokuchannel.roku.com/watch/${contentId}`;
@@ -161,7 +201,7 @@ class RokuAdapterImpl implements FASTProviderAdapter {
   /**
    * Check if Roku Channel is accessible
    */
-  async healthCheck(): Promise<FASTHealthStatus> {
+  async healthCheck(): Promise<RokuHealthStatus> {
     try {
       const start = Date.now();
       await fetch('https://therokuchannel.roku.com', { method: 'HEAD', mode: 'no-cors' });
@@ -189,7 +229,7 @@ class RokuAdapterImpl implements FASTProviderAdapter {
   /**
    * Get provider configuration
    */
-  getConfig(): FASTProviderConfig {
+  getConfig(): RokuProviderConfig {
     return { ...this.config };
   }
 
@@ -203,8 +243,8 @@ class RokuAdapterImpl implements FASTProviderAdapter {
   /**
    * Generate deep link for Roku content
    */
-  getDeepLink(contentId: string, type: 'movie' | 'series' = 'movie'): string {
-    if (type === 'series') {
+  getDeepLink(contentId: string, mediaType?: MediaType): string {
+    if (mediaType === 'tv_show' || mediaType === 'tv_season' || mediaType === 'tv_episode') {
       return `https://therokuchannel.roku.com/details/${contentId}`;
     }
     return `https://therokuchannel.roku.com/watch/${contentId}`;
@@ -221,7 +261,7 @@ class RokuAdapterImpl implements FASTProviderAdapter {
   /**
    * Search Roku Channel content
    */
-  async search(query: string): Promise<FASTContentItem[]> {
+  async search(query: string): Promise<Partial<MediaNode>[]> {
     console.log(`[RokuAdapter] Searching for: ${query}`);
     return [];
   }

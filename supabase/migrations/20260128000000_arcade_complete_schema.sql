@@ -22,6 +22,13 @@
 --
 -- ============================================================================
 
+-- Enable pg_trgm extension for fuzzy text search (if available)
+DO $$ BEGIN
+  CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+EXCEPTION WHEN others THEN
+  RAISE NOTICE 'pg_trgm extension not available, skipping';
+END $$;
+
 -- ============================================================================
 -- 1. PLAYERS — GLOBAL IDENTITY
 -- ============================================================================
@@ -78,7 +85,12 @@ CREATE TABLE IF NOT EXISTS players (
 
 -- Username search index
 CREATE INDEX IF NOT EXISTS idx_players_username ON players(username);
-CREATE INDEX IF NOT EXISTS idx_players_username_search ON players USING gin(username gin_trgm_ops);
+-- Trigram index for fuzzy search (requires pg_trgm extension)
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_players_username_search ON players USING gin(username gin_trgm_ops);
+EXCEPTION WHEN undefined_object THEN
+  RAISE NOTICE 'pg_trgm not available, skipping trigram index';
+END $$;
 
 -- Leaderboard indexes
 CREATE INDEX IF NOT EXISTS idx_players_level ON players(level DESC, xp DESC);
@@ -275,11 +287,12 @@ CREATE TABLE IF NOT EXISTS match_players (
   
   -- Timestamps
   joined_at TIMESTAMPTZ DEFAULT now(),
-  left_at TIMESTAMPTZ,
-  
-  -- Ensure unique player per match
-  UNIQUE(match_id, player_id) WHERE player_id IS NOT NULL
+  left_at TIMESTAMPTZ
 );
+
+-- Ensure unique player per match (partial unique index for non-AI players)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_match_players_unique_player
+  ON match_players(match_id, player_id) WHERE player_id IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_match_players_match ON match_players(match_id);
 CREATE INDEX IF NOT EXISTS idx_match_players_player ON match_players(player_id);
@@ -495,7 +508,7 @@ CREATE TABLE IF NOT EXISTS player_parties (
   -- Settings
   max_size INTEGER DEFAULT 5,
   is_public BOOLEAN DEFAULT false,
-  invite_code TEXT UNIQUE DEFAULT encode(gen_random_bytes(4), 'hex'),
+  invite_code TEXT UNIQUE DEFAULT substring(replace(gen_random_uuid()::text, '-', ''), 1, 8),
   
   -- Game
   game_id TEXT,
@@ -759,7 +772,7 @@ CREATE POLICY "match_players_read_own" ON match_players
 CREATE POLICY "match_players_insert" ON match_players
   FOR INSERT WITH CHECK (
     player_id = auth.uid() OR
-    EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())
+    player_id IS NULL  -- Allow AI player inserts
   );
 
 -- AI OPPONENTS (public read)

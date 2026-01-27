@@ -9,6 +9,9 @@
 -- 5. Admin & superadmin roles
 -- ============================================================================
 
+-- Enable pgcrypto for gen_random_bytes()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ============================================================================
 -- ORGANIZATION CORE TABLES
 -- ============================================================================
@@ -82,7 +85,7 @@ CREATE TABLE IF NOT EXISTS organization_invitations (
     
     -- Invite details
     invited_by UUID NOT NULL REFERENCES auth.users(id),
-    token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(32), 'hex'),
+    token TEXT NOT NULL UNIQUE DEFAULT replace(gen_random_uuid()::text, '-', ''),
     
     -- Status
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'expired', 'revoked')),
@@ -218,7 +221,7 @@ CREATE TABLE IF NOT EXISTS organization_domains (
     
     -- Verification
     is_verified BOOLEAN DEFAULT false,
-    verification_token TEXT DEFAULT encode(gen_random_bytes(16), 'hex'),
+    verification_token TEXT DEFAULT replace(gen_random_uuid()::text, '-', ''),
     verification_method TEXT DEFAULT 'dns' CHECK (verification_method IN ('dns', 'file', 'meta')),
     verified_at TIMESTAMP WITH TIME ZONE,
     
@@ -854,7 +857,7 @@ DECLARE
     v_org_id UUID;
 BEGIN
     FOR v_user IN 
-        SELECT u.id, u.email, p.full_name
+        SELECT u.id, u.email, p.name as full_name
         FROM auth.users u
         LEFT JOIN profiles p ON p.id = u.id
         WHERE NOT EXISTS (

@@ -11,9 +11,10 @@ import type {
   FASTProviderConfig,
   FASTEmbedConfig,
   FASTDiscoverOptions,
-  FASTHealthStatus 
+  FASTHealthStatus,
+  MediaAvailability
 } from './FASTProviderAdapter';
-import type { MediaNode } from '../types';
+import type { MediaNode, ContentRating } from '../types';
 
 // ============================================================================
 // TYPES
@@ -75,11 +76,9 @@ const FREEVEE_CONFIG: FASTProviderConfig = {
   baseUrl: 'https://www.amazon.com/gp/video/storefront/ref=atv_hm_fre_c_ln',
   supportsEmbed: false, // Amazon doesn't support iframe embedding
   supportsDeepLink: true,
-  supportedRegions: ['US', 'UK', 'DE'],
-  contentRatings: ['G', 'PG', 'PG-13', 'R', 'TV-14', 'TV-MA'],
-  adFrequency: 'standard',
-  maxQuality: '1080p',
-  features: ['free', 'ad-supported', 'freevee-originals', 'imdb-integration', 'mobile-app', 'smart-tv', 'fire-tv', 'x-ray'],
+  supportsFreeContent: true,
+  contentTypes: ['movie', 'show'],
+  termsUrl: 'https://www.amazon.com/gp/help/customer/display.html?nodeId=201376540',
 };
 
 // ============================================================================
@@ -91,17 +90,60 @@ class FreeveeAdapterImpl implements FASTProviderAdapter {
   readonly providerName = 'Amazon Freevee';
   
   private config = FREEVEE_CONFIG;
+  private features = ['free', 'ad-supported', 'freevee-originals', 'imdb-integration', 'mobile-app', 'smart-tv', 'fire-tv', 'x-ray'];
+
+  readonly providerInfo = {
+    id: 'freevee',
+    name: 'Amazon Freevee',
+    logoUrl: FREEVEE_CONFIG.logoUrl,
+    description: 'Free ad-supported streaming service from Amazon with movies and TV shows',
+    features: this.features,
+  };
+
+  /**
+   * Get availability information for content
+   */
+  async getAvailability(contentId: string): Promise<MediaAvailability> {
+    const now = new Date().toISOString();
+    return {
+      id: `freevee:avail:${contentId}`,
+      media_node_id: `freevee:${contentId}`,
+      provider_id: 'freevee',
+      provider_content_id: contentId,
+      available: true,
+      regions: ['US', 'UK', 'DE'],
+      url: `https://www.amazon.com/gp/video/detail/${contentId}`,
+      free: true,
+      created_at: now,
+      updated_at: now,
+    };
+  }
+
+  /**
+   * Get availability information for a specific region
+   */
+  async getRegionAvailability(region?: string): Promise<{ available: boolean; regions: string[]; restrictions?: string[] }> {
+    // Freevee is available in US, UK, and Germany
+    const supportedRegions = ['US', 'UK', 'DE'];
+    const isAvailable = region ? supportedRegions.includes(region.toUpperCase()) : true;
+    
+    return {
+      available: isAvailable,
+      regions: supportedRegions,
+      restrictions: region && !isAvailable ? [`Freevee is not available in ${region}`] : undefined,
+    };
+  }
 
   /**
    * Discover content from Amazon Freevee
    */
-  async discover(options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async discover(options: FASTDiscoverOptions = {}): Promise<{ items: MediaNode[]; total: number; hasMore: boolean }> {
     const { 
       category = 'popular',
       limit = 20,
     } = options;
 
-    const items: FASTContentItem[] = [];
+    const items: MediaNode[] = [];
 
     // Find matching category
     const freeveeCategory = FREEVEE_CATEGORIES.find(c => c.id === category);
@@ -110,16 +152,22 @@ class FreeveeAdapterImpl implements FASTProviderAdapter {
       console.log(`[FreeveeAdapter] Discovering ${freeveeCategory.name} content...`);
     }
 
-    return items;
+    return {
+      items,
+      total: items.length,
+      hasMore: false,
+    };
   }
 
   /**
    * Normalize Freevee content to MediaNode format
    */
-  normalize(item: FreeveeContent): Partial<MediaNode> {
-    const mediaType = item.type === 'series' ? 'series' : item.type === 'episode' ? 'episode' : 'movie';
+  normalize(item: FreeveeContent): MediaNode {
+    const mediaType = item.type === 'series' || item.type === 'episode' ? 'show' : 'movie';
     
+    const now = new Date().toISOString();
     return {
+      id: `freevee:${item.asin}`,
       canonical_id: `lucy:${mediaType}:freevee:${item.asin}`,
       media_type: mediaType,
       category: 'video',
@@ -130,37 +178,34 @@ class FreeveeAdapterImpl implements FASTProviderAdapter {
       poster_url: item.imageUrl,
       thumbnail_url: item.imageUrl,
       backdrop_url: item.backdropUrl,
-      content_rating: item.rating,
+      content_rating: item.rating as ContentRating | undefined,
       average_rating: item.imdbRating,
       provider_source: 'freevee',
       provider_content_id: item.asin,
       embed_allowed: false,
+      created_at: now,
+      updated_at: now,
       metadata: {
         imdb_id: item.imdbId,
       },
-    };
+    } as MediaNode;
   }
 
   /**
    * Get embed configuration for Freevee
    */
-  getEmbedConfig(contentId: string): FASTEmbedConfig {
+  async getEmbedConfig(contentId: string, mediaType?: string): Promise<FASTEmbedConfig> {
     const deepLinkUrl = `https://www.amazon.com/gp/video/detail/${contentId}`;
 
     return {
       provider: 'freevee',
       embedUrl: null, // Amazon doesn't support iframe embedding
       deepLinkUrl: deepLinkUrl,
-      mobileDeepLink: `aiv://aiv/watch?asin=${contentId}`,
-      allowFullscreen: true,
       autoplay: false,
-      supportsInlinePlay: false,
-      fallbackBehavior: 'deep-link',
-      playerOptions: {
-        showControls: true,
-        adSupported: true,
-        xrayEnabled: true, // Amazon X-Ray feature
-      },
+      iframeAllowed: false,
+      playerType: 'external',
+      aspectRatio: '16:9',
+      controls: true,
     };
   }
 
@@ -175,19 +220,16 @@ class FreeveeAdapterImpl implements FASTProviderAdapter {
       
       return {
         provider: 'freevee',
-        isAvailable: true,
+        status: 'healthy',
         latencyMs: latency,
-        lastChecked: new Date().toISOString(),
-        features: this.config.features,
+        lastChecked: new Date(),
       };
-    } catch (error) {
+    } catch {
       return {
         provider: 'freevee',
-        isAvailable: false,
+        status: 'down',
         latencyMs: -1,
-        lastChecked: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-        features: [],
+        lastChecked: new Date(),
       };
     }
   }
@@ -237,8 +279,8 @@ class FreeveeAdapterImpl implements FASTProviderAdapter {
   /**
    * Search Freevee content
    */
-  async search(query: string): Promise<FASTContentItem[]> {
-    console.log(`[FreeveeAdapter] Searching for: ${query}`);
+  async search(query: string, limit?: number): Promise<MediaNode[]> {
+    console.log(`[FreeveeAdapter] Searching for: ${query}${limit ? ` (limit: ${limit})` : ''}`);
     return [];
   }
 }

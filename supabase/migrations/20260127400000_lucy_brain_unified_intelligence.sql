@@ -49,32 +49,31 @@ CREATE TABLE IF NOT EXISTS public.lucy_brain_sessions (
 
 ALTER TABLE public.lucy_brain_sessions ENABLE ROW LEVEL SECURITY;
 
-CREATE INDEX idx_lucy_brain_sessions_user_active 
-  ON public.lucy_brain_sessions(user_id, is_active) WHERE is_active = true;
-CREATE INDEX idx_lucy_brain_sessions_last_active 
-  ON public.lucy_brain_sessions(last_active_at DESC);
+-- Create indexes if not exist
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_sessions_user_active') THEN
+    CREATE INDEX idx_lucy_brain_sessions_user_active ON public.lucy_brain_sessions(user_id, is_active) WHERE is_active = true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_sessions_last_active') THEN
+    CREATE INDEX idx_lucy_brain_sessions_last_active ON public.lucy_brain_sessions(last_active_at DESC);
+  END IF;
+END $$;
 
 -- RLS: Users can only access their own sessions
-CREATE POLICY "Users can view own brain sessions"
-  ON public.lucy_brain_sessions FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can create own brain sessions"
-  ON public.lucy_brain_sessions FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own brain sessions"
-  ON public.lucy_brain_sessions FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id);
-
--- Service role for edge functions
-CREATE POLICY "Service role manages all brain sessions"
-  ON public.lucy_brain_sessions FOR ALL
-  TO service_role
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view own brain sessions' AND tablename = 'lucy_brain_sessions') THEN
+    CREATE POLICY "Users can view own brain sessions" ON public.lucy_brain_sessions FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create own brain sessions' AND tablename = 'lucy_brain_sessions') THEN
+    CREATE POLICY "Users can create own brain sessions" ON public.lucy_brain_sessions FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own brain sessions' AND tablename = 'lucy_brain_sessions') THEN
+    CREATE POLICY "Users can update own brain sessions" ON public.lucy_brain_sessions FOR UPDATE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role manages all brain sessions' AND tablename = 'lucy_brain_sessions') THEN
+    CREATE POLICY "Service role manages all brain sessions" ON public.lucy_brain_sessions FOR ALL TO service_role USING (true);
+  END IF;
+END $$;
 
 -- =====================================================
 -- 2. LUCY BRAIN MEMORY
@@ -96,8 +95,8 @@ CREATE TABLE IF NOT EXISTS public.lucy_brain_memory (
   content TEXT NOT NULL,
   summary TEXT, -- Compressed version for context injection
   
-  -- Semantic embedding for similarity search
-  embedding vector(384),
+  -- Semantic embedding for similarity search (optional - requires pgvector)
+  -- embedding vector(384), -- Uncomment when pgvector is enabled
   
   -- Scoring and decay
   importance_score NUMERIC(3,2) DEFAULT 0.5 CHECK (importance_score >= 0 AND importance_score <= 1),
@@ -113,42 +112,39 @@ CREATE TABLE IF NOT EXISTS public.lucy_brain_memory (
 ALTER TABLE public.lucy_brain_memory ENABLE ROW LEVEL SECURITY;
 
 -- Indexes for fast retrieval
-CREATE INDEX idx_lucy_brain_memory_user_source 
-  ON public.lucy_brain_memory(user_id, source);
-CREATE INDEX idx_lucy_brain_memory_user_type 
-  ON public.lucy_brain_memory(user_id, memory_type);
-CREATE INDEX idx_lucy_brain_memory_importance 
-  ON public.lucy_brain_memory(user_id, importance_score DESC);
-CREATE INDEX idx_lucy_brain_memory_embedding 
-  ON public.lucy_brain_memory USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
-CREATE INDEX idx_lucy_brain_memory_content_search 
-  ON public.lucy_brain_memory USING gin(to_tsvector('english', content));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_memory_user_source') THEN
+    CREATE INDEX idx_lucy_brain_memory_user_source ON public.lucy_brain_memory(user_id, source);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_memory_user_type') THEN
+    CREATE INDEX idx_lucy_brain_memory_user_type ON public.lucy_brain_memory(user_id, memory_type);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_memory_importance') THEN
+    CREATE INDEX idx_lucy_brain_memory_importance ON public.lucy_brain_memory(user_id, importance_score DESC);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_memory_content_search') THEN
+    CREATE INDEX idx_lucy_brain_memory_content_search ON public.lucy_brain_memory USING gin(to_tsvector('english', content));
+  END IF;
+END $$;
 
 -- RLS Policies
-CREATE POLICY "Users can view own brain memory"
-  ON public.lucy_brain_memory FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can create own brain memory"
-  ON public.lucy_brain_memory FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own brain memory"
-  ON public.lucy_brain_memory FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own brain memory"
-  ON public.lucy_brain_memory FOR DELETE
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Service role manages all brain memory"
-  ON public.lucy_brain_memory FOR ALL
-  TO service_role
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view own brain memory' AND tablename = 'lucy_brain_memory') THEN
+    CREATE POLICY "Users can view own brain memory" ON public.lucy_brain_memory FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create own brain memory' AND tablename = 'lucy_brain_memory') THEN
+    CREATE POLICY "Users can create own brain memory" ON public.lucy_brain_memory FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own brain memory' AND tablename = 'lucy_brain_memory') THEN
+    CREATE POLICY "Users can update own brain memory" ON public.lucy_brain_memory FOR UPDATE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can delete own brain memory' AND tablename = 'lucy_brain_memory') THEN
+    CREATE POLICY "Users can delete own brain memory" ON public.lucy_brain_memory FOR DELETE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role manages all brain memory' AND tablename = 'lucy_brain_memory') THEN
+    CREATE POLICY "Service role manages all brain memory" ON public.lucy_brain_memory FOR ALL TO service_role USING (true);
+  END IF;
+END $$;
 
 -- =====================================================
 -- 3. LUCY BRAIN PREFERENCES
@@ -197,25 +193,20 @@ CREATE TABLE IF NOT EXISTS public.lucy_brain_preferences (
 ALTER TABLE public.lucy_brain_preferences ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
-CREATE POLICY "Users can view own preferences"
-  ON public.lucy_brain_preferences FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can upsert own preferences"
-  ON public.lucy_brain_preferences FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own preferences"
-  ON public.lucy_brain_preferences FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Service role manages all preferences"
-  ON public.lucy_brain_preferences FOR ALL
-  TO service_role
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view own preferences' AND tablename = 'lucy_brain_preferences') THEN
+    CREATE POLICY "Users can view own preferences" ON public.lucy_brain_preferences FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can upsert own preferences' AND tablename = 'lucy_brain_preferences') THEN
+    CREATE POLICY "Users can upsert own preferences" ON public.lucy_brain_preferences FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update own preferences' AND tablename = 'lucy_brain_preferences') THEN
+    CREATE POLICY "Users can update own preferences" ON public.lucy_brain_preferences FOR UPDATE TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role manages all preferences' AND tablename = 'lucy_brain_preferences') THEN
+    CREATE POLICY "Service role manages all preferences" ON public.lucy_brain_preferences FOR ALL TO service_role USING (true);
+  END IF;
+END $$;
 
 -- =====================================================
 -- 4. LUCY BRAIN CROSS-STUDIO EVENTS
@@ -252,27 +243,27 @@ CREATE TABLE IF NOT EXISTS public.lucy_brain_events (
 ALTER TABLE public.lucy_brain_events ENABLE ROW LEVEL SECURITY;
 
 -- Index for fast event retrieval
-CREATE INDEX idx_lucy_brain_events_user_unprocessed 
-  ON public.lucy_brain_events(user_id, processed, created_at DESC) 
-  WHERE processed = false;
-CREATE INDEX idx_lucy_brain_events_created 
-  ON public.lucy_brain_events(created_at DESC);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_events_user_unprocessed') THEN
+    CREATE INDEX idx_lucy_brain_events_user_unprocessed ON public.lucy_brain_events(user_id, processed, created_at DESC) WHERE processed = false;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_lucy_brain_events_created') THEN
+    CREATE INDEX idx_lucy_brain_events_created ON public.lucy_brain_events(created_at DESC);
+  END IF;
+END $$;
 
 -- RLS Policies
-CREATE POLICY "Users can view own events"
-  ON public.lucy_brain_events FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can create own events"
-  ON public.lucy_brain_events FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Service role manages all events"
-  ON public.lucy_brain_events FOR ALL
-  TO service_role
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view own events' AND tablename = 'lucy_brain_events') THEN
+    CREATE POLICY "Users can view own events" ON public.lucy_brain_events FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create own events' AND tablename = 'lucy_brain_events') THEN
+    CREATE POLICY "Users can create own events" ON public.lucy_brain_events FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role manages all events' AND tablename = 'lucy_brain_events') THEN
+    CREATE POLICY "Service role manages all events" ON public.lucy_brain_events FOR ALL TO service_role USING (true);
+  END IF;
+END $$;
 
 -- =====================================================
 -- 5. HELPER FUNCTIONS

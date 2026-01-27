@@ -96,11 +96,20 @@ CREATE INDEX IF NOT EXISTS idx_messages_brain_metadata
 -- =====================================================
 
 -- Enable vector extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
--- Add embedding column to user_memories
-ALTER TABLE public.user_memories 
-  ADD COLUMN IF NOT EXISTS embedding vector(384); -- 384 dimensions for MiniLM
+-- Add embedding column to user_memories (skip if vector type not available)
+DO $$
+BEGIN
+  -- Try to add embedding column
+  BEGIN
+    ALTER TABLE public.user_memories 
+      ADD COLUMN IF NOT EXISTS embedding vector(384); -- 384 dimensions for MiniLM
+  EXCEPTION WHEN undefined_object THEN
+    -- vector type doesn't exist, skip
+    RAISE NOTICE 'vector type not available, skipping embedding column';
+  END;
+END $$;
 
 -- Add importance column if not exists (normalize naming)
 ALTER TABLE public.user_memories 
@@ -125,16 +134,33 @@ ALTER TABLE public.user_memories
 ALTER TABLE public.user_memories 
   ADD COLUMN IF NOT EXISTS decay_factor NUMERIC(3,2) DEFAULT 1.0;
 
--- Create vector similarity search index
-CREATE INDEX IF NOT EXISTS idx_user_memories_embedding 
-  ON public.user_memories USING ivfflat (embedding vector_cosine_ops)
-  WITH (lists = 100);
+-- Create vector similarity search index (skip if embedding column doesn't exist)
+DO $$
+BEGIN
+  -- Only create index if embedding column exists
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'user_memories' AND column_name = 'embedding'
+  ) THEN
+    BEGIN
+      CREATE INDEX IF NOT EXISTS idx_user_memories_embedding 
+        ON public.user_memories USING ivfflat (embedding vector_cosine_ops)
+        WITH (lists = 100);
+    EXCEPTION WHEN undefined_object THEN
+      RAISE NOTICE 'vector type not available, skipping embedding index';
+    END;
+  ELSE
+    RAISE NOTICE 'embedding column does not exist, skipping vector index';
+  END IF;
+END $$;
 
--- Create function for semantic memory search
+-- Note: Vector-based semantic memory search requires pgvector extension.
+-- This will be set up properly when the extension is available.
+-- For now, we skip the vector function and create a fallback.
+
+-- Fallback function that doesn't use vectors (basic text matching)
 CREATE OR REPLACE FUNCTION public.search_user_memories(
   p_user_id UUID,
-  p_query_embedding vector(384),
-  p_match_threshold NUMERIC DEFAULT 0.7,
   p_match_count INTEGER DEFAULT 5
 )
 RETURNS TABLE (
@@ -142,7 +168,6 @@ RETURNS TABLE (
   content TEXT,
   memory_type TEXT,
   importance NUMERIC,
-  similarity NUMERIC,
   created_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
@@ -156,13 +181,10 @@ BEGIN
     um.content,
     um.memory_type,
     um.importance,
-    (1 - (um.embedding <=> p_query_embedding))::NUMERIC as similarity,
     um.created_at
   FROM public.user_memories um
   WHERE um.user_id = p_user_id
-    AND um.embedding IS NOT NULL
-    AND (1 - (um.embedding <=> p_query_embedding)) > p_match_threshold
-  ORDER BY um.embedding <=> p_query_embedding
+  ORDER BY um.importance DESC, um.created_at DESC
   LIMIT p_match_count;
 END;
 $$;

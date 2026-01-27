@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS arcade_lobbies (
     status TEXT NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting', 'starting', 'in_progress', 'completed', 'cancelled')),
     
     -- Invite code for private lobbies
-    invite_code TEXT UNIQUE DEFAULT encode(gen_random_bytes(4), 'hex'),
+    invite_code TEXT UNIQUE DEFAULT substring(replace(gen_random_uuid()::text, '-', ''), 1, 8),
     
     -- Timing
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -516,7 +516,7 @@ CREATE TABLE IF NOT EXISTS project_domains (
     
     -- Verification
     is_verified BOOLEAN DEFAULT false,
-    verification_token TEXT DEFAULT encode(gen_random_bytes(16), 'hex'),
+    verification_token TEXT DEFAULT replace(gen_random_uuid()::text, '-', ''),
     verification_method TEXT DEFAULT 'cname' CHECK (verification_method IN ('cname', 'txt', 'file')),
     verified_at TIMESTAMP WITH TIME ZONE,
     
@@ -650,29 +650,31 @@ BEGIN
     -- Check if media_nodes table exists and has few entries
     IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_nodes') THEN
         -- Insert some fallback content if needed
-        INSERT INTO media_nodes (id, title, media_type, category, popularity_score, metadata)
+        INSERT INTO media_nodes (id, canonical_id, title, media_type, category, popularity_score, description)
         SELECT 
             gen_random_uuid(),
+            'lucy:' || media_type || ':fallback:' || md5(title),
             title,
-            media_type,
-            category,
+            media_type::media_type,
+            category::media_category,
             popularity_score,
-            metadata::jsonb
+            description
         FROM (VALUES
-            ('Chill Vibes Mix', 'audio', 'music', 100, '{"genre": "lo-fi", "mood": "relaxing"}'),
-            ('Focus Flow', 'audio', 'music', 95, '{"genre": "ambient", "mood": "focused"}'),
-            ('Upbeat Energy', 'audio', 'music', 90, '{"genre": "electronic", "mood": "energetic"}'),
-            ('Jazz Essentials', 'audio', 'music', 85, '{"genre": "jazz", "mood": "smooth"}'),
-            ('Classical Focus', 'audio', 'music', 80, '{"genre": "classical", "mood": "focused"}'),
-            ('Trending Now', 'video', 'entertainment', 100, '{"genre": "trending", "mood": "exciting"}'),
-            ('Documentary Picks', 'video', 'documentary', 95, '{"genre": "documentary", "mood": "informative"}'),
-            ('Comedy Highlights', 'video', 'comedy', 90, '{"genre": "comedy", "mood": "fun"}'),
-            ('Action Essentials', 'video', 'action', 85, '{"genre": "action", "mood": "thrilling"}'),
-            ('Drama Collection', 'video', 'drama', 80, '{"genre": "drama", "mood": "emotional"}')
-        ) AS t(title, media_type, category, popularity_score, metadata)
+            ('Chill Vibes Mix', 'music_album', 'audio', 100, 'Lo-fi beats for relaxing'),
+            ('Focus Flow', 'music_album', 'audio', 95, 'Ambient music for concentration'),
+            ('Upbeat Energy', 'music_album', 'audio', 90, 'Electronic beats for energy'),
+            ('Jazz Essentials', 'music_album', 'audio', 85, 'Smooth jazz collection'),
+            ('Classical Focus', 'music_album', 'audio', 80, 'Classical music for focus'),
+            ('Trending Now', 'movie', 'video', 100, 'Trending entertainment picks'),
+            ('Documentary Picks', 'documentary', 'video', 95, 'Top documentary recommendations'),
+            ('Comedy Highlights', 'movie', 'video', 90, 'Best comedy selections'),
+            ('Action Essentials', 'movie', 'video', 85, 'Thrilling action movies'),
+            ('Drama Collection', 'movie', 'video', 80, 'Emotional drama picks')
+        ) AS t(title, media_type, category, popularity_score, description)
         WHERE NOT EXISTS (
             SELECT 1 FROM media_nodes WHERE popularity_score > 0 LIMIT 1
-        );
+        )
+        ON CONFLICT (canonical_id) DO NOTHING;
     END IF;
 END $$;
 

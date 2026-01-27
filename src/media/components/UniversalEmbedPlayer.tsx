@@ -93,10 +93,11 @@ function extractEmbedSources(mediaNode: MediaNode): EmbedSource[] {
   }
   
   // Check for provider_content_id with provider_source
-  if (mediaNode.provider_content_id && (mediaNode as ExtendedMediaNode).provider_source) {
-    const provider = (mediaNode as ExtendedMediaNode).provider_source as FASTProviderType;
+  const extendedMedia = mediaNode as ExtendedMediaNode;
+  if (extendedMedia.provider_content_id && extendedMedia.provider_source) {
+    const provider = extendedMedia.provider_source as FASTProviderType;
     if (supportsEmbed(provider)) {
-      const contentId = mediaNode.provider_content_id;
+      const contentId = extendedMedia.provider_content_id;
       if (!sources.some(s => s.provider === provider && s.contentId === contentId)) {
         sources.push({
           provider,
@@ -444,7 +445,7 @@ export function MediaThumbnail({
       )}
       
       {/* Provider Badge */}
-      {media.provider_content_id && (
+      {(media as ExtendedMediaNode).provider_content_id && (
         <div className="absolute top-2 left-2">
           <ProviderBadge canonicalId={media.canonical_id} />
         </div>

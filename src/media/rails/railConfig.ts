@@ -707,10 +707,10 @@ async function fetchByTags(config: RailConfig): Promise<MediaNode[]> {
   if (!config.tags || config.tags.length === 0) return [];
   
   // Get tag IDs first
-  const { data: tagData, error: tagError } = await supabase
-    .from('media_tags')
+  const { data: tagData, error: tagError } = await (supabase
+    .from('media_tags' as any)
     .select('id, slug')
-    .in('slug', config.tags);
+    .in('slug', config.tags) as any);
   
   if (tagError || !tagData || tagData.length === 0) {
     console.warn(`[RailQuery] No tags found for ${config.tags.join(', ')}`);
@@ -720,8 +720,8 @@ async function fetchByTags(config: RailConfig): Promise<MediaNode[]> {
   const tagIds = tagData.map(t => t.id);
   
   // Fetch media nodes with these tags
-  const { data, error } = await supabase
-    .from('media_node_tags')
+  const { data, error } = await (supabase
+    .from('media_node_tags' as any)
     .select(`
       media_nodes!inner (
         id, canonical_id, media_type, category, title, description,
@@ -731,7 +731,7 @@ async function fetchByTags(config: RailConfig): Promise<MediaNode[]> {
       )
     `)
     .in('tag_id', tagIds)
-    .limit(config.limit * 2); // Fetch extra for filtering
+    .limit(config.limit * 2) as any); // Fetch extra for filtering
   
   if (error || !data) {
     console.error(`[RailQuery] fetchByTags error:`, error);
@@ -764,9 +764,9 @@ async function fetchByEra(config: RailConfig): Promise<MediaNode[]> {
   
   const [startYear, endYear] = config.eraRange;
   
-  let query = supabase
-    .from('media_nodes')
-    .select('*')
+  let query = (supabase
+    .from('media_nodes' as any)
+    .select('*') as any)
     .gte('release_year', startYear)
     .lte('release_year', endYear)
     .order('popularity_score', { ascending: false })
@@ -795,9 +795,9 @@ async function fetchByEra(config: RailConfig): Promise<MediaNode[]> {
  * Fetch trending content
  */
 async function fetchTrending(config: RailConfig): Promise<MediaNode[]> {
-  let query = supabase
-    .from('media_nodes')
-    .select('*')
+  let query = (supabase
+    .from('media_nodes' as any)
+    .select('*') as any)
     .order('popularity_score', { ascending: false })
     .limit(config.limit);
   
@@ -823,9 +823,9 @@ async function fetchTrending(config: RailConfig): Promise<MediaNode[]> {
  * Fetch recent content
  */
 async function fetchRecent(config: RailConfig): Promise<MediaNode[]> {
-  let query = supabase
-    .from('media_nodes')
-    .select('*')
+  let query = (supabase
+    .from('media_nodes' as any)
+    .select('*') as any)
     .order('created_at', { ascending: false })
     .limit(config.limit);
   

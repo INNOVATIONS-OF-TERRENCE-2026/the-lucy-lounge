@@ -84,7 +84,7 @@ export function useRecommendationSignals(): {
     setLoading(true);
     try {
       // Fetch user's watch history
-      const { data: watchHistory } = await supabase
+      const { data: watchHistory } = await (supabase as any)
         .from('user_media_state')
         .select('media_node_id, progress_seconds, completed, updated_at')
         .eq('user_id', user.id)
@@ -96,7 +96,7 @@ export function useRecommendationSignals(): {
       
       let mediaNodes: MediaNode[] = [];
       if (mediaIds.length > 0) {
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from('media_nodes')
           .select('*')
           .in('id', mediaIds);
@@ -134,7 +134,7 @@ export function useRecommendationSignals(): {
 
       // Fetch genre preferences from tags
       if (mediaIds.length > 0) {
-        const { data: tagData } = await supabase
+        const { data: tagData } = await (supabase as any)
           .from('media_node_tags')
           .select(`
             media_node_id,
@@ -205,7 +205,7 @@ export function useForYouRail(options: RecommendationOptions = {}): Personalized
 
       try {
         // Build query based on signals
-        let query = supabase
+        let query = (supabase as any)
           .from('media_nodes')
           .select('*')
           .eq('category', 'video')
@@ -216,7 +216,7 @@ export function useForYouRail(options: RecommendationOptions = {}): Personalized
         // If user has signals, prioritize their preferred genres
         if (signals?.likedGenres.length) {
           // Get media IDs that match liked genres
-          const { data: taggedMedia } = await supabase
+          const { data: taggedMedia } = await (supabase as any)
             .from('media_node_tags')
             .select(`
               media_node_id,
@@ -286,7 +286,7 @@ export function useContinueWatchingRail(): PersonalizedRail {
 
       try {
         // Get in-progress items (not completed, has progress)
-        const { data: watchStates, error: watchError } = await supabase
+        const { data: watchStates, error: watchError } = await (supabase as any)
           .from('user_media_state')
           .select('media_node_id, progress_seconds, updated_at')
           .eq('user_id', user.id)
@@ -304,7 +304,7 @@ export function useContinueWatchingRail(): PersonalizedRail {
 
         // Fetch the media nodes
         const mediaIds = watchStates.map(w => w.media_node_id);
-        const { data: mediaNodes, error: mediaError } = await supabase
+        const { data: mediaNodes, error: mediaError } = await (supabase as any)
           .from('media_nodes')
           .select('*')
           .in('id', mediaIds);
@@ -366,7 +366,7 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
         let sourceMedia: MediaNode | null = null;
 
         if (sourceMediaId) {
-          const { data } = await supabase
+          const { data } = await (supabase as any)
             .from('media_nodes')
             .select('*')
             .eq('id', sourceMediaId)
@@ -374,7 +374,7 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
           sourceMedia = data as MediaNode;
         } else {
           // Get most recently completed item
-          const { data: recentWatch } = await supabase
+          const { data: recentWatch } = await (supabase as any)
             .from('user_media_state')
             .select('media_node_id')
             .eq('user_id', user.id)
@@ -384,7 +384,7 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
             .single();
 
           if (recentWatch) {
-            const { data } = await supabase
+            const { data } = await (supabase as any)
               .from('media_nodes')
               .select('*')
               .eq('id', recentWatch.media_node_id)
@@ -405,12 +405,12 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
         }));
 
         // Get tags for the source media
-        const { data: sourceTags } = await supabase
+        const { data: sourceTags } = await (supabase as any)
           .from('media_node_tags')
           .select('tag_id')
           .eq('media_node_id', sourceMedia.id);
 
-        const tagIds = sourceTags?.map(t => t.tag_id) || [];
+        const tagIds = sourceTags?.map((t: any) => t.tag_id) || [];
 
         if (tagIds.length === 0) {
           setRail(prev => ({ ...prev, items: [], loading: false }));
@@ -418,14 +418,14 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
         }
 
         // Find media with similar tags
-        const { data: relatedMediaIds } = await supabase
+        const { data: relatedMediaIds } = await (supabase as any)
           .from('media_node_tags')
           .select('media_node_id')
           .in('tag_id', tagIds)
           .neq('media_node_id', sourceMedia.id)
           .limit(50);
 
-        const uniqueIds = [...new Set(relatedMediaIds?.map(r => r.media_node_id) || [])];
+        const uniqueIds = [...new Set(relatedMediaIds?.map((r: any) => r.media_node_id) || [])];
 
         if (uniqueIds.length === 0) {
           setRail(prev => ({ ...prev, items: [], loading: false }));
@@ -433,7 +433,7 @@ export function useBecauseYouWatchedRail(sourceMediaId?: string): PersonalizedRa
         }
 
         // Fetch the related media
-        const { data: relatedMedia, error } = await supabase
+        const { data: relatedMedia, error } = await (supabase as any)
           .from('media_nodes')
           .select('*')
           .in('id', uniqueIds)
@@ -486,7 +486,7 @@ export function useMoodRail(mood: string): PersonalizedRail {
         const moodTags = getMoodTags(mood);
 
         // Get media with mood-matching tags
-        const { data: taggedMedia } = await supabase
+        const { data: taggedMedia } = await (supabase as any)
           .from('media_node_tags')
           .select('media_node_id')
           .in('tag_id', await getTagIds(moodTags))
@@ -499,7 +499,7 @@ export function useMoodRail(mood: string): PersonalizedRail {
           return;
         }
 
-        const { data: mediaNodes, error } = await supabase
+        const { data: mediaNodes, error } = await (supabase as any)
           .from('media_nodes')
           .select('*')
           .in('id', mediaIds)
@@ -511,7 +511,7 @@ export function useMoodRail(mood: string): PersonalizedRail {
 
         setRail(prev => ({
           ...prev,
-          items: (mediaNodes || []) as MediaNode[],
+          items: (mediaNodes || []) as unknown as MediaNode[],
           loading: false,
         }));
       } catch (error) {
@@ -548,7 +548,7 @@ export function useTrendingRail(): PersonalizedRail {
     async function fetchTrending() {
       try {
         // Get media with trending tag or high recent activity
-        const { data: trendingMedia, error } = await supabase
+        const { data: trendingMedia, error } = await (supabase as any)
           .from('media_nodes')
           .select('*')
           .eq('category', 'video')
@@ -584,11 +584,11 @@ export function useTrendingRail(): PersonalizedRail {
 // =============================================================================
 
 async function getTagIds(tagNames: string[]): Promise<string[]> {
-  const { data } = await supabase
+  const { data } = await (supabase as any)
     .from('media_tags')
     .select('id')
     .in('name', tagNames);
-  return data?.map(t => t.id) || [];
+  return data?.map((t: any) => t.id) || [];
 }
 
 function getMoodTags(mood: string): string[] {

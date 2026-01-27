@@ -292,6 +292,26 @@ export interface FASTCollection {
 }
 
 // =============================================================================
+// BACKWARD COMPATIBILITY TYPE ALIASES
+// =============================================================================
+// These aliases maintain compatibility with existing adapter implementations
+
+/** @deprecated Use MediaNode instead */
+export type FASTContentItem = Partial<MediaNode>;
+
+/** @deprecated Use FASTProviderInfo instead */
+export type FASTProviderConfig = FASTProviderInfo;
+
+/** @deprecated Use EmbedConfig instead */
+export type FASTEmbedConfig = EmbedConfig;
+
+/** @deprecated Use DiscoverParams instead */
+export type FASTDiscoverOptions = DiscoverParams;
+
+/** @deprecated Use HealthCheckResult instead */
+export type FASTHealthStatus = HealthCheckResult;
+
+// =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
 

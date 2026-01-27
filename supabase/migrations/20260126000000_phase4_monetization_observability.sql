@@ -138,11 +138,46 @@ CREATE TABLE IF NOT EXISTS usage_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Add columns that may be missing from existing table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'latency_ms') THEN
+        ALTER TABLE usage_events ADD COLUMN latency_ms INTEGER;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'tokens_input') THEN
+        ALTER TABLE usage_events ADD COLUMN tokens_input INTEGER DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'tokens_output') THEN
+        ALTER TABLE usage_events ADD COLUMN tokens_output INTEGER DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'estimated_cost') THEN
+        ALTER TABLE usage_events ADD COLUMN estimated_cost DECIMAL(10, 6) DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'model_used') THEN
+        ALTER TABLE usage_events ADD COLUMN model_used TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'session_id') THEN
+        ALTER TABLE usage_events ADD COLUMN session_id TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'source') THEN
+        ALTER TABLE usage_events ADD COLUMN source TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'error_code') THEN
+        ALTER TABLE usage_events ADD COLUMN error_code TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'error_message') THEN
+        ALTER TABLE usage_events ADD COLUMN error_message TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'usage_events' AND column_name = 'metadata') THEN
+        ALTER TABLE usage_events ADD COLUMN metadata JSONB DEFAULT '{}';
+    END IF;
+END $$;
+
 -- Indexes for analytics (time-series optimized)
 CREATE INDEX IF NOT EXISTS idx_usage_events_user_time ON usage_events(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_tool_time ON usage_events(tool_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_events_type ON usage_events(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, date_trunc('day', created_at));
+CREATE INDEX IF NOT EXISTS idx_usage_events_daily ON usage_events(user_id, tool_id, created_at);
 
 -- ============================================================================
 -- PLATFORM TELEMETRY (Observability)

@@ -5,15 +5,57 @@
  * Content is curated and includes a mix of classic films, indie movies, and TV series.
  */
 
-import type { 
-  FASTProviderAdapter, 
-  FASTContentItem, 
-  FASTProviderConfig,
-  FASTEmbedConfig,
-  FASTDiscoverOptions,
-  FASTHealthStatus 
-} from './FASTProviderAdapter';
-import type { MediaNode } from '../types';
+import type { MediaNode, MediaType, ContentRating } from '../types';
+
+// ============================================================================
+// LOCAL TYPES
+// ============================================================================
+
+interface PlexProviderConfig {
+  id: string;
+  name: string;
+  logoUrl: string;
+  baseUrl: string;
+  supportsEmbed: boolean;
+  supportsDeepLink: boolean;
+  supportedRegions: string[];
+  contentRatings: string[];
+  adFrequency: string;
+  maxQuality: string;
+  features: string[];
+}
+
+interface PlexEmbedConfig {
+  provider: string;
+  embedUrl: string | null;
+  deepLinkUrl: string;
+  mobileDeepLink: string;
+  allowFullscreen: boolean;
+  autoplay: boolean;
+  supportsInlinePlay: boolean;
+  fallbackBehavior: string;
+  playerOptions: {
+    showControls: boolean;
+    adSupported: boolean;
+  };
+}
+
+interface PlexHealthStatus {
+  provider: string;
+  isAvailable: boolean;
+  latencyMs: number;
+  lastChecked: string;
+  features?: string[];
+  error?: string;
+}
+
+interface PlexDiscoverOptions {
+  category?: string;
+  limit?: number;
+  page?: number;
+  genres?: string[];
+  sortBy?: string;
+}
 
 // ============================================================================
 // TYPES
@@ -65,7 +107,7 @@ const PLEX_CATEGORIES: PlexCategory[] = [
 // CONFIGURATION
 // ============================================================================
 
-const PLEX_CONFIG: FASTProviderConfig = {
+const PLEX_CONFIG: PlexProviderConfig = {
   id: 'plex_free',
   name: 'Plex Free',
   logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Plex_logo_2022.svg/200px-Plex_logo_2022.svg.png',
@@ -83,7 +125,7 @@ const PLEX_CONFIG: FASTProviderConfig = {
 // ADAPTER IMPLEMENTATION
 // ============================================================================
 
-class PlexAdapterImpl implements FASTProviderAdapter {
+class PlexAdapterImpl {
   readonly providerId = 'plex_free';
   readonly providerName = 'Plex';
   
@@ -92,13 +134,13 @@ class PlexAdapterImpl implements FASTProviderAdapter {
   /**
    * Discover content from Plex Free
    */
-  async discover(options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async discover(options: PlexDiscoverOptions = {}): Promise<Partial<MediaNode>[]> {
     const { 
       category = 'featured',
       limit = 20,
     } = options;
 
-    const items: FASTContentItem[] = [];
+    const items: Partial<MediaNode>[] = [];
 
     // Find matching category
     const plexCategory = PLEX_CATEGORIES.find(c => c.id === category);
@@ -114,7 +156,8 @@ class PlexAdapterImpl implements FASTProviderAdapter {
    * Normalize Plex content to MediaNode format
    */
   normalize(item: PlexContent): Partial<MediaNode> {
-    const mediaType = item.type === 'show' ? 'series' : item.type === 'episode' ? 'episode' : 'movie';
+    const mediaType: MediaType = item.type === 'show' ? 'tv_show' : item.type === 'episode' ? 'tv_episode' : 'movie';
+    const rating = item.contentRating as ContentRating | undefined;
     
     return {
       canonical_id: `lucy:${mediaType}:plex_free:${item.ratingKey}`,
@@ -127,18 +170,15 @@ class PlexAdapterImpl implements FASTProviderAdapter {
       poster_url: item.thumb,
       thumbnail_url: item.thumb,
       backdrop_url: item.art,
-      content_rating: item.contentRating,
+      content_rating: rating,
       average_rating: item.audienceRating,
-      provider_source: 'plex_free',
-      provider_content_id: item.ratingKey,
-      embed_allowed: false,
     };
   }
 
   /**
    * Get embed configuration for Plex
    */
-  getEmbedConfig(contentId: string): FASTEmbedConfig {
+  getEmbedConfig(contentId: string): PlexEmbedConfig {
     return {
       provider: 'plex_free',
       embedUrl: null, // Plex doesn't support iframe embedding
@@ -151,7 +191,6 @@ class PlexAdapterImpl implements FASTProviderAdapter {
       playerOptions: {
         showControls: true,
         adSupported: true,
-        requiresAccount: true, // Free account required
       },
     };
   }
@@ -159,7 +198,7 @@ class PlexAdapterImpl implements FASTProviderAdapter {
   /**
    * Check if Plex is accessible
    */
-  async healthCheck(): Promise<FASTHealthStatus> {
+  async healthCheck(): Promise<PlexHealthStatus> {
     try {
       const start = Date.now();
       await fetch('https://www.plex.tv', { method: 'HEAD', mode: 'no-cors' });
@@ -187,7 +226,7 @@ class PlexAdapterImpl implements FASTProviderAdapter {
   /**
    * Get provider configuration
    */
-  getConfig(): FASTProviderConfig {
+  getConfig(): PlexProviderConfig {
     return { ...this.config };
   }
 
@@ -222,7 +261,7 @@ class PlexAdapterImpl implements FASTProviderAdapter {
   /**
    * Search Plex content
    */
-  async search(query: string): Promise<FASTContentItem[]> {
+  async search(query: string): Promise<Partial<MediaNode>[]> {
     console.log(`[PlexAdapter] Searching for: ${query}`);
     return [];
   }

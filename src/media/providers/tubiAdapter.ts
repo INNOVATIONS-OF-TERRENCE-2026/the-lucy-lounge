@@ -6,15 +6,49 @@
  * that open in a new tab or can be used with mobile app integration.
  */
 
-import type { 
-  FASTProviderAdapter, 
-  FASTContentItem, 
-  FASTProviderConfig,
-  FASTEmbedConfig,
-  FASTDiscoverOptions,
-  FASTHealthStatus 
-} from './FASTProviderAdapter';
-import type { MediaNode } from '../types';
+import type { MediaNode, MediaType, ContentRating } from '../types';
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface TubiProviderConfig {
+  id: string;
+  name: string;
+  logoUrl: string;
+  baseUrl: string;
+  supportsEmbed: boolean;
+  supportsDeepLink: boolean;
+  supportedRegions: string[];
+  contentRatings: string[];
+  adFrequency: string;
+  maxQuality: string;
+  features: string[];
+}
+
+interface TubiEmbedConfig {
+  provider: string;
+  embedUrl: string | null;
+  deepLinkUrl: string;
+  mobileDeepLink: string;
+  allowFullscreen: boolean;
+  autoplay: boolean;
+  supportsInlinePlay: boolean;
+  fallbackBehavior: string;
+  playerOptions: {
+    showControls: boolean;
+    adSupported: boolean;
+  };
+}
+
+interface TubiHealthStatus {
+  provider: string;
+  isAvailable: boolean;
+  latencyMs: number;
+  lastChecked: string;
+  features?: string[];
+  error?: string;
+}
 
 // ============================================================================
 // TYPES
@@ -77,7 +111,7 @@ const TUBI_CATEGORIES: TubiCategory[] = [
 // CONFIGURATION
 // ============================================================================
 
-const TUBI_CONFIG: FASTProviderConfig = {
+const TUBI_CONFIG: TubiProviderConfig = {
   id: 'tubi',
   name: 'Tubi',
   logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Tubi_logo.svg/200px-Tubi_logo.svg.png',
@@ -92,10 +126,22 @@ const TUBI_CONFIG: FASTProviderConfig = {
 };
 
 // ============================================================================
+// DISCOVER OPTIONS
+// ============================================================================
+
+interface TubiDiscoverOptions {
+  category?: string;
+  limit?: number;
+  page?: number;
+  genres?: string[];
+  sortBy?: string;
+}
+
+// ============================================================================
 // ADAPTER IMPLEMENTATION
 // ============================================================================
 
-class TubiAdapterImpl implements FASTProviderAdapter {
+class TubiAdapterImpl {
   readonly providerId = 'tubi';
   readonly providerName = 'Tubi';
   
@@ -104,7 +150,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Discover content from Tubi by category
    */
-  async discover(options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async discover(options: TubiDiscoverOptions = {}): Promise<Partial<MediaNode>[]> {
     const { 
       category = 'popular',
       limit = 20,
@@ -115,7 +161,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
 
     // In production, this would call Tubi's API
     // For now, return curated content that's available on Tubi
-    const items: FASTContentItem[] = [];
+    const items: Partial<MediaNode>[] = [];
 
     // Map category to Tubi content
     const tubiCategory = TUBI_CATEGORIES.find(c => c.id === category);
@@ -132,9 +178,11 @@ class TubiAdapterImpl implements FASTProviderAdapter {
    * Normalize Tubi content to MediaNode format
    */
   normalize(item: TubiSearchResult): Partial<MediaNode> {
+    const mediaType: MediaType = item.type === 'series' ? 'tv_show' : 'movie';
+    const rating = item.rating as ContentRating | undefined;
     return {
       canonical_id: `lucy:${item.type}:tubi:${item.id}`,
-      media_type: item.type === 'series' ? 'series' : 'movie',
+      media_type: mediaType,
       category: 'video',
       title: item.title,
       description: item.description,
@@ -142,10 +190,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
       duration_seconds: item.duration ? item.duration * 60 : undefined,
       poster_url: item.posterUrl,
       thumbnail_url: item.posterUrl,
-      content_rating: item.rating,
-      provider_source: 'tubi',
-      provider_content_id: item.id,
-      embed_allowed: false, // Tubi doesn't allow iframe embedding
+      content_rating: rating,
     };
   }
 
@@ -153,7 +198,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
    * Get embed configuration for Tubi
    * Note: Tubi doesn't support iframe embedding, returns deep link instead
    */
-  getEmbedConfig(contentId: string): FASTEmbedConfig {
+  getEmbedConfig(contentId: string): TubiEmbedConfig {
     return {
       provider: 'tubi',
       embedUrl: null, // No iframe support
@@ -173,7 +218,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Check if Tubi is accessible
    */
-  async healthCheck(): Promise<FASTHealthStatus> {
+  async healthCheck(): Promise<TubiHealthStatus> {
     try {
       // In production, ping Tubi's status endpoint
       const response = await fetch('https://tubitv.com', { 
@@ -203,14 +248,14 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Get provider configuration
    */
-  getConfig(): FASTProviderConfig {
+  getConfig(): TubiProviderConfig {
     return { ...this.config };
   }
 
   /**
    * Search Tubi content
    */
-  async search(query: string, options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async search(query: string, options: TubiDiscoverOptions = {}): Promise<Partial<MediaNode>[]> {
     const { limit = 20 } = options;
     
     // In production, this would call Tubi's search API
@@ -222,7 +267,7 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Get content by ID
    */
-  async getContent(contentId: string): Promise<FASTContentItem | null> {
+  async getContent(contentId: string): Promise<Partial<MediaNode> | null> {
     // In production, this would fetch content details from Tubi
     console.log(`[TubiAdapter] Fetching content: ${contentId}`);
     
@@ -232,8 +277,8 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Generate deep link for Tubi content
    */
-  getDeepLink(contentId: string, type: 'movie' | 'series' = 'movie'): string {
-    if (type === 'series') {
+  getDeepLink(contentId: string, type: 'movie' | 'tv_show' = 'movie'): string {
+    if (type === 'tv_show') {
       return `https://tubitv.com/series/${contentId}`;
     }
     return `https://tubitv.com/movies/${contentId}`;
@@ -242,8 +287,8 @@ class TubiAdapterImpl implements FASTProviderAdapter {
   /**
    * Generate mobile app deep link
    */
-  getMobileDeepLink(contentId: string, type: 'movie' | 'series' = 'movie'): string {
-    if (type === 'series') {
+  getMobileDeepLink(contentId: string, type: 'movie' | 'tv_show' = 'movie'): string {
+    if (type === 'tv_show') {
       return `tubi://series/${contentId}`;
     }
     return `tubi://movies/${contentId}`;
@@ -275,7 +320,6 @@ export const TubiAdapter = new TubiAdapterImpl();
 export { 
   TUBI_CATEGORIES,
   TUBI_CONFIG,
-  TUBI_CURATED_COLLECTIONS,
   type TubiCategory,
   type TubiSearchResult,
   type TubiCuratedCollection,

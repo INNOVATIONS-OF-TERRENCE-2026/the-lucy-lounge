@@ -5,15 +5,57 @@
  * and on-demand content. Owned by Paramount.
  */
 
-import type { 
-  FASTProviderAdapter, 
-  FASTContentItem, 
-  FASTProviderConfig,
-  FASTEmbedConfig,
-  FASTDiscoverOptions,
-  FASTHealthStatus 
-} from './FASTProviderAdapter';
-import type { MediaNode } from '../types';
+import type { MediaNode, MediaType, ContentRating } from '../types';
+
+// ============================================================================
+// LOCAL TYPES
+// ============================================================================
+
+interface PlutoProviderConfig {
+  id: string;
+  name: string;
+  logoUrl: string;
+  baseUrl: string;
+  supportsEmbed: boolean;
+  supportsDeepLink: boolean;
+  supportedRegions: string[];
+  contentRatings: string[];
+  adFrequency: string;
+  maxQuality: string;
+  features: string[];
+}
+
+interface PlutoEmbedConfig {
+  provider: string;
+  embedUrl: string | null;
+  deepLinkUrl: string;
+  mobileDeepLink: string;
+  allowFullscreen: boolean;
+  autoplay: boolean;
+  supportsInlinePlay: boolean;
+  fallbackBehavior: string;
+  playerOptions: {
+    showControls: boolean;
+    adSupported: boolean;
+  };
+}
+
+interface PlutoHealthStatus {
+  provider: string;
+  isAvailable: boolean;
+  latencyMs: number;
+  lastChecked: string;
+  features?: string[];
+  error?: string;
+}
+
+interface PlutoDiscoverOptions {
+  category?: string;
+  limit?: number;
+  page?: number;
+  genres?: string[];
+  sortBy?: string;
+}
 
 // ============================================================================
 // TYPES
@@ -78,7 +120,7 @@ const PLUTO_FEATURED_CHANNELS: PlutoChannel[] = [
 // CONFIGURATION
 // ============================================================================
 
-const PLUTO_CONFIG: FASTProviderConfig = {
+const PLUTO_CONFIG: PlutoProviderConfig = {
   id: 'pluto_tv',
   name: 'Pluto TV',
   logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Pluto_TV_logo_2020.svg/200px-Pluto_TV_logo_2020.svg.png',
@@ -96,7 +138,7 @@ const PLUTO_CONFIG: FASTProviderConfig = {
 // ADAPTER IMPLEMENTATION
 // ============================================================================
 
-class PlutoAdapterImpl implements FASTProviderAdapter {
+class PlutoAdapterImpl {
   readonly providerId = 'pluto_tv';
   readonly providerName = 'Pluto TV';
   
@@ -105,13 +147,13 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
   /**
    * Discover content from Pluto TV
    */
-  async discover(options: FASTDiscoverOptions = {}): Promise<FASTContentItem[]> {
+  async discover(options: PlutoDiscoverOptions = {}): Promise<Partial<MediaNode>[]> {
     const { 
       category = 'popular',
       limit = 20,
     } = options;
 
-    const items: FASTContentItem[] = [];
+    const items: Partial<MediaNode>[] = [];
 
     // Find matching channel
     const channel = PLUTO_FEATURED_CHANNELS.find(
@@ -129,9 +171,11 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
    * Normalize Pluto content to MediaNode format
    */
   normalize(item: PlutoContent): Partial<MediaNode> {
+    const mediaType: MediaType = item.type === 'series' ? 'tv_show' : item.type === 'live' ? 'live_stream' : 'movie';
+    const rating = item.rating as ContentRating | undefined;
     return {
       canonical_id: `lucy:${item.type}:pluto_tv:${item.id}`,
-      media_type: item.type === 'series' ? 'series' : item.type === 'live' ? 'live' : 'movie',
+      media_type: mediaType,
       category: 'video',
       title: item.title,
       description: item.description,
@@ -139,17 +183,14 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
       duration_seconds: item.duration ? item.duration * 60 : undefined,
       poster_url: item.posterUrl,
       thumbnail_url: item.thumbnailUrl,
-      content_rating: item.rating,
-      provider_source: 'pluto_tv',
-      provider_content_id: item.id,
-      embed_allowed: true,
+      content_rating: rating,
     };
   }
 
   /**
    * Get embed configuration for Pluto TV
    */
-  getEmbedConfig(contentId: string, isLive: boolean = false): FASTEmbedConfig {
+  getEmbedConfig(contentId: string, isLive: boolean = false): PlutoEmbedConfig {
     const embedUrl = isLive 
       ? `https://pluto.tv/en/live-tv/${contentId}`
       : `https://pluto.tv/en/on-demand/movies/${contentId}`;
@@ -166,7 +207,6 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
       playerOptions: {
         showControls: true,
         adSupported: true,
-        linearChannel: isLive,
       },
     };
   }
@@ -174,7 +214,7 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
   /**
    * Check if Pluto TV is accessible
    */
-  async healthCheck(): Promise<FASTHealthStatus> {
+  async healthCheck(): Promise<PlutoHealthStatus> {
     try {
       const start = Date.now();
       await fetch('https://pluto.tv', { method: 'HEAD', mode: 'no-cors' });
@@ -202,7 +242,7 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
   /**
    * Get provider configuration
    */
-  getConfig(): FASTProviderConfig {
+  getConfig(): PlutoProviderConfig {
     return { ...this.config };
   }
 
@@ -240,7 +280,7 @@ class PlutoAdapterImpl implements FASTProviderAdapter {
   /**
    * Search Pluto TV content
    */
-  async search(query: string): Promise<FASTContentItem[]> {
+  async search(query: string): Promise<Partial<MediaNode>[]> {
     console.log(`[PlutoAdapter] Searching for: ${query}`);
     return [];
   }
@@ -271,7 +311,6 @@ export const PlutoAdapter = new PlutoAdapterImpl();
 export { 
   PLUTO_FEATURED_CHANNELS,
   PLUTO_CONFIG,
-  PLUTO_CURATED_COLLECTIONS,
   type PlutoChannel,
   type PlutoContent,
   type PlutoCuratedCollection,
