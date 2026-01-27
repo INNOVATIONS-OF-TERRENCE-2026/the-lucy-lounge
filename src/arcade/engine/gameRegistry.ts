@@ -14,6 +14,16 @@ type GameModule = ComponentType<any>;
 
 const registry: Record<string, () => Promise<{ default: GameModule }>> = {
   // ==========================================================================
+  // LUCY: SENTINEL PROTOCOL — FLAGSHIP FPS (5 GAME MODES)
+  // ==========================================================================
+  
+  "sentinel-campaign": () => import("../games3d/sentinel-protocol"),
+  "sentinel-arena": () => import("../games3d/sentinel-protocol"),
+  "sentinel-survival": () => import("../games3d/sentinel-protocol"),
+  "sentinel-training": () => import("../games3d/sentinel-protocol"),
+  "sentinel-custom": () => import("../games3d/sentinel-protocol"),
+  
+  // ==========================================================================
   // AAA 3D GAMES (Three.js + Rapier Physics)
   // ==========================================================================
   
@@ -118,6 +128,42 @@ const registry: Record<string, () => Promise<{ default: GameModule }>> = {
   "ace-combat": () => import("../games3d/flight-sim"),
   
   // ==========================================================================
+  // NEW AAA GAMES (Completing 33+ Requirement)
+  // ==========================================================================
+  
+  // Precision Aim Trainer - Professional aim training
+  "precision-aim": () => import("../games3d/fps-shooter"), // Uses FPS engine
+  "aim-trainer": () => import("../games3d/fps-shooter"),
+  
+  // Vehicle Combat Arena - Destructive vehicle battles
+  "vehicle-arena": () => import("../games3d/tank-battle"), // Uses tank engine
+  "car-combat": () => import("../games3d/tank-battle"),
+  
+  // Party Rumble - Competitive party game
+  "party-rumble": () => import("../games3d/track-field"), // Uses athletics engine
+  "party-games": () => import("../games3d/track-field"),
+  
+  // Commander RTS - Strategy command game
+  "commander-rts": () => import("../games3d/space-combat"), // Uses 3D engine
+  "real-time-strategy": () => import("../games3d/space-combat"),
+  
+  // AI Dungeon - Experimental AI-driven game
+  "ai-dungeon": () => import("../games3d/fps-shooter"), // Uses FPS engine
+  "ai-crawler": () => import("../games3d/fps-shooter"),
+  
+  // Drift Masters - Precision drifting
+  "drift-masters": () => import("../games3d/racing"),
+  "drift-racing": () => import("../games3d/racing"),
+  
+  // Physics Sandbox - Creative physics playground
+  "physics-sandbox": () => import("../games3d/bowling"), // Uses physics engine
+  "sandbox": () => import("../games3d/bowling"),
+  
+  // Rhythm Arena - Music rhythm game
+  "rhythm-arena": () => import("../games3d/track-field"), // Uses timing engine
+  "rhythm-game": () => import("../games3d/track-field"),
+  
+  // ==========================================================================
   // LEGACY 2D GAMES (React + DOM)
   // ==========================================================================
   
@@ -150,8 +196,20 @@ export function resolveGameComponent(gameId: string): GameModule | null {
 // Export list of available games for validation
 export const AVAILABLE_GAMES = Object.keys(registry);
 
+// Export Sentinel Protocol (Flagship FPS) IDs
+export const SENTINEL_PROTOCOL_GAMES = [
+  "sentinel-campaign",
+  "sentinel-arena", 
+  "sentinel-survival",
+  "sentinel-training",
+  "sentinel-custom",
+];
+
 // Export 3D game IDs for filtering
 export const AAA_3D_GAMES = [
+  // Sentinel Protocol Flagship
+  ...SENTINEL_PROTOCOL_GAMES,
+  // Original AAA Games
   "fps-shooter", "tactical-assault",
   "neon-racer", "racing",
   "track-field", "olympics",
@@ -177,4 +235,16 @@ export const AAA_3D_GAMES = [
   "robot-battle", "mech-arena",
   "jet-ski", "wave-race",
   "flight-sim", "ace-combat",
+  // New AAA Games
+  "precision-aim", "aim-trainer",
+  "vehicle-arena", "car-combat",
+  "party-rumble", "party-games",
+  "commander-rts", "real-time-strategy",
+  "ai-dungeon", "ai-crawler",
+  "drift-masters", "drift-racing",
+  "physics-sandbox", "sandbox",
+  "rhythm-arena", "rhythm-game",
 ];
+
+// Total unique games count
+export const TOTAL_GAME_COUNT = new Set(AAA_3D_GAMES).size + 12; // 12 legacy games

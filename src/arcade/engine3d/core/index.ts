@@ -109,3 +109,43 @@ export {
   type AIAgent,
   type DifficultyConfig,
 } from './AIBehaviorTree';
+
+// Graphics Tier System
+export {
+  GraphicsTierSystem,
+  TIER_CONFIGS,
+  type GraphicsTier,
+  type TierConfig,
+} from './GraphicsTierSystem';
+
+// Art Direction Bible
+export {
+  COLOR_PALETTES,
+  LIGHTING_MOODS,
+  MOTION_CONFIG,
+  UI_ANIMATIONS,
+  SOUND_CATEGORIES,
+  GENRE_STYLES,
+  getColorAsHex,
+  getColorAsRGB,
+  applyLightingMood,
+  getPaletteForGenre,
+  getLightingForGenre,
+  type ColorPalette,
+  type LightingMood,
+  type MotionConfig,
+  type SoundCategory,
+  type GenreStyle,
+} from './ArtDirectionBible';
+
+// Asset Pipeline
+export {
+  AssetPipeline,
+  ASSET_NAMING,
+  MEMORY_BUDGETS,
+  type AssetType,
+  type AssetPriority,
+  type AssetManifestEntry,
+  type LoadedAsset,
+  type LoadProgress as AssetLoadProgress,
+} from './AssetPipeline';
