@@ -72,7 +72,11 @@ body {
 
 /* =========================================================
    iOS SAFE AREA SUPPORT (notch/home indicator)
+   NOTE: Safe areas applied at component level, not body
+   to prevent double-spacing with h-screen-safe containers
    ========================================================= */
+/* REMOVED: Body-level safe-area padding causes double-spacing
+   with h-screen-safe containers. Apply safe-area at component level.
 @supports (padding: env(safe-area-inset-top)) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -81,6 +85,7 @@ body {
     padding-right: env(safe-area-inset-right);
   }
 }
+*/
 
 /* =========================================================
    PWA STANDALONE MODE ENHANCEMENTS
@@ -658,18 +663,23 @@ html.pwa-standalone.is-android {
    Prevent pull-to-refresh, improve scroll behavior
    ========================================================= */
 
-/* Prevent overscroll bounce on iOS (pull-to-refresh) */
-html, body {
-  overscroll-behavior: none;
+/* Prevent overscroll bounce ONLY on fixed containers, not globally */
+/* CRITICAL: Do NOT set overscroll-behavior on html/body - it breaks iOS scroll */
+html.pwa-standalone,
+html.pwa-standalone body {
+  /* Only in standalone PWA mode to prevent pull-to-refresh */
   overscroll-behavior-y: none;
 }
 
 /* Chat message container - smooth scroll with momentum */
 [data-theme-area="chat"] .overflow-y-auto,
-.chat-messages-scroll {
+.chat-messages-scroll,
+.chat-scroll-container {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   scroll-behavior: smooth;
+  /* Ensure scrolling works */
+  touch-action: pan-y;
 }
 
 /* Prevent double-tap zoom on interactive elements */
@@ -685,7 +695,14 @@ select {
 /* Chat input area - prevent page scroll when typing */
 .chat-input,
 [data-theme-area="chat"] textarea {
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
+}
+
+/* Main scrollable areas need pan-y touch action */
+main,
+[role="main"],
+.flex-1.overflow-y-auto {
+  touch-action: pan-y;
 }
 
 /* Keyboard-aware spacing for iOS */

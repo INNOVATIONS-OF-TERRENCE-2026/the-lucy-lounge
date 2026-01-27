@@ -606,8 +606,15 @@ export function ChatInterface({ userId, conversationId, onConversationCreated }:
         />
       )}
 
-      {/* ✅ REAL SCROLL CONTAINER - cinematic padding */}
-      <div ref={chatContainerRef} className="flex-1 min-h-0 px-4 md:px-4 py-3 overflow-y-auto overscroll-contain">
+      {/* ✅ REAL SCROLL CONTAINER - cinematic padding with mobile scroll fix */}
+      <div 
+        ref={chatContainerRef} 
+        className="flex-1 min-h-0 px-4 md:px-4 py-3 overflow-y-auto overscroll-contain chat-scroll-container"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+        }}
+      >
         {messages.length === 0 && !streamingMessage && !isLocalStreaming && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 max-w-2xl mx-auto py-8">
             <LucyLogo size="xl" showGlow />

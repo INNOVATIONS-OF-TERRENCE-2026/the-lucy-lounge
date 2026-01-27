@@ -19,7 +19,12 @@ export const CosmicBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div 
+      className="fixed inset-0 overflow-hidden pointer-events-none z-0"
+      aria-hidden="true"
+      // Ensure iOS doesn't capture touch events on this layer
+      style={{ touchAction: 'none' }}
+    >
       {/* Layer 1: Base Cosmic Gradient */}
       <div 
         className="absolute inset-0 animate-nebula-drift"

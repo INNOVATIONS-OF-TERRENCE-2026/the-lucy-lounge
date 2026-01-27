@@ -117,7 +117,15 @@ const ChatContent = () => {
       )}
 
       <SidebarProvider>
-        <div className="flex w-full h-screen-safe max-h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]">
+        <div 
+          className="flex w-full h-screen-safe max-h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]"
+          style={{
+            /* Apply safe area at container level, not body */
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingLeft: 'env(safe-area-inset-left, 0px)',
+            paddingRight: 'env(safe-area-inset-right, 0px)',
+          }}
+        >
           <ChatSidebar
             userId={user.id}
             currentConversationId={currentConversationId}

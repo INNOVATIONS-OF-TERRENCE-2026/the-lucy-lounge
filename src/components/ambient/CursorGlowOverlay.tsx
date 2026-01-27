@@ -120,7 +120,8 @@ export const CursorGlowOverlay = ({ enabled = true }: CursorGlowOverlayProps) =>
     <canvas
       ref={canvasRef}
       className="fixed inset-0 z-[5] pointer-events-none"
-      style={{ mixBlendMode: 'screen' }}
+      style={{ mixBlendMode: 'screen', touchAction: 'none' }}
+      aria-hidden="true"
     />
   );
 };
