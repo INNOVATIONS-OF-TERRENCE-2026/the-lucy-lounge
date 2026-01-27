@@ -247,6 +247,145 @@ export const RAIL_CONFIGS: RailConfig[] = [
     limit: 20,
     priority: 'low',
     icon: '😱'
+  },
+  
+  // =============================================================================
+  // PUBLIC DOMAIN / FAST PROVIDER RAILS
+  // =============================================================================
+  
+  // Public Domain Classics (Internet Archive)
+  {
+    id: 'public-domain-classics',
+    title: 'Public Domain Classics',
+    subtitle: 'Free films from Internet Archive',
+    queryType: 'tag',
+    tags: ['public-domain', 'archive-org'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 10,
+    limit: 25,
+    priority: 'high',
+    icon: '🎬'
+  },
+  
+  // Film Noir Collection
+  {
+    id: 'film-noir',
+    title: 'Film Noir',
+    subtitle: 'Dark shadows and deadly dames',
+    queryType: 'tag',
+    tags: ['film-noir'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 20,
+    priority: 'normal',
+    icon: '🔪'
+  },
+  
+  // Silent Film Era
+  {
+    id: 'silent-films',
+    title: 'Silent Film Masterpieces',
+    subtitle: 'The birth of cinema',
+    queryType: 'tag',
+    tags: ['silent-film'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 6,
+    limit: 15,
+    priority: 'normal',
+    icon: '🎥'
+  },
+  
+  // Cult Classics
+  {
+    id: 'cult-classics',
+    title: 'Cult Classics',
+    subtitle: 'So bad they are good',
+    queryType: 'tag',
+    tags: ['cult-classic', 'b-movie'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 20,
+    priority: 'normal',
+    icon: '👾'
+  },
+  
+  // Blaxploitation Era
+  {
+    id: 'blaxploitation',
+    title: 'Blaxploitation Classics',
+    subtitle: 'Revolutionary Black cinema',
+    queryType: 'tag',
+    tags: ['blaxploitation'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 4,
+    limit: 15,
+    priority: 'normal',
+    icon: '✊🏿'
+  },
+  
+  // Horror Classics
+  {
+    id: 'horror-classics',
+    title: 'Horror Classics',
+    subtitle: 'Timeless terror',
+    queryType: 'tag',
+    tags: ['horror', 'classic'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 8,
+    limit: 20,
+    priority: 'normal',
+    icon: '👻'
+  },
+  
+  // Atomic Age Sci-Fi
+  {
+    id: 'atomic-age-scifi',
+    title: 'Atomic Age Sci-Fi',
+    subtitle: '1950s creature features',
+    queryType: 'tag',
+    tags: ['atomic-age', 'creature-feature'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 5,
+    limit: 15,
+    priority: 'low',
+    icon: '☢️'
+  },
+  
+  // Western Films
+  {
+    id: 'westerns',
+    title: 'Classic Westerns',
+    subtitle: 'Cowboys and outlaws',
+    queryType: 'tag',
+    tags: ['western'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 4,
+    limit: 15,
+    priority: 'low',
+    icon: '🤠'
+  },
+  
+  // Golden Age Hollywood
+  {
+    id: 'golden-age',
+    title: 'Golden Age Hollywood',
+    subtitle: 'The studio system era',
+    queryType: 'tag',
+    tags: ['golden-age', 'pre-code'],
+    mediaTypes: ['movie'],
+    category: 'video',
+    minItems: 6,
+    limit: 20,
+    priority: 'low',
+    icon: '⭐'
   }
 ];
 

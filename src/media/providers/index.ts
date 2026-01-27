@@ -35,6 +35,32 @@ export { RSSPodcastAdapter, rssPodcastAdapter, CURATED_PODCASTS, type PodcastFee
 export { SpotifyAdapter, spotifyAdapter } from './spotifyAdapter';
 export { PublicDomainAdapter, publicDomainAdapter } from './publicDomainAdapter';
 
+// FAST Provider System
+export {
+  type FASTProviderAdapter,
+  type FASTProviderType,
+  type FASTProviderInfo,
+  type EmbedConfig,
+  type HealthCheckResult,
+  type DiscoverParams,
+  type DiscoverResult,
+  type FASTCollection,
+  FAST_PROVIDER_REGISTRY,
+  getEmbedUrl,
+  getDeepLinkUrl,
+  supportsEmbed,
+  getEmbeddableProviders,
+  generateFASTCanonicalId,
+  parseFASTCanonicalId,
+  getFASTAdapter,
+  checkAllFASTProviders,
+  getHealthyEmbeddableProviders,
+} from './FASTProviderAdapter';
+
+// FAST Adapters
+export { ArchiveOrgFASTAdapter, archiveOrgAdapter, ARCHIVE_COLLECTIONS } from './archiveFASTAdapter';
+export { YouTubeFASTAdapter, youtubeFASTAdapter, YOUTUBE_COLLECTIONS } from './youtubeFASTAdapter';
+
 // =============================================================================
 // PROVIDER REGISTRY
 // =============================================================================
