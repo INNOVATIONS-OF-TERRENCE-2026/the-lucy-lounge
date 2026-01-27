@@ -117,7 +117,7 @@ const ChatContent = () => {
       )}
 
       <SidebarProvider>
-        <div className="flex w-full h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]">
+        <div className="flex w-full h-screen-safe max-h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]">
           <ChatSidebar
             userId={user.id}
             currentConversationId={currentConversationId}

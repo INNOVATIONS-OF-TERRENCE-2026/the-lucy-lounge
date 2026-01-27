@@ -134,6 +134,27 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		height: {
+  			'screen-safe': 'calc(var(--vh, 1vh) * 100)',
+  			'screen-dvh': '100dvh',
+  			'screen-svh': '100svh'
+  		},
+  		minHeight: {
+  			'screen-safe': 'calc(var(--vh, 1vh) * 100)',
+  			'screen-dvh': '100dvh',
+  			'screen-svh': '100svh'
+  		},
+  		maxHeight: {
+  			'screen-safe': 'calc(var(--vh, 1vh) * 100)',
+  			'screen-dvh': '100dvh',
+  			'screen-svh': '100svh'
+  		},
+  		spacing: {
+  			'safe-top': 'env(safe-area-inset-top, 0px)',
+  			'safe-bottom': 'env(safe-area-inset-bottom, 0px)',
+  			'safe-left': 'env(safe-area-inset-left, 0px)',
+  			'safe-right': 'env(safe-area-inset-right, 0px)'
+  		},
   		keyframes: {
   			'accordion-down': {
   				from: {
