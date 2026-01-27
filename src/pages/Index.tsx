@@ -12,7 +12,7 @@ export default function Index() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        navigate("/chat");
+        navigate("/studios");
       }
     });
   }, [navigate]);

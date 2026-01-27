@@ -26,16 +26,16 @@ const Auth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('[AUTH_PAGE] Initial getSession:', { hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
       if (session) {
-        console.log('[AUTH_PAGE] Already logged in, navigating to /chat');
-        navigate("/chat", { replace: true });
+        console.log('[AUTH_PAGE] Already logged in, navigating to /studios');
+        navigate("/studios", { replace: true });
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[AUTH_PAGE] onAuthStateChange:', { event, hasSession: !!session, userId: session?.user?.id?.slice(0, 8) });
       if (event === 'SIGNED_IN' && session) {
-        console.log('[AUTH_PAGE] SIGNED_IN event, navigating to /chat');
-        navigate("/chat", { replace: true });
+        console.log('[AUTH_PAGE] SIGNED_IN event, navigating to /studios');
+        navigate("/studios", { replace: true });
       }
     });
 
@@ -51,7 +51,7 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/chat`,
+          emailRedirectTo: `${window.location.origin}/studios`,
           data: {
             name: name,
           },

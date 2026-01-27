@@ -132,10 +132,203 @@ export async function getPopularContent(
 
   if (error) {
     console.error('[Recommendations] getPopularContent error:', error);
-    return [];
+    return getFallbackContent(category, limit);
   }
 
-  return (data || []) as MediaNode[];
+  // If no data, return fallback content
+  if (!data || data.length === 0) {
+    return getFallbackContent(category, limit);
+  }
+
+  return data as MediaNode[];
+}
+
+/**
+ * Fallback content when database is empty
+ * This ensures "For You" always has something to show
+ */
+export function getFallbackContent(
+  category?: MediaCategory,
+  limit: number = 20
+): MediaNode[] {
+  const audioFallback: MediaNode[] = [
+    {
+      id: 'fallback-audio-1',
+      title: 'Chill Vibes Mix',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Relaxing lo-fi beats to help you unwind',
+      thumbnail_url: '/fallback/chill-vibes.jpg',
+      popularity_score: 100,
+      metadata: { genre: 'lo-fi', mood: 'relaxing', duration: 3600 }
+    },
+    {
+      id: 'fallback-audio-2',
+      title: 'Focus Flow',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Ambient sounds for deep concentration',
+      thumbnail_url: '/fallback/focus-flow.jpg',
+      popularity_score: 95,
+      metadata: { genre: 'ambient', mood: 'focused', duration: 3600 }
+    },
+    {
+      id: 'fallback-audio-3',
+      title: 'Upbeat Energy',
+      media_type: 'audio',
+      category: 'music',
+      description: 'High-energy electronic tracks to boost your mood',
+      thumbnail_url: '/fallback/upbeat-energy.jpg',
+      popularity_score: 90,
+      metadata: { genre: 'electronic', mood: 'energetic', duration: 2400 }
+    },
+    {
+      id: 'fallback-audio-4',
+      title: 'Jazz Essentials',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Smooth jazz classics for any occasion',
+      thumbnail_url: '/fallback/jazz-essentials.jpg',
+      popularity_score: 85,
+      metadata: { genre: 'jazz', mood: 'smooth', duration: 3600 }
+    },
+    {
+      id: 'fallback-audio-5',
+      title: 'Classical Focus',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Timeless classical pieces for productivity',
+      thumbnail_url: '/fallback/classical-focus.jpg',
+      popularity_score: 80,
+      metadata: { genre: 'classical', mood: 'focused', duration: 4200 }
+    },
+    {
+      id: 'fallback-audio-6',
+      title: 'Indie Discoveries',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Fresh indie tracks you haven\'t heard yet',
+      thumbnail_url: '/fallback/indie-discoveries.jpg',
+      popularity_score: 75,
+      metadata: { genre: 'indie', mood: 'exploratory', duration: 2700 }
+    },
+    {
+      id: 'fallback-audio-7',
+      title: 'R&B Nights',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Soulful R&B for late night vibes',
+      thumbnail_url: '/fallback/rnb-nights.jpg',
+      popularity_score: 70,
+      metadata: { genre: 'r&b', mood: 'romantic', duration: 3000 }
+    },
+    {
+      id: 'fallback-audio-8',
+      title: 'Hip Hop Hits',
+      media_type: 'audio',
+      category: 'music',
+      description: 'Top hip hop tracks of the moment',
+      thumbnail_url: '/fallback/hiphop-hits.jpg',
+      popularity_score: 65,
+      metadata: { genre: 'hip-hop', mood: 'energetic', duration: 2400 }
+    },
+  ];
+
+  const videoFallback: MediaNode[] = [
+    {
+      id: 'fallback-video-1',
+      title: 'Trending Now',
+      media_type: 'video',
+      category: 'entertainment',
+      description: 'The most popular content this week',
+      thumbnail_url: '/fallback/trending.jpg',
+      popularity_score: 100,
+      metadata: { genre: 'trending', duration: 5400 }
+    },
+    {
+      id: 'fallback-video-2',
+      title: 'Documentary Picks',
+      media_type: 'video',
+      category: 'documentary',
+      description: 'Eye-opening documentaries to expand your mind',
+      thumbnail_url: '/fallback/documentary.jpg',
+      popularity_score: 95,
+      metadata: { genre: 'documentary', duration: 7200 }
+    },
+    {
+      id: 'fallback-video-3',
+      title: 'Comedy Highlights',
+      media_type: 'video',
+      category: 'comedy',
+      description: 'Laugh out loud with these comedy gems',
+      thumbnail_url: '/fallback/comedy.jpg',
+      popularity_score: 90,
+      metadata: { genre: 'comedy', duration: 5400 }
+    },
+    {
+      id: 'fallback-video-4',
+      title: 'Action Essentials',
+      media_type: 'video',
+      category: 'action',
+      description: 'Heart-pumping action for thrill seekers',
+      thumbnail_url: '/fallback/action.jpg',
+      popularity_score: 85,
+      metadata: { genre: 'action', duration: 7200 }
+    },
+    {
+      id: 'fallback-video-5',
+      title: 'Drama Collection',
+      media_type: 'video',
+      category: 'drama',
+      description: 'Compelling dramas that tell powerful stories',
+      thumbnail_url: '/fallback/drama.jpg',
+      popularity_score: 80,
+      metadata: { genre: 'drama', duration: 6600 }
+    },
+    {
+      id: 'fallback-video-6',
+      title: 'Sci-Fi Adventures',
+      media_type: 'video',
+      category: 'sci-fi',
+      description: 'Journey to the future and beyond',
+      thumbnail_url: '/fallback/scifi.jpg',
+      popularity_score: 75,
+      metadata: { genre: 'sci-fi', duration: 7800 }
+    },
+    {
+      id: 'fallback-video-7',
+      title: 'Thriller Picks',
+      media_type: 'video',
+      category: 'thriller',
+      description: 'Edge-of-your-seat suspense',
+      thumbnail_url: '/fallback/thriller.jpg',
+      popularity_score: 70,
+      metadata: { genre: 'thriller', duration: 6000 }
+    },
+    {
+      id: 'fallback-video-8',
+      title: 'Animation Favorites',
+      media_type: 'video',
+      category: 'animation',
+      description: 'Animated stories for all ages',
+      thumbnail_url: '/fallback/animation.jpg',
+      popularity_score: 65,
+      metadata: { genre: 'animation', duration: 5400 }
+    },
+  ];
+
+  let content: MediaNode[];
+  
+  if (category === 'music' || category === 'podcast') {
+    content = audioFallback;
+  } else if (category) {
+    content = videoFallback.filter(v => v.category === category);
+    if (content.length === 0) content = videoFallback;
+  } else {
+    content = [...audioFallback.slice(0, 4), ...videoFallback.slice(0, 4)];
+  }
+
+  return content.slice(0, limit);
 }
 
 /**
@@ -484,6 +677,18 @@ export async function buildRecommendationRows(
           items: recommendations,
         });
       }
+    }
+  } else {
+    // For anonymous users, show "Popular" as "For You"
+    const popular = await getPopularContent(category, 15);
+    if (popular.length > 0) {
+      rows.push({
+        id: 'personalized',
+        title: 'For You',
+        reason: 'Popular picks to get you started',
+        reason_type: 'personalized',
+        items: popular,
+      });
     }
   }
 

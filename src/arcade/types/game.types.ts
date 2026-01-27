@@ -14,10 +14,12 @@ export interface GameConfig {
   minPlayers: number;
   maxPlayers: number;
   hasAI: boolean;
+  hasMultiplayer?: boolean;
   hasLeaderboard: boolean;
   tags: string[];
   difficulty: GameDifficulty[];
   controls: ('keyboard' | 'mouse' | 'touch' | 'gamepad')[];
+  instructions?: string;
 }
 
 export interface PlayerProfile {
