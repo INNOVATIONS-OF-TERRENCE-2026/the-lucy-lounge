@@ -95,6 +95,57 @@ export type Database = {
         }
         Relationships: []
       }
+      audio_generations: {
+        Row: {
+          id: string
+          user_id: string
+          prompt: string
+          style: string | null
+          duration_seconds: number | null
+          generation_type: string
+          status: string
+          audio_path: string | null
+          public_url: string | null
+          provider_job_id: string | null
+          error: string | null
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          prompt: string
+          style?: string | null
+          duration_seconds?: number | null
+          generation_type?: string
+          status?: string
+          audio_path?: string | null
+          public_url?: string | null
+          provider_job_id?: string | null
+          error?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          prompt?: string
+          style?: string | null
+          duration_seconds?: number | null
+          generation_type?: string
+          status?: string
+          audio_path?: string | null
+          public_url?: string | null
+          provider_job_id?: string | null
+          error?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       arcade_achievements: {
         Row: {
           achievement_id: string
