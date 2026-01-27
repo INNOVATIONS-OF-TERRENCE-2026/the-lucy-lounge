@@ -58,7 +58,7 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO media_nodes (
   canonical_id, media_type, category, title, description, 
   release_year, duration_seconds, poster_url, thumbnail_url, backdrop_url,
-  average_rating, popularity_score, content_rating, provider_source
+  average_rating, popularity_score, content_rating
 ) VALUES
 
 -- =============================================================================
@@ -72,7 +72,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/detour_1945',
  'https://archive.org/services/img/detour_1945',
  'https://archive.org/services/img/detour_1945',
- 8.2, 85, 'UNRATED', 'archive_org'),
+ 8.2, 85, 'UNRATED'),
 
 ('lucy:movie:archive_org:DOA_1949', 'movie', 'video',
  'D.O.A.', 
@@ -81,7 +81,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/DOA_1949',
  'https://archive.org/services/img/DOA_1949',
  'https://archive.org/services/img/DOA_1949',
- 8.0, 82, 'UNRATED', 'archive_org'),
+ 8.0, 82, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_stranger_1946', 'movie', 'video',
  'The Stranger', 
@@ -90,7 +90,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_stranger_1946',
  'https://archive.org/services/img/the_stranger_1946',
  'https://archive.org/services/img/the_stranger_1946',
- 8.5, 88, 'UNRATED', 'archive_org'),
+ 8.5, 88, 'UNRATED'),
 
 ('lucy:movie:archive_org:scarlet_street', 'movie', 'video',
  'Scarlet Street', 
@@ -99,7 +99,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/scarlet_street',
  'https://archive.org/services/img/scarlet_street',
  'https://archive.org/services/img/scarlet_street',
- 8.4, 86, 'UNRATED', 'archive_org'),
+ 8.4, 86, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_big_combo', 'movie', 'video',
  'The Big Combo', 
@@ -108,7 +108,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_big_combo',
  'https://archive.org/services/img/the_big_combo',
  'https://archive.org/services/img/the_big_combo',
- 8.1, 80, 'UNRATED', 'archive_org'),
+ 8.1, 80, 'UNRATED'),
 
 ('lucy:movie:archive_org:kansas_city_confidential', 'movie', 'video',
  'Kansas City Confidential', 
@@ -117,7 +117,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/kansas_city_confidential',
  'https://archive.org/services/img/kansas_city_confidential',
  'https://archive.org/services/img/kansas_city_confidential',
- 7.9, 78, 'UNRATED', 'archive_org'),
+ 7.9, 78, 'UNRATED'),
 
 ('lucy:movie:archive_org:suddenly_1954', 'movie', 'video',
  'Suddenly', 
@@ -126,7 +126,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/suddenly_1954',
  'https://archive.org/services/img/suddenly_1954',
  'https://archive.org/services/img/suddenly_1954',
- 7.8, 76, 'UNRATED', 'archive_org'),
+ 7.8, 76, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_chase_1946', 'movie', 'video',
  'The Chase', 
@@ -135,7 +135,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_chase_1946',
  'https://archive.org/services/img/the_chase_1946',
  'https://archive.org/services/img/the_chase_1946',
- 7.5, 72, 'UNRATED', 'archive_org'),
+ 7.5, 72, 'UNRATED'),
 
 ('lucy:movie:archive_org:railroaded', 'movie', 'video',
  'Railroaded!', 
@@ -144,7 +144,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/railroaded',
  'https://archive.org/services/img/railroaded',
  'https://archive.org/services/img/railroaded',
- 7.4, 70, 'UNRATED', 'archive_org'),
+ 7.4, 70, 'UNRATED'),
 
 ('lucy:movie:archive_org:too_late_for_tears', 'movie', 'video',
  'Too Late for Tears', 
@@ -153,7 +153,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/too_late_for_tears',
  'https://archive.org/services/img/too_late_for_tears',
  'https://archive.org/services/img/too_late_for_tears',
- 7.8, 75, 'UNRATED', 'archive_org'),
+ 7.8, 75, 'UNRATED'),
 
 -- =============================================================================
 -- HORROR & SCI-FI CLASSICS (Public Domain)
@@ -166,7 +166,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/night_of_the_living_dead',
  'https://archive.org/services/img/night_of_the_living_dead',
  'https://archive.org/services/img/night_of_the_living_dead',
- 9.0, 95, 'UNRATED', 'archive_org'),
+ 9.0, 95, 'UNRATED'),
 
 ('lucy:movie:archive_org:carnival_of_souls', 'movie', 'video',
  'Carnival of Souls', 
@@ -175,7 +175,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/carnival_of_souls',
  'https://archive.org/services/img/carnival_of_souls',
  'https://archive.org/services/img/carnival_of_souls',
- 8.5, 88, 'UNRATED', 'archive_org'),
+ 8.5, 88, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_last_man_on_earth', 'movie', 'video',
  'The Last Man on Earth', 
@@ -184,7 +184,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_last_man_on_earth',
  'https://archive.org/services/img/the_last_man_on_earth',
  'https://archive.org/services/img/the_last_man_on_earth',
- 8.2, 85, 'UNRATED', 'archive_org'),
+ 8.2, 85, 'UNRATED'),
 
 ('lucy:movie:archive_org:house_on_haunted_hill', 'movie', 'video',
  'House on Haunted Hill', 
@@ -193,7 +193,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/house_on_haunted_hill',
  'https://archive.org/services/img/house_on_haunted_hill',
  'https://archive.org/services/img/house_on_haunted_hill',
- 8.0, 82, 'UNRATED', 'archive_org'),
+ 8.0, 82, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_little_shop_of_horrors', 'movie', 'video',
  'The Little Shop of Horrors', 
@@ -202,7 +202,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_little_shop_of_horrors',
  'https://archive.org/services/img/the_little_shop_of_horrors',
  'https://archive.org/services/img/the_little_shop_of_horrors',
- 7.8, 78, 'UNRATED', 'archive_org'),
+ 7.8, 78, 'UNRATED'),
 
 ('lucy:movie:archive_org:nosferatu', 'movie', 'video',
  'Nosferatu', 
@@ -211,7 +211,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/nosferatu',
  'https://archive.org/services/img/nosferatu',
  'https://archive.org/services/img/nosferatu',
- 9.2, 92, 'UNRATED', 'archive_org'),
+ 9.2, 92, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_cabinet_of_dr_caligari', 'movie', 'video',
  'The Cabinet of Dr. Caligari', 
@@ -220,7 +220,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_cabinet_of_dr_caligari',
  'https://archive.org/services/img/the_cabinet_of_dr_caligari',
  'https://archive.org/services/img/the_cabinet_of_dr_caligari',
- 9.0, 90, 'UNRATED', 'archive_org'),
+ 9.0, 90, 'UNRATED'),
 
 ('lucy:movie:archive_org:plan_9_from_outer_space', 'movie', 'video',
  'Plan 9 from Outer Space', 
@@ -229,7 +229,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/plan_9_from_outer_space',
  'https://archive.org/services/img/plan_9_from_outer_space',
  'https://archive.org/services/img/plan_9_from_outer_space',
- 6.5, 80, 'UNRATED', 'archive_org'),
+ 6.5, 80, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_brain_that_wouldnt_die', 'movie', 'video',
  'The Brain That Wouldn''t Die', 
@@ -238,7 +238,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_brain_that_wouldnt_die',
  'https://archive.org/services/img/the_brain_that_wouldnt_die',
  'https://archive.org/services/img/the_brain_that_wouldnt_die',
- 6.8, 72, 'UNRATED', 'archive_org'),
+ 6.8, 72, 'UNRATED'),
 
 ('lucy:movie:archive_org:dementia_13', 'movie', 'video',
  'Dementia 13', 
@@ -247,7 +247,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/dementia_13',
  'https://archive.org/services/img/dementia_13',
  'https://archive.org/services/img/dementia_13',
- 7.2, 74, 'UNRATED', 'archive_org'),
+ 7.2, 74, 'UNRATED'),
 
 ('lucy:movie:archive_org:atom_age_vampire', 'movie', 'video',
  'Atom Age Vampire', 
@@ -256,7 +256,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/atom_age_vampire',
  'https://archive.org/services/img/atom_age_vampire',
  'https://archive.org/services/img/atom_age_vampire',
- 6.5, 68, 'UNRATED', 'archive_org'),
+ 6.5, 68, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_killer_shrews', 'movie', 'video',
  'The Killer Shrews', 
@@ -265,7 +265,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_killer_shrews',
  'https://archive.org/services/img/the_killer_shrews',
  'https://archive.org/services/img/the_killer_shrews',
- 6.2, 65, 'UNRATED', 'archive_org'),
+ 6.2, 65, 'UNRATED'),
 
 ('lucy:movie:archive_org:mesa_of_lost_women', 'movie', 'video',
  'Mesa of Lost Women', 
@@ -274,7 +274,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/mesa_of_lost_women',
  'https://archive.org/services/img/mesa_of_lost_women',
  'https://archive.org/services/img/mesa_of_lost_women',
- 5.8, 62, 'UNRATED', 'archive_org'),
+ 5.8, 62, 'UNRATED'),
 
 -- =============================================================================
 -- ATOMIC AGE SCI-FI (1950s Public Domain)
@@ -287,7 +287,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/robot_monster',
  'https://archive.org/services/img/robot_monster',
  'https://archive.org/services/img/robot_monster',
- 5.5, 70, 'UNRATED', 'archive_org'),
+ 5.5, 70, 'UNRATED'),
 
 ('lucy:movie:archive_org:attack_of_the_giant_leeches', 'movie', 'video',
  'Attack of the Giant Leeches', 
@@ -296,7 +296,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/attack_of_the_giant_leeches',
  'https://archive.org/services/img/attack_of_the_giant_leeches',
  'https://archive.org/services/img/attack_of_the_giant_leeches',
- 6.0, 65, 'UNRATED', 'archive_org'),
+ 6.0, 65, 'UNRATED'),
 
 ('lucy:movie:archive_org:teenagers_from_outer_space', 'movie', 'video',
  'Teenagers from Outer Space', 
@@ -305,7 +305,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/teenagers_from_outer_space',
  'https://archive.org/services/img/teenagers_from_outer_space',
  'https://archive.org/services/img/teenagers_from_outer_space',
- 6.2, 68, 'UNRATED', 'archive_org'),
+ 6.2, 68, 'UNRATED'),
 
 ('lucy:movie:archive_org:first_spaceship_on_venus', 'movie', 'video',
  'First Spaceship on Venus', 
@@ -314,7 +314,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/first_spaceship_on_venus',
  'https://archive.org/services/img/first_spaceship_on_venus',
  'https://archive.org/services/img/first_spaceship_on_venus',
- 6.8, 70, 'UNRATED', 'archive_org'),
+ 6.8, 70, 'UNRATED'),
 
 ('lucy:movie:archive_org:voyage_to_the_prehistoric_planet', 'movie', 'video',
  'Voyage to the Prehistoric Planet', 
@@ -323,7 +323,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/voyage_to_the_prehistoric_planet',
  'https://archive.org/services/img/voyage_to_the_prehistoric_planet',
  'https://archive.org/services/img/voyage_to_the_prehistoric_planet',
- 6.5, 68, 'UNRATED', 'archive_org'),
+ 6.5, 68, 'UNRATED'),
 
 -- =============================================================================
 -- CLASSIC WESTERNS (Public Domain)
@@ -336,7 +336,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_outlaw',
  'https://archive.org/services/img/the_outlaw',
  'https://archive.org/services/img/the_outlaw',
- 7.5, 78, 'UNRATED', 'archive_org'),
+ 7.5, 78, 'UNRATED'),
 
 ('lucy:movie:archive_org:angel_and_the_badman', 'movie', 'video',
  'Angel and the Badman', 
@@ -345,7 +345,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/angel_and_the_badman',
  'https://archive.org/services/img/angel_and_the_badman',
  'https://archive.org/services/img/angel_and_the_badman',
- 7.8, 80, 'UNRATED', 'archive_org'),
+ 7.8, 80, 'UNRATED'),
 
 ('lucy:movie:archive_org:his_girl_friday', 'movie', 'video',
  'His Girl Friday', 
@@ -354,7 +354,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/his_girl_friday',
  'https://archive.org/services/img/his_girl_friday',
  'https://archive.org/services/img/his_girl_friday',
- 8.8, 88, 'UNRATED', 'archive_org'),
+ 8.8, 88, 'UNRATED'),
 
 ('lucy:movie:archive_org:mclintock', 'movie', 'video',
  'McLintock!', 
@@ -363,7 +363,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/mclintock',
  'https://archive.org/services/img/mclintock',
  'https://archive.org/services/img/mclintock',
- 7.6, 76, 'UNRATED', 'archive_org'),
+ 7.6, 76, 'UNRATED'),
 
 ('lucy:movie:archive_org:terror_of_tiny_town', 'movie', 'video',
  'The Terror of Tiny Town', 
@@ -372,7 +372,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/terror_of_tiny_town',
  'https://archive.org/services/img/terror_of_tiny_town',
  'https://archive.org/services/img/terror_of_tiny_town',
- 6.0, 70, 'UNRATED', 'archive_org'),
+ 6.0, 70, 'UNRATED'),
 
 -- =============================================================================
 -- CLASSIC COMEDY (Public Domain)
@@ -385,7 +385,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/my_man_godfrey',
  'https://archive.org/services/img/my_man_godfrey',
  'https://archive.org/services/img/my_man_godfrey',
- 8.6, 85, 'UNRATED', 'archive_org'),
+ 8.6, 85, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_general', 'movie', 'video',
  'The General', 
@@ -394,7 +394,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_general',
  'https://archive.org/services/img/the_general',
  'https://archive.org/services/img/the_general',
- 9.2, 92, 'UNRATED', 'archive_org'),
+ 9.2, 92, 'UNRATED'),
 
 ('lucy:movie:archive_org:africa_screams', 'movie', 'video',
  'Africa Screams', 
@@ -403,7 +403,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/africa_screams',
  'https://archive.org/services/img/africa_screams',
  'https://archive.org/services/img/africa_screams',
- 7.2, 72, 'UNRATED', 'archive_org'),
+ 7.2, 72, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_kid', 'movie', 'video',
  'The Kid', 
@@ -412,7 +412,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_kid',
  'https://archive.org/services/img/the_kid',
  'https://archive.org/services/img/the_kid',
- 9.0, 90, 'UNRATED', 'archive_org'),
+ 9.0, 90, 'UNRATED'),
 
 ('lucy:movie:archive_org:safety_last', 'movie', 'video',
  'Safety Last!', 
@@ -421,7 +421,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/safety_last',
  'https://archive.org/services/img/safety_last',
  'https://archive.org/services/img/safety_last',
- 9.0, 88, 'UNRATED', 'archive_org'),
+ 9.0, 88, 'UNRATED'),
 
 -- =============================================================================
 -- DRAMA CLASSICS (Public Domain)
@@ -434,7 +434,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_phantom_of_the_opera',
  'https://archive.org/services/img/the_phantom_of_the_opera',
  'https://archive.org/services/img/the_phantom_of_the_opera',
- 8.8, 88, 'UNRATED', 'archive_org'),
+ 8.8, 88, 'UNRATED'),
 
 ('lucy:movie:archive_org:metropolis', 'movie', 'video',
  'Metropolis', 
@@ -443,7 +443,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/metropolis',
  'https://archive.org/services/img/metropolis',
  'https://archive.org/services/img/metropolis',
- 9.5, 95, 'UNRATED', 'archive_org'),
+ 9.5, 95, 'UNRATED'),
 
 ('lucy:movie:archive_org:sunrise', 'movie', 'video',
  'Sunrise: A Song of Two Humans', 
@@ -452,7 +452,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/sunrise',
  'https://archive.org/services/img/sunrise',
  'https://archive.org/services/img/sunrise',
- 9.4, 92, 'UNRATED', 'archive_org'),
+ 9.4, 92, 'UNRATED'),
 
 ('lucy:movie:archive_org:battleship_potemkin', 'movie', 'video',
  'Battleship Potemkin', 
@@ -461,7 +461,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/battleship_potemkin',
  'https://archive.org/services/img/battleship_potemkin',
  'https://archive.org/services/img/battleship_potemkin',
- 9.2, 90, 'UNRATED', 'archive_org'),
+ 9.2, 90, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_great_dictator', 'movie', 'video',
  'The Great Dictator', 
@@ -470,7 +470,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_great_dictator',
  'https://archive.org/services/img/the_great_dictator',
  'https://archive.org/services/img/the_great_dictator',
- 9.0, 92, 'UNRATED', 'archive_org'),
+ 9.0, 92, 'UNRATED'),
 
 -- =============================================================================
 -- BLAXPLOITATION ERA (Public Domain)
@@ -483,7 +483,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_mack',
  'https://archive.org/services/img/the_mack',
  'https://archive.org/services/img/the_mack',
- 7.8, 82, 'R', 'archive_org'),
+ 7.8, 82, 'R'),
 
 ('lucy:movie:archive_org:cotton_comes_to_harlem', 'movie', 'video',
  'Cotton Comes to Harlem', 
@@ -492,7 +492,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/cotton_comes_to_harlem',
  'https://archive.org/services/img/cotton_comes_to_harlem',
  'https://archive.org/services/img/cotton_comes_to_harlem',
- 7.5, 78, 'R', 'archive_org'),
+ 7.5, 78, 'R'),
 
 ('lucy:movie:archive_org:black_caesar', 'movie', 'video',
  'Black Caesar', 
@@ -501,7 +501,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/black_caesar',
  'https://archive.org/services/img/black_caesar',
  'https://archive.org/services/img/black_caesar',
- 7.6, 80, 'R', 'archive_org'),
+ 7.6, 80, 'R'),
 
 ('lucy:movie:archive_org:sweet_sweetbacks_baadasssss_song', 'movie', 'video',
  'Sweet Sweetback''s Baadasssss Song', 
@@ -510,7 +510,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/sweet_sweetbacks_baadasssss_song',
  'https://archive.org/services/img/sweet_sweetbacks_baadasssss_song',
  'https://archive.org/services/img/sweet_sweetbacks_baadasssss_song',
- 8.0, 85, 'R', 'archive_org'),
+ 8.0, 85, 'R'),
 
 -- =============================================================================
 -- MARTIAL ARTS CLASSICS (Public Domain)
@@ -523,7 +523,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/five_fingers_of_death',
  'https://archive.org/services/img/five_fingers_of_death',
  'https://archive.org/services/img/five_fingers_of_death',
- 7.8, 80, 'R', 'archive_org'),
+ 7.8, 80, 'R'),
 
 ('lucy:movie:archive_org:the_street_fighter', 'movie', 'video',
  'The Street Fighter', 
@@ -532,7 +532,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_street_fighter',
  'https://archive.org/services/img/the_street_fighter',
  'https://archive.org/services/img/the_street_fighter',
- 7.5, 78, 'R', 'archive_org'),
+ 7.5, 78, 'R'),
 
 -- =============================================================================
 -- ANIMATION CLASSICS (Public Domain)
@@ -545,7 +545,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/gulliver_travels',
  'https://archive.org/services/img/gulliver_travels',
  'https://archive.org/services/img/gulliver_travels',
- 7.5, 75, 'G', 'archive_org'),
+ 7.5, 75, 'G'),
 
 ('lucy:movie:archive_org:mr_bug_goes_to_town', 'movie', 'video',
  'Mr. Bug Goes to Town', 
@@ -554,7 +554,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/mr_bug_goes_to_town',
  'https://archive.org/services/img/mr_bug_goes_to_town',
  'https://archive.org/services/img/mr_bug_goes_to_town',
- 7.2, 72, 'G', 'archive_org'),
+ 7.2, 72, 'G'),
 
 -- =============================================================================
 -- INTERNATIONAL CINEMA (Public Domain)
@@ -567,7 +567,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/m',
  'https://archive.org/services/img/m',
  'https://archive.org/services/img/m',
- 9.2, 92, 'UNRATED', 'archive_org'),
+ 9.2, 92, 'UNRATED'),
 
 ('lucy:movie:archive_org:the_passion_of_joan_of_arc', 'movie', 'video',
  'The Passion of Joan of Arc', 
@@ -576,7 +576,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_passion_of_joan_of_arc',
  'https://archive.org/services/img/the_passion_of_joan_of_arc',
  'https://archive.org/services/img/the_passion_of_joan_of_arc',
- 9.5, 90, 'UNRATED', 'archive_org'),
+ 9.5, 90, 'UNRATED'),
 
 ('lucy:movie:archive_org:rashomon', 'movie', 'video',
  'Rashomon', 
@@ -585,7 +585,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/rashomon',
  'https://archive.org/services/img/rashomon',
  'https://archive.org/services/img/rashomon',
- 9.4, 92, 'UNRATED', 'archive_org'),
+ 9.4, 92, 'UNRATED'),
 
 ('lucy:movie:archive_org:seven_samurai', 'movie', 'video',
  'Seven Samurai', 
@@ -594,7 +594,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/seven_samurai',
  'https://archive.org/services/img/seven_samurai',
  'https://archive.org/services/img/seven_samurai',
- 9.6, 95, 'UNRATED', 'archive_org'),
+ 9.6, 95, 'UNRATED'),
 
 -- =============================================================================
 -- EXPLOITATION & CULT (Public Domain)
@@ -607,7 +607,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/reefer_madness',
  'https://archive.org/services/img/reefer_madness',
  'https://archive.org/services/img/reefer_madness',
- 6.5, 80, 'UNRATED', 'archive_org'),
+ 6.5, 80, 'UNRATED'),
 
 ('lucy:movie:archive_org:maniac', 'movie', 'video',
  'Maniac', 
@@ -616,7 +616,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/maniac',
  'https://archive.org/services/img/maniac',
  'https://archive.org/services/img/maniac',
- 6.0, 68, 'UNRATED', 'archive_org'),
+ 6.0, 68, 'UNRATED'),
 
 ('lucy:movie:archive_org:glen_or_glenda', 'movie', 'video',
  'Glen or Glenda', 
@@ -625,7 +625,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/glen_or_glenda',
  'https://archive.org/services/img/glen_or_glenda',
  'https://archive.org/services/img/glen_or_glenda',
- 6.2, 72, 'UNRATED', 'archive_org'),
+ 6.2, 72, 'UNRATED'),
 
 ('lucy:movie:archive_org:spider_baby', 'movie', 'video',
  'Spider Baby', 
@@ -634,7 +634,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/spider_baby',
  'https://archive.org/services/img/spider_baby',
  'https://archive.org/services/img/spider_baby',
- 7.5, 78, 'UNRATED', 'archive_org'),
+ 7.5, 78, 'UNRATED'),
 
 -- =============================================================================
 -- PRE-CODE HOLLYWOOD (Public Domain)
@@ -647,7 +647,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/the_public_enemy',
  'https://archive.org/services/img/the_public_enemy',
  'https://archive.org/services/img/the_public_enemy',
- 8.5, 85, 'UNRATED', 'archive_org'),
+ 8.5, 85, 'UNRATED'),
 
 ('lucy:movie:archive_org:freaks', 'movie', 'video',
  'Freaks', 
@@ -656,7 +656,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/freaks',
  'https://archive.org/services/img/freaks',
  'https://archive.org/services/img/freaks',
- 8.8, 88, 'UNRATED', 'archive_org'),
+ 8.8, 88, 'UNRATED'),
 
 ('lucy:movie:archive_org:baby_face', 'movie', 'video',
  'Baby Face', 
@@ -665,7 +665,7 @@ INSERT INTO media_nodes (
  'https://archive.org/services/img/baby_face',
  'https://archive.org/services/img/baby_face',
  'https://archive.org/services/img/baby_face',
- 8.2, 82, 'UNRATED', 'archive_org')
+ 8.2, 82, 'UNRATED')
 
 ON CONFLICT (canonical_id) DO UPDATE SET
   title = EXCLUDED.title,
@@ -678,7 +678,6 @@ ON CONFLICT (canonical_id) DO UPDATE SET
   average_rating = EXCLUDED.average_rating,
   popularity_score = EXCLUDED.popularity_score,
   content_rating = EXCLUDED.content_rating,
-  provider_source = EXCLUDED.provider_source,
   updated_at = NOW();
 
 -- =============================================================================
@@ -847,28 +846,11 @@ WHERE m.canonical_id IN (
 ON CONFLICT DO NOTHING;
 
 -- =============================================================================
--- PART 4: ADD PROVIDER-SPECIFIC DATA
--- =============================================================================
-
--- Update provider content IDs for embed URLs
-UPDATE media_nodes 
-SET 
-  provider_content_id = SPLIT_PART(canonical_id, ':', 4),
-  embed_allowed = TRUE
-WHERE provider_source = 'archive_org' AND provider_content_id IS NULL;
-
--- =============================================================================
 -- VERIFICATION QUERIES
 -- =============================================================================
 
 -- Count total catalog items
 -- SELECT COUNT(*) as total_movies FROM media_nodes WHERE category = 'video';
-
--- Count by provider
--- SELECT provider_source, COUNT(*) as count 
--- FROM media_nodes 
--- WHERE category = 'video'
--- GROUP BY provider_source;
 
 -- Count public domain films
 -- SELECT COUNT(*) FROM media_nodes 
