@@ -6,8 +6,13 @@
  * - Music → HuggingFace MusicGen (FREE)
  * - Voice → ElevenLabs TTS (speech only)
  * 
+ * FEATURES:
+ * - Realtime status updates via Supabase postgres_changes
+ * - Lucy Brain memory integration for cross-studio intelligence
+ * - Animated waveform progress visualization
+ * - iOS Safari compatible with proper gesture gating
+ * 
  * Users see "Lucy AI" - no provider details exposed.
- * iOS Safari compatible with proper gesture gating.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -22,7 +27,10 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useIOSAudioUnlock } from '@/hooks/useIOSAudioUnlock';
+import { useLucyBrainMemory } from '@/hooks/useLucyBrainMemory';
+import { recordAudioGeneration } from '@/lib/lucyBrainSync';
 import { supabase } from '@/integrations/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { 
   Music, 
   Mic, 
@@ -42,6 +50,7 @@ import {
   RefreshCw,
   AlertCircle,
   Zap,
+  Radio,
 } from 'lucide-react';
 
 // =============================================================================
@@ -88,12 +97,41 @@ interface AudioGeneration {
 }
 
 // =============================================================================
+// ANIMATED WAVEFORM COMPONENT
+// =============================================================================
+
+function AnimatedWaveform({ isActive }: { isActive: boolean }) {
+  return (
+    <div className="flex items-center justify-center gap-1 h-8">
+      {[...Array(12)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="w-1 bg-primary rounded-full"
+          animate={isActive ? {
+            height: [8, 24, 12, 32, 16, 28, 8],
+          } : { height: 8 }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            delay: i * 0.1,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// =============================================================================
 // COMPONENT
 // =============================================================================
 
 export function AudioStudioWorkspace() {
   const { toast } = useToast();
   const { isUnlocked, unlockAudio } = useIOSAudioUnlock();
+  
+  // Lucy Brain integration
+  const { storeMemory, preferences, updatePreference } = useLucyBrainMemory('audio');
   
   // Tab state
   const [activeTab, setActiveTab] = useState('smart');
@@ -102,10 +140,13 @@ export function AudioStudioWorkspace() {
   const [smartPrompt, setSmartPrompt] = useState('');
   const [isGeneratingSmart, setIsGeneratingSmart] = useState(false);
   const [smartProgress, setSmartProgress] = useState(0);
+  const [activeGenerationId, setActiveGenerationId] = useState<string | null>(null);
   
   // Music state (manual mode)
   const [musicPrompt, setMusicPrompt] = useState('');
-  const [musicStyle, setMusicStyle] = useState<MusicStyle>('lofi');
+  const [musicStyle, setMusicStyle] = useState<MusicStyle>(
+    (preferences?.musicStyles?.[0] as MusicStyle) || 'lofi'
+  );
   const [musicDuration, setMusicDuration] = useState(10);
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
   const [musicProgress, setMusicProgress] = useState(0);
@@ -130,6 +171,141 @@ export function AudioStudioWorkspace() {
   // Playback state
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioElementsRef = useRef<Record<string, HTMLAudioElement>>({});
+  
+  // Realtime subscription ref
+  const realtimeChannelRef = useRef<RealtimeChannel | null>(null);
+
+  // =============================================================================
+  // REALTIME SUBSCRIPTION FOR STATUS UPDATES
+  // =============================================================================
+
+  useEffect(() => {
+    let mounted = true;
+
+    const setupRealtime = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id || !mounted) return;
+
+      // Clean up existing channel
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+      }
+
+      // Subscribe to audio_generations changes for this user
+      const channel = supabase
+        .channel(`audio-generations-${session.user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+            schema: 'public',
+            table: 'audio_generations',
+            filter: `user_id=eq.${session.user.id}`,
+          },
+          (payload) => {
+            if (!mounted) return;
+            
+            const { eventType, new: newRow, old: oldRow } = payload;
+            
+            console.log(`[AudioStudio Realtime] ${eventType}:`, newRow || oldRow);
+
+            if (eventType === 'INSERT') {
+              // New generation started
+              const gen = newRow as any;
+              const mapped: AudioGeneration = {
+                id: gen.id,
+                type: gen.generation_type as 'music' | 'voice',
+                prompt: gen.prompt,
+                style: gen.generation_type === 'music' ? gen.style : undefined,
+                voice: gen.generation_type === 'voice' ? gen.metadata?.voice : undefined,
+                audioUrl: gen.public_url || '',
+                status: gen.status,
+                error: gen.error,
+                createdAt: new Date(gen.created_at),
+                autoDetected: gen.metadata?.autoDetected,
+              };
+              
+              setGenerations(prev => {
+                // Avoid duplicates
+                if (prev.some(g => g.id === mapped.id)) return prev;
+                return [mapped, ...prev];
+              });
+            } 
+            else if (eventType === 'UPDATE') {
+              // Generation status changed
+              const gen = newRow as any;
+              
+              setGenerations(prev => prev.map(g => {
+                if (g.id !== gen.id) return g;
+                
+                return {
+                  ...g,
+                  status: gen.status,
+                  audioUrl: gen.public_url || g.audioUrl,
+                  error: gen.error,
+                };
+              }));
+
+              // If this is the active generation and it completed
+              if (gen.id === activeGenerationId) {
+                if (gen.status === 'success') {
+                  setSmartProgress(100);
+                  setMusicProgress(100);
+                  
+                  // Show success toast
+                  toast({
+                    title: gen.generation_type === 'music' ? '🎵 Music Ready!' : '🎤 Voice Ready!',
+                    description: 'Your audio has been generated successfully.',
+                  });
+                  
+                  // Reset generating states
+                  setTimeout(() => {
+                    setIsGeneratingSmart(false);
+                    setIsGeneratingMusic(false);
+                    setIsGeneratingVoice(false);
+                    setSmartProgress(0);
+                    setMusicProgress(0);
+                    setActiveGenerationId(null);
+                  }, 500);
+                  
+                } else if (gen.status === 'error') {
+                  toast({
+                    title: 'Generation Failed',
+                    description: gen.error || 'Something went wrong',
+                    variant: 'destructive',
+                  });
+                  
+                  setIsGeneratingSmart(false);
+                  setIsGeneratingMusic(false);
+                  setIsGeneratingVoice(false);
+                  setSmartProgress(0);
+                  setMusicProgress(0);
+                  setActiveGenerationId(null);
+                }
+              }
+            }
+            else if (eventType === 'DELETE') {
+              const gen = oldRow as any;
+              setGenerations(prev => prev.filter(g => g.id !== gen.id));
+            }
+          }
+        )
+        .subscribe((status) => {
+          console.log('[AudioStudio Realtime] Subscription status:', status);
+        });
+
+      realtimeChannelRef.current = channel;
+    };
+
+    setupRealtime();
+
+    return () => {
+      mounted = false;
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+      }
+    };
+  }, [activeGenerationId, toast]);
 
   // =============================================================================
   // LOAD GENERATION HISTORY
@@ -206,12 +382,7 @@ export function AudioStudioWorkspace() {
     }
 
     setIsGeneratingSmart(true);
-    setSmartProgress(0);
-
-    // Progress simulation
-    const progressInterval = setInterval(() => {
-      setSmartProgress(prev => Math.min(prev + 2, 85));
-    }, 500);
+    setSmartProgress(10);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -222,7 +393,7 @@ export function AudioStudioWorkspace() {
       // Call Edge Function with type: 'auto' - Lucy decides
       const { data, error } = await supabase.functions.invoke('lucy-audio-generate', {
         body: {
-          type: 'auto',  // Lucy will auto-detect
+          type: 'auto',
           prompt: smartPrompt.trim(),
         },
       });
@@ -235,33 +406,59 @@ export function AudioStudioWorkspace() {
         throw new Error(data?.error || 'Generation failed');
       }
 
-      clearInterval(progressInterval);
-      setSmartProgress(100);
+      // Track the active generation for realtime updates
+      setActiveGenerationId(data.generationId);
+      setSmartProgress(30);
 
-      // Add to local state
-      const newGeneration: AudioGeneration = {
-        id: data.generationId,
-        type: data.type,
-        prompt: smartPrompt.trim(),
-        style: data.type === 'music' ? data.style : undefined,
-        voice: data.type === 'voice' ? data.voice : undefined,
-        audioUrl: data.audioUrl,
-        status: 'success',
-        createdAt: new Date(),
-        autoDetected: data.autoDetected,
-      };
+      // Lucy Brain: Store memory and learn preference
+      await recordAudioGeneration(
+        smartPrompt.trim(),
+        data.type === 'music' ? (data.style || 'custom') : 'voice',
+        data.generationId
+      );
       
-      setGenerations(prev => [newGeneration, ...prev]);
-      
-      const typeEmoji = data.type === 'music' ? '🎵' : '🎤';
-      const typeLabel = data.type === 'music' ? 'Music' : 'Voice';
-      
-      toast({
-        title: `${typeEmoji} ${typeLabel} Generated!`,
-        description: `Lucy created ${data.type === 'music' ? 'a ' + (data.style || 'custom') + ' track' : 'voice audio'} for you`,
-      });
+      // Store as memory
+      await storeMemory(
+        `Created ${data.type}: "${smartPrompt.trim().slice(0, 50)}..."`,
+        'creation',
+        0.7
+      );
 
-      setSmartPrompt('');
+      // If realtime doesn't update quickly, the response has the URL
+      if (data.audioUrl) {
+        // Immediately add to generations if we got a URL back
+        const newGeneration: AudioGeneration = {
+          id: data.generationId,
+          type: data.type,
+          prompt: smartPrompt.trim(),
+          style: data.type === 'music' ? data.style : undefined,
+          voice: data.type === 'voice' ? data.voice : undefined,
+          audioUrl: data.audioUrl,
+          status: 'success',
+          createdAt: new Date(),
+          autoDetected: data.autoDetected,
+        };
+        
+        setGenerations(prev => {
+          if (prev.some(g => g.id === newGeneration.id)) return prev;
+          return [newGeneration, ...prev];
+        });
+
+        setSmartProgress(100);
+        
+        toast({
+          title: data.type === 'music' ? '🎵 Music Generated!' : '🎤 Voice Generated!',
+          description: `Lucy created ${data.type === 'music' ? 'a ' + (data.style || 'custom') + ' track' : 'voice audio'} for you`,
+        });
+
+        setSmartPrompt('');
+        
+        setTimeout(() => {
+          setIsGeneratingSmart(false);
+          setSmartProgress(0);
+          setActiveGenerationId(null);
+        }, 500);
+      }
 
     } catch (err) {
       console.error('[AudioStudio] Smart generation error:', err);
@@ -272,10 +469,10 @@ export function AudioStudioWorkspace() {
         description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
-      clearInterval(progressInterval);
+      
       setIsGeneratingSmart(false);
       setSmartProgress(0);
+      setActiveGenerationId(null);
     }
   };
 
@@ -303,17 +500,9 @@ export function AudioStudioWorkspace() {
 
     if (isMusic) {
       setIsGeneratingMusic(true);
-      setMusicProgress(0);
+      setMusicProgress(10);
     } else {
       setIsGeneratingVoice(true);
-    }
-
-    // Progress simulation for music
-    let progressInterval: ReturnType<typeof setInterval> | null = null;
-    if (isMusic) {
-      progressInterval = setInterval(() => {
-        setMusicProgress(prev => Math.min(prev + 3, 85));
-      }, 500);
     }
 
     try {
@@ -345,38 +534,63 @@ export function AudioStudioWorkspace() {
         throw new Error(data?.error || 'Generation failed');
       }
 
-      if (progressInterval) {
-        clearInterval(progressInterval);
-        setMusicProgress(100);
+      // Track generation for realtime updates
+      setActiveGenerationId(data.generationId);
+      if (isMusic) setMusicProgress(30);
+
+      // Lucy Brain: Record and learn
+      await recordAudioGeneration(
+        prompt.trim(),
+        isMusic ? musicStyle : 'voice',
+        data.generationId
+      );
+
+      // Learn music style preference
+      if (isMusic) {
+        await updatePreference('musicStyles', [musicStyle]);
       }
 
-      // Add to local state
-      const newGeneration: AudioGeneration = {
-        id: data.generationId,
-        type,
-        prompt: prompt.trim(),
-        style: isMusic ? musicStyle : undefined,
-        voice: !isMusic ? selectedVoice : undefined,
-        audioUrl: data.audioUrl,
-        status: 'success',
-        createdAt: new Date(),
-        autoDetected: false,
-      };
-      
-      setGenerations(prev => [newGeneration, ...prev]);
-      
-      toast({
-        title: isMusic ? '🎵 Music Generated!' : '🎤 Voice Generated!',
-        description: isMusic 
-          ? `${MUSIC_STYLES.find(s => s.id === musicStyle)?.label} track created by Lucy`
-          : `${VOICES.find(v => v.id === selectedVoice)?.label} voice created by Lucy`,
-      });
+      // If we got a URL immediately
+      if (data.audioUrl) {
+        const newGeneration: AudioGeneration = {
+          id: data.generationId,
+          type,
+          prompt: prompt.trim(),
+          style: isMusic ? musicStyle : undefined,
+          voice: !isMusic ? selectedVoice : undefined,
+          audioUrl: data.audioUrl,
+          status: 'success',
+          createdAt: new Date(),
+          autoDetected: false,
+        };
+        
+        setGenerations(prev => {
+          if (prev.some(g => g.id === newGeneration.id)) return prev;
+          return [newGeneration, ...prev];
+        });
 
-      // Clear input
-      if (isMusic) {
-        setMusicPrompt('');
-      } else {
-        setVoiceText('');
+        if (isMusic) setMusicProgress(100);
+        
+        toast({
+          title: isMusic ? '🎵 Music Generated!' : '🎤 Voice Generated!',
+          description: isMusic 
+            ? `${MUSIC_STYLES.find(s => s.id === musicStyle)?.label} track created by Lucy`
+            : `${VOICES.find(v => v.id === selectedVoice)?.label} voice created by Lucy`,
+        });
+
+        // Clear input
+        if (isMusic) {
+          setMusicPrompt('');
+        } else {
+          setVoiceText('');
+        }
+
+        setTimeout(() => {
+          setIsGeneratingMusic(false);
+          setIsGeneratingVoice(false);
+          setMusicProgress(0);
+          setActiveGenerationId(null);
+        }, 500);
       }
 
     } catch (err) {
@@ -388,16 +602,11 @@ export function AudioStudioWorkspace() {
         description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
-      if (isMusic) {
-        setIsGeneratingMusic(false);
-        setMusicProgress(0);
-      } else {
-        setIsGeneratingVoice(false);
-      }
+      
+      setIsGeneratingMusic(false);
+      setIsGeneratingVoice(false);
+      setMusicProgress(0);
+      setActiveGenerationId(null);
     }
   };
 
@@ -509,8 +718,7 @@ export function AudioStudioWorkspace() {
         throw error;
       }
 
-      // Remove from local state
-      setGenerations(prev => prev.filter(g => g.id !== id));
+      // Realtime will handle removing from state
       delete audioElementsRef.current[id];
       
       toast({ title: 'Deleted', description: 'Audio removed from your projects' });
@@ -518,6 +726,25 @@ export function AudioStudioWorkspace() {
       console.error('[AudioStudio] Delete error:', err);
       toast({ title: 'Delete failed', variant: 'destructive' });
     }
+  };
+
+  // =============================================================================
+  // RETRY FAILED GENERATION
+  // =============================================================================
+
+  const retryGeneration = async (generation: AudioGeneration) => {
+    if (generation.type === 'music') {
+      setMusicPrompt(generation.prompt);
+      if (generation.style) setMusicStyle(generation.style as MusicStyle);
+      setActiveTab('music');
+    } else {
+      setVoiceText(generation.prompt);
+      if (generation.voice) setSelectedVoice(generation.voice as VoiceId);
+      setActiveTab('voice');
+    }
+    
+    // Delete the failed one
+    await deleteGeneration(generation.id);
   };
 
   // =============================================================================
@@ -589,12 +816,16 @@ export function AudioStudioWorkspace() {
                   </p>
                 </div>
 
-                {/* Progress */}
+                {/* Progress with animated waveform */}
                 {isGeneratingSmart && (
-                  <div className="space-y-2">
+                  <div className="space-y-4 py-4">
+                    <AnimatedWaveform isActive={true} />
                     <Progress value={smartProgress} className="h-2" />
-                    <p className="text-sm text-center text-muted-foreground">
-                      Lucy is creating your audio... {smartProgress}%
+                    <p className="text-sm text-center text-muted-foreground flex items-center justify-center gap-2">
+                      <Radio className="w-4 h-4 animate-pulse text-primary" />
+                      {smartProgress < 30 ? 'Starting generation...' : 
+                       smartProgress < 70 ? 'Lucy is creating your audio...' : 
+                       smartProgress < 100 ? 'Finalizing...' : 'Complete!'}
                     </p>
                   </div>
                 )}
@@ -722,9 +953,10 @@ export function AudioStudioWorkspace() {
                   />
                 </div>
 
-                {/* Progress */}
+                {/* Progress with waveform */}
                 {isGeneratingMusic && (
-                  <div className="space-y-2">
+                  <div className="space-y-4 py-4">
+                    <AnimatedWaveform isActive={true} />
                     <Progress value={musicProgress} className="h-2" />
                     <p className="text-sm text-center text-muted-foreground">
                       Generating music... {musicProgress}%
@@ -1051,6 +1283,8 @@ export function AudioStudioWorkspace() {
                           className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
                             generation.status === 'error' 
                               ? 'bg-destructive/5 border-destructive/20' 
+                              : generation.status === 'running'
+                              ? 'bg-primary/5 border-primary/20'
                               : 'bg-card hover:bg-muted/50'
                           }`}
                         >
@@ -1062,7 +1296,7 @@ export function AudioStudioWorkspace() {
                             onClick={() => togglePlay(generation)}
                             disabled={generation.status !== 'success'}
                           >
-                            {generation.status === 'running' ? (
+                            {generation.status === 'running' || generation.status === 'queued' ? (
                               <Loader2 className="w-5 h-5 animate-spin" />
                             ) : generation.status === 'error' ? (
                               <AlertCircle className="w-5 h-5 text-destructive" />
@@ -1099,6 +1333,12 @@ export function AudioStudioWorkspace() {
                                   Auto
                                 </Badge>
                               )}
+                              {(generation.status === 'running' || generation.status === 'queued') && (
+                                <Badge variant="default" className="text-xs animate-pulse">
+                                  <Radio className="w-3 h-3 mr-1" />
+                                  {generation.status === 'queued' ? 'Queued' : 'Generating'}
+                                </Badge>
+                              )}
                               {generation.status === 'error' && (
                                 <Badge variant="destructive" className="text-xs">
                                   Failed
@@ -1122,6 +1362,16 @@ export function AudioStudioWorkspace() {
                                 onClick={() => downloadAudio(generation)}
                               >
                                 <Download className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {generation.status === 'error' && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => retryGeneration(generation)}
+                                title="Retry"
+                              >
+                                <RefreshCw className="w-4 h-4" />
                               </Button>
                             )}
                             <Button
