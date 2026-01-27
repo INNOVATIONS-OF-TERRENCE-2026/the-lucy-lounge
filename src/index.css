@@ -671,6 +671,13 @@ select {
     max-height: calc(var(--vh, 1vh) * 100 - var(--keyboard-inset-height, 0px));
     transition: height 0.15s ease-out;
   }
+  
+  /* Ensure input area stays visible and anchored */
+  [data-theme-area="chat"] > div:last-child {
+    position: relative;
+    z-index: 10;
+    background: var(--theme-bg-2, hsl(var(--background)));
+  }
 }
 
 /* Prevent text from being too small on mobile */
@@ -994,9 +1001,9 @@ select {
   }
   
   /* Chat interface full height - critical path */
+  /* NOTE: Height is handled by keyboard-aware rule above (max-width: 768px) */
   .chat-container,
-  [data-chat-container],
-  [data-theme-area="chat"] {
+  [data-chat-container] {
     height: 100vh;
     height: calc(var(--vh, 1vh) * 100);
     height: 100svh;
