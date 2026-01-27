@@ -23,7 +23,7 @@ const SkeletonPulse = memo(function SkeletonPulse({
 
 const DefaultSkeleton = memo(function DefaultSkeleton() {
   return (
-    <div className="min-h-screen bg-background p-6 space-y-6">
+    <div className="min-h-screen-dvh bg-background p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <SkeletonPulse className="h-10 w-32" />
@@ -52,7 +52,7 @@ const DefaultSkeleton = memo(function DefaultSkeleton() {
 
 const ChatSkeleton = memo(function ChatSkeleton() {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen-dvh bg-background flex">
       {/* Sidebar */}
       <div className="w-64 border-r border-border p-4 space-y-4 hidden md:block">
         <SkeletonPulse className="h-10 w-full" />
@@ -90,7 +90,7 @@ const ChatSkeleton = memo(function ChatSkeleton() {
 
 const MediaSkeleton = memo(function MediaSkeleton() {
   return (
-    <div className="min-h-screen bg-background p-6 space-y-6">
+    <div className="min-h-screen-dvh bg-background p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <SkeletonPulse className="h-10 w-32" />
@@ -116,7 +116,7 @@ const MediaSkeleton = memo(function MediaSkeleton() {
 
 const LoungeSkeleton = memo(function LoungeSkeleton() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen-dvh bg-background flex items-center justify-center">
       <div className="text-center space-y-6 p-8">
         {/* Avatar */}
         <SkeletonPulse className="h-32 w-32 rounded-full mx-auto" />
@@ -150,7 +150,7 @@ export const PageSkeleton = memo(function PageSkeleton({
   const SkeletonComponent = skeletons[variant];
 
   return (
-    <div className={cn("min-h-screen", className)}>
+    <div className={cn("min-h-screen-dvh", className)}>
       <SkeletonComponent />
     </div>
   );

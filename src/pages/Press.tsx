@@ -84,7 +84,7 @@ const Press = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       <SEOHead 
         title="Press & Media Kit | Lucy AI"
         description="Media resources, founder bio, company facts, and story angles for journalists and podcast hosts covering Lucy AI."

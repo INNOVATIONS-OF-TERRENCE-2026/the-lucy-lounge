@@ -150,7 +150,7 @@ const SilentRoom = () => {
 
   return (
     <CinematicWrapper loungeType="silent">
-      <div className="container mx-auto px-4 py-8 min-h-screen">
+      <div className="container mx-auto px-4 py-8 min-h-screen-dvh">
         {/* Header */}
         <motion.div
           className="text-center mb-8"

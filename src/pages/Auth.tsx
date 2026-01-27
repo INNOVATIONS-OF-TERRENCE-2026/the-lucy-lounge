@@ -162,7 +162,7 @@ const Auth = () => {
 
   if (showResetPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen-dvh flex items-center justify-center relative overflow-hidden">
         <CosmicBackground />
 
         <Card className="w-full max-w-md mx-4 glass-card-enhanced relative z-10 shadow-glow-violet">
@@ -216,7 +216,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen-dvh flex items-center justify-center relative overflow-hidden">
       <CosmicBackground />
 
       <Card className="w-full max-w-md mx-4 glass-card-enhanced relative z-10 shadow-glow-violet">

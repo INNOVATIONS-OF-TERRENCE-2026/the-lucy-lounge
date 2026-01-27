@@ -66,7 +66,7 @@ const EditorialStandards = () => {
         ]}
       />
       
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="min-h-screen-dvh relative overflow-hidden">
         <CosmicBackground />
 
         <div className="relative z-10">

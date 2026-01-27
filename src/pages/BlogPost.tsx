@@ -84,7 +84,7 @@ const BlogPost = () => {
       {/* Reading Progress Bar */}
       <Progress value={readProgress} className="fixed top-0 left-0 right-0 z-50 h-1 rounded-none" />
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen-dvh bg-background">
         {/* Header */}
         <div className="border-b">
           <div className="container mx-auto px-4 py-6 flex items-center justify-between">

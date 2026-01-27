@@ -433,7 +433,7 @@ const ListeningMode = () => {
   const userState = useUserMediaState();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       {/* HEADER */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
         <div className="container flex items-center justify-between py-4 gap-2">

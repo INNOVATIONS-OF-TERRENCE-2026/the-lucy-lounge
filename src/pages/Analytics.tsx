@@ -83,7 +83,7 @@ const Analytics = () => {
         canonical={`${CANONICAL_DOMAIN}/analytics`}
       />
       
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="min-h-screen-dvh relative overflow-hidden">
         <CosmicBackground />
 
         <div className="relative z-10">

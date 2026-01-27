@@ -119,7 +119,7 @@ export const IOSInstallPrompt = () => {
       {/* Instructions overlay */}
       {showInstructions && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="flex flex-col items-center justify-center min-h-screen p-6">
+          <div className="flex flex-col items-center justify-center min-h-screen-dvh p-6">
             <Card className="max-w-sm w-full p-6 bg-card border-2 border-primary/20">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="font-bold text-xl bg-gradient-button bg-clip-text text-transparent">

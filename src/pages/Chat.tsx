@@ -38,7 +38,7 @@ const LoggedOutView = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen-dvh flex items-center justify-center bg-background p-4">
       <div className="max-w-md w-full space-y-6 text-center">
         <h2 className="text-2xl font-semibold">Welcome to Lucy AI</h2>
         <p className="text-muted-foreground">Sign in to start chatting with your intelligent AI companion.</p>

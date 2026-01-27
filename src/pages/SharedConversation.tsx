@@ -90,7 +90,7 @@ export const SharedConversation = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
+      <div className="min-h-screen-dvh flex items-center justify-center bg-gradient-subtle">
         <Card className="p-8 max-w-md text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
           <p className="text-muted-foreground">{error}</p>
@@ -101,7 +101,7 @@ export const SharedConversation = () => {
 
   if (isLocked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
+      <div className="min-h-screen-dvh flex items-center justify-center bg-gradient-subtle">
         <Card className="p-8 max-w-md w-full">
           <div className="text-center mb-6">
             <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -126,7 +126,7 @@ export const SharedConversation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen-dvh bg-gradient-subtle">
       {/* Lucy Branding Header */}
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">

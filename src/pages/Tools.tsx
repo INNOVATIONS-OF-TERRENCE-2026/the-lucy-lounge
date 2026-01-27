@@ -50,7 +50,7 @@ const Tools = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen-dvh bg-background text-foreground">
       <header className="border-b bg-muted/20">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <h1 className="text-2xl font-bold flex items-center gap-2">

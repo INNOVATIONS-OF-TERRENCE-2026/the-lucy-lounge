@@ -487,7 +487,7 @@ function ExploreModeContent() {
   const [activeTab, setActiveTab] = useState<"journeys" | "playlists">("journeys");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       {/* HEADER */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
         <div className="container mx-auto flex items-center justify-between py-4 px-4">

@@ -15,7 +15,7 @@ const CommandCenter = () => {
 
   return (
     <CinematicWrapper loungeType="command" particleCount={8}>
-      <div className="container mx-auto px-4 py-12 min-h-screen">
+      <div className="container mx-auto px-4 py-12 min-h-screen-dvh">
         {/* Header */}
         <motion.div
           className="text-center mb-12"

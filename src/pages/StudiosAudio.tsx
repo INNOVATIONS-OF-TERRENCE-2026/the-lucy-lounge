@@ -11,7 +11,7 @@ const StudiosAudio = () => {
     <>
       <StudiosSEO studio="audio" />
 
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/80 relative">
+      <div className="min-h-screen-dvh bg-gradient-to-b from-background via-background to-background/80 relative">
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />

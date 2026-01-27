@@ -15,7 +15,7 @@ export default function GamePage() {
 
   if (!gameId || !game) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen-dvh items-center justify-center">
         <p className="text-muted-foreground">Game not found.</p>
       </div>
     );
@@ -25,7 +25,7 @@ export default function GamePage() {
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 px-4 py-6 md:px-8"
+      className="min-h-screen-dvh bg-gradient-to-br from-background via-background to-muted/20 px-4 py-6 md:px-8"
       data-theme-area="arcade"
     >
       <div className="mx-auto max-w-7xl">

@@ -752,7 +752,7 @@ export function AudioStudioWorkspace() {
   // =============================================================================
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
+    <div className="min-h-screen-dvh bg-gradient-to-b from-background to-background/80">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8">
           <TabsTrigger value="smart" className="gap-2">

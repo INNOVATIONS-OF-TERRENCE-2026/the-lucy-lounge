@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const QuantumMode = () => {
   return (
     <CinematicWrapper loungeType="quantum" particleCount={25}>
-      <div className="container mx-auto px-4 py-12 min-h-screen">
+      <div className="container mx-auto px-4 py-12 min-h-screen-dvh">
         {/* Header */}
         <motion.div
           className="text-center mb-12"

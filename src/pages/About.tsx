@@ -33,7 +33,7 @@ const About = () => {
         description="Lucy AI is a next-generation digital companion engineered by Terrence Milliner Sr."
       />
 
-      <div className="min-h-screen relative overflow-hidden bg-background">
+      <div className="min-h-screen-dvh relative overflow-hidden bg-background">
         <CosmicBackground />
 
         {/* Overlay Fix — remove rectangle blockage */}

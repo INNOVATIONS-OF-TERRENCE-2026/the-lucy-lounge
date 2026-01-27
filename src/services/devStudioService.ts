@@ -495,7 +495,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
+    <div className="min-h-screen-dvh bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Your Brand</h1>
         <nav className="space-x-4">

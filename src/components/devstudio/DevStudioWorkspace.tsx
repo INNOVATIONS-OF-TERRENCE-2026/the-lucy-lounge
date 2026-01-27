@@ -399,14 +399,14 @@ export function DevStudioWorkspace({ projectId, onClose }: DevStudioWorkspacePro
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
+      <div className="flex items-center justify-center h-screen-dvh bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#1e1e1e] text-white">
+    <div className="h-screen-dvh flex flex-col bg-[#1e1e1e] text-white">
       {/* Header */}
       <div className="h-12 bg-[#252526] border-b border-[#3c3c3c] flex items-center justify-between px-4">
         <div className="flex items-center gap-3">

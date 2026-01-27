@@ -119,7 +119,7 @@ export default function ListeningExplore() {
   const navigate = useNavigate();
 
   return (
-    <main className="w-full min-h-screen px-4 md:px-8 py-6 space-y-10">
+    <main className="w-full min-h-screen-dvh px-4 md:px-8 py-6 space-y-10">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate("/listening-mode")}>

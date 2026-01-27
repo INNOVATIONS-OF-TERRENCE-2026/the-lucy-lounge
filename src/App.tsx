@@ -213,7 +213,7 @@ const App = () => {
                     <IOSInstallPrompt />
                     <OfflineBanner />
 
-              <div className={`w-full min-h-screen overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
+              <div className={`w-full min-h-screen-dvh overflow-x-hidden ${hasShownIntro ? "animate-fade-in" : ""}`}>
                 <BrowserRouter>
                   <SystemGuards />
                   <ScrollToTop />

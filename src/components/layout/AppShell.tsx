@@ -20,7 +20,7 @@ export function AppShell({ children, showHeader = true }: AppShellProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="min-h-screen-dvh w-full flex flex-col">
       {showHeader && (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
           <div className="flex h-14 items-center justify-between px-4">

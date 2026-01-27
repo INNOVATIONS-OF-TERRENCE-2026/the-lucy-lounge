@@ -90,7 +90,7 @@ const Admin = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-subtle">
+      <div className="flex min-h-screen-dvh items-center justify-center bg-gradient-subtle">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-gradient-primary rounded-full animate-neural-pulse mx-auto" />
           <p className="text-muted-foreground">Loading admin dashboard...</p>
@@ -104,7 +104,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-6">
+    <div className="min-h-screen-dvh bg-gradient-subtle p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

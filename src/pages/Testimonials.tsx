@@ -132,7 +132,7 @@ const Testimonials = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       <SEOHead 
         title="Customer Testimonials & Case Studies | Lucy AI"
         description="Real success stories from entrepreneurs who used Lucy AI to repair credit, secure SBA loans, and access business funding. See verified results and case studies."

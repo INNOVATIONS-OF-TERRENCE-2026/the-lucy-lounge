@@ -136,7 +136,7 @@ const PdfExtractor = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>

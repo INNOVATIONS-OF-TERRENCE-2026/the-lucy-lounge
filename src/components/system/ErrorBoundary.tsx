@@ -84,7 +84,7 @@ export class ErrorBoundary extends Component<Props, State> {
       const message = this.props.fallbackMessage || "Something went wrong loading this page.";
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="min-h-screen-dvh flex items-center justify-center bg-background p-4">
           <div className="max-w-md w-full space-y-6 text-center">
             <div className="flex justify-center">
               <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">

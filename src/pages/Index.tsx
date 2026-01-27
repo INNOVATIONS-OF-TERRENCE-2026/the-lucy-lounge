@@ -18,7 +18,7 @@ export default function Index() {
   }, [navigate]);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+    <div className="relative min-h-screen-dvh flex flex-col items-center justify-center text-center px-4 overflow-hidden">
       {/* Theme Toggle (wrapped safely — no props passed) */}
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />

@@ -20,7 +20,7 @@ const CreditRepairLocation = () => {
   const baseUrl = CANONICAL_DOMAIN;
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       <SEOHead
         title={pageData.metaTitle}
         description={pageData.metaDescription}

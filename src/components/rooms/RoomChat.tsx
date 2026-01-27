@@ -150,7 +150,7 @@ export const RoomChat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen-dvh bg-background">
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}

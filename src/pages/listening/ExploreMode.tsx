@@ -138,7 +138,7 @@ const ExploreMode = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       {/* ===================================================== */}
       {/* HEADER */}
       {/* ===================================================== */}

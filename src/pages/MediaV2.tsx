@@ -463,7 +463,7 @@ function MediaPage() {
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">

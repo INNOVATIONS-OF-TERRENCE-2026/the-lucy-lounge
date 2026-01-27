@@ -115,7 +115,7 @@ const Net30Vendors = () => {
         ]}
       />
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen-dvh bg-background">
         <div className="container mx-auto px-4 py-8">
           <Button variant="ghost" onClick={() => navigate('/blog')}>
             <ArrowLeft className="w-4 h-4 mr-2" />

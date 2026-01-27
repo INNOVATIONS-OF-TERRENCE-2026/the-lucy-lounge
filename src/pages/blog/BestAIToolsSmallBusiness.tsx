@@ -48,7 +48,7 @@ const BestAIToolsSmallBusiness = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen-dvh bg-background">
       <SEOHead
         title="Best AI Tools for Small Business Owners in 2025 | Lucy AI"
         description="Discover the top AI tools for small businesses in 2025. Compare AI solutions for marketing, finance, customer service, and operations with honest reviews and pricing."

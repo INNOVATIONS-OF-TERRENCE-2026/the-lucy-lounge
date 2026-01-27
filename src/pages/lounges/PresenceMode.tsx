@@ -6,7 +6,7 @@ import { CinematicWrapper } from '@/components/cinematic/CinematicWrapper';
 const PresenceMode = () => {
   return (
     <CinematicWrapper loungeType="presence" particleCount={8}>
-      <div className="container mx-auto px-4 py-12 min-h-screen flex flex-col items-center justify-center">
+      <div className="container mx-auto px-4 py-12 min-h-screen-dvh flex flex-col items-center justify-center">
         {/* Central breathing element */}
         <motion.div
           className="relative mb-12"
