@@ -506,14 +506,14 @@ BEGIN
     RETURN QUERY
     SELECT
         (SELECT COUNT(*) FROM auth.users),
-        (SELECT COUNT(DISTINCT user_id) FROM usage_events WHERE (created_at::date) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM usage_events WHERE (created_at::date) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM model_usage_logs WHERE (created_at::date) = CURRENT_DATE),
-        (SELECT COUNT(*) FROM platform_telemetry WHERE severity IN ('error', 'critical') AND (created_at::date) = CURRENT_DATE),
+        (SELECT COUNT(DISTINCT user_id) FROM usage_events WHERE date_trunc('day', created_at) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM usage_events WHERE date_trunc('day', created_at) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM model_usage_logs WHERE date_trunc('day', created_at) = CURRENT_DATE),
+        (SELECT COUNT(*) FROM platform_telemetry WHERE severity IN ('error', 'critical') AND date_trunc('day', created_at) = CURRENT_DATE),
         (SELECT jsonb_agg(t) FROM (
             SELECT tool_id, COUNT(*) as count 
             FROM usage_events 
-            WHERE (created_at::date) = CURRENT_DATE
+            WHERE date_trunc('day', created_at) = CURRENT_DATE
             GROUP BY tool_id 
             ORDER BY count DESC 
             LIMIT 5
