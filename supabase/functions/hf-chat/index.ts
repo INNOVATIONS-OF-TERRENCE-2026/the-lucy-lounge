@@ -19,7 +19,7 @@ serve(async (req) => {
   }
 
   try {
-    const HF_TOKEN = Deno.env.get('HF_TOKEN');
+    const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
     
     // Graceful fallback if HF not configured
     if (!HF_TOKEN) {

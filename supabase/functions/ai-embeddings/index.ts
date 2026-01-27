@@ -59,7 +59,7 @@ serve(async (req) => {
   }
 
   try {
-    const HF_TOKEN = Deno.env.get('HF_TOKEN');
+    const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
     
     if (!HF_TOKEN) {
       return new Response(JSON.stringify({

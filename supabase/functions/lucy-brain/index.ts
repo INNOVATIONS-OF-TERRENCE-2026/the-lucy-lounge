@@ -622,7 +622,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Get HF token (optional but increases rate limits)
-    const HF_TOKEN = Deno.env.get('HF_TOKEN');
+    // Support both HUGGINGFACE_API_KEY and HF_TOKEN for flexibility
+    const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
     
     // Parse request
     const { 

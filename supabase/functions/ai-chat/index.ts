@@ -193,7 +193,7 @@ serve(async (req) => {
     // Try primary model
     try {
       if (modelConfig.provider === 'huggingface') {
-        const HF_TOKEN = Deno.env.get('HF_TOKEN');
+        const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
         if (!HF_TOKEN) throw new Error('HF not configured');
         
         const hf = new HfInference(HF_TOKEN);

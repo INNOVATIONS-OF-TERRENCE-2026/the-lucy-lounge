@@ -186,7 +186,7 @@ serve(async (req) => {
     
     console.log('[ai-image] Generating image:', enhancedPrompt.slice(0, 100));
 
-    const HF_TOKEN = Deno.env.get('HF_TOKEN');
+    const HF_TOKEN = Deno.env.get('HUGGINGFACE_API_KEY') || Deno.env.get('HF_TOKEN');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     let imageData = '';
