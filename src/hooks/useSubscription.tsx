@@ -28,7 +28,11 @@ export type ToolId =
   | 'pdf' 
   | 'code' 
   | 'web_fetch' 
-  | 'calculator';
+  | 'calculator'
+  | 'summarizer'
+  | 'captioning'
+  | 'code-executor'
+  | 'web-fetcher';
 
 export interface ToolQuota {
   tier: UserTier;

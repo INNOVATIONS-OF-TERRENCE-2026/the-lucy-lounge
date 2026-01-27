@@ -170,6 +170,12 @@ function GraphListeningContent({
     return map;
   }, [graphState.continueListening]);
 
+  // Check if we have any content to show
+  const hasContent = graphState.forYou.length > 0 || 
+    graphState.trending.length > 0 || 
+    graphState.recommendationRows.length > 0 ||
+    graphState.continueListening.length > 0;
+
   // Handle play
   const handlePlay = useCallback(async (node: MediaNode) => {
     try {
@@ -211,6 +217,80 @@ function GraphListeningContent({
       console.error('[ListeningModeV2] handleToggleFavorite error:', err);
     }
   }, [userId, userState, graphActions]);
+
+  // Loading state
+  if (graphState.isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="space-y-4">
+          <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-square bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-square bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Empty state - show curated starter content
+  if (!hasContent) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        <Card className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border-purple-500/20">
+          <CardContent className="p-8 text-center">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 text-purple-400" />
+            <h2 className="text-2xl font-bold mb-2">Welcome to Listening Mode</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Your personalized music experience is ready. Explore genres below or let Lucy recommend something for you.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button onClick={() => window.location.href = '/listening/explore'}>
+                <Compass className="w-4 h-4 mr-2" />
+                Explore Moods
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Show legacy genre content as fallback */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {genres.slice(0, 4).map((item, index) => (
+            <ListeningModeCard
+              key={item.contentId}
+              title={item.title}
+              contentId={item.contentId}
+              contentType={item.contentType}
+              icon={item.icon}
+              accentColor={item.accentColor}
+              genre="vibes"
+              index={index}
+              isFavorite={false}
+              onToggleFavorite={() => {}}
+              onInteraction={() => {}}
+            />
+          ))}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

@@ -186,7 +186,8 @@ export function useToolExecution({
 
   // Create run record
   const createRun = useCallback(async (inputData: Record<string, unknown>): Promise<string | null> => {
-    if (!persistHistory) return 'temp-' + Date.now();
+    // For anonymous users or when history is disabled, use temp ID
+    if (!persistHistory || !isAuthenticated) return 'temp-' + Date.now();
 
     try {
       const { data, error: createError } = await supabase.rpc('create_tool_run', {
@@ -195,13 +196,16 @@ export function useToolExecution({
         p_input_data: { ...inputData, model: selectedModel }
       });
 
-      if (createError) throw createError;
+      if (createError) {
+        console.warn('[useToolExecution] Create run error (using temp ID):', createError);
+        return 'temp-' + Date.now();
+      }
       return data as string;
     } catch (err) {
       console.error('[useToolExecution] Create run error:', err);
-      return null;
+      return 'temp-' + Date.now();
     }
-  }, [toolId, selectedModel, persistHistory]);
+  }, [toolId, selectedModel, persistHistory, isAuthenticated]);
 
   // Complete run record
   const completeRun = useCallback(async (

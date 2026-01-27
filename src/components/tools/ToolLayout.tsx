@@ -35,7 +35,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
-import { ToolAccessGuard } from '@/components/monetization/ToolAccessGuard';
 import { ToolErrorBoundary } from '@/components/platform/ErrorBoundary';
 import { 
   useToolExecution, 
@@ -287,11 +286,6 @@ export function ToolLayout({
 
   return (
     <ToolErrorBoundary toolName={toolName}>
-      <ToolAccessGuard
-        toolId={toolId}
-        toolName={toolName}
-        toolDescription={toolDescription}
-      >
         <div className="min-h-screen bg-background">
           {/* Header */}
           <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
@@ -494,7 +488,6 @@ export function ToolLayout({
             )}
           </main>
         </div>
-      </ToolAccessGuard>
     </ToolErrorBoundary>
   );
 }

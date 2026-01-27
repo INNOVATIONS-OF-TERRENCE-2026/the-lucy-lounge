@@ -248,6 +248,70 @@ function GraphContent({
     }
   }, [userId, userState, setWatchlistIds]);
 
+  // Check if we have any graph content
+  const hasGraphContent = graphState.forYou.length > 0 || 
+    graphState.trending.length > 0 || 
+    graphState.recommendationRows.length > 0 ||
+    graphState.continueWatching.length > 0;
+
+  // Loading state
+  if (graphState.isLoading) {
+    return (
+      <motion.div
+        key="loading"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="space-y-4">
+          <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-video bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-video bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Empty state - show legacy content as fallback
+  if (!hasGraphContent) {
+    return (
+      <motion.div
+        key="empty"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        <Card className="bg-gradient-to-r from-red-900/30 to-orange-900/30 border-red-500/20">
+          <CardContent className="p-8 text-center">
+            <Film className="h-12 w-12 mx-auto mb-4 text-red-400" />
+            <h2 className="text-2xl font-bold mb-2">Welcome to Media Mode</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Free movies, TV shows, and more. Check out the classics below or switch to the "Free Content" tab.
+            </p>
+            <Button onClick={() => setActiveTab("legacy")}>
+              <Play className="w-4 h-4 mr-2" />
+              Browse Free Content
+            </Button>
+          </CardContent>
+        </Card>
+        
+        {/* Show some legacy content as preview */}
+        <LegacyContent />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       key="graph"
