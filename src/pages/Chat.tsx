@@ -19,16 +19,16 @@ import { LogIn } from "lucide-react";
 
 /* Loading skeleton */
 const ChatLoadingSkeleton = () => (
-  <div className="flex flex-row w-full h-screen-safe overflow-hidden bg-background">
-    <div className="w-64 h-full bg-muted/20 animate-pulse hidden md:block" />
-    <div className="flex-1 flex flex-col max-w-full min-w-0">
-      <div className="h-16 bg-muted/10 animate-pulse" />
-      <div className="flex-1 p-4 space-y-4">
+  <div className="flex flex-row w-screen h-dvh overflow-hidden bg-background min-w-0 min-h-0">
+    <div className="w-64 h-full bg-muted/20 animate-pulse flex-shrink-0" />
+    <div className="flex-1 flex flex-col min-w-0 min-h-0">
+      <div className="h-16 bg-muted/10 animate-pulse flex-shrink-0" />
+      <div className="flex-1 p-4 space-y-4 overflow-hidden min-h-0">
         {[1, 2, 3].map((i) => (
           <div key={i} className="h-20 bg-muted/10 rounded-lg animate-pulse" />
         ))}
       </div>
-      <div className="h-20 bg-muted/10 animate-pulse" />
+      <div className="h-20 bg-muted/10 animate-pulse flex-shrink-0" />
     </div>
   </div>
 );
@@ -38,8 +38,8 @@ const LoggedOutView = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen-dvh flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full space-y-6 text-center">
+    <div className="h-dvh w-screen flex items-center justify-center bg-background">
+      <div className="w-full space-y-6 text-center px-4">
         <h2 className="text-2xl font-semibold">Welcome to Lucy AI</h2>
         <p className="text-muted-foreground">Sign in to start chatting with your intelligent AI companion.</p>
         <Button onClick={() => navigate("/auth")} size="lg" className="gap-2">
@@ -118,13 +118,7 @@ const ChatContent = () => {
 
       <SidebarProvider>
         <div 
-          className="flex w-full h-screen-safe max-h-screen-safe overflow-hidden max-w-full min-w-0 min-h-0 bg-[var(--theme-bg-1)]"
-          style={{
-            /* Apply safe area at container level, not body */
-            paddingTop: 'env(safe-area-inset-top, 0px)',
-            paddingLeft: 'env(safe-area-inset-left, 0px)',
-            paddingRight: 'env(safe-area-inset-right, 0px)',
-          }}
+          className="flex flex-row w-screen h-dvh overflow-hidden min-w-0 min-h-0 bg-[var(--theme-bg-1)]"
         >
           <ChatSidebar
             userId={user.id}
@@ -132,7 +126,7 @@ const ChatContent = () => {
             onConversationSelect={setCurrentConversationId}
           />
 
-          <div className="relative flex flex-col flex-1 h-full min-h-0 w-full bg-[var(--theme-bg-2)]">
+          <div className="relative flex flex-col flex-1 h-full min-h-0 min-w-0 overflow-hidden bg-[var(--theme-bg-2)]">
             <ChatInterface
               userId={user.id}
               conversationId={currentConversationId}

@@ -85,7 +85,7 @@ export function ChatSidebar({ userId, currentConversationId, onConversationSelec
   ];
 
   return (
-    <Sidebar className="flex flex-col h-screen-safe overflow-hidden">
+    <Sidebar className="flex flex-col h-full overflow-hidden">
       <SidebarHeader className="p-4 space-y-4">
         <LucyLogo size="sm" showGlow />
         <Button className="w-full" onClick={() => onConversationSelect(null)}>
