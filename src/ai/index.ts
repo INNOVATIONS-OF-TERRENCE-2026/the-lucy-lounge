@@ -64,3 +64,23 @@ export {
 
 // Convenience re-exports
 export { llmRouter as default } from './llmRouter';
+
+// AI Contracts — Typed request/response contracts & guardrails (Phase 4)
+export {
+  validatePrompt,
+  validateRequest,
+  normalizeError,
+  withRetry,
+  getUserFacingModelName,
+  DEFAULT_RETRY_CONFIG,
+  type AIRequestContract,
+  type AIResponseContract,
+  type AIErrorContract,
+  type AIErrorCode,
+  type AIMediaType,
+  type AIQualityTier,
+  type AITaskComplexity,
+  type AIMessage,
+  type PromptValidation,
+  type RetryConfig,
+} from './contracts';
